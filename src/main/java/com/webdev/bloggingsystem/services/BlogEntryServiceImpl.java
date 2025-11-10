@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -86,7 +87,8 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     @Override
     public URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, String principalName, UriComponentsBuilder ucb) {
         logger.debug("saveEntry: getting author");
-        AppUser author = appUserRepo.findByUsername(principalName);
+        AppUser author = appUserRepo.findByUsername(principalName)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + principalName));
         logger.debug("saveEntry: getting categories");
         Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
         logger.debug("saveEntry: saving entry");

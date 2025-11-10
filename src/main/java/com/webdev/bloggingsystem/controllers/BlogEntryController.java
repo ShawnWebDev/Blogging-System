@@ -22,6 +22,11 @@ public class BlogEntryController {
     }
     // todo : look out for any n+1 issues here..
 
+    @GetMapping("/hello")
+    public String hello(Principal principal) {
+        return "Hello " + principal.getName();
+    }
+
     @GetMapping("/posts/{id}")
     public ResponseEntity<BlogEntryResponseDto> getBlogEntry(@PathVariable Integer id, Principal principal) {
         return ResponseEntity.ok(blogEntryService.getBlogEntryById(id, principal.getName()));
