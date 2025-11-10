@@ -32,12 +32,9 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
-    // todo : add JwtAuthFilter somehow?
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
             .exceptionHandling(e -> e
                     .authenticationEntryPoint(jwtAuthEntryPoint))
             .sessionManagement(session -> session
@@ -48,6 +45,7 @@ public class SecurityConfig {
                     .requestMatchers("/api/auth/login").permitAll()
                     .requestMatchers("/api/auth/register").hasRole("ADMIN")
                     .anyRequest().authenticated())
+            .csrf(csrf -> csrf.disable())
             .httpBasic(httpBasic -> httpBasic.disable())
             .addFilterBefore(this.jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();

@@ -1,7 +1,9 @@
 package com.webdev.bloggingsystem.controllers;
 
+import com.webdev.bloggingsystem.entities.AuthResponseDto;
 import com.webdev.bloggingsystem.entities.BlogEntryRequestDto;
 
+import com.webdev.bloggingsystem.entities.LoginDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -36,6 +38,20 @@ public class BlogEntryControllerTest {
                 Integer.class,
                 postId
         );
+    }
+
+    // TODO : test require JWT for auth.
+    private String getJwtToken(String username, String password) {
+        LoginDto loginDto = new LoginDto(username, password);
+
+        ResponseEntity<AuthResponseDto> response = restTemplate
+                .postForEntity("/api/auth/login", loginDto, AuthResponseDto.class);
+
+        if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
+            throw new RuntimeException("Login failed for user: " + username);
+        }
+        System.out.println("User Logged In As : " + username);
+        return response.getBody().accessToken();
     }
 
     @Test

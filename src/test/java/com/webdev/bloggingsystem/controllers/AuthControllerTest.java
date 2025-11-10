@@ -28,10 +28,8 @@ public class AuthControllerTest {
     private String getJwtToken(String username, String password) {
         LoginDto loginDto = new LoginDto(username, password);
 
-
         ResponseEntity<AuthResponseDto> response = restTemplate
                 .postForEntity("/api/auth/login", loginDto, AuthResponseDto.class);
-
 
         if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
             throw new RuntimeException("Login failed for user: " + username);
