@@ -9,6 +9,12 @@ import java.util.Set;
 
 @Entity
 @Table(name = "Users")
+@NamedEntityGraph(
+        name = "eager-fetch-roles",
+        attributeNodes = {
+                @NamedAttributeNode("roles")
+        }
+)
 public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +40,12 @@ public class AppUser {
 
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private Set<Comment> comments =  new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "Users_Roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    private Set<Role> roles = new HashSet<>();
 
 
     public AppUser() {}
@@ -83,6 +95,12 @@ public class AppUser {
     }
     public Set<Comment> getComments() {
         return comments;
+    }
+    public Set<Role> getRoles() {
+        return roles;
+    }
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     public void addPost(BlogEntry post) {
