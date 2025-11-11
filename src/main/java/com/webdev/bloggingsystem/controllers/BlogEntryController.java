@@ -2,6 +2,7 @@ package com.webdev.bloggingsystem.controllers;
 
 import com.webdev.bloggingsystem.entities.BlogEntryRequestDto;
 import com.webdev.bloggingsystem.entities.BlogEntryResponseDto;
+import com.webdev.bloggingsystem.entities.CommentResponseDto;
 import com.webdev.bloggingsystem.entities.PaginatedBlogEntriesResponseDto;
 import com.webdev.bloggingsystem.services.BlogEntryService;
 
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -45,7 +47,7 @@ public class BlogEntryController {
     }
 
     @PutMapping("/posts/{id}")
-    private ResponseEntity<Void> updateBlogEntry(@PathVariable Integer id,
+    public ResponseEntity<Void> updateBlogEntry(@PathVariable Integer id,
                                                  @RequestBody BlogEntryRequestDto blogEntryRequestDto,
                                                  Principal principal) {
         blogEntryService.updateEntryById(id, blogEntryRequestDto, principal.getName());
@@ -56,5 +58,10 @@ public class BlogEntryController {
     public ResponseEntity<Void> deleteBlogEntry(@PathVariable Integer id, Principal principal) {
         blogEntryService.deleteEntryById(id, principal.getName());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/comments/{parentId}")
+    public ResponseEntity<List<CommentResponseDto>> getAllCommentsByParentId(@PathVariable Integer parentId) {
+        return ResponseEntity.ok(blogEntryService.getAllRepliesByParentId(parentId));
     }
 }

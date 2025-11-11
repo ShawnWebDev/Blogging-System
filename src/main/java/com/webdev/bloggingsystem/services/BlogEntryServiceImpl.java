@@ -1,16 +1,12 @@
 package com.webdev.bloggingsystem.services;
 
-import com.webdev.bloggingsystem.entities.AppUser;
-import com.webdev.bloggingsystem.entities.BlogEntry;
-import com.webdev.bloggingsystem.entities.BlogEntryRequestDto;
-import com.webdev.bloggingsystem.entities.BlogEntryResponseDto;
-import com.webdev.bloggingsystem.entities.Category;
-import com.webdev.bloggingsystem.entities.PaginatedBlogEntriesResponseDto;
+import com.webdev.bloggingsystem.entities.*;
 import com.webdev.bloggingsystem.exceptions.ResourceNotFoundException;
 import com.webdev.bloggingsystem.repositories.AppUserRepo;
 import com.webdev.bloggingsystem.repositories.BlogEntryRepo;
 import com.webdev.bloggingsystem.repositories.CategoryRepo;
 
+import com.webdev.bloggingsystem.repositories.CommentRepo;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +30,14 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     private final BlogEntryRepo blogEntryRepo;
     private final AppUserRepo appUserRepo;
     private final CategoryRepo categoryRepo;
+    private final CommentRepo commentRepo;
 
-    public BlogEntryServiceImpl(BlogEntryRepo blogEntryRepo, AppUserRepo appUserRepo, CategoryRepo categoryRepo) {
+    public BlogEntryServiceImpl(BlogEntryRepo blogEntryRepo, AppUserRepo appUserRepo, CategoryRepo categoryRepo,
+                                CommentRepo commentRepo) {
         this.blogEntryRepo = blogEntryRepo;
         this.appUserRepo = appUserRepo;
         this.categoryRepo = categoryRepo;
+        this.commentRepo = commentRepo;
     }
 
     @Override
@@ -128,6 +127,25 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         }
 
         blogEntryRepo.betterDeleteById(entryToDelete.getId());
+    }
+
+    @Override
+    public List<CommentResponseDto> getAllRepliesByParentId(Integer parentId) {
+        List<Comment> comments = commentRepo.findAllByParentCommentId(parentId);
+        List<CommentResponseDto> responseDtos;
+        if (!comments.isEmpty()) {
+            responseDtos = new ArrayList<>();
+            for (Comment comment : comments) {
+                responseDtos.add(
+                        new CommentResponseDto(
+                                comment.getId(), comment.getComment(), comment.getCreatedAt(), comment.getAuthor().getUsername()
+                        )
+                );
+            }
+            logger.debug("getAllRepliesByParentId: responseDtos: {}", responseDtos);
+            return responseDtos;
+        }
+        return List.of();
     }
 
 

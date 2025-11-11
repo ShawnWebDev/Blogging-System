@@ -1,10 +1,10 @@
 package com.webdev.bloggingsystem.controllers;
 
 import com.webdev.bloggingsystem.entities.BlogEntryRequestDto;
+import com.webdev.bloggingsystem.entities.LoginDto;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import com.webdev.bloggingsystem.entities.LoginDto;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,9 +26,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BlogEntryControllerTest {
     @Autowired
     private TestRestTemplate restTemplate;
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
     private Integer countJoinTableEntries(Integer postId) {
         // for join table with no repository, only used to check if cascade works when deleting Entry
         return jdbcTemplate.queryForObject(
@@ -396,7 +397,7 @@ public class BlogEntryControllerTest {
     }
 
     @Test
-    @DisplayName("16. category join table should be cascaded on delete")
+    @DisplayName("16. category join table should be cascaded on related BlogEntry deletion")
     @DirtiesContext
     void categoryJoinTableCascade() {
         String token = this.getToken("TestUser", "TestPassword");
@@ -416,6 +417,31 @@ public class BlogEntryControllerTest {
         Integer finalCategoryCount = countJoinTableEntries(3);
         System.out.println("finalCategoryCount: " + finalCategoryCount);
         assertEquals(0, finalCategoryCount);
+    }
+
+    @Test
+    @DisplayName("17. should fetch BlogEntry and then all comments for that entry")
+    void fetchBlogEntryAndThenAllComments() {
+        String token = this.getToken("TestAdmin", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        ResponseEntity<String> getResponse = restTemplate
+                .exchange("/api/posts/1", HttpMethod.GET, request, String.class);
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode(), "Should return 200 OK");
+
+        System.out.println("getResponse: " + getResponse);
+        DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+        List<Map<String, Object>> rawComments = documentContext.read("$.comments");
+        Number commentId = (Number) rawComments.getFirst().get("id");
+        System.out.println("commentId: " + commentId);
+
+        ResponseEntity<List> commentResponse = restTemplate
+                .exchange("/api/comments/" + commentId.toString(), HttpMethod.GET, request, List.class);
+
+        assertEquals(HttpStatus.OK, commentResponse.getStatusCode(), "Should return 200 OK");
+        System.out.println("commentResponse: " + commentResponse);
     }
 
 }
