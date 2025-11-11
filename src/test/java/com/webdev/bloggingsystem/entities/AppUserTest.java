@@ -76,23 +76,4 @@ public class AppUserTest {
         assertEquals(Integer.valueOf(1).hashCode(), testUser.hashCode());
     }
 
-    @Test
-    @DisplayName("6. add to posts set")
-    public void testAddPost() {
-        appUser.addPost(mockBlogEntry);
-        assertEquals(1, appUser.getPosts().size());
-        assertTrue(appUser.getPosts().contains(mockBlogEntry));
-        Mockito.verify(mockBlogEntry, Mockito.times(1)).setAuthor(appUser);
-        System.out.println(mockBlogEntry.getAuthor());
-    }
-
-    @Test
-    @DisplayName("7. remove from posts set")
-    public void testRemovePosts() {
-        appUser.removePost(mockBlogEntry);
-        assertEquals(0, appUser.getPosts().size());
-        assertFalse(appUser.getPosts().contains(mockBlogEntry));
-        assertNull(mockBlogEntry.getAuthor());
-    }
-
 }

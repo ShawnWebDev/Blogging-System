@@ -9,12 +9,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@NamedEntityGraph(
-        name = "eager-fetch-roles",
-        attributeNodes = {
-                @NamedAttributeNode("roles")
-        }
-)
 public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,12 +28,6 @@ public class AppUser {
 
     @Column(name = "date_created", nullable = false, insertable = false, updatable = false)
     private LocalDate createdAt;
-
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
-    private Set<BlogEntry> posts =  new HashSet<>();
-
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
-    private Set<Comment> comments =  new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "users_roles",
@@ -90,27 +78,11 @@ public class AppUser {
     public LocalDate getCreatedAt() {
         return createdAt;
     }
-    public Set<BlogEntry> getPosts() {
-        return posts;
-    }
-    public Set<Comment> getComments() {
-        return comments;
-    }
     public Set<Role> getRoles() {
         return roles;
     }
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
-    }
-
-    public void addPost(BlogEntry post) {
-        this.posts.add(post);
-        post.setAuthor(this);
-    }
-
-    public void removePost(BlogEntry post) {
-        this.posts.remove(post);
-        post.setAuthor(null);
     }
 
     @Override
