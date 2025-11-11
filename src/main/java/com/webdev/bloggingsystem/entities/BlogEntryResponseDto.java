@@ -20,7 +20,6 @@ public record BlogEntryResponseDto(
         // only fetch comments if specified to maintain lazy load
         Set<Comment> commentSet;
         List<String> categories = new ArrayList<>(categorySet.size());
-        CommentResponseDto commentDto;
         List<CommentResponseDto> comments = null;
 
         if (getComments) {
@@ -28,13 +27,12 @@ public record BlogEntryResponseDto(
             comments = new ArrayList<>(commentSet.size());
 
             for (Comment curr : commentSet) {
-                commentDto = new CommentResponseDto(
+                comments.add(new CommentResponseDto(
                         curr.getId(),
                         curr.getComment(),
                         curr.getCreatedAt(),
                         curr.getAuthor().getUsername()
-                );
-                comments.add(commentDto);
+                ));
             }
         }
 
