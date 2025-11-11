@@ -29,6 +29,7 @@
     <properties>
         <java.version>25</java.version>
         <logback.version>1.5.19</logback.version>
+        <start-class>com.webdev.bloggingsystem.BloggingSystemApplication</start-class>
     </properties>
 
     <dependencies>
@@ -63,16 +64,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
         </dependency>
 
     </dependencies>
