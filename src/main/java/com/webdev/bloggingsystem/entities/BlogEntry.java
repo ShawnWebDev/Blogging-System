@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "Blog_Entries")
+@Table(name = "blog_entries")
 // NamedEntityGraph needed for JPA eager loading without N+1
 @NamedEntityGraphs({
     @NamedEntityGraph(
@@ -54,7 +54,7 @@ public class BlogEntry {
     private AppUser author;
 
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @JoinTable(name = "Posts_Categories",
+    @JoinTable(name = "posts_categories",
             joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<Category> categories =  new HashSet<>();

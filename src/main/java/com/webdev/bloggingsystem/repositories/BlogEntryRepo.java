@@ -24,6 +24,6 @@ public interface BlogEntryRepo extends CrudRepository<BlogEntry, Integer>, Pagin
     Page<BlogEntry> findAllByIsPublicTrue(Pageable pageable);
 
     @Modifying
-    @Query(value = "DELETE FROM Blog_Entries WHERE id = :id", nativeQuery = true)
+    @Query(value = "DELETE FROM blog_entries WHERE id = :id", nativeQuery = true)
     void betterDeleteById(@Param("id") Integer id);
 }

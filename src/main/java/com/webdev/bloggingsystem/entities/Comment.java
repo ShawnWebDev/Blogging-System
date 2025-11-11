@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "Comments")
+@Table(name = "comments")
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
