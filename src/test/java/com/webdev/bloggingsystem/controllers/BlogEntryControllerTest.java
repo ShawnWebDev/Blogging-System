@@ -4,15 +4,13 @@ import com.webdev.bloggingsystem.entities.BlogEntryRequestDto;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.webdev.bloggingsystem.entities.LoginDto;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -39,12 +37,25 @@ public class BlogEntryControllerTest {
         );
     }
 
+    private String getToken(String username, String password) {
+        LoginDto loginDto = new LoginDto(username, password);
+
+        ResponseEntity<String> response = restTemplate
+                .postForEntity("/auth/login", loginDto, String.class);
+
+        return response.getBody();
+    }
+
     @Test
     @DisplayName("1. found id")
     void getBlogEntryById() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         ResponseEntity<String> response = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
-                .getForEntity("/api/posts/1", String.class);
+                .exchange("/api/posts/1", HttpMethod.GET, entity, String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
 
@@ -64,9 +75,13 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("2. not found id")
     void notFoundBlogEntryById() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         ResponseEntity<String> response = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
-                .getForEntity("/api/posts/99", String.class);
+                .exchange("/api/posts/99", HttpMethod.GET, entity, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
         System.out.println("response: " + response);
@@ -78,23 +93,29 @@ public class BlogEntryControllerTest {
     @DisplayName("3. create and persist new BlogEntry")
     @DirtiesContext // <-- needed to restart application after adding this new data so tests stay consistent with data.sql
     void createBlogEntry() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+
         BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
                 "Testing Http POST",
                 "This entry is for testing the Http POST method.",
-                        List.of("Test Category 1", "Test Category 2"),
-                        true
+                List.of("Test Category 1", "Test Category 2"),
+                true
         );
+        HttpEntity<Object> postEntity = new HttpEntity<>(blogEntryRequestDto, headers);
+
         ResponseEntity<Void> response = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
-                .postForEntity("/api/posts", blogEntryRequestDto, Void.class);
+                .postForEntity("/api/posts", postEntity, Void.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode(), "Should return 201 Created");
 
+        // Checks entry was created and correct.
         URI uri = response.getHeaders().getLocation();
         System.out.println("Fetching entry from URI: " + uri);
+        HttpEntity<String> getEntity = new HttpEntity<>(headers);
         ResponseEntity<String> getResponse = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
-                .getForEntity(uri, String.class);
+                .exchange(uri, HttpMethod.GET, getEntity, String.class);
 
         DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
 
@@ -113,9 +134,13 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("4. should return all public BlogEntries")
     void getAllPublicBlogEntries() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         ResponseEntity<String> response = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
-                .getForEntity("/api/posts?sort=createdAt,asc", String.class);
+                .exchange("/api/posts?sort=createdAt,asc", HttpMethod.GET, entity, String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         System.out.println("response: " + response.getBody());
@@ -136,9 +161,13 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("5. should return page of BlogEntry")
     void getBlogEntryAsPage() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         ResponseEntity<String> response = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
-                .getForEntity("/api/posts?page=0&size=1", String.class);
+                .exchange("/api/posts?page=0&size=1", HttpMethod.GET, entity, String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         System.out.println("response: " + response.getBody());
     }
@@ -146,9 +175,13 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("6. should return sorted page of BlogEntries (last entry by date id=3")
     void getBlogEntryAsSortedPage() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         ResponseEntity<String> response = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
-                .getForEntity("/api/posts?page=0&size=1&sort=createdAt,desc", String.class);
+                .exchange("/api/posts?page=0&size=1&sort=createdAt,desc", HttpMethod.GET, entity, String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
 
         DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -161,9 +194,13 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("7. should return sorted page using default pageable (descending sort by updatedAt)")
     void getBlogEntryAsSortedPageUsingDefaultPageable() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         ResponseEntity<String> response = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
-                .getForEntity("/api/posts", String.class);
+                .exchange("/api/posts", HttpMethod.GET, entity, String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         System.out.println("response: " + response.getBody());
@@ -184,17 +221,25 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("8. should not return entry using bad credentials")
     void blogEntryWithBadCredentials() {
+        String token = this.getToken("NotAUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         // wrong user, existing password
         ResponseEntity<String> response1 = restTemplate
-                .withBasicAuth("NotAUser", "TestPassword")
-                .getForEntity("/api/posts/1", String.class);
+                .exchange("/api/posts/1", HttpMethod.GET, entity, String.class);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response1.getStatusCode(), "Should return 401 UNAUTHORIZED");
 
+        token = this.getToken("TestUser", "BadPassword");
+        headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        entity = new HttpEntity<>(headers);
+
         // right user, wrong password
         ResponseEntity<String> response2 = restTemplate
-                .withBasicAuth("TestUser", "BadPassword")
-                .getForEntity("/api/posts/1", String.class);
+                .exchange("/api/posts/1", HttpMethod.GET, entity, String.class);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response2.getStatusCode(), "Should return 401 UNAUTHORIZED");
     }
@@ -202,12 +247,16 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("9. should not allow private entry to be viewed by non-author")
     void getBlogEntryWithNonAuthor() {
+        String token = this.getToken("NotAUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         // test data = BlogEntry with id 2 is private and owned by TestAdmin.
         ResponseEntity<String> response = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
-                .getForEntity("/api/posts/2", String.class);
+                .exchange("/api/posts/2", HttpMethod.GET, entity, String.class);
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Should return 401 UNAUTHORIZED");
         System.out.println("response: " + response);
     }
 
@@ -215,23 +264,28 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("10. should update existing entry")
     void updateExistingEntry() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
                 "Updated Test Post 3",
                 null,
                 List.of("Test Category 1","Test Category 2"),
                 null
         );
-        HttpEntity<BlogEntryRequestDto> request = new HttpEntity<>(entryToUpdate);
+
+        HttpEntity<Object> request = new HttpEntity<>(entryToUpdate, headers);
         // putForEntity does not exist.
         ResponseEntity<Void> response = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
                 .exchange("/api/posts/3", HttpMethod.PUT, request, Void.class);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Should return 204 NO CONTENT");
 
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         ResponseEntity<String> getResponse = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
-                .getForEntity("/api/posts/3", String.class);
+                .exchange("/api/posts/3", HttpMethod.GET, entity, String.class);
 
         DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
         Number id = documentContext.read("$.id");
@@ -243,31 +297,39 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("11. should not update non-existent entry")
     void updateNonExistingEntry() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
                 "Updated Non Existent Test Post",
                 null,
                 null,
                 null
         );
-        HttpEntity<BlogEntryRequestDto> request = new HttpEntity<>(entryToUpdate);
+        HttpEntity<Object> request = new HttpEntity<>(entryToUpdate, headers);
+
         ResponseEntity<Void> response = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
                 .exchange("/api/posts/99", HttpMethod.PUT, request, Void.class);
+
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
     }
 
     @Test
     @DisplayName("12. should not update entry if non-author")
     void updateNonAuthorEntry() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
                 "Updated Non Existent Test Post",
                 null,
                 null,
                 null
         );
-        HttpEntity<BlogEntryRequestDto> request = new HttpEntity<>(entryToUpdate);
+        HttpEntity<BlogEntryRequestDto> request = new HttpEntity<>(entryToUpdate, headers);
         ResponseEntity<Void> response = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
                 .exchange("/api/posts/1", HttpMethod.PUT, request, Void.class);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
     }
@@ -276,17 +338,21 @@ public class BlogEntryControllerTest {
     @DisplayName("13. should delete entry")
     @DirtiesContext
     void deleteEntry() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+
+        HttpEntity<String> request = new HttpEntity<>(headers);
         System.out.println("attempting to delete entry");
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("TestUser", "TestPassword")
-                .exchange("/api/posts/3", HttpMethod.DELETE, null, Void.class);
+                .exchange("/api/posts/3", HttpMethod.DELETE, request, Void.class);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Should return 204 NO CONTENT");
 
         System.out.println("checking for deleted entry");
         ResponseEntity<String> getResponse = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
-                .getForEntity("/api/posts/3", String.class);
+                .exchange("/api/posts/3", HttpMethod.GET, request, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, getResponse.getStatusCode(), "Should return 404 NOT FOUND");
     }
@@ -294,9 +360,13 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("14. should not delete non-existent entry")
     void deleteNonExistentEntry() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
         ResponseEntity<Void> response = restTemplate
-                .withBasicAuth("TestUser2", "TestPassword")
-                .exchange("/api/posts/99", HttpMethod.DELETE, null, Void.class);
+                .exchange("/api/posts/99", HttpMethod.DELETE, request, Void.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
     }
@@ -304,15 +374,23 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("15. should not delete entry if non-author")
     void deleteNonAuthorEntry() {
+        String token = this.getToken("TestUser2", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
         ResponseEntity<Void> response = restTemplate
-                .withBasicAuth("TestUser2", "TestPassword")
-                .exchange("/api/posts/3", HttpMethod.DELETE, null, Void.class);
+                .exchange("/api/posts/3", HttpMethod.DELETE, request, Void.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
 
+        token = this.getToken("TestUser2", "TestPassword");
+        headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        request = new HttpEntity<>(headers);
+
         ResponseEntity<String> getResponse = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
-                .getForEntity("/api/posts/3", String.class);
+                .exchange("/api/posts/3", HttpMethod.GET, request, String.class);
 
         assertEquals(HttpStatus.OK, getResponse.getStatusCode(), "Should return 200 OK");
     }
@@ -321,12 +399,17 @@ public class BlogEntryControllerTest {
     @DisplayName("16. category join table should be cascaded on delete")
     @DirtiesContext
     void categoryJoinTableCascade() {
+        String token = this.getToken("TestUser", "TestPassword");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
         Integer initialCategoryCount = countJoinTableEntries(3);
         System.out.println("initialCategoryCount: " + initialCategoryCount);
         assertEquals(1, initialCategoryCount);
         System.out.println("delete entry");
         System.out.println(restTemplate.withBasicAuth("TestUser", "TestPassword")
-                .exchange("/api/posts/3", HttpMethod.DELETE, null, Void.class));
+                .exchange("/api/posts/3", HttpMethod.DELETE, request, Void.class));
 
         System.out.println("checking for deleted category join table");
 

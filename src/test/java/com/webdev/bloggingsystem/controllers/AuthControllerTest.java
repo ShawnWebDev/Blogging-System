@@ -1,10 +1,12 @@
 package com.webdev.bloggingsystem.controllers;
 
 import com.webdev.bloggingsystem.entities.LoginDto;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -14,18 +16,24 @@ public class AuthControllerTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    public String getToken(String username, String password) {
-        LoginDto loginDto = new LoginDto(username, password);
+    @Test
+    public void testAuthLogin() {
+        LoginDto loginDto = new LoginDto("TestAdmin", "TestPassword");
 
         ResponseEntity<String> response = restTemplate
                 .postForEntity("/auth/login", loginDto, String.class);
 
-        return response.getBody();
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
-    public void testAuth() {
-        System.out.println(this.getToken("TestAdmin", "TestPassword"));
+    public void testAuthLoginBadCredentials() {
+        LoginDto loginDto = new LoginDto("NotATestAdmin", "TestPassword");
+
+        ResponseEntity<String> response = restTemplate
+                .postForEntity("/auth/login", loginDto, String.class);
+
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
 
 }
