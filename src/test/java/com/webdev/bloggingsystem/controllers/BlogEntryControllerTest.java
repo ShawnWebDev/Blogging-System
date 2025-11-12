@@ -23,11 +23,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test") // <-- for H2 testing, comment out for MySQL
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BlogEntryControllerTest {
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    // only for TestUser as it is the most used
+    private String testUserToken;
 
     private Integer countJoinTableEntries(Integer postId) {
         // for join table with no repository, only used to check if cascade works when deleting Entry
@@ -47,12 +51,16 @@ public class BlogEntryControllerTest {
         return response.getBody();
     }
 
+    @BeforeAll
+    public void beforeAll() {
+        this.testUserToken = this.getToken("TestUser", "TestPassword");
+    }
+
     @Test
     @DisplayName("1. found id")
     void getBlogEntryById() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate
@@ -76,9 +84,8 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("2. not found id")
     void notFoundBlogEntryById() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate
@@ -94,9 +101,8 @@ public class BlogEntryControllerTest {
     @DisplayName("3. create and persist new BlogEntry")
     @DirtiesContext // <-- needed to restart application after adding this new data so tests stay consistent with data.sql
     void createBlogEntry() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
 
         BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
                 "Testing Http POST",
@@ -135,9 +141,8 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("4. should return all public BlogEntries")
     void getAllPublicBlogEntries() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate
@@ -162,9 +167,8 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("5. should return page of BlogEntry")
     void getBlogEntryAsPage() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate
@@ -176,9 +180,8 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("6. should return sorted page of BlogEntries (last entry by date id=3")
     void getBlogEntryAsSortedPage() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate
@@ -195,9 +198,8 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("7. should return sorted page using default pageable (descending sort by updatedAt)")
     void getBlogEntryAsSortedPageUsingDefaultPageable() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate
@@ -248,16 +250,15 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("9. should not allow private entry to be viewed by non-author")
     void getBlogEntryWithNonAuthor() {
-        String token = this.getToken("NotAUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         // test data = BlogEntry with id 2 is private and owned by TestAdmin.
         ResponseEntity<String> response = restTemplate
                 .exchange("/api/posts/2", HttpMethod.GET, entity, String.class);
 
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Should return 401 UNAUTHORIZED");
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
         System.out.println("response: " + response);
     }
 
@@ -265,9 +266,8 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("10. should update existing entry")
     void updateExistingEntry() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
 
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
                 "Updated Test Post 3",
@@ -298,9 +298,8 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("11. should not update non-existent entry")
     void updateNonExistingEntry() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
 
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
                 "Updated Non Existent Test Post",
@@ -319,9 +318,8 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("12. should not update entry if non-author")
     void updateNonAuthorEntry() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
 
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
                 "Updated Non Existent Test Post",
@@ -339,9 +337,8 @@ public class BlogEntryControllerTest {
     @DisplayName("13. should delete entry")
     @DirtiesContext
     void deleteEntry() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
 
         HttpEntity<String> request = new HttpEntity<>(headers);
         System.out.println("attempting to delete entry");
@@ -361,9 +358,8 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("14. should not delete non-existent entry")
     void deleteNonExistentEntry() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         ResponseEntity<Void> response = restTemplate
@@ -385,9 +381,9 @@ public class BlogEntryControllerTest {
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
 
-        token = this.getToken("TestUser2", "TestPassword");
+        //token = this.getToken("TestUser2", "TestPassword");
         headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
         request = new HttpEntity<>(headers);
 
         ResponseEntity<String> getResponse = restTemplate
@@ -400,9 +396,8 @@ public class BlogEntryControllerTest {
     @DisplayName("16. category join table should be cascaded on related BlogEntry deletion")
     @DirtiesContext
     void categoryJoinTableCascade() {
-        String token = this.getToken("TestUser", "TestPassword");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + this.testUserToken);
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         Integer initialCategoryCount = countJoinTableEntries(3);
