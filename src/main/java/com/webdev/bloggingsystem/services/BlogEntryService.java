@@ -17,5 +17,4 @@ public interface BlogEntryService {
     URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, String principalName, UriComponentsBuilder ucb);
     void updateEntryById(Integer id, BlogEntryRequestDto blogEntryRequestDto, String principalName);
     void deleteEntryById(Integer id, String principalName);
-    List<CommentResponseDto> getAllRepliesByParentId(Integer parentId);
 }

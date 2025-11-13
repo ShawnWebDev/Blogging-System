@@ -7,9 +7,11 @@ import com.webdev.bloggingsystem.repositories.BlogEntryRepo;
 import com.webdev.bloggingsystem.repositories.CategoryRepo;
 
 import com.webdev.bloggingsystem.repositories.CommentRepo;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,17 +29,16 @@ import java.util.Set;
 @Service
 public class BlogEntryServiceImpl implements BlogEntryService {
     private final static Logger logger  = LoggerFactory.getLogger(BlogEntryServiceImpl.class);
+
     private final BlogEntryRepo blogEntryRepo;
     private final AppUserRepo appUserRepo;
     private final CategoryRepo categoryRepo;
-    private final CommentRepo commentRepo;
 
     public BlogEntryServiceImpl(BlogEntryRepo blogEntryRepo, AppUserRepo appUserRepo, CategoryRepo categoryRepo,
                                 CommentRepo commentRepo) {
         this.blogEntryRepo = blogEntryRepo;
         this.appUserRepo = appUserRepo;
         this.categoryRepo = categoryRepo;
-        this.commentRepo = commentRepo;
     }
 
     @Override
@@ -54,9 +55,11 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         return new BlogEntryResponseDto(entry, true);
     }
 
+
     @Override
     public PaginatedBlogEntriesResponseDto getAllPublicBlogEntries(Pageable pageable) {
         // default is descending sort by updatedAt, pageSize 20, pageNumber 0
+        // todo : fix n+1 issue with categories
         Page<BlogEntry> blogEntries = blogEntryRepo.findAllByIsPublicTrue(
                 PageRequest.of(
                         pageable.getPageNumber(),
@@ -85,14 +88,14 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
     @Override
     public URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, String principalName, UriComponentsBuilder ucb) {
-        logger.debug("saveEntry: getting author");
+        logger.debug("saveEntry: getting author {}", principalName);
         AppUser author = appUserRepo.findByUsername(principalName)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + principalName));
         logger.debug("saveEntry: getting categories");
         Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
         logger.debug("saveEntry: saving entry");
         BlogEntry savedEntry = blogEntryRepo.save(this.mapRequestToEntity(blogEntryRequestDto, author, categories));
-
+        logger.debug("saveEntry: saved entry {}", savedEntry);
         return ucb.path("/api/posts/{id}").buildAndExpand(savedEntry.getId()).toUri();
     }
 
@@ -127,25 +130,6 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         }
 
         blogEntryRepo.betterDeleteById(entryToDelete.getId());
-    }
-
-    @Override
-    public List<CommentResponseDto> getAllRepliesByParentId(Integer parentId) {
-        List<Comment> comments = commentRepo.findAllByParentCommentId(parentId);
-        List<CommentResponseDto> responseDtos;
-        if (!comments.isEmpty()) {
-            responseDtos = new ArrayList<>();
-            for (Comment comment : comments) {
-                responseDtos.add(
-                        new CommentResponseDto(
-                                comment.getId(), comment.getComment(), comment.getCreatedAt(), comment.getAuthor().getUsername()
-                        )
-                );
-            }
-            logger.debug("getAllRepliesByParentId: responseDtos: {}", responseDtos);
-            return responseDtos;
-        }
-        return List.of();
     }
 
 
