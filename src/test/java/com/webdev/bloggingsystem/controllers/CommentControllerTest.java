@@ -130,4 +130,28 @@ public class CommentControllerTest {
         System.out.println("response: " + response);
     }
 
+    @Test
+    @DisplayName("5. should update comment.")
+    void updateComment() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        String updatedComment = "Test Reply 1 to Comment 1 on Test Post 1 -- UPDATED";
+        HttpEntity<String> request = new HttpEntity<>(updatedComment, headers);
+
+        ResponseEntity<Void> response = restTemplate
+                .exchange("/api/comments/comment/2", HttpMethod.PUT, request, Void.class);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Should return 204 No Content");
+        System.out.println("response: " + response);
+
+        ResponseEntity<String> getResponse = restTemplate
+                .exchange("/api/comments/comment/2", HttpMethod.GET, request, String.class);
+
+        DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+        System.out.println("documentContext: " + documentContext.jsonString());
+        String content = documentContext.read("$.comment");
+        System.out.println(content);
+        assertEquals(updatedComment, content);
+    }
+
 }

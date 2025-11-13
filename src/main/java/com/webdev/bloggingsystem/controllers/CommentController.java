@@ -37,4 +37,11 @@ public class CommentController {
         return ResponseEntity.created(commentService.saveComment(commentText, postId, parentCommentId, principal.getName(), ucb))
                 .build();
     }
+
+    @PutMapping("/comments/comment/{commentId}")
+    public ResponseEntity<Void> updateComment(@PathVariable Integer commentId,
+                                              @RequestBody String commentText, Principal principal) {
+        commentService.updateComment(commentText, commentId, principal.getName());
+        return ResponseEntity.noContent().build();
+    }
 }

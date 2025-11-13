@@ -8,6 +8,7 @@ import com.webdev.bloggingsystem.exceptions.ResourceNotFoundException;
 import com.webdev.bloggingsystem.repositories.AppUserRepo;
 import com.webdev.bloggingsystem.repositories.BlogEntryRepo;
 import com.webdev.bloggingsystem.repositories.CommentRepo;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -59,8 +60,10 @@ public class CommentServiceImpl implements CommentService {
         return this.mapRequestToDto(comment);
     }
 
+    // todo: create validation logic, use before saving & updating.
     @Override
-    public URI saveComment(String commentText, Integer postId, Integer parentId, String principalName, UriComponentsBuilder ucb) {
+    public URI saveComment(String commentText, Integer postId, Integer parentId, String principalName,
+                           UriComponentsBuilder ucb) {
         logger.debug("saveComment: getting author {}", principalName);
         AppUser author = appUserRepo.findByUsername(principalName)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + principalName));
@@ -81,8 +84,17 @@ public class CommentServiceImpl implements CommentService {
         return ucb.path("api/comments/comment/{commentId}").buildAndExpand(savedComment.getId()).toUri();
     }
 
+    @Override
+    public void updateComment(String newCommentText, Integer commentId, String principalName) {
+        // todo: !
+    }
+
     private Comment mapRequestToEntity(String commentText, AppUser author, BlogEntry blogEntry, Comment parentComment) {
-        return new Comment(commentText, author, blogEntry);
+        Comment comment = new Comment(commentText, author, blogEntry);
+        if (parentComment != null) {
+            comment.setParentComment(parentComment);
+        }
+        return comment;
     }
 
     private CommentResponseDto mapRequestToDto(Comment comment) {

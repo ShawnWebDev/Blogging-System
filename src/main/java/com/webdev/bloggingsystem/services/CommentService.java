@@ -10,4 +10,5 @@ public interface CommentService {
     List<CommentResponseDto> getAllRepliesByParentId(Integer parentId);
     CommentResponseDto getCommentById(Integer commentId);
     URI saveComment(String commentText, Integer postId, Integer parentId, String principalName, UriComponentsBuilder ucb);
+    void updateComment(String newCommentText, Integer commentId, String principalName);
 }
