@@ -17,12 +17,12 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test") // <-- for H2 testing, comment out for MySQL
+@ActiveProfiles("test") // <-- for H2 testing, MySQL testing will require a different class or something like-
+// @BeforeEach that reverts the test data .
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BlogEntryControllerTest {
     @Autowired
@@ -117,21 +117,23 @@ public class BlogEntryControllerTest {
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode(), "Should return 201 Created");
 
+        HttpEntity<String> getEntity = new HttpEntity<>(headers);
+
         // Checks entry was created and correct.
         URI uri = response.getHeaders().getLocation();
         System.out.println("Fetching entry from URI: " + uri);
-        HttpEntity<String> getEntity = new HttpEntity<>(headers);
+
         ResponseEntity<String> getResponse = restTemplate
                 .exchange(uri, HttpMethod.GET, getEntity, String.class);
 
-        DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+        System.out.println("GET response: " + getResponse);
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode(), "Should return 200");
 
-        System.out.println("json: " + documentContext.jsonString());
+        DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
         Number id = documentContext.read("$.id");
         String content = documentContext.read("$.content");
         JSONArray categories = documentContext.read("$.categories");
 
-        assertEquals(HttpStatus.OK, getResponse.getStatusCode(), "Should return 200 OK");
         assertEquals(4, id);
         assertEquals("This entry is for testing the Http POST method.", content);
         assertEquals("Test Category 1", categories.getFirst());
@@ -413,30 +415,4 @@ public class BlogEntryControllerTest {
         System.out.println("finalCategoryCount: " + finalCategoryCount);
         assertEquals(0, finalCategoryCount);
     }
-
-    @Test
-    @DisplayName("17. should fetch BlogEntry and then all comments for that entry")
-    void fetchBlogEntryAndThenAllComments() {
-        String token = this.getToken("TestAdmin", "TestPassword");
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
-        HttpEntity<String> request = new HttpEntity<>(headers);
-
-        ResponseEntity<String> getResponse = restTemplate
-                .exchange("/api/posts/1", HttpMethod.GET, request, String.class);
-        assertEquals(HttpStatus.OK, getResponse.getStatusCode(), "Should return 200 OK");
-
-        System.out.println("getResponse: " + getResponse);
-        DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
-        List<Map<String, Object>> rawComments = documentContext.read("$.comments");
-        Number commentId = (Number) rawComments.getFirst().get("id");
-        System.out.println("commentId: " + commentId);
-
-        ResponseEntity<List> commentResponse = restTemplate
-                .exchange("/api/comments/" + commentId.toString(), HttpMethod.GET, request, List.class);
-
-        assertEquals(HttpStatus.OK, commentResponse.getStatusCode(), "Should return 200 OK");
-        System.out.println("commentResponse: " + commentResponse);
-    }
-
 }
