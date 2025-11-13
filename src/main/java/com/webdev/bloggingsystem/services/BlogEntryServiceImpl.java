@@ -7,11 +7,9 @@ import com.webdev.bloggingsystem.repositories.BlogEntryRepo;
 import com.webdev.bloggingsystem.repositories.CategoryRepo;
 
 import com.webdev.bloggingsystem.repositories.CommentRepo;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -55,7 +53,6 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         return new BlogEntryResponseDto(entry, true);
     }
 
-
     @Override
     public PaginatedBlogEntriesResponseDto getAllPublicBlogEntries(Pageable pageable) {
         // default is descending sort by updatedAt, pageSize 20, pageNumber 0
@@ -85,7 +82,6 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     }
 
     // todo: create validation logic, use before saving & updating.
-
     @Override
     public URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, String principalName, UriComponentsBuilder ucb) {
         logger.debug("saveEntry: getting author {}", principalName);

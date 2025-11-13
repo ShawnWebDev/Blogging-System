@@ -10,25 +10,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "blog_entries")
-// NamedEntityGraph needed for JPA eager loading without N+1
-@NamedEntityGraphs({
-    @NamedEntityGraph(
-        name = "eager-fetch-categories-author",
-        attributeNodes = {
-                @NamedAttributeNode("author"),
-                @NamedAttributeNode("categories")
-        }
-    ),
-    @NamedEntityGraph(
-        name = "eager-fetch-all-collections-author",
-        attributeNodes = {
-                @NamedAttributeNode("author"),
-                @NamedAttributeNode("categories"),
-                @NamedAttributeNode("comments")
-        }
-    )
-})
-
 public class BlogEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +30,7 @@ public class BlogEntry {
     @Column(name = "date_updated",  nullable = false, insertable = false, updatable = false)
     private Instant updatedAt;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private AppUser author;
 
