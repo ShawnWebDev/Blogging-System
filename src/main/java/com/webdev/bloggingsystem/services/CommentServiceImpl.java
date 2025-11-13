@@ -86,7 +86,14 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void updateComment(String newCommentText, Integer commentId, String principalName) {
-        // todo: !
+
+        Comment commentToUpdate = commentRepo.getCommentById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
+        if (!commentToUpdate.getAuthor().getUsername().equals(principalName)) {
+            throw new ResourceNotFoundException("Entry not found with id " + commentId);
+        }
+        commentToUpdate.setComment(newCommentText);
+        commentRepo.save(commentToUpdate);
     }
 
     private Comment mapRequestToEntity(String commentText, AppUser author, BlogEntry blogEntry, Comment parentComment) {
