@@ -78,7 +78,7 @@ public class CommentServiceImpl implements CommentService {
 
         Comment savedComment = commentRepo.save(this.mapRequestToEntity(commentText, author, blogEntry, parentComment));
 
-        return ucb.path("api/comments/{commentId}").buildAndExpand(savedComment.getId()).toUri();
+        return ucb.path("api/comments/comment/{commentId}").buildAndExpand(savedComment.getId()).toUri();
     }
 
     private Comment mapRequestToEntity(String commentText, AppUser author, BlogEntry blogEntry, Comment parentComment) {

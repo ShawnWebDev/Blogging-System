@@ -84,6 +84,7 @@ public class CommentControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         DocumentContext documentContext = JsonPath.parse(response.getBody());
         System.out.println("response: " + response);
+        System.out.println("documentContext: " + documentContext.jsonString());
     }
 
     @Test
@@ -112,6 +113,7 @@ public class CommentControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         DocumentContext documentContext = JsonPath.parse(response.getBody());
         System.out.println("response: " + response);
+        System.out.println("documentContext: " + documentContext.jsonString());
     }
 
     @Test

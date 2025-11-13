@@ -34,9 +34,6 @@ public class CommentController {
                                               @RequestParam(name = "parentId", required = false ) Integer parentCommentId,
                                               @RequestBody String commentText,
                                               Principal principal, UriComponentsBuilder ucb) {
-
-        // todo: Create a new comment (optional parentId for creating a reply).
-
         return ResponseEntity.created(commentService.saveComment(commentText, postId, parentCommentId, principal.getName(), ucb))
                 .build();
     }
