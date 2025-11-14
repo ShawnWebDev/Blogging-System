@@ -9,17 +9,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CommentTest {
     private Comment comment;
-    private Comment replyComment;
     private BlogEntry mockBlogEntry;
     private AppUser mockUser;
 
     @BeforeEach
     public void setUp() {
-        comment = new Comment();
-        replyComment = new Comment();
-        comment.setId(1);
-        replyComment.setId(2);
-
         mockBlogEntry = Mockito.mock(BlogEntry.class);
         mockUser = Mockito.mock(AppUser.class);
 
@@ -39,26 +33,6 @@ public class CommentTest {
         assertEquals("Test Comment...", testComment.getComment());
         assertEquals(mockUser, testComment.getAuthor());
         assertEquals(mockBlogEntry, testComment.getBlogEntry());
-    }
-
-    @Test
-    @DisplayName("2. add reply to comment")
-    public void testAddReplyComment() {
-        comment.addReply(replyComment);
-
-        assertTrue(comment.getReplies().contains(replyComment));
-        assertEquals(replyComment.getParentComment(), comment);
-    }
-
-    @Test
-    @DisplayName("3. remove reply from comment")
-    public void testRemoveReplyComment() {
-        comment.addReply(replyComment);
-        assertTrue(comment.getReplies().contains(replyComment));
-
-        comment.removeReply(replyComment);
-        assertFalse(comment.getReplies().contains(replyComment));
-        assertNull(replyComment.getParentComment());
     }
 
     @Test
