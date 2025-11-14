@@ -7,6 +7,12 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "comments")
+@NamedEntityGraph(
+        name = "comment-with-author",
+        attributeNodes = {
+                @NamedAttributeNode("author")
+        }
+)
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
