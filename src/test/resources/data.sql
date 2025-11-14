@@ -40,4 +40,8 @@ VALUES
     ('Test Comment on Test Post 1', '2025-10-01', null, 1, 1),
     ('Test Reply 1 to Comment 1 on Test Post 1', '2025-10-02', 1, 2, 1),
     ('Test Reply 2 to Comment 1 on Test Post 1', '2025-10-05', 1, 3, 1),
-    ('Test Comment on Test Post 3', '2025-10-01', null, 1, 3);
+    ('Test Comment on Test Post 3', '2025-10-01', null, 1, 3),
+    ('Test Comment 2 on Test Post 1', '2025-10-01', null, 2, 1),
+    ('Test Reply 1 to Comment 2 on Test Post 1', '2025-10-01', 5, 2, 1),
+    ('Test Comment 3 on Test Post 1', '2025-10-01', null, 3, 1),
+    ('Test Reply 1 to Reply 1 of Comment 1 on Test Post 1', '2025-10-01', 2, 3, 1);
