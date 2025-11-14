@@ -30,7 +30,7 @@ public class BlogEntry {
     @Column(name = "date_updated",  nullable = false, insertable = false, updatable = false)
     private Instant updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id", nullable = false)
     private AppUser author;
 
@@ -104,14 +104,6 @@ public class BlogEntry {
     }
     public void removeCategory(Category category) {
         this.categories.remove(category);
-    }
-    public void addComment(Comment comment) {
-        this.comments.add(comment);
-        comment.setBlogEntry(this);
-    }
-    public void removeComment(Comment comment) {
-        this.comments.remove(comment);
-        comment.setBlogEntry(null);
     }
 
     @Override

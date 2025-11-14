@@ -3,9 +3,7 @@ package com.webdev.bloggingsystem.entities;
 import jakarta.persistence.*;
 
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "comments")
@@ -20,7 +18,7 @@ public class Comment {
     @Column(name = "date_created", nullable = false, insertable = false, updatable = false)
     private Instant createdAt;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private AppUser author;
 
@@ -31,9 +29,6 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
-
-    @OneToMany(mappedBy = "parentComment", orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<Comment> replies = new HashSet<>();
 
     public Comment() {}
     public Comment(String comment, AppUser author, BlogEntry blogEntry) {
@@ -86,31 +81,12 @@ public class Comment {
         this.parentComment = parentComment;
     }
 
-    public Set<Comment> getReplies() {
-        return replies;
-    }
-
-    public void setReplies(Set<Comment> replies) {
-        this.replies = replies;
-    }
-
-    public void addReply(Comment reply) {
-        this.replies.add(reply);
-        reply.setParentComment(this);
-    }
-    public void removeReply(Comment reply) {
-        this.replies.remove(reply);
-        reply.setParentComment(null);
-    }
-
     @Override
     public String toString() {
         return "Comment{" +
                 "id=" + id +
                 ", comment='" + comment + '\'' +
                 ", createdAt=" + createdAt +
-                ", replies=" + replies +
-                ", parentComment=" + parentComment +
                 '}';
     }
 
