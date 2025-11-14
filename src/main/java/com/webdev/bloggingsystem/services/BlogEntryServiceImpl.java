@@ -5,8 +5,8 @@ import com.webdev.bloggingsystem.exceptions.ResourceNotFoundException;
 import com.webdev.bloggingsystem.repositories.AppUserRepo;
 import com.webdev.bloggingsystem.repositories.BlogEntryRepo;
 import com.webdev.bloggingsystem.repositories.CategoryRepo;
-
 import com.webdev.bloggingsystem.repositories.CommentRepo;
+
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -44,6 +45,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         logger.debug("getBlogEntryById: findBlogEntryById");
         BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
+
         // could use repo to make this check - but, want to be able to allow author to view their own private entries,
         logger.debug("getBlogEntryById: checking author against principal");
         if (!entry.isPublic() && !entry.getAuthor().getUsername().equals(principalName)) {
@@ -56,7 +58,6 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     @Override
     public PaginatedBlogEntriesResponseDto getAllPublicBlogEntries(Pageable pageable) {
         // default is descending sort by updatedAt, pageSize 20, pageNumber 0
-        // todo : fix n+1 issue with categories
         Page<BlogEntry> blogEntries = blogEntryRepo.findAllByIsPublicTrue(
                 PageRequest.of(
                         pageable.getPageNumber(),
@@ -109,7 +110,18 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         if (blogEntryRequestDto.isPublic() != null) entry.setPublic(blogEntryRequestDto.isPublic());
         if (blogEntryRequestDto.categories() != null) {
             Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
-            entry.setCategories(categories);
+            logger.debug("removing categories");
+            for (Category category : entry.getCategories()) {
+                if (!categories.contains(category)) {
+                    entry.removeCategory(category);
+                }
+            }
+            logger.debug("adding categories");
+            for (Category category : categories) {
+                if (!entry.getCategories().contains(category)) {
+                    entry.addCategory(category);
+                }
+            }
         }
         blogEntryRepo.save(entry);
     }

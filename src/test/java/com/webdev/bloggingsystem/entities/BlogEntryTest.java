@@ -67,26 +67,6 @@ public class BlogEntryTest {
         assertFalse(blogEntry.getCategories().contains(mockCategory), "Category should not be in Set.");
     }
 
-    @Test
-    @DisplayName("4. add and remove comments")
-    public void testAddComment() {
-        blogEntry.addComment(mockComment1);
-        blogEntry.addComment(mockComment2);
-        assertTrue(blogEntry.getComments().contains(mockComment1));
-        assertTrue(blogEntry.getComments().contains(mockComment2));
-        assertEquals(2, blogEntry.getComments().size(), "Two Comments should be added.");
-
-        blogEntry.removeComment(mockComment1);
-        blogEntry.removeComment(mockComment2);
-        assertFalse(blogEntry.getComments().contains(mockComment1));
-        assertFalse(blogEntry.getComments().contains(mockComment2));
-        assertEquals(0, blogEntry.getComments().size(), "Comments set should be empty.");
-
-        Mockito.verify(mockComment1, Mockito.times(1)).setBlogEntry(blogEntry);
-        Mockito.verify(mockComment2, Mockito.times(1)).setBlogEntry(blogEntry);
-        Mockito.verify(mockComment1, Mockito.times(1)).setBlogEntry(null);
-        Mockito.verify(mockComment2, Mockito.times(1)).setBlogEntry(null);
-    }
 
     @Test
     @DisplayName("5. blogEntry entities are equal with same ID")

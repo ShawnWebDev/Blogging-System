@@ -264,9 +264,8 @@ public class BlogEntryControllerTest {
         System.out.println("response: " + response);
     }
 
-    // n+1 happening but not in update method... only in the context of tests??
     @Test
-    @DisplayName("10. should update existing entry")
+    @DisplayName("10. should update existing entry with updated title and new categories")
     void updateExistingEntry() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + this.testUserToken);
@@ -274,7 +273,7 @@ public class BlogEntryControllerTest {
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
                 "Updated Test Post 3",
                 null,
-                List.of("Test Category 1","Test Category 2"),
+                List.of("Test Category 2", "Test Category 3"),
                 null
         );
 
