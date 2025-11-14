@@ -43,7 +43,7 @@ public class CommentControllerTest {
     }
 
     @Test
-    @DisplayName("1. should fetch all reply comments for parent comment")
+    @DisplayName("1. should fetch all reply comments for parent comment and count replies to them")
     void fetchAllReplyComments() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + this.testUserToken);
@@ -55,6 +55,14 @@ public class CommentControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         System.out.println("response: " + response);
 
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        System.out.println("json: " + documentContext.jsonString());
+        String reply_1  = documentContext.read("$[0].comment");
+        String reply_2  = documentContext.read("$[1].comment");
+
+        System.out.println("reply_1: " + reply_1 +  " reply_2: " + reply_2);
+        assertEquals("Test Reply 1 to Comment 1 on Test Post 1", reply_1);
+        assertEquals("Test Reply 2 to Comment 1 on Test Post 1", reply_2);
     }
 
     @Test
@@ -83,6 +91,9 @@ public class CommentControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         DocumentContext documentContext = JsonPath.parse(response.getBody());
+        String comment  = documentContext.read("$.comment");
+        assertEquals(commentText, comment);
+
         System.out.println("response: " + response);
         System.out.println("documentContext: " + documentContext.jsonString());
     }
@@ -112,6 +123,9 @@ public class CommentControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         DocumentContext documentContext = JsonPath.parse(response.getBody());
+        String comment  = documentContext.read("$.comment");
+        assertEquals(commentText, comment);
+
         System.out.println("response: " + response);
         System.out.println("documentContext: " + documentContext.jsonString());
     }
@@ -127,6 +141,11 @@ public class CommentControllerTest {
                 .exchange("/api/comments/comment/1", HttpMethod.GET, request, String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
+
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        String comment  = documentContext.read("$.comment");
+        assertEquals("Test Comment on Test Post 1", comment);
+
         System.out.println("response: " + response);
     }
 
@@ -150,8 +169,10 @@ public class CommentControllerTest {
         DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
         System.out.println("documentContext: " + documentContext.jsonString());
         String content = documentContext.read("$.comment");
-        System.out.println(content);
         assertEquals(updatedComment, content);
+
+        System.out.println("response: " + response);
+        System.out.println(content);
     }
 
 }
