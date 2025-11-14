@@ -54,7 +54,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentResponseDto getCommentById(Integer commentId) {
         logger.debug("getCommentById: commentId: {}", commentId);
 
-        Comment comment = commentRepo.getCommentById(commentId)
+        Comment comment = commentRepo.findCommentById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
 
         return this.mapRequestToDto(comment);
@@ -75,7 +75,7 @@ public class CommentServiceImpl implements CommentService {
         Comment parentComment = null;
         if (parentId != null) {
             logger.debug("saveComment: getting parent comment {}", parentId);
-            parentComment = commentRepo.getCommentById(parentId)
+            parentComment = commentRepo.findCommentById(parentId)
                     .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + parentId));
         }
 
@@ -86,9 +86,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void updateComment(String newCommentText, Integer commentId, String principalName) {
-
-        Comment commentToUpdate = commentRepo.getCommentById(commentId)
+        Comment commentToUpdate = commentRepo.findCommentById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
+
         if (!commentToUpdate.getAuthor().getUsername().equals(principalName)) {
             throw new ResourceNotFoundException("Entry not found with id " + commentId);
         }

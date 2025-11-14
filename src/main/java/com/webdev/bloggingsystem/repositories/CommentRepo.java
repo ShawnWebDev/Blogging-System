@@ -14,5 +14,7 @@ public interface CommentRepo extends CrudRepository<Comment, Integer> {
     List<Comment> findAllByParentCommentId(@Param("id") Integer parentId);
 
     @Query(value = "SELECT c FROM Comment c JOIN FETCH c.author WHERE c.id = :id")
-    Optional<Comment> getCommentById(Integer id);
+    Optional<Comment> findCommentById(Integer id);
+
+    Integer countRepliesByParentCommentId(Integer parentCommentId);
 }
