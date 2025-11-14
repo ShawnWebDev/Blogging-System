@@ -18,7 +18,8 @@ public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer> {
     Optional<BlogEntry> findBlogEntryByIdAndAuthorUsername(Integer id, String authorUsername);
 
     @Query(value = "SELECT b FROM BlogEntry b " +
-            "JOIN FETCH b.author JOIN FETCH b.categories LEFT JOIN FETCH b.comments " +
+            "JOIN FETCH b.author JOIN FETCH b.categories LEFT JOIN FETCH b.comments c " +
+            "LEFT JOIN FETCH c.author " +
             "WHERE b.id = :id")
     Optional<BlogEntry> findBlogEntryById(Integer id);
 
@@ -26,8 +27,8 @@ public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer> {
 
     // todo n+1 problem with loading categories
     @Query(value = "SELECT b from BlogEntry b " +
-            "JOIN FETCH b.author JOIN FETCH b.categories " +
-            "WHERE b.isPublic = true",
+            "JOIN FETCH b.author JOIN FETCH b.categories LEFT JOIN FETCH b.comments c " +
+            "WHERE b.isPublic = true AND c.parentComment.id IS NULL",
             countQuery = "SELECT count(b) FROM BlogEntry b WHERE b.isPublic = true")
     Page<BlogEntry> findAllByIsPublicTrue(Pageable pageable);
 
