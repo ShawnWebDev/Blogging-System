@@ -332,6 +332,7 @@ public class BlogEntryControllerTest {
         ResponseEntity<Void> response = restTemplate
                 .exchange("/api/posts/1", HttpMethod.PUT, request, Void.class);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
+        System.out.println("response: " + response);
     }
 
     @Test

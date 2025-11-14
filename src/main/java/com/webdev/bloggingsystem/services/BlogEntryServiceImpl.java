@@ -20,7 +20,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -98,9 +97,10 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
     @Override
     public void updateEntryById(Integer id, BlogEntryRequestDto blogEntryRequestDto, String principalName) {
-        logger.debug("updateEntryById: getting entry by id {}", id);
+        logger.debug("updateEntryById: getting entry by id {} and author {}", id, principalName);
         BlogEntry entry = blogEntryRepo.findBlogEntryByIdAndAuthorUsername(id, principalName)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
+        logger.debug("found entry: {} with author of {}", entry.toString(), entry.getAuthor().getUsername());
 
         logger.debug("updating entry by id {}", id);
         // todo: validate input!!!
@@ -137,7 +137,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
             throw new ResourceNotFoundException("Entry not found with id " + id);
         }
 
-        blogEntryRepo.betterDeleteById(entryToDelete.getId());
+        blogEntryRepo.deleteBlogEntryById(entryToDelete.getId());
     }
 
 

@@ -10,6 +10,37 @@ import java.util.Set;
 
 @Entity
 @Table(name = "blog_entries")
+@NamedEntityGraphs({
+        @NamedEntityGraph(
+                name = "blog-entry-with-author",
+                attributeNodes = {
+                        @NamedAttributeNode("author")
+                }
+        ),
+        @NamedEntityGraph(
+                name = "blog-entry-partial",
+                attributeNodes = {
+                        @NamedAttributeNode("author"),
+                        @NamedAttributeNode("categories")
+                }
+        ),
+        @NamedEntityGraph(
+                name = "blog-entry-full",
+                attributeNodes = {
+                        @NamedAttributeNode("author"),
+                        @NamedAttributeNode("categories"),
+                        @NamedAttributeNode(value = "comments", subgraph = "comment-author")
+                },
+                subgraphs = {
+                        @NamedSubgraph(
+                                name = "comment-author",
+                                attributeNodes = {
+                                        @NamedAttributeNode("author")
+                                }
+                        )
+                }
+        )
+})
 public class BlogEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +61,7 @@ public class BlogEntry {
     @Column(name = "date_updated",  nullable = false, insertable = false, updatable = false)
     private Instant updatedAt;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private AppUser author;
 

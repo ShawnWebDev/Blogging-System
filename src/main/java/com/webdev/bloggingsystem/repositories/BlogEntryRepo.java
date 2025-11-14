@@ -4,6 +4,7 @@ import com.webdev.bloggingsystem.entities.BlogEntry;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,27 +13,19 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer> {
-    @Query(value = "SELECT b FROM BlogEntry b " +
-            "JOIN FETCH b.author JOIN FETCH b.categories " +
-            "WHERE b.id = :id AND b.author.username = :authorUsername")
-    Optional<BlogEntry> findBlogEntryByIdAndAuthorUsername(Integer id, String authorUsername);
-
-    @Query(value = "SELECT b FROM BlogEntry b " +
-            "JOIN FETCH b.author JOIN FETCH b.categories LEFT JOIN FETCH b.comments c " +
-            "LEFT JOIN FETCH c.author " +
-            "WHERE b.id = :id")
+    @EntityGraph(value = "blog-entry-full", type = EntityGraph.EntityGraphType.LOAD)
     Optional<BlogEntry> findBlogEntryById(Integer id);
 
+    @EntityGraph(value = "blog-entry-partial", type = EntityGraph.EntityGraphType.LOAD)
+    Optional<BlogEntry> findBlogEntryByIdAndAuthorUsername(Integer id, String authorUsername);
+
+    @EntityGraph(value = "blog-entry-with-author", type = EntityGraph.EntityGraphType.LOAD)
     Optional<BlogEntry> findSimpleBlogEntryById(Integer id);
 
-    // todo n+1 problem with loading categories
-    @Query(value = "SELECT b from BlogEntry b " +
-            "JOIN FETCH b.author JOIN FETCH b.categories LEFT JOIN FETCH b.comments c " +
-            "WHERE b.isPublic = true AND c.parentComment.id IS NULL",
-            countQuery = "SELECT count(b) FROM BlogEntry b WHERE b.isPublic = true")
+    @EntityGraph(value = "blog-entry-partial", type =  EntityGraph.EntityGraphType.LOAD)
     Page<BlogEntry> findAllByIsPublicTrue(Pageable pageable);
 
     @Modifying
     @Query(value = "DELETE FROM blog_entries WHERE id = :id", nativeQuery = true)
-    void betterDeleteById(@Param("id") Integer id);
+    void deleteBlogEntryById(@Param("id") Integer id);
 }
