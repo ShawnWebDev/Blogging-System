@@ -19,7 +19,8 @@ VALUES
 INSERT INTO Categories(category, description)
 VALUES
     ('Test Category 1', 'Just a test category.'),
-    ('Test Category 2', 'Just a test category 2.');
+    ('Test Category 2', 'Just a test category 2.'),
+    ('Test Category 3', 'Just a test category 3.');
 
 INSERT INTO Blog_Entries(title, date_published, date_updated, content, is_public, author_id)
 VALUES
