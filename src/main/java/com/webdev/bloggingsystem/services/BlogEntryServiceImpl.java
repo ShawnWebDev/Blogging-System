@@ -19,9 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -31,16 +30,22 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     private final BlogEntryRepo blogEntryRepo;
     private final AppUserRepo appUserRepo;
     private final CategoryRepo categoryRepo;
+    private final CommentRepo commentRepo;
 
     public BlogEntryServiceImpl(BlogEntryRepo blogEntryRepo, AppUserRepo appUserRepo, CategoryRepo categoryRepo,
                                 CommentRepo commentRepo) {
         this.blogEntryRepo = blogEntryRepo;
         this.appUserRepo = appUserRepo;
         this.categoryRepo = categoryRepo;
+        this.commentRepo = commentRepo;
     }
+
+    // todo : add method for optional search params - Author.username and/or Category.categoryName.
 
     @Override
     public BlogEntryResponseDto getBlogEntryById(Integer id, String principalName) {
+        // gets single BlogEntry with full entity graph for viewing it in entirety
+        // BlogEntry content, Author, Categories, and top-level Comments with a count of replies.
         logger.debug("getBlogEntryById: findBlogEntryById");
         BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
@@ -50,12 +55,33 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         if (!entry.isPublic() && !entry.getAuthor().getUsername().equals(principalName)) {
             throw new ResourceNotFoundException("Entry not found with id " + id);
         }
+
+        logger.debug("getBlogEntryById, comments in entry: {}", entry.getComments());
+        List<Integer> commentIds = entry.getComments().stream().map(Comment::getId).toList();
+
+        Map<Integer, Integer> countRepliesByParentCommentIds = commentRepo.countRepliesByParentCommentIds(commentIds)
+                        .stream().collect(Collectors.toMap(
+                        row -> row.get("parentId", Integer.class),
+                        row -> row.get("replyCount", Long.class).intValue()
+                ));
+
+        List<CommentResponseDto> commentResponseDtos = entry.getComments().stream()
+                        .map(comment -> new CommentResponseDto(
+                                comment.getId(),
+                                comment.getComment(),
+                                comment.getCreatedAt(),
+                                comment.getAuthor().getUsername(),
+                                countRepliesByParentCommentIds.getOrDefault(comment.getId(), 0)
+                        )).toList();
+
         logger.debug("getBlogEntryById: calling/building response dto");
-        return new BlogEntryResponseDto(entry, true);
+        return new BlogEntryResponseDto(entry, commentResponseDtos);
     }
 
     @Override
     public PaginatedBlogEntriesResponseDto getAllPublicBlogEntries(Pageable pageable) {
+        // gets a page of BlogEntries for viewing lists or searching, sortable by any field in BlogEntry
+        // Entry content, Author, and Categories, will not contain comments
         // default is descending sort by updatedAt, pageSize 20, pageNumber 0
         Page<BlogEntry> blogEntries = blogEntryRepo.findAllByIsPublicTrue(
                 PageRequest.of(
@@ -64,10 +90,11 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                         pageable.getSortOr(Sort.by(Sort.Direction.DESC, "updatedAt"))
                 )
         );
+        logger.debug("getAllPublicBlogEntries: returned page: {}", blogEntries.get());
 
         List<BlogEntryResponseDto> responseDtos = new ArrayList<>();
         for (BlogEntry blogEntry : blogEntries.getContent()) {
-            responseDtos.add(new BlogEntryResponseDto(blogEntry, false));
+            responseDtos.add(new BlogEntryResponseDto(blogEntry, List.of()));
         }
 
         return new PaginatedBlogEntriesResponseDto(
