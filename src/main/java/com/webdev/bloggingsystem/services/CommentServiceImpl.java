@@ -18,6 +18,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -37,11 +39,17 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentResponseDto> getAllRepliesByParentId(Integer parentId) {
         List<Comment> comments = commentRepo.findAllByParentCommentId(parentId);
         List<CommentResponseDto> responseDtos;
+        List<Integer> commentIds = comments.stream().map(Comment::getId).toList();
+        Map<Integer, Integer> countRepliesByParentCommentIds = commentRepo.countRepliesByParentCommentIds(commentIds)
+                .stream().collect(Collectors.toMap(
+                        row -> row.get("parentId", Integer.class),
+                        row -> row.get("replyCount", Long.class).intValue()
+                ));
         if (!comments.isEmpty()) {
             responseDtos = new ArrayList<>();
             for (Comment comment : comments) {
                 responseDtos.add(
-                        this.mapRequestToDto(comment)
+                        this.mapRequestToDto(comment, countRepliesByParentCommentIds.getOrDefault(comment.getId(), 0))
                 );
             }
             logger.debug("getAllRepliesByParentId: responseDtos: {}", responseDtos);
@@ -54,10 +62,13 @@ public class CommentServiceImpl implements CommentService {
     public CommentResponseDto getCommentById(Integer commentId) {
         logger.debug("getCommentById: commentId: {}", commentId);
 
+        Integer amount = commentRepo.countRepliesByParentCommentId(commentId);
+        logger.debug("getCommentById: reply count: {}", amount);
+
         Comment comment = commentRepo.findCommentById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
 
-        return this.mapRequestToDto(comment);
+        return this.mapRequestToDto(comment, amount);
     }
 
     // todo: create validation logic, use before saving & updating.
@@ -104,9 +115,9 @@ public class CommentServiceImpl implements CommentService {
         return comment;
     }
 
-    private CommentResponseDto mapRequestToDto(Comment comment) {
+    private CommentResponseDto mapRequestToDto(Comment comment, Integer amount) {
         return new CommentResponseDto(
-                comment.getId(), comment.getComment(), comment.getCreatedAt(), comment.getAuthor().getUsername()
+                comment.getId(), comment.getComment(), comment.getCreatedAt(), comment.getAuthor().getUsername(), amount
         );
     }
 }

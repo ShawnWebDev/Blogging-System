@@ -6,5 +6,6 @@ public record CommentResponseDto(
         int id,
         String comment,
         Instant createdAt,
-        String author
+        String author,
+        Integer replyCount
 ) {}
