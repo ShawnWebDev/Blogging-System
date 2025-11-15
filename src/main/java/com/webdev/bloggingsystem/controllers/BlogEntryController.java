@@ -28,18 +28,28 @@ public class BlogEntryController {
 
     @GetMapping("/posts/{id}")
     public ResponseEntity<BlogEntryResponseDto> getBlogEntry(@PathVariable Integer id, Principal principal) {
+
         return ResponseEntity.ok(blogEntryService.getBlogEntryById(id, principal.getName()));
     }
 
+    // todo: finish filtering by request params
     @GetMapping("/posts")
-    public ResponseEntity<PaginatedBlogEntriesResponseDto> getAllPublicBlogEntries(Pageable pageable) {
+    public ResponseEntity<PaginatedBlogEntriesResponseDto> getAllPublicBlogEntries(
+            Pageable pageable,
+            @RequestParam(name = "category-name", required = false ) String categoryName,
+            @RequestParam(name = "username", required = false) String username,
+            @RequestParam(name = "after-date", required = false) String afterDate,
+            @RequestParam(name = "before-date", required = false) String beforeDate) {
+
+        System.out.println("getAllPublicBlogEntries: filters: " + categoryName + " " + username + " " + afterDate + " " + beforeDate);
         return ResponseEntity.ok(blogEntryService.getAllPublicBlogEntries(pageable));
     }
 
-    // ToDo: need to validate BlogEntryRequestDto fields (in service layer)...
+    // Todo: need to validate BlogEntryRequestDto fields (in service layer or in DTO?)...
     @PostMapping("/posts")
     public ResponseEntity<Void> createBlogEntry(@RequestBody BlogEntryRequestDto blogEntryRequestDto,
                                                 Principal principal, UriComponentsBuilder ucb) {
+
         return ResponseEntity.created(blogEntryService.saveEntry(blogEntryRequestDto, principal.getName(), ucb)).build();
     }
 
@@ -47,12 +57,14 @@ public class BlogEntryController {
     public ResponseEntity<Void> updateBlogEntry(@PathVariable Integer id,
                                                  @RequestBody BlogEntryRequestDto blogEntryRequestDto,
                                                  Principal principal) {
+
         blogEntryService.updateEntryById(id, blogEntryRequestDto, principal.getName());
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/posts/{id}")
     public ResponseEntity<Void> deleteBlogEntry(@PathVariable Integer id, Principal principal) {
+
         blogEntryService.deleteEntryById(id, principal.getName());
         return ResponseEntity.noContent().build();
     }
