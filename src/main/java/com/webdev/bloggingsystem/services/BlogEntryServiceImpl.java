@@ -40,8 +40,6 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         this.commentRepo = commentRepo;
     }
 
-    // todo : add method for optional search params - Author.username and/or Category.categoryName.
-
     @Override
     public BlogEntryResponseDto getBlogEntryById(Integer id, String principalName) {
         // gets single BlogEntry with full entity graph for viewing it in entirety
@@ -50,20 +48,17 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
 
-        // could use repo to make this check - but, want to be able to allow author to view their own private entries,
-        logger.debug("getBlogEntryById: checking author against principal");
+        // could use repo to make this check - but, want to be able to allow author to view their own private entries
         if (!entry.isPublic() && !entry.getAuthor().getUsername().equals(principalName)) {
             throw new ResourceNotFoundException("Entry not found with id " + id);
         }
 
-        logger.debug("getBlogEntryById, comments in entry: {}", entry.getComments());
         List<Integer> commentIds = entry.getComments().stream().map(Comment::getId).toList();
 
         Map<Integer, Integer> countRepliesByParentCommentIds = commentRepo.countRepliesByParentCommentIds(commentIds)
                         .stream().collect(Collectors.toMap(
                         row -> row.get("parentId", Integer.class),
-                        row -> row.get("replyCount", Long.class).intValue()
-                ));
+                        row -> row.get("replyCount", Long.class).intValue()));
 
         List<CommentResponseDto> commentResponseDtos = entry.getComments().stream()
                         .map(comment -> new CommentResponseDto(
@@ -74,10 +69,12 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                                 countRepliesByParentCommentIds.getOrDefault(comment.getId(), 0)
                         )).toList();
 
-        logger.debug("getBlogEntryById: calling/building response dto");
         return new BlogEntryResponseDto(entry, commentResponseDtos);
     }
 
+    // todo : add optional search params - Author.username Category.categoryName, DateBefore, DateAfter
+    // todo : will need to create some Specification object (look up)
+    //  will also need to extend the Repository to use the JpaSpecificationExecutor<BlogEntry>.
     @Override
     public PaginatedBlogEntriesResponseDto getAllPublicBlogEntries(Pageable pageable) {
         // gets a page of BlogEntries for viewing lists or searching, sortable by any field in BlogEntry
@@ -156,13 +153,9 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     @Transactional
     @Override
     public void deleteEntryById(Integer id, String principalName) {
-        logger.debug("deleteEntryById: getting entry by id {} and author name {}", id, principalName);
-        BlogEntry entryToDelete = blogEntryRepo.findById(id)
+        logger.debug("deleteEntryById: ensuring entry by id {} is owned by author name {}", id, principalName);
+        BlogEntry entryToDelete = blogEntryRepo.findSimpleBlogEntryByIdAndAuthorUsername(id, principalName)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
-
-        if (!entryToDelete.getAuthor().getUsername().equals(principalName)) {
-            throw new ResourceNotFoundException("Entry not found with id " + id);
-        }
 
         blogEntryRepo.deleteBlogEntryById(entryToDelete.getId());
     }
