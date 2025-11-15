@@ -5,12 +5,14 @@ import com.webdev.bloggingsystem.entities.BlogEntryResponseDto;
 import com.webdev.bloggingsystem.entities.PaginatedBlogEntriesResponseDto;
 import com.webdev.bloggingsystem.services.BlogEntryService;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import java.security.Principal;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -27,9 +29,13 @@ public class BlogEntryController {
     }
 
     @GetMapping("/posts/{id}")
-    public ResponseEntity<BlogEntryResponseDto> getBlogEntry(@PathVariable Integer id, Principal principal) {
-
-        return ResponseEntity.ok(blogEntryService.getBlogEntryById(id, principal.getName()));
+    public ResponseEntity<BlogEntryResponseDto> getBlogEntry(@PathVariable Integer id,
+                                                             @AuthenticationPrincipal Optional<Principal> principal) {
+        String username = null;
+        if (principal != null && principal.isPresent()) {
+            username = principal.get().getName();
+        }
+        return ResponseEntity.ok(blogEntryService.getBlogEntryById(id, username));
     }
 
     // todo: finish filtering by request params

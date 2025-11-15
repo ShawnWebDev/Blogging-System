@@ -49,7 +49,8 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
 
         // could use repo to make this check - but, want to be able to allow author to view their own private entries
-        if (!entry.isPublic() && !entry.getAuthor().getUsername().equals(principalName)) {
+        if (principalName == null && !entry.isPublic() ||
+                principalName != null && !entry.isPublic() && !entry.getAuthor().getUsername().equals(principalName)) {
             throw new ResourceNotFoundException("Entry not found with id " + id);
         }
 

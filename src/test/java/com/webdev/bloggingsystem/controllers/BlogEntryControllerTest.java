@@ -228,29 +228,13 @@ public class BlogEntryControllerTest {
     }
 
     @Test
-    @DisplayName("8. should not return entry using bad credentials")
-    void blogEntryWithBadCredentials() {
-        String token = this.getToken("NotAUser", "TestPassword");
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
+    @DisplayName("8. should return entry without credentials")
+    void blogEntryWithNoCredentials() {
         // wrong user, existing password
         ResponseEntity<String> response1 = restTemplate
-                .exchange("/api/posts/1", HttpMethod.GET, entity, String.class);
+                .getForEntity("/api/posts/1", String.class);
 
-        assertEquals(HttpStatus.UNAUTHORIZED, response1.getStatusCode(), "Should return 401 UNAUTHORIZED");
-
-        token = this.getToken("TestUser", "BadPassword");
-        headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
-        entity = new HttpEntity<>(headers);
-
-        // right user, wrong password
-        ResponseEntity<String> response2 = restTemplate
-                .exchange("/api/posts/1", HttpMethod.GET, entity, String.class);
-
-        assertEquals(HttpStatus.UNAUTHORIZED, response2.getStatusCode(), "Should return 401 UNAUTHORIZED");
+        assertEquals(HttpStatus.OK, response1.getStatusCode(), "Should return 200 OK");
     }
 
     @Test
@@ -427,21 +411,7 @@ public class BlogEntryControllerTest {
     }
 
     @Test
-    @DisplayName("17. should return all public BlogEntries with category of Test Category 2")
-    void getAllPublicBlogEntriesFilteredByCategory() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + this.testUserToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<String> response = restTemplate
-                .exchange("/api/posts?sort=createdAt,asc&category-name=Test Category 2", HttpMethod.GET, entity, String.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
-        System.out.println("response: " + response.getBody());
-    }
-
-    @Test
-    @DisplayName("18. should return all BlogEntries for TestAdmin sorted ascending by createdAt")
+    @DisplayName("17. should return all BlogEntries for TestAdmin sorted ascending by createdAt")
     void getAllBlogEntriesForAdmin() {
         HttpHeaders headers = new HttpHeaders();
         String token = this.getToken("TestAdmin", "TestPassword");
@@ -467,4 +437,18 @@ public class BlogEntryControllerTest {
         assertEquals(List.of("Test Post 1", "Test Post 2"), titles);
     }
 
+    //todo : complete
+    @Test
+    @DisplayName("18. should return all public BlogEntries with category of Test Category 2")
+    void getAllPublicBlogEntriesFilteredByCategory() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts?sort=createdAt,asc&category-name=Test Category 2", HttpMethod.GET, entity, String.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
+        System.out.println("response: " + response.getBody());
+    }
 }

@@ -45,6 +45,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                             .requestMatchers("/auth/**").permitAll()
+                            .requestMatchers(req -> req.getMethod().equals("GET")).permitAll()
+                            .requestMatchers(req -> req.getMethod().equals("POST")).authenticated()
+                            .requestMatchers(req -> req.getMethod().equals("PUT")).authenticated()
+                            .requestMatchers(req -> req.getMethod().equals("DELETE")).authenticated()
                             .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2Resource ->
