@@ -55,7 +55,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
         List<Integer> commentIds = entry.getComments().stream().map(Comment::getId).toList();
 
-        Map<Integer, Integer> countRepliesByParentCommentIds = commentRepo.countRepliesByParentCommentIds(commentIds)
+        Map<Integer, Integer> mapReplyCountToParentCommentIds = commentRepo.countRepliesByParentCommentIds(commentIds)
                         .stream().collect(Collectors.toMap(
                         row -> row.get("parentId", Integer.class),
                         row -> row.get("replyCount", Long.class).intValue()));
@@ -66,7 +66,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                                 comment.getComment(),
                                 comment.getCreatedAt(),
                                 comment.getAuthor().getUsername(),
-                                countRepliesByParentCommentIds.getOrDefault(comment.getId(), 0)
+                                mapReplyCountToParentCommentIds.getOrDefault(comment.getId(), 0)
                         )).toList();
 
         return new BlogEntryResponseDto(entry, commentResponseDtos);
@@ -76,18 +76,24 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     // todo : will need to create some Specification object (look up)
     //  will also need to extend the Repository to use the JpaSpecificationExecutor<BlogEntry>.
     @Override
-    public PaginatedBlogEntriesResponseDto getAllPublicBlogEntries(Pageable pageable) {
-        // gets a page of BlogEntries for viewing lists or searching, sortable by any field in BlogEntry
-        // Entry content, Author, and Categories, will not contain comments
+    public PaginatedBlogEntriesResponseDto getAllBlogEntries(Pageable pageable, String username) {
+        // Gets a page of BlogEntries for viewing lists or searching, sortable by any field in BlogEntry,
+        // Can be public entries or both public and private if principal is available,
+        // Entry content, Author, and Categories, will not contain comments,
         // default is descending sort by updatedAt, pageSize 20, pageNumber 0
-        Page<BlogEntry> blogEntries = blogEntryRepo.findAllByIsPublicTrue(
-                PageRequest.of(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.DESC, "updatedAt"))
-                )
-        );
-        logger.debug("getAllPublicBlogEntries: returned page: {}", blogEntries.get());
+        logger.debug("getAllBlogEntries");
+
+        PageRequest pageRequest = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSortOr(Sort.by(Sort.Direction.DESC, "updatedAt")));
+
+        Page<BlogEntry> blogEntries;
+        if (username == null) {
+            blogEntries = blogEntryRepo.findAllByIsPublicTrue(pageRequest);
+        } else {
+            blogEntries = blogEntryRepo.findAllBlogEntryByAuthorUsername(pageRequest, username);
+        }
 
         List<BlogEntryResponseDto> responseDtos = new ArrayList<>();
         for (BlogEntry blogEntry : blogEntries.getContent()) {

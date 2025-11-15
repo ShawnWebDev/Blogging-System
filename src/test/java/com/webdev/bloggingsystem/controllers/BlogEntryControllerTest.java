@@ -416,7 +416,7 @@ public class BlogEntryControllerTest {
         System.out.println("initialCategoryCount: " + initialCategoryCount);
         assertEquals(1, initialCategoryCount);
         System.out.println("delete entry");
-        System.out.println(restTemplate.withBasicAuth("TestUser", "TestPassword")
+        System.out.println(restTemplate
                 .exchange("/api/posts/3", HttpMethod.DELETE, request, Void.class));
 
         System.out.println("checking for deleted category join table");
@@ -439,4 +439,32 @@ public class BlogEntryControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         System.out.println("response: " + response.getBody());
     }
+
+    @Test
+    @DisplayName("18. should return all BlogEntries for TestAdmin sorted ascending by createdAt")
+    void getAllBlogEntriesForAdmin() {
+        HttpHeaders headers = new HttpHeaders();
+        String token = this.getToken("TestAdmin", "TestPassword");
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts/me?sort=createdAt,asc", HttpMethod.GET, entity, String.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
+        System.out.println("response: " + response.getBody());
+
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        // double . to return list of all values of specified key
+        JSONArray ids = documentContext.read("$..id");
+        JSONArray titles = documentContext.read("$..title");
+
+        // Entry with id 2 is private and should not be included
+        assertEquals(2, ids.size());
+        assertEquals(List.of(1, 2), ids);
+
+        assertEquals(2, titles.size());
+        assertEquals(List.of("Test Post 1", "Test Post 2"), titles);
+    }
+
 }

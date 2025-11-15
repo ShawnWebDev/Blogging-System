@@ -42,8 +42,20 @@ public class BlogEntryController {
             @RequestParam(name = "before-date", required = false) String beforeDate) {
 
         System.out.println("getAllPublicBlogEntries: filters: " + categoryName + " " + username + " " + afterDate + " " + beforeDate);
-        return ResponseEntity.ok(blogEntryService.getAllPublicBlogEntries(pageable));
+        return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, null));
     }
+
+    @GetMapping("/posts/me")
+    public ResponseEntity<PaginatedBlogEntriesResponseDto> getAllBlogEntriesForUser(
+            Pageable pageable, Principal principal,
+            @RequestParam(name = "category-name", required = false ) String categoryName,
+            @RequestParam(name = "after-date", required = false) String afterDate,
+            @RequestParam(name = "before-date", required = false) String beforeDate) {
+
+        System.out.println("getAllBlogEntriesForUser: filters: " + categoryName + " " + afterDate + " " + beforeDate + " username: " + principal.getName());
+        return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, principal.getName()));
+    }
+
 
     // Todo: need to validate BlogEntryRequestDto fields (in service layer or in DTO?)...
     @PostMapping("/posts")
