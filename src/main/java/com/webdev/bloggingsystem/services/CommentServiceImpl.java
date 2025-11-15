@@ -45,6 +45,7 @@ public class CommentServiceImpl implements CommentService {
                         row -> row.get("parentId", Integer.class),
                         row -> row.get("replyCount", Long.class).intValue()
                 ));
+
         if (!comments.isEmpty()) {
             responseDtos = new ArrayList<>();
             for (Comment comment : comments) {
@@ -62,11 +63,11 @@ public class CommentServiceImpl implements CommentService {
     public CommentResponseDto getCommentById(Integer commentId) {
         logger.debug("getCommentById: commentId: {}", commentId);
 
-        Integer amount = commentRepo.countRepliesByParentCommentId(commentId);
-        logger.debug("getCommentById: reply count: {}", amount);
-
         Comment comment = commentRepo.findCommentById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
+
+        Integer amount = commentRepo.countRepliesByParentCommentId(commentId);
+        logger.debug("getCommentById: reply count: {}", amount);
 
         return this.mapRequestToDto(comment, amount);
     }
