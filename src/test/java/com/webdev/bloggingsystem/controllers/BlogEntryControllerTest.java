@@ -1,10 +1,12 @@
 package com.webdev.bloggingsystem.controllers;
 
 import com.webdev.bloggingsystem.entities.BlogEntryRequestDto;
+import com.webdev.bloggingsystem.entities.Comment;
 import com.webdev.bloggingsystem.entities.LoginDto;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.webdev.bloggingsystem.repositories.CommentRepo;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +31,13 @@ public class BlogEntryControllerTest {
     private TestRestTemplate restTemplate;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private CommentRepo commentRepo;
 
     // only for TestUser as it is the most used
     private String testUserToken;
 
-    private Integer countJoinTableEntries(Integer postId) {
+    private Integer countCategoriesJoinTableEntries(Integer postId) {
         // for join table with no repository, only used to check if cascade works when deleting Entry
         return jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM posts_categories WHERE post_id = ?",
@@ -345,7 +349,6 @@ public class BlogEntryControllerTest {
         HttpEntity<String> request = new HttpEntity<>(headers);
         System.out.println("attempting to delete entry");
         ResponseEntity<Void> response = restTemplate
-                .withBasicAuth("TestUser", "TestPassword")
                 .exchange("/api/posts/3", HttpMethod.DELETE, request, Void.class);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Should return 204 NO CONTENT");
@@ -355,6 +358,11 @@ public class BlogEntryControllerTest {
                 .exchange("/api/posts/3", HttpMethod.GET, request, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, getResponse.getStatusCode(), "Should return 404 NOT FOUND");
+
+        System.out.println("Checking associated comments are also deleted...");
+        List<Comment> comments = commentRepo.findAllByBlogEntryId(3);
+        assertEquals(0, comments.size());
+        System.out.println("comments: " + comments);
     }
 
     @Test
@@ -378,6 +386,7 @@ public class BlogEntryControllerTest {
         headers.add("Authorization", "Bearer " + token);
         HttpEntity<String> request = new HttpEntity<>(headers);
 
+        System.out.println("attempting to delete entry");
         ResponseEntity<Void> response = restTemplate
                 .exchange("/api/posts/3", HttpMethod.DELETE, request, Void.class);
 
@@ -388,6 +397,7 @@ public class BlogEntryControllerTest {
         headers.add("Authorization", "Bearer " + this.testUserToken);
         request = new HttpEntity<>(headers);
 
+        System.out.println("Checking entry is not deleted...");
         ResponseEntity<String> getResponse = restTemplate
                 .exchange("/api/posts/3", HttpMethod.GET, request, String.class);
 
@@ -402,7 +412,7 @@ public class BlogEntryControllerTest {
         headers.add("Authorization", "Bearer " + this.testUserToken);
         HttpEntity<String> request = new HttpEntity<>(headers);
 
-        Integer initialCategoryCount = countJoinTableEntries(3);
+        Integer initialCategoryCount = this.countCategoriesJoinTableEntries(3);
         System.out.println("initialCategoryCount: " + initialCategoryCount);
         assertEquals(1, initialCategoryCount);
         System.out.println("delete entry");
@@ -411,8 +421,22 @@ public class BlogEntryControllerTest {
 
         System.out.println("checking for deleted category join table");
 
-        Integer finalCategoryCount = countJoinTableEntries(3);
+        Integer finalCategoryCount = this.countCategoriesJoinTableEntries(3);
         System.out.println("finalCategoryCount: " + finalCategoryCount);
         assertEquals(0, finalCategoryCount);
+    }
+
+    @Test
+    @DisplayName("17. should return all public BlogEntries with category of Test Category 2")
+    void getAllPublicBlogEntriesFilteredByCategory() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts?sort=createdAt,asc&category-name=Test Category 2", HttpMethod.GET, entity, String.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
+        System.out.println("response: " + response.getBody());
     }
 }
