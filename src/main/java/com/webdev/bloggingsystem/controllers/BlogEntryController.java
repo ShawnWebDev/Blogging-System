@@ -46,7 +46,7 @@ public class BlogEntryController {
             @ModelAttribute BlogEntryFilterRequest blogEntryFilter) {
 
         System.out.println("getAllBlogEntriesForUser: filters: " + blogEntryFilter.categoryName() + " " + blogEntryFilter.afterDate() + " " + blogEntryFilter.beforeDate());
-        return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, null));
+        return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, null, blogEntryFilter));
     }
 
     @GetMapping("/posts/me")
@@ -55,7 +55,7 @@ public class BlogEntryController {
             @ModelAttribute BlogEntryFilterRequest blogEntryFilter) {
 
         System.out.println("getAllBlogEntriesForUser: filters: " + blogEntryFilter.categoryName() + " " + blogEntryFilter.afterDate() + " " + blogEntryFilter.beforeDate() + " username: " + principal.getName());
-        return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, principal.getName()));
+        return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, principal.getName(), blogEntryFilter));
     }
 
 

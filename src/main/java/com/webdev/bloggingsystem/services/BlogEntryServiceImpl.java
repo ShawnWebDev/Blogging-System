@@ -1,9 +1,6 @@
 package com.webdev.bloggingsystem.services;
 
-import com.webdev.bloggingsystem.dto.BlogEntryRequestDto;
-import com.webdev.bloggingsystem.dto.BlogEntryResponseDto;
-import com.webdev.bloggingsystem.dto.CommentResponseDto;
-import com.webdev.bloggingsystem.dto.PaginatedBlogEntriesResponseDto;
+import com.webdev.bloggingsystem.dto.*;
 import com.webdev.bloggingsystem.entities.*;
 import com.webdev.bloggingsystem.exceptions.ResourceNotFoundException;
 import com.webdev.bloggingsystem.repositories.AppUserRepo;
@@ -11,6 +8,8 @@ import com.webdev.bloggingsystem.repositories.BlogEntryRepo;
 import com.webdev.bloggingsystem.repositories.CategoryRepo;
 import com.webdev.bloggingsystem.repositories.CommentRepo;
 
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +17,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,24 +82,36 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     // todo : will need to create some Specification object (look up)
     //  will also need to extend the Repository to use the JpaSpecificationExecutor<BlogEntry>.
     @Override
-    public PaginatedBlogEntriesResponseDto getAllBlogEntries(Pageable pageable, String username) {
+    public PaginatedBlogEntriesResponseDto getAllBlogEntries(Pageable pageable, String principleName,
+                                                             BlogEntryFilterRequest filterRequest) {
         // Gets a page of BlogEntries for viewing lists or searching, sortable by any field in BlogEntry,
         // Can be public entries or both public and private if principal is available,
         // Entry content, Author, and Categories, will not contain comments,
-        // default is descending sort by updatedAt, pageSize 20, pageNumber 0
+        // default is descending sort by updatedAt, pageSize 10, pageNumber 0
+        // max pageSize is 50, batch size for category join table is set to 50
         logger.debug("getAllBlogEntries");
+        Specification<BlogEntry> spec = getBlogEntrySpecification(filterRequest);
 
         PageRequest pageRequest = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
                 pageable.getSortOr(Sort.by(Sort.Direction.DESC, "updatedAt")));
 
-        Page<BlogEntry> blogEntries;
-        if (username == null) {
-            blogEntries = blogEntryRepo.findAllByIsPublicTrue(pageRequest);
+        if (principleName == null) {
+            spec = spec.and(((root, query, criteriaBuilder) ->
+                    criteriaBuilder.isTrue(root.get("isPublic"))));
         } else {
-            blogEntries = blogEntryRepo.findAllBlogEntryByAuthorUsername(pageRequest, username);
+            spec = spec.and((root, query, criteriaBuilder) -> {
+                        Join<BlogEntry, AppUser> categoryJoin = root.join("author", JoinType.INNER);
+                        return criteriaBuilder.equal(categoryJoin.get("username"), principleName);
+                    });
         }
+
+        Page<BlogEntry> blogEntries = blogEntryRepo.findAll(spec, pageRequest);
+
+        blogEntries.getContent().forEach(entry -> {
+            entry.getCategories().size();
+        });
 
         List<BlogEntryResponseDto> responseDtos = new ArrayList<>();
         for (BlogEntry blogEntry : blogEntries.getContent()) {
@@ -114,6 +127,43 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                 blogEntries.isLast(),
                 blogEntries.isFirst()
         );
+    }
+
+    private static Specification<BlogEntry> getBlogEntrySpecification(BlogEntryFilterRequest filterRequest) {
+        Specification<BlogEntry> spec = (root, query,criteriaBuilder) -> {
+            if (query != null) {
+                logger.debug("getBlogEntrySpecification: {}", query);
+                query.distinct(true);
+            }
+            return criteriaBuilder.conjunction();
+        };
+
+        if (filterRequest.categoryName() != null) {
+            logger.debug("getBlogEntrySpecification: filterRequest.categoryName is  {}", filterRequest.categoryName());
+            spec = spec.and((root, query, criteriaBuilder) -> {
+                Join<BlogEntry, Category> categoryJoin = root.join("categories", JoinType.INNER);
+                return criteriaBuilder.equal(
+                        categoryJoin.get("categoryName"), filterRequest.categoryName()
+                );
+            });
+        }
+
+        logger.debug("checking other filters...");
+        if (filterRequest.afterDate() != null) {
+            Instant afterDate = Instant.parse(filterRequest.afterDate());
+            spec = spec.and(((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("updatedAt"), afterDate))
+            );
+        }
+
+        if (filterRequest.beforeDate() != null) {
+            Instant beforeDate = Instant.parse(filterRequest.beforeDate());
+            spec = spec.and(((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("updatedAt"), beforeDate))
+            );
+        }
+
+        return spec;
     }
 
     // todo: create validation logic, use before saving & updating.
@@ -145,8 +195,9 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         if (blogEntryRequestDto.isPublic() != null) entry.setPublic(blogEntryRequestDto.isPublic());
         if (blogEntryRequestDto.categories() != null) {
             Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
+            Set<Category> categoriesToRemove = new HashSet<>(entry.getCategories());
             logger.debug("removing categories");
-            for (Category category : entry.getCategories()) {
+            for (Category category : categoriesToRemove) {
                 if (!categories.contains(category)) {
                     entry.removeCategory(category);
                 }

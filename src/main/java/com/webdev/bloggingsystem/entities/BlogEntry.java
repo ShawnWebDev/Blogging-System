@@ -1,6 +1,7 @@
 package com.webdev.bloggingsystem.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.Instant;
@@ -69,6 +70,7 @@ public class BlogEntry {
     @JoinTable(name = "posts_categories",
             joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @BatchSize(size = 50)
     private Set<Category> categories =  new HashSet<>();
 
     @OneToMany(mappedBy = "blogEntry", orphanRemoval = true, fetch = FetchType.LAZY)

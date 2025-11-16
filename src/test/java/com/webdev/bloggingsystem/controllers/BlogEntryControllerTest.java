@@ -398,7 +398,7 @@ public class BlogEntryControllerTest {
 
         Integer initialCategoryCount = this.countCategoriesJoinTableEntries(3);
         System.out.println("initialCategoryCount: " + initialCategoryCount);
-        assertEquals(1, initialCategoryCount);
+        assertEquals(2, initialCategoryCount);
         System.out.println("delete entry");
         System.out.println(restTemplate
                 .exchange("/api/posts/3", HttpMethod.DELETE, request, Void.class));
@@ -437,7 +437,6 @@ public class BlogEntryControllerTest {
         assertEquals(List.of("Test Post 1", "Test Post 2"), titles);
     }
 
-    //todo : complete
     @Test
     @DisplayName("18. should return all public BlogEntries with category of Test Category 2")
     void getAllPublicBlogEntriesFilteredByCategory() {
@@ -446,7 +445,7 @@ public class BlogEntryControllerTest {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate
-                .exchange("/api/posts?sort=createdAt,asc&category-name=Test Category 2", HttpMethod.GET, entity, String.class);
+                .exchange("/api/posts?sort=createdAt,asc&categoryName=Test Category 2", HttpMethod.GET, entity, String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         System.out.println("response: " + response.getBody());

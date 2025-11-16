@@ -4,15 +4,19 @@ import com.webdev.bloggingsystem.entities.BlogEntry;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.Optional;
 
-public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer> {
+public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer>, JpaSpecificationExecutor<BlogEntry> {
     @EntityGraph(value = "blog-entry-full", type = EntityGraph.EntityGraphType.LOAD)
     Optional<BlogEntry> findBlogEntryById(Integer id);
 
@@ -25,11 +29,10 @@ public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer> {
     @EntityGraph(value = "blog-entry-with-author", type = EntityGraph.EntityGraphType.LOAD)
     Optional<BlogEntry> findSimpleBlogEntryByIdAndAuthorUsername(Integer id, String authorUsername);
 
-    @EntityGraph(value = "blog-entry-partial", type =  EntityGraph.EntityGraphType.LOAD)
-    Page<BlogEntry> findAllByIsPublicTrue(Pageable pageable);
-
-    @EntityGraph(value = "blog-entry-partial", type =  EntityGraph.EntityGraphType.LOAD)
-    Page<BlogEntry> findAllBlogEntryByAuthorUsername(Pageable pageable, String authorUsername);
+    @NonNull
+    @Override
+    @EntityGraph(value = "blog-entry-with-author", type =  EntityGraph.EntityGraphType.LOAD)
+    Page<BlogEntry> findAll(@Nullable Specification<BlogEntry> spec, @NonNull Pageable pageable);
 
     @Modifying
     @Query(value = "DELETE FROM blog_entries WHERE id = :id", nativeQuery = true)
