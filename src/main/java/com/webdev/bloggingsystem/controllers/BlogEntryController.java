@@ -1,8 +1,9 @@
 package com.webdev.bloggingsystem.controllers;
 
-import com.webdev.bloggingsystem.entities.BlogEntryRequestDto;
-import com.webdev.bloggingsystem.entities.BlogEntryResponseDto;
-import com.webdev.bloggingsystem.entities.PaginatedBlogEntriesResponseDto;
+import com.webdev.bloggingsystem.dto.BlogEntryFilterRequest;
+import com.webdev.bloggingsystem.dto.BlogEntryRequestDto;
+import com.webdev.bloggingsystem.dto.BlogEntryResponseDto;
+import com.webdev.bloggingsystem.dto.PaginatedBlogEntriesResponseDto;
 import com.webdev.bloggingsystem.services.BlogEntryService;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,23 +43,18 @@ public class BlogEntryController {
     @GetMapping("/posts")
     public ResponseEntity<PaginatedBlogEntriesResponseDto> getAllPublicBlogEntries(
             Pageable pageable,
-            @RequestParam(name = "category-name", required = false ) String categoryName,
-            @RequestParam(name = "username", required = false) String username,
-            @RequestParam(name = "after-date", required = false) String afterDate,
-            @RequestParam(name = "before-date", required = false) String beforeDate) {
+            @ModelAttribute BlogEntryFilterRequest blogEntryFilter) {
 
-        System.out.println("getAllPublicBlogEntries: filters: " + categoryName + " " + username + " " + afterDate + " " + beforeDate);
+        System.out.println("getAllBlogEntriesForUser: filters: " + blogEntryFilter.categoryName() + " " + blogEntryFilter.afterDate() + " " + blogEntryFilter.beforeDate());
         return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, null));
     }
 
     @GetMapping("/posts/me")
     public ResponseEntity<PaginatedBlogEntriesResponseDto> getAllBlogEntriesForUser(
             Pageable pageable, Principal principal,
-            @RequestParam(name = "category-name", required = false ) String categoryName,
-            @RequestParam(name = "after-date", required = false) String afterDate,
-            @RequestParam(name = "before-date", required = false) String beforeDate) {
+            @ModelAttribute BlogEntryFilterRequest blogEntryFilter) {
 
-        System.out.println("getAllBlogEntriesForUser: filters: " + categoryName + " " + afterDate + " " + beforeDate + " username: " + principal.getName());
+        System.out.println("getAllBlogEntriesForUser: filters: " + blogEntryFilter.categoryName() + " " + blogEntryFilter.afterDate() + " " + blogEntryFilter.beforeDate() + " username: " + principal.getName());
         return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, principal.getName()));
     }
 
@@ -86,5 +82,4 @@ public class BlogEntryController {
         blogEntryService.deleteEntryById(id, principal.getName());
         return ResponseEntity.noContent().build();
     }
-
 }
