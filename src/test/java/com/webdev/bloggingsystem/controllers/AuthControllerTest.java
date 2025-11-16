@@ -1,6 +1,6 @@
 package com.webdev.bloggingsystem.controllers;
 
-import com.webdev.bloggingsystem.entities.LoginDto;
+import com.webdev.bloggingsystem.dto.LoginDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

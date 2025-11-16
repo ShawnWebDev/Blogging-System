@@ -3,7 +3,7 @@ package com.webdev.bloggingsystem.services;
 import com.webdev.bloggingsystem.entities.AppUser;
 import com.webdev.bloggingsystem.entities.BlogEntry;
 import com.webdev.bloggingsystem.entities.Comment;
-import com.webdev.bloggingsystem.entities.CommentResponseDto;
+import com.webdev.bloggingsystem.dto.CommentResponseDto;
 import com.webdev.bloggingsystem.exceptions.ResourceNotFoundException;
 import com.webdev.bloggingsystem.repositories.AppUserRepo;
 import com.webdev.bloggingsystem.repositories.BlogEntryRepo;

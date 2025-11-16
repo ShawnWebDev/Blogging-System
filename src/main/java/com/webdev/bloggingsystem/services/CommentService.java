@@ -1,6 +1,6 @@
 package com.webdev.bloggingsystem.services;
 
-import com.webdev.bloggingsystem.entities.CommentResponseDto;
+import com.webdev.bloggingsystem.dto.CommentResponseDto;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;

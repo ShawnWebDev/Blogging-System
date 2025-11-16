@@ -2,7 +2,7 @@ package com.webdev.bloggingsystem.controllers;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import com.webdev.bloggingsystem.entities.LoginDto;
+import com.webdev.bloggingsystem.dto.LoginDto;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;

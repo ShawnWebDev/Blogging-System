@@ -1,6 +1,6 @@
 package com.webdev.bloggingsystem.controllers;
 
-import com.webdev.bloggingsystem.entities.LoginDto;
+import com.webdev.bloggingsystem.dto.LoginDto;
 import com.webdev.bloggingsystem.services.AuthService;
 
 import org.slf4j.Logger;

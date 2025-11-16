@@ -1,4 +1,7 @@
-package com.webdev.bloggingsystem.entities;
+package com.webdev.bloggingsystem.dto;
+
+import com.webdev.bloggingsystem.entities.BlogEntry;
+import com.webdev.bloggingsystem.entities.Category;
 
 import java.time.Instant;
 import java.util.List;

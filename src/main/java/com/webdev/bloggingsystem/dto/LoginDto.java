@@ -1,4 +1,4 @@
-package com.webdev.bloggingsystem.entities;
+package com.webdev.bloggingsystem.dto;
 
 public record LoginDto(String username, String password) {
 }

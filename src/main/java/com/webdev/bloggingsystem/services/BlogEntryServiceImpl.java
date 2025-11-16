@@ -1,5 +1,9 @@
 package com.webdev.bloggingsystem.services;
 
+import com.webdev.bloggingsystem.dto.BlogEntryRequestDto;
+import com.webdev.bloggingsystem.dto.BlogEntryResponseDto;
+import com.webdev.bloggingsystem.dto.CommentResponseDto;
+import com.webdev.bloggingsystem.dto.PaginatedBlogEntriesResponseDto;
 import com.webdev.bloggingsystem.entities.*;
 import com.webdev.bloggingsystem.exceptions.ResourceNotFoundException;
 import com.webdev.bloggingsystem.repositories.AppUserRepo;

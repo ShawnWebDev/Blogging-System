@@ -1,8 +1,8 @@
 package com.webdev.bloggingsystem.services;
 
-import com.webdev.bloggingsystem.entities.BlogEntryRequestDto;
-import com.webdev.bloggingsystem.entities.BlogEntryResponseDto;
-import com.webdev.bloggingsystem.entities.PaginatedBlogEntriesResponseDto;
+import com.webdev.bloggingsystem.dto.BlogEntryRequestDto;
+import com.webdev.bloggingsystem.dto.BlogEntryResponseDto;
+import com.webdev.bloggingsystem.dto.PaginatedBlogEntriesResponseDto;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.util.UriComponentsBuilder;

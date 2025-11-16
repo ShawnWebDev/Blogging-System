@@ -1,8 +1,8 @@
 package com.webdev.bloggingsystem.controllers;
 
-import com.webdev.bloggingsystem.entities.BlogEntryRequestDto;
+import com.webdev.bloggingsystem.dto.BlogEntryRequestDto;
 import com.webdev.bloggingsystem.entities.Comment;
-import com.webdev.bloggingsystem.entities.LoginDto;
+import com.webdev.bloggingsystem.dto.LoginDto;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;

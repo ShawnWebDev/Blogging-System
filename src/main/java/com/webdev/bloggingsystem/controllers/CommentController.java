@@ -1,6 +1,6 @@
 package com.webdev.bloggingsystem.controllers;
 
-import com.webdev.bloggingsystem.entities.CommentResponseDto;
+import com.webdev.bloggingsystem.dto.CommentResponseDto;
 import com.webdev.bloggingsystem.services.CommentService;
 
 import org.springframework.http.ResponseEntity;
