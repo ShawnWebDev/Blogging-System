@@ -33,7 +33,8 @@ VALUES
     (1,1),
     (1,2),
     (2,1),
-    (3,1);
+    (3,1),
+    (3,2);
 
 INSERT INTO Comments(content, date_created, parent_comment_id, author_id, post_id)
 VALUES
