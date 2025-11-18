@@ -8,6 +8,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -45,10 +46,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                             .requestMatchers("/auth/**").permitAll()
-                            .requestMatchers(req -> req.getMethod().equals("GET")).permitAll()
-                            .requestMatchers(req -> req.getMethod().equals("POST")).authenticated()
-                            .requestMatchers(req -> req.getMethod().equals("PUT")).authenticated()
-                            .requestMatchers(req -> req.getMethod().equals("DELETE")).authenticated()
+                            .requestMatchers(HttpMethod.GET).permitAll()
+                            .requestMatchers(HttpMethod.POST).authenticated()
+                            .requestMatchers(HttpMethod.PUT).authenticated()
+                            .requestMatchers(HttpMethod.DELETE).authenticated()
                             .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2Resource ->
