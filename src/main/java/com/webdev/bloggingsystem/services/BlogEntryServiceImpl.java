@@ -8,6 +8,7 @@ import com.webdev.bloggingsystem.repositories.BlogEntryRepo;
 import com.webdev.bloggingsystem.repositories.CategoryRepo;
 import com.webdev.bloggingsystem.repositories.CommentRepo;
 
+import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
@@ -58,6 +59,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                 principalName != null && !entry.isPublic() && !entry.getAuthor().getUsername().equals(principalName)) {
             throw new ResourceNotFoundException("Entry not found with id " + id);
         }
+        logger.debug("found entry: {} with author of {} and categories of {}", entry, entry.getAuthor().getUsername(), entry.getCategories());
 
         List<Integer> commentIds = entry.getComments().stream().map(Comment::getId).toList();
 
@@ -75,7 +77,11 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                                 mapReplyCountToParentCommentIds.getOrDefault(comment.getId(), 0)
                         )).toList();
 
-        return new BlogEntryResponseDto(entry, commentResponseDtos);
+        List<Tuple> commentCountResult = commentRepo.countCommentsByBlogEntryIds(List.of(entry.getId()));
+        int commentCount = commentCountResult.isEmpty() ? 0
+                : commentCountResult.getFirst().get("commentCount", Long.class).intValue();
+
+        return new BlogEntryResponseDto(entry, commentResponseDtos, commentCount);
     }
 
     // todo : add optional search params - Author.username Category.categoryName, DateBefore, DateAfter
@@ -113,9 +119,18 @@ public class BlogEntryServiceImpl implements BlogEntryService {
             entry.getCategories().size();
         });
 
+        List<Integer> blogIds = blogEntries.getContent().stream().map(BlogEntry::getId).toList();
+
+        Map<Integer, Integer> mapCommentCountToBlogIds = commentRepo.countCommentsByBlogEntryIds(blogIds)
+                .stream().collect(Collectors.toMap(
+                        row -> row.get("blogId", Integer.class),
+                        row -> row.get("commentCount", Long.class).intValue()));
+
         List<BlogEntryResponseDto> responseDtos = new ArrayList<>();
         for (BlogEntry blogEntry : blogEntries.getContent()) {
-            responseDtos.add(new BlogEntryResponseDto(blogEntry, List.of()));
+            responseDtos.add(new BlogEntryResponseDto(blogEntry, List.of(),
+                    mapCommentCountToBlogIds.getOrDefault(blogEntry.getId(), 0))
+            );
         }
 
         return new PaginatedBlogEntriesResponseDto(
@@ -167,6 +182,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     }
 
     // todo: create validation logic, use before saving & updating.
+    @Transactional
     @Override
     public URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, String principalName, UriComponentsBuilder ucb) {
         logger.debug("saveEntry: getting author {}", principalName);
@@ -180,6 +196,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         return ucb.path("/api/posts/{id}").buildAndExpand(savedEntry.getId()).toUri();
     }
 
+    @Transactional
     @Override
     public void updateEntryById(Integer id, BlogEntryRequestDto blogEntryRequestDto, String principalName) {
         logger.debug("updateEntryById: getting entry by id {} and author {}", id, principalName);
@@ -189,7 +206,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
         logger.debug("updating entry by id {}", id);
         // todo: validate input!!!
-        // manually update entry fields from dto
+        // updates entries fields from request dto
         if (blogEntryRequestDto.title() != null) entry.setTitle(blogEntryRequestDto.title());
         if (blogEntryRequestDto.content() != null) entry.setContent(blogEntryRequestDto.content());
         if (blogEntryRequestDto.isPublic() != null) entry.setPublic(blogEntryRequestDto.isPublic());

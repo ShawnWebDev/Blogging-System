@@ -14,9 +14,10 @@ public record BlogEntryResponseDto(
         Instant createdAt,
         Instant updatedAt,
         List<String> categories,
-        List<CommentResponseDto> comments
+        List<CommentResponseDto> comments,
+        int totalComments
 ) {
-    public BlogEntryResponseDto(BlogEntry entry, List<CommentResponseDto> comments) {
+    public BlogEntryResponseDto(BlogEntry entry, List<CommentResponseDto> comments, int commentCount) {
         this(
             entry.getId(),
             entry.getAuthor().getUsername(),
@@ -25,7 +26,8 @@ public record BlogEntryResponseDto(
             entry.getCreatedAt(),
             entry.getUpdatedAt(),
             entry.getCategories().stream().map(Category::getCategoryName).toList(),
-            comments
+            comments,
+            commentCount
         );
     }
 }
