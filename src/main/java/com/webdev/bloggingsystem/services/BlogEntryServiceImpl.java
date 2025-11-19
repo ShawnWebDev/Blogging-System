@@ -49,7 +49,8 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     @Override
     public BlogEntryResponseDto getBlogEntryById(Integer id, String principalName) {
         // gets single BlogEntry with full entity graph for viewing it in entirety
-        // BlogEntry content, Author, Categories, and top-level Comments with a count of replies.
+        // BlogEntry content, Author, Categories, top-level Comments with Comment Author, a count of replies for each comment,
+        // and a total count of all comments.
         logger.debug("getBlogEntryById: findBlogEntryById");
         BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
@@ -61,13 +62,14 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         }
         logger.debug("found entry: {} with author of {} and categories of {}", entry, entry.getAuthor().getUsername(), entry.getCategories());
 
+        // all top-level comment ids - joined where parent_comment_id IS NULL
         List<Integer> commentIds = entry.getComments().stream().map(Comment::getId).toList();
-
+        // maps reply count to the top-level comment ids
         Map<Integer, Integer> mapReplyCountToParentCommentIds = commentRepo.countRepliesByParentCommentIds(commentIds)
                         .stream().collect(Collectors.toMap(
                         row -> row.get("parentId", Integer.class),
                         row -> row.get("replyCount", Long.class).intValue()));
-
+        // creates list of DTOs of comments with reply count
         List<CommentResponseDto> commentResponseDtos = entry.getComments().stream()
                         .map(comment -> new CommentResponseDto(
                                 comment.getId(),
@@ -76,8 +78,9 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                                 comment.getAuthor().getUsername(),
                                 mapReplyCountToParentCommentIds.getOrDefault(comment.getId(), 0)
                         )).toList();
-
+        // returns a list of key value pairs of [blogId : total comment count] (only one since this is getting one entry)
         List<Tuple> commentCountResult = commentRepo.countCommentsByBlogEntryIds(List.of(entry.getId()));
+        // if list is emtpy total comment count is 0
         int commentCount = commentCountResult.isEmpty() ? 0
                 : commentCountResult.getFirst().get("commentCount", Long.class).intValue();
 
@@ -91,11 +94,13 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     public PaginatedBlogEntriesResponseDto getAllBlogEntries(Pageable pageable, String principleName,
                                                              BlogEntryFilterRequest filterRequest) {
         // Gets a page of BlogEntries for viewing lists or searching, sortable by any field in BlogEntry,
-        // Can be public entries or both public and private if principal is available,
-        // Entry content, Author, and Categories, will not contain comments,
-        // default is descending sort by updatedAt, pageSize 10, pageNumber 0
-        // max pageSize is 50, batch size for category join table is set to 50
+        // Can be public or users public and private entries if principalName is available,
+        // DTOs will include Entry content, Author, and Categories, will not contain comments - just total count of them,
+        // default page is descending sort by updatedAt, pageSize 10, pageNumber 0
+        // max pageSize is set to 50 so batch size for category join table is set to 50
+        // called by endpoint methods - getAllPublicBlogEntries() and getAllBlogEntriesForUser()
         logger.debug("getAllBlogEntries");
+        // defines a Specification object for criteria builder to build a filtering query
         Specification<BlogEntry> spec = getBlogEntrySpecification(filterRequest);
 
         PageRequest pageRequest = PageRequest.of(
@@ -103,6 +108,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                 pageable.getPageSize(),
                 pageable.getSortOr(Sort.by(Sort.Direction.DESC, "updatedAt")));
 
+        // check if user is authenticated - principle will be populated with userdetails
         if (principleName == null) {
             spec = spec.and(((root, query, criteriaBuilder) ->
                     criteriaBuilder.isTrue(root.get("isPublic"))));
@@ -112,27 +118,26 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                         return criteriaBuilder.equal(categoryJoin.get("username"), principleName);
                     });
         }
-
+        // repo sends query with built filter and defined page, returns page
         Page<BlogEntry> blogEntries = blogEntryRepo.findAll(spec, pageRequest);
-
-        blogEntries.getContent().forEach(entry -> {
-            entry.getCategories().size();
-        });
-
+        // signal to Hibernate to fetch categories separately in a batch to avoid fetching duplicate BlogEntries for each category (Cartesian Product).
+        logger.debug("batch a categories query..");
+        blogEntries.getContent().forEach(BlogEntry::getCategories);
+        // extract BlogEntry ids to use in comment counts
         List<Integer> blogIds = blogEntries.getContent().stream().map(BlogEntry::getId).toList();
-
+        // map BlogEntry ids to total comment counts
         Map<Integer, Integer> mapCommentCountToBlogIds = commentRepo.countCommentsByBlogEntryIds(blogIds)
                 .stream().collect(Collectors.toMap(
                         row -> row.get("blogId", Integer.class),
                         row -> row.get("commentCount", Long.class).intValue()));
-
+        // build BlogEntryResponseDtos setting comment counts with default value of 0 if not in map
         List<BlogEntryResponseDto> responseDtos = new ArrayList<>();
         for (BlogEntry blogEntry : blogEntries.getContent()) {
             responseDtos.add(new BlogEntryResponseDto(blogEntry, List.of(),
                     mapCommentCountToBlogIds.getOrDefault(blogEntry.getId(), 0))
             );
         }
-
+        // build page dto with BlogEntryResponseDtos and page info
         return new PaginatedBlogEntriesResponseDto(
                 responseDtos,
                 blogEntries.getNumber(),
@@ -145,33 +150,36 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     }
 
     private static Specification<BlogEntry> getBlogEntrySpecification(BlogEntryFilterRequest filterRequest) {
+        // set base Specification object to use DISTINCT select
         Specification<BlogEntry> spec = (root, query,criteriaBuilder) -> {
             if (query != null) {
-                logger.debug("getBlogEntrySpecification: {}", query);
                 query.distinct(true);
             }
             return criteriaBuilder.conjunction();
         };
 
+        // adds category filter
         if (filterRequest.categoryName() != null) {
             logger.debug("getBlogEntrySpecification: filterRequest.categoryName is  {}", filterRequest.categoryName());
             spec = spec.and((root, query, criteriaBuilder) -> {
+                // needs to utilize join table
                 Join<BlogEntry, Category> categoryJoin = root.join("categories", JoinType.INNER);
                 return criteriaBuilder.equal(
                         categoryJoin.get("categoryName"), filterRequest.categoryName()
                 );
             });
         }
-
-        logger.debug("checking other filters...");
+        // adds specified after date filter
         if (filterRequest.afterDate() != null) {
+            // parse String date to Instant
             Instant afterDate = Instant.parse(filterRequest.afterDate());
             spec = spec.and(((root, query, criteriaBuilder) ->
                     criteriaBuilder.greaterThanOrEqualTo(root.get("updatedAt"), afterDate))
             );
         }
-
+        // adds specified before date filter
         if (filterRequest.beforeDate() != null) {
+            // parse String date to Instant
             Instant beforeDate = Instant.parse(filterRequest.beforeDate());
             spec = spec.and(((root, query, criteriaBuilder) ->
                     criteriaBuilder.lessThanOrEqualTo(root.get("updatedAt"), beforeDate))
@@ -181,18 +189,23 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         return spec;
     }
 
-    // todo: create validation logic, use before saving & updating.
     @Transactional
     @Override
     public URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, String principalName, UriComponentsBuilder ucb) {
+        // has to fetch User and Categories to verify they exist before defining relation to the BlogEntry to be created,
+        // input is validated in DTO/Controller with jakarta.validation
         logger.debug("saveEntry: getting author {}", principalName);
         AppUser author = appUserRepo.findByUsername(principalName)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + principalName));
+
         logger.debug("saveEntry: getting categories");
+        // todo : handle errors of any inputted categories not found
         Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
+
         logger.debug("saveEntry: saving entry");
         BlogEntry savedEntry = blogEntryRepo.save(this.mapRequestToEntity(blogEntryRequestDto, author, categories));
         logger.debug("saveEntry: saved entry {}", savedEntry);
+        // returns endpoint which the saved entry can be found (in response header)
         return ucb.path("/api/posts/{id}").buildAndExpand(savedEntry.getId()).toUri();
     }
 
@@ -206,19 +219,21 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
         logger.debug("updating entry by id {}", id);
         // todo: validate input!!!
-        // updates entries fields from request dto
+        // updates BlogEntry fields from request dto
         if (blogEntryRequestDto.title() != null) entry.setTitle(blogEntryRequestDto.title());
         if (blogEntryRequestDto.content() != null) entry.setContent(blogEntryRequestDto.content());
         if (blogEntryRequestDto.isPublic() != null) entry.setPublic(blogEntryRequestDto.isPublic());
         if (blogEntryRequestDto.categories() != null) {
             Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
             Set<Category> categoriesToRemove = new HashSet<>(entry.getCategories());
+            // loops through categories set in current BlogEntry - removing the ones not found in update request
             logger.debug("removing categories");
             for (Category category : categoriesToRemove) {
                 if (!categories.contains(category)) {
                     entry.removeCategory(category);
                 }
             }
+            // loops through categories from update request - adding ones not in current BlogEntry
             logger.debug("adding categories");
             for (Category category : categories) {
                 if (!entry.getCategories().contains(category)) {
@@ -226,6 +241,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                 }
             }
         }
+        // updates changed BlogEntry fields only - Categories in category join table are Cascaded in database
         blogEntryRepo.save(entry);
     }
 
@@ -233,15 +249,18 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     @Override
     public void deleteEntryById(Integer id, String principalName) {
         logger.debug("deleteEntryById: ensuring entry by id {} is owned by author name {}", id, principalName);
+        // ensures authorized user is Author of BlogEntry to be deleted
         BlogEntry entryToDelete = blogEntryRepo.findSimpleBlogEntryByIdAndAuthorUsername(id, principalName)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
 
+        // uses fetched BlogEntry's id to delete after verification
         blogEntryRepo.deleteBlogEntryById(entryToDelete.getId());
     }
 
 
     private BlogEntry mapRequestToEntity(BlogEntryRequestDto blogEntryRequestDto, AppUser author,
                                          Set<Category> categories) {
+        // helper method to build BlogEntry Object from DTO
         return new BlogEntry(
                 author,
                 blogEntryRequestDto.title(),
