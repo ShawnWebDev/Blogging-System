@@ -12,13 +12,16 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,8 +49,8 @@ public class BlogEntryControllerTest {
         );
     }
 
-    private String getToken(String username, String password) {
-        LoginDto loginDto = new LoginDto(username, password);
+    private String getToken(String username) {
+        LoginDto loginDto = new LoginDto(username, "TestPassword");
 
         ResponseEntity<String> response = restTemplate
                 .postForEntity("/auth/login", loginDto, String.class);
@@ -57,7 +60,7 @@ public class BlogEntryControllerTest {
 
     @BeforeAll
     public void beforeAll() {
-        this.testUserToken = this.getToken("TestUser", "TestPassword");
+        this.testUserToken = this.getToken("TestUser");
     }
 
     @Test
@@ -110,7 +113,7 @@ public class BlogEntryControllerTest {
 
         BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
                 "Testing Http POST",
-                "This entry is for testing the Http POST method.",
+                "This entry is for testing the Http POST method and requires at least 300 characters. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
                 List.of("Test Category 1", "Test Category 2"),
                 true
         );
@@ -118,6 +121,8 @@ public class BlogEntryControllerTest {
 
         ResponseEntity<Void> response = restTemplate
                 .postForEntity("/api/posts", postEntity, Void.class);
+
+        System.out.println("response: " + response);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode(), "Should return 201 Created");
 
@@ -139,7 +144,8 @@ public class BlogEntryControllerTest {
         JSONArray categories = documentContext.read("$.categories");
 
         assertEquals(4, id);
-        assertEquals("This entry is for testing the Http POST method.", content);
+        assertEquals("This entry is for testing the Http POST method and requires at least 300 characters. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                , content);
         assertEquals("Test Category 1", categories.getFirst());
         assertEquals("Test Category 2", categories.get(1));
     }
@@ -183,6 +189,7 @@ public class BlogEntryControllerTest {
         System.out.println("response: " + response.getBody());
     }
 
+    // todo : check this test case for N+1
     @Test
     @DisplayName("6. should return sorted page of BlogEntries (last entry by date id=3")
     void getBlogEntryAsSortedPage() {
@@ -231,10 +238,11 @@ public class BlogEntryControllerTest {
     @DisplayName("8. should return entry without credentials")
     void blogEntryWithNoCredentials() {
         // wrong user, existing password
-        ResponseEntity<String> response1 = restTemplate
+        ResponseEntity<String> response = restTemplate
                 .getForEntity("/api/posts/1", String.class);
 
-        assertEquals(HttpStatus.OK, response1.getStatusCode(), "Should return 200 OK");
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
+        System.out.println("response: " + response.getBody());
     }
 
     @Test
@@ -365,7 +373,7 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("15. should not delete entry if non-author")
     void deleteNonAuthorEntry() {
-        String token = this.getToken("TestUser2", "TestPassword");
+        String token = this.getToken("TestUser2");
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + token);
         HttpEntity<String> request = new HttpEntity<>(headers);
@@ -411,10 +419,10 @@ public class BlogEntryControllerTest {
     }
 
     @Test
-    @DisplayName("17. should return all BlogEntries for TestAdmin sorted ascending by createdAt")
+    @DisplayName("17. should return all BlogEntries for authenticated TestAdmin sorted ascending by createdAt")
     void getAllBlogEntriesForAdmin() {
         HttpHeaders headers = new HttpHeaders();
-        String token = this.getToken("TestAdmin", "TestPassword");
+        String token = this.getToken("TestAdmin");
         headers.add("Authorization", "Bearer " + token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
@@ -449,5 +457,35 @@ public class BlogEntryControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         System.out.println("response: " + response.getBody());
+    }
+
+    @Test
+    @DisplayName("19. should return BAD REQUEST and validation errors")
+    void checkValidationErrors() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+
+        BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
+                "",
+                "This requires at least 300 characters.",
+                List.of(),
+                true
+        );
+        HttpEntity<Object> postEntity = new HttpEntity<>(blogEntryRequestDto, headers);
+        ParameterizedTypeReference<Map<String, String>> responseType =
+                new ParameterizedTypeReference<>() {};
+
+        ResponseEntity<Map<String, String>> response = restTemplate.exchange(
+                "/api/posts", HttpMethod.POST, postEntity, responseType
+        );
+
+        System.out.println("response: " + response);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
+        Map<String, String> errors = response.getBody();
+        assertNotNull(errors);
+        assertEquals("Title must be between 3 and 255 characters", errors.get("title"));
+        assertEquals("Content must be between 300 and 65,535 characters", errors.get("content"));
+        assertEquals("Post must have between 1 and 4 categories", errors.get("categories"));
     }
 }

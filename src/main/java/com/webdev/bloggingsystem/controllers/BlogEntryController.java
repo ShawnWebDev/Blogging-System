@@ -6,6 +6,7 @@ import com.webdev.bloggingsystem.dto.BlogEntryResponseDto;
 import com.webdev.bloggingsystem.dto.PaginatedBlogEntriesResponseDto;
 import com.webdev.bloggingsystem.services.BlogEntryService;
 
+import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -61,7 +62,7 @@ public class BlogEntryController {
 
     // Todo: need to validate BlogEntryRequestDto fields (in service layer or in DTO?)...
     @PostMapping("/posts")
-    public ResponseEntity<Void> createBlogEntry(@RequestBody BlogEntryRequestDto blogEntryRequestDto,
+    public ResponseEntity<?> createBlogEntry(@RequestBody @Valid BlogEntryRequestDto blogEntryRequestDto,
                                                 Principal principal, UriComponentsBuilder ucb) {
 
         return ResponseEntity.created(blogEntryService.saveEntry(blogEntryRequestDto, principal.getName(), ucb)).build();
@@ -69,7 +70,7 @@ public class BlogEntryController {
 
     @PutMapping("/posts/{id}")
     public ResponseEntity<Void> updateBlogEntry(@PathVariable Integer id,
-                                                 @RequestBody BlogEntryRequestDto blogEntryRequestDto,
+                                                 @Valid @RequestBody BlogEntryRequestDto blogEntryRequestDto,
                                                  Principal principal) {
 
         blogEntryService.updateEntryById(id, blogEntryRequestDto, principal.getName());
