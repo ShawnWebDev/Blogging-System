@@ -4,6 +4,7 @@ import com.webdev.bloggingsystem.dto.BlogEntryFilterRequest;
 import com.webdev.bloggingsystem.dto.BlogEntryRequestDto;
 import com.webdev.bloggingsystem.dto.BlogEntryResponseDto;
 import com.webdev.bloggingsystem.dto.PaginatedBlogEntriesResponseDto;
+import com.webdev.bloggingsystem.exceptions.ResourceNotFoundException;
 import com.webdev.bloggingsystem.services.BlogEntryService;
 
 import jakarta.validation.Valid;
@@ -31,7 +32,7 @@ public class BlogEntryController {
 
     @GetMapping("/posts/{id}")
     public ResponseEntity<BlogEntryResponseDto> getBlogEntry(@PathVariable Integer id,
-                                                             @AuthenticationPrincipal Principal principal) {
+                                                             Principal principal) {
         // quick check that verifies a user is authenticated before fetching private entries in service (needed here for null handling)
         // returns 200 OK with BlogEntry if found or 404 NOT_FOUND if not
         String username = null;
@@ -59,8 +60,14 @@ public class BlogEntryController {
         // returns 200 OK with a page of the authenticated users BlogEntries where they are the Author -
         // optionally filtered by categories, after date, and/or before date
         // default page is sorted descending by updatedAt, pageSize=10, pageNumber=0
+        String username;
+        if (principal != null) {
+            username = principal.getName();
+        } else {
+            throw new ResourceNotFoundException("User not found, must be logged in!");
+        }
         System.out.println("getAllBlogEntriesForUser: filters: " + blogEntryFilter.categoryName() + " " + blogEntryFilter.afterDate() + " " + blogEntryFilter.beforeDate() + " username: " + principal.getName());
-        return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, principal.getName(), blogEntryFilter));
+        return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, username, blogEntryFilter));
     }
 
     @PostMapping("/posts")
