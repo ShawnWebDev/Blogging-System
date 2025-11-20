@@ -65,12 +65,8 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("1. found id")
     void getBlogEntryById() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + this.testUserToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
         ResponseEntity<String> response = restTemplate
-                .exchange("/api/posts/1", HttpMethod.GET, entity, String.class);
+                .getForEntity("/api/posts/1", String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
 
@@ -90,12 +86,8 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("2. not found id")
     void notFoundBlogEntryById() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + this.testUserToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
         ResponseEntity<String> response = restTemplate
-                .exchange("/api/posts/99", HttpMethod.GET, entity, String.class);
+                .getForEntity("/api/posts/99", String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
         System.out.println("response: " + response);
@@ -152,12 +144,9 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("4. should return all public BlogEntries")
     void getAllPublicBlogEntries() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + this.testUserToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
+        //credentials not needed for public Entries
         ResponseEntity<String> response = restTemplate
-                .exchange("/api/posts?sort=createdAt,asc", HttpMethod.GET, entity, String.class);
+                .getForEntity("/api/posts?sort=createdAt,asc", String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         System.out.println("response: " + response.getBody());
@@ -177,45 +166,33 @@ public class BlogEntryControllerTest {
 
     @Test
     @DisplayName("5. should return page of BlogEntry")
-    void getBlogEntryAsPage() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + this.testUserToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
+    void getPublicBlogEntryAsPage() {
         ResponseEntity<String> response = restTemplate
-                .exchange("/api/posts?page=0&size=1", HttpMethod.GET, entity, String.class);
+                .getForEntity("/api/posts?page=0&size=1", String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         System.out.println("response: " + response.getBody());
     }
 
-    // todo : check this test case for N+1
     @Test
-    @DisplayName("6. should return sorted page of BlogEntries (last entry by date id=3")
+    @DisplayName("6. should return sorted page of BlogEntries (first entry id by date = 1")
     void getBlogEntryAsSortedPage() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + this.testUserToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
         ResponseEntity<String> response = restTemplate
-                .exchange("/api/posts?page=0&size=1&sort=createdAt,desc", HttpMethod.GET, entity, String.class);
+                .getForEntity("/api/posts?page=0&size=1&sort=createdAt,asc", String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
 
         DocumentContext documentContext = JsonPath.parse(response.getBody());
         System.out.println("json: " + documentContext.jsonString());
         String title  = documentContext.read("$.entries[0].title");
-
-        assertEquals("Test Post 3", title);
+        int id  = documentContext.read("$.entries[0].id");
+        assertEquals(1, id);
+        assertEquals("Test Post 1", title);
     }
 
     @Test
     @DisplayName("7. should return sorted page using default pageable (descending sort by updatedAt)")
-    void getBlogEntryAsSortedPageUsingDefaultPageable() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + this.testUserToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
+    void getPublicBlogEntryAsSortedPageUsingDefaultPageable() {
         ResponseEntity<String> response = restTemplate
-                .exchange("/api/posts", HttpMethod.GET, entity, String.class);
+                .getForEntity("/api/posts", String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         System.out.println("response: " + response.getBody());
@@ -235,7 +212,7 @@ public class BlogEntryControllerTest {
 
     @Test
     @DisplayName("8. should return entry without credentials")
-    void blogEntryWithNoCredentials() {
+    void getBlogEntryWithNoCredentials() {
         // wrong user, existing password
         ResponseEntity<String> response = restTemplate
                 .getForEntity("/api/posts/1", String.class);
@@ -245,8 +222,8 @@ public class BlogEntryControllerTest {
     }
 
     @Test
-    @DisplayName("9. should not allow private entry to be viewed by non-author")
-    void getBlogEntryWithNonAuthor() {
+    @DisplayName("9. should NOT allow private entry to be viewed by non-author")
+    void getPrivateBlogEntryWithNonAuthor() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + this.testUserToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -273,6 +250,7 @@ public class BlogEntryControllerTest {
         );
 
         HttpEntity<Object> request = new HttpEntity<>(entryToUpdate, headers);
+
         ParameterizedTypeReference<Map<String, String>> responseType =
                 new ParameterizedTypeReference<>() {};
         // putForEntity does not exist.
@@ -430,16 +408,16 @@ public class BlogEntryControllerTest {
 
         ResponseEntity<String> response = restTemplate
                 .exchange("/api/posts/me?sort=createdAt,asc", HttpMethod.GET, entity, String.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         System.out.println("response: " + response.getBody());
 
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
+
         DocumentContext documentContext = JsonPath.parse(response.getBody());
-        // double . to return list of all values of specified key
+        // double dot .. to return list of all values of specified key
         JSONArray ids = documentContext.read("$..id");
         JSONArray titles = documentContext.read("$..title");
 
-        // Entry with id 2 is private and should not be included
+        // Entry with id 2 is private and should be included
         assertEquals(2, ids.size());
         assertEquals(List.of(1, 2), ids);
 
@@ -450,15 +428,11 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("18. should return all public BlogEntries with category of Test Category 2")
     void getAllPublicBlogEntriesFilteredByCategory() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + this.testUserToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
         ResponseEntity<String> response = restTemplate
-                .exchange("/api/posts?sort=createdAt,asc&categoryName=Test Category 2", HttpMethod.GET, entity, String.class);
+                .getForEntity("/api/posts?sort=createdAt,asc&categoryName=Test Category 2", String.class);
+        System.out.println("response: " + response.getBody());
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
-        System.out.println("response: " + response.getBody());
     }
 
     @Test
@@ -480,7 +454,6 @@ public class BlogEntryControllerTest {
         ResponseEntity<Map<String, String>> response = restTemplate.exchange(
                 "/api/posts", HttpMethod.POST, postEntity, responseType
         );
-
         System.out.println("response: " + response);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
@@ -520,4 +493,39 @@ public class BlogEntryControllerTest {
         assertEquals("Content must be between 300 and 65,535 characters", errors.get("content"));
         assertEquals("Post must have between 1 and 4 categories", errors.get("categories"));
     }
+
+    @Test
+    @DisplayName("21. should return user not found")
+    void getAllPrivateBlogEntriesForUnknownUser() {
+        ResponseEntity<String> response = restTemplate
+                .getForEntity("/api/posts/me?sort=createdAt,asc", String.class);
+        System.out.println("response: " + response);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
+    }
+
+    @Test
+    @DisplayName("22. should return public BlogEntries after date")
+    void getAllPublicBlogEntriesAfterDate() {
+        ResponseEntity<String> response = restTemplate
+                .getForEntity("/api/posts?afterDate=2025-09-30", String.class);
+        System.out.println("response: " + response);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        JSONArray ids = documentContext.read("$..id");
+        assertEquals(List.of(3, 1), ids);
+    }
+
+    @Test
+    @DisplayName("23. should BAD_REQUEST and invalid date format")
+    void getAllPublicBlogEntriesAfterDateBadDateFormat() {
+        ResponseEntity<String> response = restTemplate
+                .getForEntity("/api/posts?afterDate=2025-09-30T04:00:00", String.class);
+        System.out.println("response: " + response);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 404 BAD REQUEST");
+        assertEquals("Invalid Date Format - must be yyyy-mm-dd", response.getBody());
+    }
+
 }
