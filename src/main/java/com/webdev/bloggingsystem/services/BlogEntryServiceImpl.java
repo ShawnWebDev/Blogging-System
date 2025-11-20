@@ -101,23 +101,13 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         // called by endpoint methods - getAllPublicBlogEntries() and getAllBlogEntriesForUser()
         logger.debug("getAllBlogEntries");
         // defines a Specification object for criteria builder to build a filtering query
-        Specification<BlogEntry> spec = getBlogEntrySpecification(filterRequest);
+        Specification<BlogEntry> spec = getBlogEntrySpecification(filterRequest, principleName);
 
         PageRequest pageRequest = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
                 pageable.getSortOr(Sort.by(Sort.Direction.DESC, "updatedAt")));
 
-        // check if user is authenticated - principle will be populated with userdetails
-        if (principleName == null) {
-            spec = spec.and(((root, query, criteriaBuilder) ->
-                    criteriaBuilder.isTrue(root.get("isPublic"))));
-        } else {
-            spec = spec.and((root, query, criteriaBuilder) -> {
-                        Join<BlogEntry, AppUser> categoryJoin = root.join("author", JoinType.INNER);
-                        return criteriaBuilder.equal(categoryJoin.get("username"), principleName);
-                    });
-        }
         // repo sends query with built filter and defined page, returns page
         Page<BlogEntry> blogEntries = blogEntryRepo.findAll(spec, pageRequest);
         // signal to Hibernate to fetch categories separately in a batch to avoid fetching duplicate BlogEntries for each category (Cartesian Product).
@@ -149,7 +139,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         );
     }
 
-    private static Specification<BlogEntry> getBlogEntrySpecification(BlogEntryFilterRequest filterRequest) {
+    private static Specification<BlogEntry> getBlogEntrySpecification(BlogEntryFilterRequest filterRequest, String principleName) {
         // set base Specification object to use DISTINCT select
         Specification<BlogEntry> spec = (root, query,criteriaBuilder) -> {
             if (query != null) {
@@ -157,6 +147,18 @@ public class BlogEntryServiceImpl implements BlogEntryService {
             }
             return criteriaBuilder.conjunction();
         };
+
+        // "posts" endpoint will pass null username to get public
+        // "me" endpoint will pass username as String to get all for authenticated user
+        if (principleName == null) {
+            spec = spec.and(((root, query, criteriaBuilder) ->
+                    criteriaBuilder.isTrue(root.get("isPublic"))));
+        } else {
+            spec = spec.and((root, query, criteriaBuilder) -> {
+                Join<BlogEntry, AppUser> authorJoin = root.join("author", JoinType.INNER);
+                return criteriaBuilder.equal(authorJoin.get("username"), principleName);
+            });
+        }
 
         // adds category filter
         if (filterRequest.categoryName() != null) {
@@ -185,6 +187,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                     criteriaBuilder.lessThanOrEqualTo(root.get("updatedAt"), beforeDate))
             );
         }
+
 
         return spec;
     }
