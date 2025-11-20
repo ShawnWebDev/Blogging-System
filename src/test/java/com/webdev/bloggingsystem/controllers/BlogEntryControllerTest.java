@@ -19,7 +19,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -268,15 +267,18 @@ public class BlogEntryControllerTest {
 
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
                 "Updated Test Post 3",
-                null,
+                "This entry is for testing the Http POST method and requires at least 300 characters. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
                 List.of("Test Category 2", "Test Category 3"),
-                null
+                true
         );
 
         HttpEntity<Object> request = new HttpEntity<>(entryToUpdate, headers);
+        ParameterizedTypeReference<Map<String, String>> responseType =
+                new ParameterizedTypeReference<>() {};
         // putForEntity does not exist.
-        ResponseEntity<Void> response = restTemplate
-                .exchange("/api/posts/3", HttpMethod.PUT, request, Void.class);
+        ResponseEntity<Map<String, String>> response = restTemplate
+                .exchange("/api/posts/3", HttpMethod.PUT, request, responseType);
+        System.out.println("response: " + response);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Should return 204 NO CONTENT");
 
@@ -299,10 +301,10 @@ public class BlogEntryControllerTest {
         headers.add("Authorization", "Bearer " + this.testUserToken);
 
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
-                "Updated Non Existent Test Post",
-                null,
-                null,
-                null
+                "Updated Non-existent Post",
+                "This entry is for testing the Http POST method and requires at least 300 characters. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                List.of("Test Category 2", "Test Category 3"),
+                true
         );
         HttpEntity<Object> request = new HttpEntity<>(entryToUpdate, headers);
 
@@ -319,10 +321,10 @@ public class BlogEntryControllerTest {
         headers.add("Authorization", "Bearer " + this.testUserToken);
 
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
-                "Updated Non Existent Test Post",
-                null,
-                null,
-                null
+                "Updated Non-existent Post",
+                "This entry is for testing the Http POST method and requires at least 300 characters. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                List.of("Test Category 2", "Test Category 3"),
+                true
         );
         HttpEntity<BlogEntryRequestDto> request = new HttpEntity<>(entryToUpdate, headers);
         ResponseEntity<Void> response = restTemplate
@@ -460,8 +462,8 @@ public class BlogEntryControllerTest {
     }
 
     @Test
-    @DisplayName("19. should return BAD REQUEST and validation errors")
-    void checkValidationErrors() {
+    @DisplayName("19. should return BAD REQUEST and validation errors for POST endpoint")
+    void checkCreateValidationErrors() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + this.testUserToken);
 
@@ -477,6 +479,36 @@ public class BlogEntryControllerTest {
 
         ResponseEntity<Map<String, String>> response = restTemplate.exchange(
                 "/api/posts", HttpMethod.POST, postEntity, responseType
+        );
+
+        System.out.println("response: " + response);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
+        Map<String, String> errors = response.getBody();
+        assertNotNull(errors);
+        assertEquals("Title must be between 3 and 255 characters", errors.get("title"));
+        assertEquals("Content must be between 300 and 65,535 characters", errors.get("content"));
+        assertEquals("Post must have between 1 and 4 categories", errors.get("categories"));
+    }
+
+    @Test
+    @DisplayName("20. should return BAD REQUEST and validation errors for PUT endpoint")
+    void checkUpdateValidationErrors() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+
+        BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
+                "",
+                "This requires at least 300 characters.",
+                List.of(),
+                true
+        );
+        HttpEntity<Object> putEntity = new HttpEntity<>(blogEntryRequestDto, headers);
+        ParameterizedTypeReference<Map<String, String>> responseType =
+                new ParameterizedTypeReference<>() {};
+
+        ResponseEntity<Map<String, String>> response = restTemplate.exchange(
+                "/api/posts/3", HttpMethod.PUT, putEntity, responseType
         );
 
         System.out.println("response: " + response);

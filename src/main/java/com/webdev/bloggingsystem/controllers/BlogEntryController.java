@@ -74,7 +74,7 @@ public class BlogEntryController {
 
     @PutMapping("/posts/{id}")
     public ResponseEntity<?> updateBlogEntry(@PathVariable Integer id,
-                                                 @Valid @RequestBody BlogEntryRequestDto blogEntryRequestDto,
+                                                 @RequestBody @Valid BlogEntryRequestDto blogEntryRequestDto,
                                                  Principal principal) {
         // validates and updates BlogEntry from input DTO,
         // returns 400 BAD_REQUEST on validation errors - includes errors in body
