@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -87,9 +87,6 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         return new BlogEntryResponseDto(entry, commentResponseDtos, commentCount);
     }
 
-    // todo : add optional search params - Author.username Category.categoryName, DateBefore, DateAfter
-    // todo : will need to create some Specification object (look up)
-    //  will also need to extend the Repository to use the JpaSpecificationExecutor<BlogEntry>.
     @Override
     public PaginatedBlogEntriesResponseDto getAllBlogEntries(Pageable pageable, String principleName,
                                                              BlogEntryFilterRequest filterRequest) {
@@ -173,21 +170,20 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         }
         // adds specified after date filter
         if (filterRequest.afterDate() != null) {
-            // parse String date to Instant
-            Instant afterDate = Instant.parse(filterRequest.afterDate());
+            // parse String date to Instant, DateTimeParseException intercepted in global handler
+            LocalDate afterDate = LocalDate.parse(filterRequest.afterDate());
             spec = spec.and(((root, query, criteriaBuilder) ->
                     criteriaBuilder.greaterThanOrEqualTo(root.get("updatedAt"), afterDate))
             );
         }
         // adds specified before date filter
         if (filterRequest.beforeDate() != null) {
-            // parse String date to Instant
-            Instant beforeDate = Instant.parse(filterRequest.beforeDate());
+            // parse String date to Instant, DateTimeParseException intercepted in global handler
+            LocalDate beforeDate = LocalDate.parse(filterRequest.beforeDate());
             spec = spec.and(((root, query, criteriaBuilder) ->
                     criteriaBuilder.lessThanOrEqualTo(root.get("updatedAt"), beforeDate))
             );
         }
-
 
         return spec;
     }
@@ -202,9 +198,10 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + principalName));
 
         logger.debug("saveEntry: getting categories");
-        // todo : handle errors of any inputted categories not found
         Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
-
+        if (categories.size() != ((Set<?>) blogEntryRequestDto.categories()).size()) {
+            throw new ResourceNotFoundException("One or more Category not found");
+        }
         logger.debug("saveEntry: saving entry");
         BlogEntry savedEntry = blogEntryRepo.save(this.mapRequestToEntity(blogEntryRequestDto, author, categories));
         logger.debug("saveEntry: saved entry {}", savedEntry);
@@ -221,13 +218,15 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         logger.debug("found entry: {} with author of {}", entry.toString(), entry.getAuthor().getUsername());
 
         logger.debug("updating entry by id {}", id);
-        // todo: validate input!!!
         // updates BlogEntry fields from request dto
         if (blogEntryRequestDto.title() != null) entry.setTitle(blogEntryRequestDto.title());
         if (blogEntryRequestDto.content() != null) entry.setContent(blogEntryRequestDto.content());
         if (blogEntryRequestDto.isPublic() != null) entry.setPublic(blogEntryRequestDto.isPublic());
         if (blogEntryRequestDto.categories() != null) {
             Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
+            if (categories.size() != ((Set<?>) blogEntryRequestDto.categories()).size()) {
+                throw new ResourceNotFoundException("One or more Category not found");
+            }
             Set<Category> categoriesToRemove = new HashSet<>(entry.getCategories());
             // loops through categories set in current BlogEntry - removing the ones not found in update request
             logger.debug("removing categories");
