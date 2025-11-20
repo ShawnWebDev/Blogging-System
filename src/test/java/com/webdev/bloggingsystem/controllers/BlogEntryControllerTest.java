@@ -528,4 +528,27 @@ public class BlogEntryControllerTest {
         assertEquals("Invalid Date Format - must be yyyy-mm-dd", response.getBody());
     }
 
+    @Test
+    @DisplayName("24. should return missing categories requested")
+    void createBlogEntryWithMissingCategories() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+
+        BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
+                "Testing Http POST",
+                "This entry is for testing the Http POST method and requires at least 300 characters. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                List.of("Test Category 7", "Test Category 8"),
+                true
+        );
+        HttpEntity<Object> postEntity = new HttpEntity<>(blogEntryRequestDto, headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts", HttpMethod.POST, postEntity, String.class);
+
+        System.out.println("response: " + response);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
+        assertEquals("Categories not found: [Test Category 7, Test Category 8]", response.getBody());
+    }
+
 }

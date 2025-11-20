@@ -49,7 +49,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     @Override
     public BlogEntryResponseDto getBlogEntryById(Integer id, String principalName) {
         // gets single BlogEntry with full entity graph for viewing it in entirety
-        // BlogEntry content, Author, Categories, top-level Comments with Comment Author, a count of replies for each comment,
+        // BlogEntry content, Author, Categories, top-level Comments with Comment Author, and a count of replies for each comment,
         // and a total count of all comments.
         logger.debug("getBlogEntryById: findBlogEntryById");
         BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
@@ -136,6 +136,91 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         );
     }
 
+    @Transactional
+    @Override
+    public URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, String principalName, UriComponentsBuilder ucb) {
+        // has to fetch User and Categories to verify they exist before defining relation to the BlogEntry to be created,
+        // input is validated in DTO/Controller with jakarta.validation
+        logger.debug("saveEntry: getting author {}", principalName);
+        AppUser author = appUserRepo.findByUsername(principalName)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + principalName));
+
+        logger.debug("saveEntry: getting categories");
+        Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
+        validateCategories(blogEntryRequestDto, categories);
+
+        logger.debug("saveEntry: saving entry");
+        // fields other than categories and author are validated with jakarta.validation in DTO
+        BlogEntry savedEntry = blogEntryRepo.save(new BlogEntry(
+                author,
+                blogEntryRequestDto.title(),
+                blogEntryRequestDto.content(),
+                blogEntryRequestDto.isPublic(),
+                categories
+        ));
+        logger.debug("saveEntry: saved entry {}", savedEntry);
+        // returns endpoint which the saved entry can be found (in response header)
+        return ucb.path("/api/posts/{id}").buildAndExpand(savedEntry.getId()).toUri();
+    }
+
+    @Transactional
+    @Override
+    public void updateEntryById(Integer id, BlogEntryRequestDto blogEntryRequestDto, String principalName) {
+        logger.debug("updateEntryById: getting entry by id {} and author {}", id, principalName);
+        BlogEntry entry = blogEntryRepo.findBlogEntryByIdAndAuthorUsername(id, principalName)
+                .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
+        logger.debug("found entry: {} with author of {}", entry.toString(), entry.getAuthor().getUsername());
+
+        logger.debug("updating entry by id {}", id);
+        // updates BlogEntry fields from request dto
+        if (blogEntryRequestDto.title() != null) entry.setTitle(blogEntryRequestDto.title());
+        if (blogEntryRequestDto.content() != null) entry.setContent(blogEntryRequestDto.content());
+        if (blogEntryRequestDto.isPublic() != null) entry.setPublic(blogEntryRequestDto.isPublic());
+        if (blogEntryRequestDto.categories() != null) {
+            Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
+            validateCategories(blogEntryRequestDto, categories);
+
+            Set<Category> categoriesToRemove = new HashSet<>(entry.getCategories());
+            // loops through categories set in current BlogEntry - removing the ones not found in update request
+            logger.debug("removing categories");
+            for (Category category : categoriesToRemove) {
+                if (!categories.contains(category)) {
+                    entry.removeCategory(category);
+                }
+            }
+            // loops through categories from update request - adding ones not in current BlogEntry
+            logger.debug("adding categories");
+            for (Category category : categories) {
+                if (!entry.getCategories().contains(category)) {
+                    entry.addCategory(category);
+                }
+            }
+        }
+        // updates changed BlogEntry fields only - Categories in category join table are Cascaded in database
+        blogEntryRepo.save(entry);
+    }
+
+    @Transactional
+    @Override
+    public void deleteEntryById(Integer id, String principalName) {
+        logger.debug("deleteEntryById: ensuring entry by id {} is owned by author name {}", id, principalName);
+        // ensures authorized user is Author of BlogEntry to be deleted
+        BlogEntry entryToDelete = blogEntryRepo.findSimpleBlogEntryByIdAndAuthorUsername(id, principalName)
+                .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
+
+        // uses fetched BlogEntry's id to delete after verification
+        blogEntryRepo.deleteBlogEntryById(entryToDelete.getId());
+    }
+
+    private static void validateCategories(BlogEntryRequestDto blogEntryRequestDto, Set<Category> categories) {
+        Set<String> dtoCategories = new HashSet<>(blogEntryRequestDto.categories());
+        if (categories.size() != dtoCategories.size()) {
+            logger.debug("categories are not equal");
+            dtoCategories.removeAll(categories.stream().map(Category::getCategoryName).collect(Collectors.toSet()));
+            throw new ResourceNotFoundException("Categories not found: "  + dtoCategories);
+        }
+    }
+
     private static Specification<BlogEntry> getBlogEntrySpecification(BlogEntryFilterRequest filterRequest, String principleName) {
         // set base Specification object to use DISTINCT select
         Specification<BlogEntry> spec = (root, query,criteriaBuilder) -> {
@@ -186,89 +271,5 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         }
 
         return spec;
-    }
-
-    @Transactional
-    @Override
-    public URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, String principalName, UriComponentsBuilder ucb) {
-        // has to fetch User and Categories to verify they exist before defining relation to the BlogEntry to be created,
-        // input is validated in DTO/Controller with jakarta.validation
-        logger.debug("saveEntry: getting author {}", principalName);
-        AppUser author = appUserRepo.findByUsername(principalName)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + principalName));
-
-        logger.debug("saveEntry: getting categories");
-        Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
-        if (categories.size() != ((Set<?>) blogEntryRequestDto.categories()).size()) {
-            throw new ResourceNotFoundException("One or more Category not found");
-        }
-        logger.debug("saveEntry: saving entry");
-        BlogEntry savedEntry = blogEntryRepo.save(this.mapRequestToEntity(blogEntryRequestDto, author, categories));
-        logger.debug("saveEntry: saved entry {}", savedEntry);
-        // returns endpoint which the saved entry can be found (in response header)
-        return ucb.path("/api/posts/{id}").buildAndExpand(savedEntry.getId()).toUri();
-    }
-
-    @Transactional
-    @Override
-    public void updateEntryById(Integer id, BlogEntryRequestDto blogEntryRequestDto, String principalName) {
-        logger.debug("updateEntryById: getting entry by id {} and author {}", id, principalName);
-        BlogEntry entry = blogEntryRepo.findBlogEntryByIdAndAuthorUsername(id, principalName)
-                .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
-        logger.debug("found entry: {} with author of {}", entry.toString(), entry.getAuthor().getUsername());
-
-        logger.debug("updating entry by id {}", id);
-        // updates BlogEntry fields from request dto
-        if (blogEntryRequestDto.title() != null) entry.setTitle(blogEntryRequestDto.title());
-        if (blogEntryRequestDto.content() != null) entry.setContent(blogEntryRequestDto.content());
-        if (blogEntryRequestDto.isPublic() != null) entry.setPublic(blogEntryRequestDto.isPublic());
-        if (blogEntryRequestDto.categories() != null) {
-            Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
-            if (categories.size() != ((Set<?>) blogEntryRequestDto.categories()).size()) {
-                throw new ResourceNotFoundException("One or more Category not found");
-            }
-            Set<Category> categoriesToRemove = new HashSet<>(entry.getCategories());
-            // loops through categories set in current BlogEntry - removing the ones not found in update request
-            logger.debug("removing categories");
-            for (Category category : categoriesToRemove) {
-                if (!categories.contains(category)) {
-                    entry.removeCategory(category);
-                }
-            }
-            // loops through categories from update request - adding ones not in current BlogEntry
-            logger.debug("adding categories");
-            for (Category category : categories) {
-                if (!entry.getCategories().contains(category)) {
-                    entry.addCategory(category);
-                }
-            }
-        }
-        // updates changed BlogEntry fields only - Categories in category join table are Cascaded in database
-        blogEntryRepo.save(entry);
-    }
-
-    @Transactional
-    @Override
-    public void deleteEntryById(Integer id, String principalName) {
-        logger.debug("deleteEntryById: ensuring entry by id {} is owned by author name {}", id, principalName);
-        // ensures authorized user is Author of BlogEntry to be deleted
-        BlogEntry entryToDelete = blogEntryRepo.findSimpleBlogEntryByIdAndAuthorUsername(id, principalName)
-                .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
-
-        // uses fetched BlogEntry's id to delete after verification
-        blogEntryRepo.deleteBlogEntryById(entryToDelete.getId());
-    }
-
-
-    private BlogEntry mapRequestToEntity(BlogEntryRequestDto blogEntryRequestDto, AppUser author,
-                                         Set<Category> categories) {
-        // helper method to build BlogEntry Object from DTO
-        return new BlogEntry(
-                author,
-                blogEntryRequestDto.title(),
-                blogEntryRequestDto.content(),
-                blogEntryRequestDto.isPublic(),
-                categories
-        );
     }
 }
