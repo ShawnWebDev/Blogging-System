@@ -15,7 +15,8 @@ public record BlogEntryResponseDto(
         Instant updatedAt,
         List<String> categories,
         List<CommentResponseDto> comments,
-        int totalComments
+        int totalComments,
+        boolean isPublic
 ) {
     public BlogEntryResponseDto(BlogEntry entry, List<CommentResponseDto> comments, int commentCount) {
         this(
@@ -27,7 +28,8 @@ public record BlogEntryResponseDto(
             entry.getUpdatedAt(),
             entry.getCategories().stream().map(Category::getCategoryName).toList(),
             comments,
-            commentCount
+            commentCount,
+            entry.isPublic()
         );
     }
 }
