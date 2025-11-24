@@ -1,8 +1,10 @@
 package com.webdev.bloggingsystem.controllers;
 
 import com.webdev.bloggingsystem.dto.CommentResponseDto;
+import com.webdev.bloggingsystem.exceptions.MaxBytes;
 import com.webdev.bloggingsystem.services.CommentService;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -36,7 +38,8 @@ public class CommentController {
     @PostMapping("/posts/{postId}/comments")
     public ResponseEntity<Void> createComment(
             @PathVariable Integer postId, @RequestParam(name = "parentId", required = false ) Integer parentCommentId,
-            @RequestBody String commentText, Principal principal, UriComponentsBuilder ucb)
+            @RequestBody @MaxBytes(4000) @NotBlank(message = "Input empty") String commentText,
+            Principal principal, UriComponentsBuilder ucb)
     {
         // todo : should this send the URI of the Comment or of the Post that the comment is contained?
         // todo : should there be an anchor tag for comments to auto scroll to?
@@ -46,7 +49,9 @@ public class CommentController {
 
     @PutMapping("/comments/comment/{commentId}")
     public ResponseEntity<Void> updateComment(
-            @PathVariable Integer commentId, @RequestBody String commentText, Principal principal)
+            @PathVariable Integer commentId,
+            @RequestBody @MaxBytes(4000) @NotBlank(message = "Input empty") String commentText,
+            Principal principal)
     {
         commentService.updateComment(commentText, commentId, principal.getName());
         return ResponseEntity.noContent().build();
