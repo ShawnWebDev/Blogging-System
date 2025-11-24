@@ -38,8 +38,9 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     private final CategoryRepo categoryRepo;
     private final CommentRepo commentRepo;
 
-    public BlogEntryServiceImpl(BlogEntryRepo blogEntryRepo, AppUserRepo appUserRepo, CategoryRepo categoryRepo,
-                                CommentRepo commentRepo) {
+    public BlogEntryServiceImpl(
+            BlogEntryRepo blogEntryRepo, AppUserRepo appUserRepo, CategoryRepo categoryRepo, CommentRepo commentRepo)
+    {
         this.blogEntryRepo = blogEntryRepo;
         this.appUserRepo = appUserRepo;
         this.categoryRepo = categoryRepo;
@@ -47,7 +48,9 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     }
 
     @Override
-    public BlogEntryResponseDto getBlogEntryById(Integer id, String principalName) {
+    public BlogEntryResponseDto getBlogEntryById(
+            Integer id, String principalName)
+    {
         // gets single BlogEntry with full entity graph for viewing it in entirety
         // BlogEntry content, Author, Categories, top-level Comments with Comment Author, and a count of replies for each comment,
         // and a total count of all comments.
@@ -88,8 +91,9 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     }
 
     @Override
-    public PaginatedBlogEntriesResponseDto getAllBlogEntries(Pageable pageable, String principleName,
-                                                             BlogEntryFilterRequest filterRequest) {
+    public PaginatedBlogEntriesResponseDto getAllBlogEntries(
+            Pageable pageable, String principleName, BlogEntryFilterRequest filterRequest)
+    {
         // Gets a page of BlogEntries for viewing lists or searching, sortable by any field in BlogEntry,
         // Can be public or users public and private entries if principalName is available,
         // DTOs will include Entry content, Author, and Categories, will not contain comments - just total count of them,
@@ -138,7 +142,9 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
     @Transactional
     @Override
-    public URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, String principalName, UriComponentsBuilder ucb) {
+    public URI saveEntry(
+            BlogEntryRequestDto blogEntryRequestDto, String principalName, UriComponentsBuilder ucb)
+    {
         // has to fetch User and Categories to verify they exist before defining relation to the BlogEntry to be created,
         // input is validated in DTO/Controller with jakarta.validation
         logger.debug("saveEntry: getting author {}", principalName);
@@ -165,7 +171,9 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
     @Transactional
     @Override
-    public void updateEntryById(Integer id, BlogEntryRequestDto blogEntryRequestDto, String principalName) {
+    public void updateEntryById(
+            Integer id, BlogEntryRequestDto blogEntryRequestDto, String principalName)
+    {
         logger.debug("updateEntryById: getting entry by id {} and author {}", id, principalName);
         BlogEntry entry = blogEntryRepo.findBlogEntryByIdAndAuthorUsername(id, principalName)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
@@ -202,7 +210,9 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
     @Transactional
     @Override
-    public void deleteEntryById(Integer id, String principalName) {
+    public void deleteEntryById(
+            Integer id, String principalName)
+    {
         logger.debug("deleteEntryById: ensuring entry by id {} is owned by author name {}", id, principalName);
         // ensures authorized user is Author of BlogEntry to be deleted
         BlogEntry entryToDelete = blogEntryRepo.findSimpleBlogEntryByIdAndAuthorUsername(id, principalName)
@@ -212,16 +222,22 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         blogEntryRepo.deleteBlogEntryById(entryToDelete.getId());
     }
 
-    private static void validateCategories(BlogEntryRequestDto blogEntryRequestDto, Set<Category> categories) {
+    private static void validateCategories(
+            BlogEntryRequestDto blogEntryRequestDto, Set<Category> categories)
+    {
+        // gets category names as Set from dto List
         Set<String> dtoCategories = new HashSet<>(blogEntryRequestDto.categories());
         if (categories.size() != dtoCategories.size()) {
             logger.debug("categories are not equal");
+            // removes found categories by name and adds unfound names to response body
             dtoCategories.removeAll(categories.stream().map(Category::getCategoryName).collect(Collectors.toSet()));
             throw new ResourceNotFoundException("Categories not found: "  + dtoCategories);
         }
     }
 
-    private static Specification<BlogEntry> getBlogEntrySpecification(BlogEntryFilterRequest filterRequest, String principleName) {
+    private static Specification<BlogEntry> getBlogEntrySpecification(
+            BlogEntryFilterRequest filterRequest, String principleName)
+    {
         // set base Specification object to use DISTINCT select
         Specification<BlogEntry> spec = (root, query,criteriaBuilder) -> {
             if (query != null) {
