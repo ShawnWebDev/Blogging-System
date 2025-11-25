@@ -18,7 +18,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +42,9 @@ public class BlogEntryControllerTest {
 
     // only for TestUser as it is the most used
     private String testUserToken;
+    // test data
+    private String testDtoMaxByteContent;
+    private String thousandChars;
 
     private Integer countCategoriesJoinTableEntries(Integer postId) {
         // for join table with no repository, only used to check if cascade works when deleting Entry
@@ -60,6 +67,14 @@ public class BlogEntryControllerTest {
     @BeforeAll
     public void beforeAll() {
         this.testUserToken = this.getToken("TestUser");
+        Path maxBytesFp = Paths.get("src/test/resources/testData/testDtoMaxBytesWithSimpleEmojis.txt");
+        Path thousandCharsFp = Paths.get("src/test/resources/testData/testThousandChars.txt");
+        try {
+            this.testDtoMaxByteContent = Files.readString(maxBytesFp);
+            this.thousandChars = Files.readString(thousandCharsFp);
+        } catch (IOException e) {
+            System.err.println("Error reading txt file: " + e.getMessage());
+        }
     }
 
     @Test
@@ -104,26 +119,14 @@ public class BlogEntryControllerTest {
 
         BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
                 "Testing Http POST",
-            "This entry is for testing the Http POST method and requires at least 1000 characters. " +
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et " +
-                    "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip" +
-                    " ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
-                    "eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
-                    "mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " +
-                    "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris " +
-                    "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
-                    "eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. " +
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut " +
-                    "enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " +
-                    "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, " +
-                    "sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                    this.thousandChars,
                     List.of("Test Category 1", "Test Category 2"),
             true
         );
         HttpEntity<Object> postEntity = new HttpEntity<>(blogEntryRequestDto, headers);
 
         ResponseEntity<Void> response = restTemplate
-                .postForEntity("/api/posts", postEntity, Void.class);
+                .exchange("/api/posts", HttpMethod.POST, postEntity, Void.class);
 
         System.out.println("response: " + response);
 
@@ -147,19 +150,7 @@ public class BlogEntryControllerTest {
         JSONArray categories = documentContext.read("$.categories");
 
         assertEquals(4, id);
-        assertEquals("This entry is for testing the Http POST method and requires at least 1000 characters. " +
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et " +
-                "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip" +
-                " ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
-                "eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
-                "mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " +
-                "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris " +
-                "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
-                "eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. " +
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut " +
-                "enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " +
-                "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, " +
-                "sunt in culpa qui officia deserunt mollit anim id est laborum.", content);
+        assertEquals(this.thousandChars, content);
         assertEquals("Test Category 1", categories.getFirst());
         assertEquals("Test Category 2", categories.get(1));
     }
@@ -267,19 +258,7 @@ public class BlogEntryControllerTest {
 
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
                 "Updated Test Post 3",
-            "This entry is for testing the Http POST method and requires at least 1000 characters. " +
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et " +
-                    "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip" +
-                    " ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
-                    "eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
-                    "mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " +
-                    "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris " +
-                    "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
-                    "eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. " +
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut " +
-                    "enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " +
-                    "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, " +
-                    "sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                    this.thousandChars,
                     List.of("Test Category 2", "Test Category 3"),
             true
         );
@@ -315,19 +294,7 @@ public class BlogEntryControllerTest {
 
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
                 "Updated Non-existent Post",
-            "This entry is for testing the Http POST method and requires at least 1000 characters. " +
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et " +
-                    "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip" +
-                    " ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
-                    "eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
-                    "mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " +
-                    "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris " +
-                    "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
-                    "eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. " +
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut " +
-                    "enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " +
-                    "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, " +
-                    "sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                    this.thousandChars,
                     List.of("Test Category 2", "Test Category 3"),
             true
         );
@@ -347,19 +314,7 @@ public class BlogEntryControllerTest {
 
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
             "Updated Non-existent Post",
-        "This entry is for testing the Http POST method and requires at least 1000 characters. " +
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et " +
-                "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip" +
-                " ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
-                "eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
-                "mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " +
-                "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris " +
-                "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
-                "eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. " +
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut " +
-                "enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " +
-                "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, " +
-                "sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                this.thousandChars,
                 List.of("Test Category 2", "Test Category 3"),
                 true
         );
@@ -502,7 +457,7 @@ public class BlogEntryControllerTest {
 
         BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
                 "",
-                "This requires at least 300 characters.",
+                "This requires at least 1000 characters.",
                 List.of(),
                 true
         );
@@ -518,9 +473,9 @@ public class BlogEntryControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
         Map<String, String> errors = response.getBody();
         assertNotNull(errors);
-        assertEquals("Title must be between 3 and 255 characters", errors.get("title"));
-        assertEquals("Content must be between 300 and 65,535 characters", errors.get("content"));
-        assertEquals("Post must have between 1 and 4 categories", errors.get("categories"));
+        assertEquals("Minimum of 4 characters", errors.get("title"));
+        assertEquals("Minimum of 1000 characters", errors.get("content"));
+        assertEquals("Must have between 1 and 4 categories", errors.get("categories"));
     }
 
     @Test
@@ -548,9 +503,9 @@ public class BlogEntryControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
         Map<String, String> errors = response.getBody();
         assertNotNull(errors);
-        assertEquals("Title must be between 3 and 255 characters", errors.get("title"));
-        assertEquals("Content must be between 300 and 65,535 characters", errors.get("content"));
-        assertEquals("Post must have between 1 and 4 categories", errors.get("categories"));
+        assertEquals("Minimum of 4 characters", errors.get("title"));
+        assertEquals("Minimum of 1000 characters", errors.get("content"));
+        assertEquals("Must have between 1 and 4 categories", errors.get("categories"));
     }
 
     @Test
@@ -595,20 +550,7 @@ public class BlogEntryControllerTest {
 
         BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
                 "Testing Http POST",
-                "This entry is for testing the Http POST method and requires at least 1000 characters. " +
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et " +
-                        "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip" +
-                        " ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
-                        "eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
-                        "mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " +
-                        "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris " +
-                        "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
-                        "eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. " +
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut " +
-                        "enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " +
-                        "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, " +
-                        "sunt in culpa qui officia deserunt mollit anim id est laborum."
-                ,
+                this.thousandChars,
                 List.of("Test Category 7", "Test Category 8"),
                 true
         );
@@ -621,6 +563,53 @@ public class BlogEntryControllerTest {
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
         assertEquals("Categories not found: [Test Category 7, Test Category 8]", response.getBody());
+    }
+
+    @Test
+    @DisplayName("25. should not allow maxBytes to be exceeded in title")
+    void shouldNotAllowMaxBytesToBeExceededInTitle() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+
+        BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
+                "😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁 " +
+                "😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁",
+                this.thousandChars,
+                List.of("Test Category 1", "Test Category 2"),
+                true
+        );
+
+        HttpEntity<Object> postEntity = new HttpEntity<>(blogEntryRequestDto, headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts", HttpMethod.POST, postEntity, String.class);
+
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
+        assertEquals("{\"title\":\"Input length exceeded\"}", response.getBody());
+    }
+
+    @Test
+    @DisplayName("26. should not allow maxBytes to be exceeded in content")
+    void shouldNotAllowMaxBytesToBeExceededInContent() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+
+        BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
+                "Testing Http POST",
+                this.testDtoMaxByteContent,
+                List.of("Test Category 1", "Test Category 2"),
+                true
+        );
+
+        HttpEntity<Object> postEntity = new HttpEntity<>(blogEntryRequestDto, headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts", HttpMethod.POST, postEntity, String.class);
+
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
+        assertEquals("{\"content\":\"Input length exceeded\"}", response.getBody());
     }
 
 }

@@ -7,10 +7,12 @@ import java.nio.charset.StandardCharsets;
 
 public class MaxBytesValidator implements ConstraintValidator<MaxBytes, String> {
     private int maxBytes;
+    private String message;
 
     @Override
     public void initialize(MaxBytes constraintAnnotation) {
         this.maxBytes = constraintAnnotation.value();
+        this.message = constraintAnnotation.message();
     }
 
     @Override
@@ -20,7 +22,7 @@ public class MaxBytesValidator implements ConstraintValidator<MaxBytes, String> 
         if (byteCount > this.maxBytes) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate(
-                    constraintValidatorContext.getDefaultConstraintMessageTemplate()
+                    this.message
                     )
                     .addConstraintViolation();
             return false;
