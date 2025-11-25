@@ -24,6 +24,9 @@ public class Comment {
     @Column(name = "date_created", nullable = false, insertable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "date_updated", nullable = false, insertable = false, updatable = false)
+    private Instant updatedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private AppUser author;
@@ -61,6 +64,10 @@ public class Comment {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
     }
 
     public AppUser getAuthor() {

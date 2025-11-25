@@ -72,12 +72,13 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                         .stream().collect(Collectors.toMap(
                         row -> row.get("parentId", Integer.class),
                         row -> row.get("replyCount", Long.class).intValue()));
-        // creates list of DTOs of comments with reply count
+        // creates list of DTOs of parent comments with reply count
         List<CommentResponseDto> commentResponseDtos = entry.getComments().stream()
                         .map(comment -> new CommentResponseDto(
                                 comment.getId(),
                                 comment.getComment(),
                                 comment.getCreatedAt(),
+                                comment.getUpdatedAt(),
                                 comment.getAuthor().getUsername(),
                                 mapReplyCountToParentCommentIds.getOrDefault(comment.getId(), 0)
                         )).toList();

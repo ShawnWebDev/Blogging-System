@@ -53,6 +53,7 @@ CREATE TABLE `Comments` (
                             `id` int NOT NULL AUTO_INCREMENT,
                             `content` text NOT NULL,
                             `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            `date_updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
                             `parent_comment_id` int DEFAULT NULL,
                             `author_id` int NOT NULL,
                             `post_id` int NOT NULL,
