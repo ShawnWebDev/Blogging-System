@@ -1,5 +1,8 @@
 package com.webdev.bloggingsystem.controllers;
 
+import com.webdev.bloggingsystem.dto.CommentResponseDto;
+import com.webdev.bloggingsystem.services.CommentService;
+
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.webdev.bloggingsystem.dto.LoginDto;
@@ -16,6 +19,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.net.URI;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -25,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class CommentControllerTest {
     @Autowired
     private TestRestTemplate restTemplate;
+    @Autowired
+    private CommentService commentService;
 
     private String testUserToken;
 
@@ -139,14 +145,13 @@ public class CommentControllerTest {
 
         ResponseEntity<String> response = restTemplate
                 .exchange("/api/comments/comment/1", HttpMethod.GET, request, String.class);
+        System.out.println("response: " + response);
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
 
         DocumentContext documentContext = JsonPath.parse(response.getBody());
         String comment  = documentContext.read("$.comment");
         assertEquals("Test Comment on Test Post 1", comment);
-
-        System.out.println("response: " + response);
     }
 
     @Test
@@ -173,6 +178,33 @@ public class CommentControllerTest {
 
         System.out.println("response: " + response);
         System.out.println(content);
+    }
+
+    @Test
+    @DisplayName("6. should remove comment text")
+    void removeComment() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        ResponseEntity<Void> response = restTemplate
+                .exchange("/api/comments/4", HttpMethod.DELETE, request, Void.class);
+
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Should return 204 No Content");
+
+        ResponseEntity<String> getResponse = restTemplate
+                .exchange("/api/comments/comment/4", HttpMethod.GET, request, String.class);
+        System.out.println("response: " + getResponse);
+
+        DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+        String content = documentContext.read("$.comment");
+
+        assertEquals("Comment Removed...", content);
+
+        List<CommentResponseDto> commentList = commentService.getAllRepliesByParentId(2);
+        System.out.println("commentList: " + commentList);
+        assertEquals(1, commentList.size());
     }
 
 }

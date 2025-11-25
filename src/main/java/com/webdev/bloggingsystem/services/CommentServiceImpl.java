@@ -102,10 +102,30 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
 
         if (!commentToUpdate.getAuthor().getUsername().equals(principalName)) {
-            throw new ResourceNotFoundException("Entry not found with id " + commentId);
+            throw new ResourceNotFoundException("Comment not found with id " + commentId);
         }
         commentToUpdate.setComment(newCommentText);
         commentRepo.save(commentToUpdate);
+    }
+
+    @Override
+    public void deleteComment(Integer commentId, String principalName) {
+        logger.debug("deleteComment: getting Comment with author and BlogEntry with author {}", principalName);
+        Comment commentToDelete = commentRepo.findBlogEntryAndCommentById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
+
+        logger.debug("deleteComment: deleting comment {} with author {} from entry {} with author {}",
+                commentToDelete, commentToDelete.getAuthor().getUsername(), commentToDelete.getBlogEntry(), commentToDelete.getBlogEntry().getAuthor().getUsername());
+
+        if (commentToDelete.getAuthor().getUsername().equals(principalName) ||
+                commentToDelete.getBlogEntry().getAuthor().getUsername().equals(principalName)) {
+            commentToDelete.setComment("Comment Removed...");
+            commentRepo.save(commentToDelete);
+            return;
+        }
+
+        logger.debug("deleteComment: comment not found with Comment author or BlogEntry author {}", principalName);
+        throw new ResourceNotFoundException("Comment not found with id " + commentId);
     }
 
     private Comment mapRequestToEntity(String commentText, AppUser author, BlogEntry blogEntry, Comment parentComment) {

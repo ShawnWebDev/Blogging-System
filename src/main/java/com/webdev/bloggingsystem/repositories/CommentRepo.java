@@ -21,6 +21,9 @@ public interface CommentRepo extends CrudRepository<Comment, Integer> {
     @EntityGraph(value = "comment-with-author", type = EntityGraph.EntityGraphType.LOAD)
     Optional<Comment> findCommentById(Integer id);
 
+    @EntityGraph(value = "comment-with-author-and-blogEntry", type = EntityGraph.EntityGraphType.LOAD)
+    Optional<Comment> findBlogEntryAndCommentById(Integer commentId);
+
     Integer countRepliesByParentCommentId(Integer parentCommentId);
 
     @Query("SELECT c.parentComment.id AS parentId, count(c) AS replyCount " +

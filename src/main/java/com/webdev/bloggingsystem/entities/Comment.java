@@ -7,12 +7,30 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "comments")
-@NamedEntityGraph(
-        name = "comment-with-author",
-        attributeNodes = {
-                @NamedAttributeNode("author")
-        }
-)
+@NamedEntityGraphs({
+        @NamedEntityGraph(
+                name = "comment-with-author",
+                attributeNodes = {
+                        @NamedAttributeNode("author")
+                }
+        ),
+        @NamedEntityGraph(
+                name = "comment-with-author-and-blogEntry",
+                attributeNodes = {
+                        @NamedAttributeNode("author"),
+                        @NamedAttributeNode(value = "blogEntry", subgraph = "entry-author")
+                },
+                subgraphs = {
+                        @NamedSubgraph(
+                                name = "entry-author",
+                                attributeNodes = {
+                                        @NamedAttributeNode("author")
+                                }
+                        )
+                }
+        )
+})
+
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

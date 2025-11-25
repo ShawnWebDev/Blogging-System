@@ -50,7 +50,7 @@ public class CommentController {
     @PutMapping("/comments/comment/{commentId}")
     public ResponseEntity<Void> updateComment(
             @PathVariable Integer commentId,
-            @RequestBody @MaxBytes(4000) @NotBlank(message = "Input empty") String commentText,
+            @RequestBody @MaxBytes(value = 4000) @NotBlank(message = "Input empty") String commentText,
             Principal principal)
     {
         commentService.updateComment(commentText, commentId, principal.getName());
@@ -59,11 +59,10 @@ public class CommentController {
 
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(
-            @PathVariable Integer commentId)
+            @PathVariable Integer commentId, Principal principal,
+            @RequestParam(name = "isBlogEntryAuthor", required = false ) Boolean isBlogEntryAuthor)
     {
-        // todo: decide how to go about deletion - should it just modify comment text to be redacted/deleted?
-        // todo: should probably add an updated_at field or "edited" boolean to Comment
-
+        commentService.deleteComment(commentId, principal.getName());
         return ResponseEntity.noContent().build();
     }
 

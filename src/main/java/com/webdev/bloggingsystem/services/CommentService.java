@@ -11,4 +11,5 @@ public interface CommentService {
     CommentResponseDto getCommentById(Integer commentId);
     URI saveComment(String commentText, Integer postId, Integer parentId, String principalName, UriComponentsBuilder ucb);
     void updateComment(String newCommentText, Integer commentId, String principalName);
+    void deleteComment(Integer commentId, String principalName);
 }
