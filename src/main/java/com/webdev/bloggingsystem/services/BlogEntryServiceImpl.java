@@ -76,6 +76,8 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         List<CommentResponseDto> commentResponseDtos = entry.getComments().stream()
                         .map(comment -> new CommentResponseDto(
                                 comment.getId(),
+                                comment.getBlogEntry().getId(),
+                                comment.getParentComment() == null ? null : comment.getParentComment().getId(),
                                 comment.getComment(),
                                 comment.getCreatedAt(),
                                 comment.getUpdatedAt(),

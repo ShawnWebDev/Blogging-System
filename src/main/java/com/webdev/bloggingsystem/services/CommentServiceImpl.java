@@ -118,7 +118,14 @@ public class CommentServiceImpl implements CommentService {
 
     private CommentResponseDto mapRequestToDto(Comment comment, Integer amount) {
         return new CommentResponseDto(
-                comment.getId(), comment.getComment(), comment.getCreatedAt(), comment.getAuthor().getUsername(), amount
+                comment.getId(),
+                comment.getBlogEntry().getId(),
+                comment.getParentComment() == null ? null : comment.getParentComment().getId(),
+                comment.getComment(),
+                comment.getCreatedAt(),
+                comment.getUpdatedAt(),
+                comment.getAuthor().getUsername(),
+                amount
         );
     }
 }
