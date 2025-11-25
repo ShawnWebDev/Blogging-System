@@ -117,9 +117,18 @@ public class CommentServiceImpl implements CommentService {
         logger.debug("deleteComment: deleting comment {} with author {} from entry {} with author {}",
                 commentToDelete, commentToDelete.getAuthor().getUsername(), commentToDelete.getBlogEntry(), commentToDelete.getBlogEntry().getAuthor().getUsername());
 
-        if (commentToDelete.getAuthor().getUsername().equals(principalName) ||
-                commentToDelete.getBlogEntry().getAuthor().getUsername().equals(principalName)) {
-            commentToDelete.setComment("Comment Removed...");
+        boolean authorized = false;
+        String commentText = "";
+        if (commentToDelete.getAuthor().getUsername().equals(principalName)) {
+            authorized = true;
+            commentText = "Removed By Comment Author..";
+        } else if (commentToDelete.getBlogEntry().getAuthor().getUsername().equals(principalName)) {
+            authorized = true;
+            commentText = "Removed By Blog Author..";
+        }
+
+        if (authorized) {
+            commentToDelete.setComment(commentText);
             commentRepo.save(commentToDelete);
             return;
         }

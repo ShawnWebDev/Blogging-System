@@ -181,8 +181,36 @@ public class CommentControllerTest {
     }
 
     @Test
-    @DisplayName("6. should remove comment text")
-    void removeComment() {
+    @DisplayName("6. should remove comment text by comment author")
+    void removeCommentByCommentAuthor() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        ResponseEntity<Void> response = restTemplate
+                .exchange("/api/comments/5", HttpMethod.DELETE, request, Void.class);
+
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Should return 204 No Content");
+
+        ResponseEntity<String> getResponse = restTemplate
+                .exchange("/api/comments/comment/5", HttpMethod.GET, request, String.class);
+        System.out.println("response: " + getResponse);
+
+        DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+        String content = documentContext.read("$.comment");
+
+        assertEquals("Removed By Comment Author..", content);
+
+        // assert replies are unchanged.
+        List<CommentResponseDto> commentList = commentService.getAllRepliesByParentId(2);
+        System.out.println("commentList: " + commentList);
+        assertEquals(1, commentList.size());
+    }
+
+    @Test
+    @DisplayName("7. should remove comment text by blog entry author")
+    void removeCommentByBlogEntryAuthor() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + this.testUserToken);
         HttpEntity<String> request = new HttpEntity<>(headers);
@@ -200,11 +228,7 @@ public class CommentControllerTest {
         DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
         String content = documentContext.read("$.comment");
 
-        assertEquals("Comment Removed...", content);
-
-        List<CommentResponseDto> commentList = commentService.getAllRepliesByParentId(2);
-        System.out.println("commentList: " + commentList);
-        assertEquals(1, commentList.size());
+        assertEquals("Removed By Blog Author..", content);
     }
 
 }
