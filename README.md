@@ -12,16 +12,16 @@
    * Displaying it with a JavaScript Front-End Framework.
 
 ## Requirements
-* Tech Stack:
-  * Java Spring Boot, MySQL, JWT (for authentication), Angular or Vue + Typescript, Docker, Nginx, AWS (EC2, ECR)
-* CRUD operations on Blog Posts, Post Comments, and Users:
-  * Filter posts by category, author, and/or date_updated. 
-* Single Page App 
-* Security:
-  * Role-Based Access to differentiate between user and admin.
-  * Secure endpoints with JWT and Rate limiting.
-  * CORS on the front-end.
-* Structured logging.
+1. Tech Stack:
+   * Java Spring Boot, MySQL, JWT (for authentication), Angular or Vue + Typescript, Docker, Nginx, AWS (EC2, ECR, S3)
+2. CRUD operations on Blog Posts, Post Comments, and Users:
+   * Filter posts by category, author, and/or date_updated. 
+3. Single Page App 
+4. Security:
+   * Role-Based Access to differentiate between user and admin.
+   * Secure endpoints with JWT and Rate limiting.
+   * CORS on the front-end.
+5. Structured logging and observability.
 
 ## Architecture
 Will follow a multi-tier architecture of:
@@ -50,27 +50,30 @@ Will follow a multi-tier architecture of:
 * Scaling the frontend can be done with S3 and CloudFront or its own EC2 instance(s)
 
 ## Planned API Endpoints
-Role Based access - Entries can be set as `PRIVATE` - meaning they will not show on public `GET` endpoints if requesting user is not the Author.
+Role Based access - Entries can be set as `PUBLIC` or `PRIVATE` - meaning they will not show on public `GET` endpoints if requesting user is not the Author.
 
-Planned Authorities - `USER` (basic user/author) and `ADMIN` (administrator)
+Planned Authorities - `PUBLIC` (not authenticated), `USER` (basic user/author) and `ADMIN` (administrator)
 
-| Resource   | HTTP Method | Endpoint                               | Description                                                                                           | Access Role           |
-|:-----------|:------------|:---------------------------------------|:------------------------------------------------------------------------------------------------------|:----------------------|
-| BlogEntry  | `GET`       | `/api/posts`                           | Retrieve all entries (with optional filters - category_id, user_id, date_updated, and/or pagination). | `USER, ADMIN`         |
-| BlogEntry | `GET`       | `/api/posts/{id}`                      | Retrieve a entry by id.                                                                               | `USER, ADMIN`         |
-| BlogEntry | `POST`      | `/api/posts`                           | Create a new entry.                                                                                   | `USER, ADMIN`         |                                        
-| BlogEntry | `PUT`       | `/api/posts/{id}`                      | Update an entry.                                                                                      | `AUTHOR(USER), ADMIN` |
-| BlogEntry | `DELETE`    | `/api/posts/{id}`                      | Delete an entry.                                                                                      | `AUTHOR(USER), ADMIN` |
-| Comment    | `GET`       | `/api/posts/{id}/comments`             | Get all top-level comments for entry (also eager loaded on getById - BlogEntry).                      | `USER, ADMIN`         |
-| Comment    | `GET`       | `/api/comments/{parentCommentId}`      | Get all replies to a specific comment (lazy loaded on getById - BlogEntry).                           | `USER, ADMIN`         |
-| Comment    | `GET`       | `/api/comments/comment/{commentId}`    | Get a specific comment.                                                                               | `USER, ADMIN`         |
-| Comment    | `POST`      | `/api/posts/{id}/comments`             | Create a new comment (optional parentCommentId for creating a reply).                                 | `USER, ADMIN`         |
-| Comment    | `PUT`       | `/api/posts/{id}/comments/{commentId}` | Update a comment (optional parentCommentId for updating a reply).                                     | `USER, ADMIN`         |
-| Comment    | `DELETE`    | `/api/comments/{id}`                   | Delete a comment (Sets comment text to 'REDACTED')                                                    | `AUTHOR(USER), ADMIN` |
-| AppUser    | `POST`      | `/api/auth/register`                   | Register a new user account.                                                                          | `PUBLIC`              |
-| AppUser    | `POST`      | `/api/auth/login`                      | Authenticate user and receive a JWT.                                                                  | `PUBLIC`              |
-| Category   | `GET`       | `/api/categories`                      | Get all categories.                                                                                   | `USER, ADMIN`         |
-| Category   | `POST`      | `/api/categories`                      | Create a new category.                                                                                | `ADMIN`               |
-| Category   | `PUT`       | `/api/categories/{id}`                 | Update a category.                                                                                    | `ADMIN`               |
-| Category   | `DELETE`    | `/api/categories/{id}`                 | Delete a category.                                                                                    | `ADMIN`               |
-|            |             |                                        |                                                                                                       |                       |
+| Resource  | HTTP Method | Endpoint                               | Description                                                                                                                                  | Access Role           |
+|:----------|:------------|:---------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------|:----------------------|
+| BlogEntry | `GET`       | `/api/posts`                           | Retrieve public all entries (with optional filters - categoryName, username, afterDate, beforeDate, and pagination).                         | `PUBLIC`              |
+| BlogEntry | `GET`       | `/api/posts/me`                        | Retrieve all public and private entries of authenticated user (with optional filters - categoryName, afterDate, beforeDate, and pagination). | `AUTHOR(USER)`        |
+| BlogEntry | `GET`       | `/api/posts/{id}`                      | Retrieve an entry by id. (if authenticated, will allow getting private entry if user is author)                                              | `PUBLIC, USER`        |
+| BlogEntry | `POST`      | `/api/posts`                           | Create a new entry.                                                                                                                          | `USER`                |                                        
+| BlogEntry | `PUT`       | `/api/posts/{id}`                      | Update an entry.                                                                                                                             | `AUTHOR(USER)`        |
+| BlogEntry | `DELETE`    | `/api/posts/{id}`                      | Delete an entry.                                                                                                                             | `AUTHOR(USER)`        |
+| BlogEntry | `PUT`       | `/api/admin/posts/{id}`                | Update an entry.                                                                                                                             | `ADMIN`               |
+| BlogEntry | `DELETE`    | `/api/admin/posts/{id}`                | Delete an entry.                                                                                                                             | `ADMIN`               |
+| Comment   | `GET`       | `/api/posts/{id}/comments`             | Get all top-level comments for entry.                                                                                                        | `USER, ADMIN`         |
+| Comment   | `GET`       | `/api/comments/{parentCommentId}`      | Get all replies to a specific parent comment.                                                                                                | `USER, ADMIN`         |
+| Comment   | `GET`       | `/api/comments/comment/{commentId}`    | Get a specific comment.                                                                                                                      | `USER, ADMIN`         |
+| Comment   | `POST`      | `/api/posts/{id}/comments`             | Create a new comment (optional 'parentId' request param for creating a reply).                                                               | `USER, ADMIN`         |
+| Comment   | `PUT`       | `/api/posts/{id}/comments/{commentId}` | Update a comment's text.                                                                                                                     | `USER, ADMIN`         |
+| Comment   | `DELETE`    | `/api/comments/{id}`                   | Delete a comment's text (Sets comment text to 'Comment removed by (Comment Author, Blog Author, OR Admin)')                                  | `AUTHOR(USER), ADMIN` |
+| AppUser   | `POST`      | `/api/auth/register`                   | Register a new user account.                                                                                                                 | `PUBLIC`              |
+| AppUser   | `POST`      | `/api/auth/login`                      | Authenticate user and receive a JWT.                                                                                                         | `PUBLIC`              |
+| Category  | `GET`       | `/api/categories`                      | Get all categories.                                                                                                                          | `PUBLIC`              |
+| Category  | `POST`      | `/api/categories`                      | Create a new category.                                                                                                                       | `ADMIN`               |
+| Category  | `PUT`       | `/api/categories/{id}`                 | Update a category.                                                                                                                           | `ADMIN`               |
+| Category  | `DELETE`    | `/api/categories/{id}`                 | Delete a category.                                                                                                                           | `ADMIN`               |
+|           |             |                                        |                                                                                                                                              |                       |
