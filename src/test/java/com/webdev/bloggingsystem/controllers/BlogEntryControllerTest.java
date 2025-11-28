@@ -612,4 +612,12 @@ public class BlogEntryControllerTest {
         assertEquals("{\"content\":\"Input length exceeded\"}", response.getBody());
     }
 
+    @Test
+    @DisplayName("27. should not get entries from /me when not authenticated")
+    void getAllEntriesNotAuthenticated() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/api/posts/me", String.class);
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Should return 401");
+    }
+
 }

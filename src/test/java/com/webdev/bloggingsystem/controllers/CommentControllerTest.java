@@ -251,5 +251,13 @@ public class CommentControllerTest {
         }
     }
 
+    @Test
+    @DisplayName("9. should not get comments when not authenticated")
+    void getAllCommentsNotAuthenticated() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/api/comments/me", String.class);
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Should return 401");
+    }
+
 
 }
