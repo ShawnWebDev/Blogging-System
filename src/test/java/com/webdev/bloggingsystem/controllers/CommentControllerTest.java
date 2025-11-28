@@ -7,6 +7,7 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.webdev.bloggingsystem.dto.LoginDto;
 
+import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -242,7 +243,12 @@ public class CommentControllerTest {
                 .exchange("/api/comments/me", HttpMethod.GET, request, String.class);
         System.out.println("response: "+ response);
 
-
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        JSONArray authors = documentContext.read("$..author");
+        for (Object author : authors) {
+            System.out.println("author? : " + author);
+            assertEquals("TestUser", author.toString());
+        }
     }
 
 
