@@ -35,6 +35,15 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getCommentById(commentId));
     }
 
+    @GetMapping("/comments/me")
+    public ResponseEntity<List<CommentResponseDto>> getAllCommentsForUser(Principal principal)
+    {
+        return ResponseEntity.ok(commentService.getAllCommentsByUsername(principal.getName()));
+    }
+
+
+    //todo : implement and test endpoints using admin role
+
     @PostMapping("/posts/{postId}/comments")
     public ResponseEntity<Void> createComment(
             @PathVariable Integer postId, @RequestParam(name = "parentId", required = false ) Integer parentCommentId,
@@ -57,17 +66,16 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/comments/{commentId}")
+    @DeleteMapping("/comments/comment/{commentId}")
     public ResponseEntity<Void> deleteComment(
-            @PathVariable Integer commentId, Principal principal,
-            @RequestParam(name = "isBlogEntryAuthor", required = false ) Boolean isBlogEntryAuthor)
+            @PathVariable Integer commentId, Principal principal)
     {
         commentService.deleteComment(commentId, principal.getName());
         return ResponseEntity.noContent().build();
     }
 
 
-    //todo : implement and test admin endpoints
+
     /*
     @PutMapping("admin/comments/comment/{commentId}")
 

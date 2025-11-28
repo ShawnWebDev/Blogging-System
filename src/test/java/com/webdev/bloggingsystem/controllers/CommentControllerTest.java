@@ -216,7 +216,7 @@ public class CommentControllerTest {
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         ResponseEntity<Void> response = restTemplate
-                .exchange("/api/comments/4", HttpMethod.DELETE, request, Void.class);
+                .exchange("/api/comments/comment/4", HttpMethod.DELETE, request, Void.class);
 
         System.out.println("response: " + response);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Should return 204 No Content");
@@ -230,5 +230,20 @@ public class CommentControllerTest {
 
         assertEquals("Removed By Blog Author..", content);
     }
+
+    @Test
+    @DisplayName("8. get all comments made by authenticated user")
+    void getAllCommentsByUsername() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/comments/me", HttpMethod.GET, request, String.class);
+        System.out.println("response: "+ response);
+
+
+    }
+
 
 }

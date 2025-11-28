@@ -19,6 +19,9 @@ public interface CommentRepo extends CrudRepository<Comment, Integer> {
     List<Comment> findAllByBlogEntryId(Integer blogEntryId);
 
     @EntityGraph(value = "comment-with-author", type = EntityGraph.EntityGraphType.LOAD)
+    List<Comment> findAllByAuthorUsername(String username);
+
+    @EntityGraph(value = "comment-with-author", type = EntityGraph.EntityGraphType.LOAD)
     Optional<Comment> findCommentById(Integer id);
 
     @EntityGraph(value = "comment-with-author-and-blogEntry", type = EntityGraph.EntityGraphType.LOAD)

@@ -38,25 +38,13 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentResponseDto> getAllRepliesByParentId(Integer parentId) {
         List<Comment> comments = commentRepo.findAllByParentCommentId(parentId);
-        List<CommentResponseDto> responseDtos;
-        List<Integer> commentIds = comments.stream().map(Comment::getId).toList();
-        Map<Integer, Integer> countRepliesByParentCommentIds = commentRepo.countRepliesByParentCommentIds(commentIds)
-                .stream().collect(Collectors.toMap(
-                        row -> row.get("parentId", Integer.class),
-                        row -> row.get("replyCount", Long.class).intValue()
-                ));
+        return this.getCommentResponseDtos(comments);
+    }
 
-        if (!comments.isEmpty()) {
-            responseDtos = new ArrayList<>();
-            for (Comment comment : comments) {
-                responseDtos.add(
-                        this.mapRequestToDto(comment, countRepliesByParentCommentIds.getOrDefault(comment.getId(), 0))
-                );
-            }
-            logger.debug("getAllRepliesByParentId: responseDtos: {}", responseDtos);
-            return responseDtos;
-        }
-        return List.of();
+    @Override
+    public List<CommentResponseDto> getAllCommentsByUsername(String principalName) {
+        List<Comment> comments = commentRepo.findAllByAuthorUsername(principalName);
+        return this.getCommentResponseDtos(comments);
     }
 
     @Override
@@ -69,10 +57,9 @@ public class CommentServiceImpl implements CommentService {
         Integer amount = commentRepo.countRepliesByParentCommentId(commentId);
         logger.debug("getCommentById: reply count: {}", amount);
 
-        return this.mapRequestToDto(comment, amount);
+        return mapRequestToDto(comment, amount);
     }
 
-    // todo: create validation logic, use before saving & updating.
     @Override
     public URI saveComment(String commentText, Integer postId, Integer parentId, String principalName,
                            UriComponentsBuilder ucb) {
@@ -91,7 +78,7 @@ public class CommentServiceImpl implements CommentService {
                     .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + parentId));
         }
 
-        Comment savedComment = commentRepo.save(this.mapRequestToEntity(commentText, author, blogEntry, parentComment));
+        Comment savedComment = commentRepo.save(mapRequestToEntity(commentText, author, blogEntry, parentComment));
 
         return ucb.path("api/comments/comment/{commentId}").buildAndExpand(savedComment.getId()).toUri();
     }
@@ -118,13 +105,13 @@ public class CommentServiceImpl implements CommentService {
                 commentToDelete, commentToDelete.getAuthor().getUsername(), commentToDelete.getBlogEntry(), commentToDelete.getBlogEntry().getAuthor().getUsername());
 
         boolean authorized = false;
-        String commentText = "";
+        String commentText = "Comment Removed By ";
         if (commentToDelete.getAuthor().getUsername().equals(principalName)) {
             authorized = true;
-            commentText = "Removed By Comment Author..";
+            commentText += "Comment Author..";
         } else if (commentToDelete.getBlogEntry().getAuthor().getUsername().equals(principalName)) {
             authorized = true;
-            commentText = "Removed By Blog Author..";
+            commentText += "Blog Author..";
         }
 
         if (authorized) {
@@ -137,7 +124,7 @@ public class CommentServiceImpl implements CommentService {
         throw new ResourceNotFoundException("Comment not found with id " + commentId);
     }
 
-    private Comment mapRequestToEntity(String commentText, AppUser author, BlogEntry blogEntry, Comment parentComment) {
+    private static Comment mapRequestToEntity(String commentText, AppUser author, BlogEntry blogEntry, Comment parentComment) {
         Comment comment = new Comment(commentText, author, blogEntry);
         if (parentComment != null) {
             comment.setParentComment(parentComment);
@@ -145,7 +132,7 @@ public class CommentServiceImpl implements CommentService {
         return comment;
     }
 
-    private CommentResponseDto mapRequestToDto(Comment comment, Integer amount) {
+    private static CommentResponseDto mapRequestToDto(Comment comment, Integer amount) {
         return new CommentResponseDto(
                 comment.getId(),
                 comment.getBlogEntry().getId(),
@@ -156,5 +143,36 @@ public class CommentServiceImpl implements CommentService {
                 comment.getAuthor().getUsername(),
                 amount
         );
+    }
+
+    private static List<CommentResponseDto> mapCommentListToDtoList(List<Comment> comments, Map<Integer, Integer> replyCountMap) {
+        List<CommentResponseDto> responseDtos = new ArrayList<>();
+        for (Comment comment : comments) {
+            responseDtos.add(
+                    mapRequestToDto(comment, replyCountMap.getOrDefault(comment.getId(), 0))
+            );
+        }
+        return responseDtos;
+    }
+
+    private Map<Integer, Integer> mapRepliesCountToComments(List<Comment> comments) {
+        List<Integer> commentIds = comments.stream().map(Comment::getId).toList();
+        return commentRepo.countRepliesByParentCommentIds(commentIds)
+                .stream().collect(Collectors.toMap(
+                        row -> row.get("parentId", Integer.class),
+                        row -> row.get("replyCount", Long.class).intValue()
+                ));
+    }
+
+    private List<CommentResponseDto> getCommentResponseDtos(List<Comment> comments) {
+        Map<Integer, Integer> countRepliesByParentCommentIds = this.mapRepliesCountToComments(comments);
+        List<CommentResponseDto> responseDtos;
+
+        if (!comments.isEmpty()) {
+            responseDtos = mapCommentListToDtoList(comments, countRepliesByParentCommentIds);
+            return responseDtos;
+        }
+
+        return List.of();
     }
 }
