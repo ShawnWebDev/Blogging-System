@@ -65,32 +65,13 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         }
         logger.debug("found entry: {} with author of {} and categories of {}", entry, entry.getAuthor().getUsername(), entry.getCategories());
 
-        // all top-level comment ids - joined where parent_comment_id IS NULL
-        List<Integer> commentIds = entry.getComments().stream().map(Comment::getId).toList();
-        // maps reply count to the top-level comment ids
-        Map<Integer, Integer> mapReplyCountToParentCommentIds = commentRepo.countRepliesByParentCommentIds(commentIds)
-                        .stream().collect(Collectors.toMap(
-                        row -> row.get("parentId", Integer.class),
-                        row -> row.get("replyCount", Long.class).intValue()));
-        // creates list of DTOs of parent comments with reply count
-        List<CommentResponseDto> commentResponseDtos = entry.getComments().stream()
-                        .map(comment -> new CommentResponseDto(
-                                comment.getId(),
-                                comment.getBlogEntry().getId(),
-                                comment.getParentComment() == null ? null : comment.getParentComment().getId(),
-                                comment.getComment(),
-                                comment.getCreatedAt(),
-                                comment.getUpdatedAt(),
-                                comment.getAuthor().getUsername(),
-                                mapReplyCountToParentCommentIds.getOrDefault(comment.getId(), 0)
-                        )).toList();
         // returns a list of key value pairs of [blogId : total comment count] (only one since this is getting one entry)
         List<Tuple> commentCountResult = commentRepo.countCommentsByBlogEntryIds(List.of(entry.getId()));
         // if list is emtpy total comment count is 0
         int commentCount = commentCountResult.isEmpty() ? 0
                 : commentCountResult.getFirst().get("commentCount", Long.class).intValue();
 
-        return new BlogEntryResponseDto(entry, commentResponseDtos, commentCount);
+        return new BlogEntryResponseDto(entry, commentCount);
     }
 
     @Override
@@ -114,7 +95,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
         // repo sends query with built filter and defined page, returns page
         Page<BlogEntry> blogEntries = blogEntryRepo.findAll(spec, pageRequest);
-        // signal to Hibernate to fetch categories separately in a batch to avoid fetching duplicate BlogEntries for each category (Cartesian Product).
+        // signal to Hibernate to fetch categories separately in a batch to avoid fetching duplicate BlogEntries for each category (Cartesian Product) using a join.
         logger.debug("batch a categories query..");
         blogEntries.getContent().forEach(BlogEntry::getCategories);
         // extract BlogEntry ids to use in comment counts
@@ -127,7 +108,8 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         // build BlogEntryResponseDtos setting comment counts with default value of 0 if not in map
         List<BlogEntryResponseDto> responseDtos = new ArrayList<>();
         for (BlogEntry blogEntry : blogEntries.getContent()) {
-            responseDtos.add(new BlogEntryResponseDto(blogEntry, List.of(),
+            responseDtos.add(new BlogEntryResponseDto(
+                    blogEntry,
                     mapCommentCountToBlogIds.getOrDefault(blogEntry.getId(), 0))
             );
         }

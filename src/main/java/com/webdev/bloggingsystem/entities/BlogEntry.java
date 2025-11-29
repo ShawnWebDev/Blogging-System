@@ -24,22 +24,6 @@ import java.util.Set;
                         @NamedAttributeNode("author"),
                         @NamedAttributeNode("categories")
                 }
-        ),
-        @NamedEntityGraph(
-                name = "blog-entry-full",
-                attributeNodes = {
-                        @NamedAttributeNode("author"),
-                        @NamedAttributeNode("categories"),
-                        @NamedAttributeNode(value = "comments", subgraph = "comment-author")
-                },
-                subgraphs = {
-                        @NamedSubgraph(
-                                name = "comment-author",
-                                attributeNodes = {
-                                        @NamedAttributeNode("author")
-                                }
-                        )
-                }
         )
 })
 public class BlogEntry {

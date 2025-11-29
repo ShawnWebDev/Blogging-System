@@ -14,11 +14,10 @@ public record BlogEntryResponseDto(
         Instant createdAt,
         Instant updatedAt,
         List<String> categories,
-        List<CommentResponseDto> comments,
         int totalComments,
         boolean isPublic
 ) {
-    public BlogEntryResponseDto(BlogEntry entry, List<CommentResponseDto> comments, int commentCount) {
+    public BlogEntryResponseDto(BlogEntry entry, int commentCount) {
         this(
             entry.getId(),
             entry.getAuthor().getUsername(),
@@ -27,7 +26,6 @@ public record BlogEntryResponseDto(
             entry.getCreatedAt(),
             entry.getUpdatedAt(),
             entry.getCategories().stream().map(Category::getCategoryName).toList(),
-            comments,
             commentCount,
             entry.isPublic()
         );

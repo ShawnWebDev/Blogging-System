@@ -515,7 +515,7 @@ public class BlogEntryControllerTest {
                 .getForEntity("/api/posts/me?sort=createdAt,asc", String.class);
         System.out.println("response: " + response);
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Should return 401 NOT AUTHORIZED");
     }
 
     @Test

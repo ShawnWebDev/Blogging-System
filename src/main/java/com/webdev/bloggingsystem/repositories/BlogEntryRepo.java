@@ -17,7 +17,7 @@ import org.springframework.lang.Nullable;
 import java.util.Optional;
 
 public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer>, JpaSpecificationExecutor<BlogEntry> {
-    @EntityGraph(value = "blog-entry-full", type = EntityGraph.EntityGraphType.LOAD)
+    @EntityGraph(value = "blog-entry-partial", type = EntityGraph.EntityGraphType.LOAD)
     Optional<BlogEntry> findBlogEntryById(Integer id);
 
     @EntityGraph(value = "blog-entry-partial", type = EntityGraph.EntityGraphType.LOAD)
