@@ -21,6 +21,13 @@ public class CommentController {
         this.commentService = commentService;
     }
 
+    @GetMapping("/posts/{blogEntryId}/comments")
+    public ResponseEntity<List<CommentResponseDto>> getAllCommentsByBlogEntryId(
+            @PathVariable Integer blogEntryId)
+    {
+        return ResponseEntity.ok(commentService.getAllCommentsByBlogEntryId(blogEntryId));
+    }
+
     @GetMapping("/comments/{parentId}")
     public ResponseEntity<List<CommentResponseDto>> getAllReplyCommentsByParentId(
             @PathVariable Integer parentId)
@@ -41,8 +48,7 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getAllCommentsByUsername(principal.getName()));
     }
 
-
-    //todo : implement and test endpoints using admin role
+    //todo : implement and integration test endpoints using admin role
 
     @PostMapping("/posts/{postId}/comments")
     public ResponseEntity<Void> createComment(

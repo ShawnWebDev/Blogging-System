@@ -1,12 +1,12 @@
 package com.webdev.bloggingsystem.controllers;
 
 import com.webdev.bloggingsystem.dto.BlogEntryRequestDto;
-import com.webdev.bloggingsystem.entities.Comment;
 import com.webdev.bloggingsystem.dto.LoginDto;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.webdev.bloggingsystem.repositories.CommentRepo;
+import jakarta.persistence.Tuple;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -346,9 +346,9 @@ public class BlogEntryControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, getResponse.getStatusCode(), "Should return 404 NOT FOUND");
 
         System.out.println("Checking associated comments are also deleted...");
-        List<Comment> comments = commentRepo.findAllByBlogEntryId(3);
-        assertEquals(0, comments.size());
-        System.out.println("comments: " + comments);
+        List<Tuple> commentCountResult = commentRepo.countCommentsByBlogEntryIds(List.of(3));
+        assertEquals(0, commentCountResult.isEmpty() ? 0
+                : commentCountResult.getFirst().get("commentCount", Long.class).intValue());
     }
 
     @Test

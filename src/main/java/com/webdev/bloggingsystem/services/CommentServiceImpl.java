@@ -48,6 +48,35 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public List<CommentResponseDto> getAllCommentsByBlogEntryId(Integer blogEntryId) {
+        List<Comment> comments = commentRepo.fetchTopLevelCommentsByBlogEntryId(blogEntryId);
+        List<Integer> commentIds = comments.stream().map(Comment::getId).collect(Collectors.toList());
+        logger.debug("getAllCommentsByBlogEntryId: comments {}", comments);
+        if (comments.isEmpty()) {
+            return List.of();
+        } else {
+            // maps reply count to the top-level comment ids
+            Map<Integer, Integer> mapReplyCountToParentCommentIds = commentRepo.countRepliesByParentCommentIds(commentIds)
+                    .stream().collect(Collectors.toMap(
+                            row -> row.get("parentId", Integer.class),
+                            row -> row.get("replyCount", Long.class).intValue()));
+
+            // creates list of DTOs of parent comments with reply count
+            return comments.stream()
+                    .map(comment -> new CommentResponseDto(
+                            comment.getId(),
+                            comment.getBlogEntry().getId(),
+                            comment.getParentComment() == null ? null : comment.getParentComment().getId(),
+                            comment.getComment(),
+                            comment.getCreatedAt(),
+                            comment.getUpdatedAt(),
+                            comment.getAuthor().getUsername(),
+                            mapReplyCountToParentCommentIds.getOrDefault(comment.getId(), 0)
+                    )).toList();
+        }
+    }
+
+    @Override
     public CommentResponseDto getCommentById(Integer commentId) {
         logger.debug("getCommentById: commentId: {}", commentId);
 

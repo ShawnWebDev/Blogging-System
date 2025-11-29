@@ -16,9 +16,6 @@ public interface CommentRepo extends CrudRepository<Comment, Integer> {
     List<Comment> findAllByParentCommentId(@Param("id") Integer parentId);
 
     @EntityGraph(value = "comment-with-author", type = EntityGraph.EntityGraphType.LOAD)
-    List<Comment> findAllByBlogEntryId(Integer blogEntryId);
-
-    @EntityGraph(value = "comment-with-author", type = EntityGraph.EntityGraphType.LOAD)
     List<Comment> findAllByAuthorUsername(String username);
 
     @EntityGraph(value = "comment-with-author", type = EntityGraph.EntityGraphType.LOAD)
@@ -28,6 +25,9 @@ public interface CommentRepo extends CrudRepository<Comment, Integer> {
     Optional<Comment> findBlogEntryAndCommentById(Integer commentId);
 
     Integer countRepliesByParentCommentId(Integer parentCommentId);
+
+    @Query("SELECT c FROM Comment c JOIN FETCH c.author WHERE c.blogEntry.id = :blogEntryId AND c.parentComment IS NULL")
+    List<Comment> fetchTopLevelCommentsByBlogEntryId(@Param("blogEntryId") Integer blogEntryId);
 
     @Query("SELECT c.parentComment.id AS parentId, count(c) AS replyCount " +
             "FROM Comment c WHERE c.parentComment.id IN :parentIds GROUP BY c.parentComment.id")

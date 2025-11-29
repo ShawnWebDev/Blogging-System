@@ -189,7 +189,7 @@ public class CommentControllerTest {
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         ResponseEntity<Void> response = restTemplate
-                .exchange("/api/comments/5", HttpMethod.DELETE, request, Void.class);
+                .exchange("/api/comments/comment/5", HttpMethod.DELETE, request, Void.class);
 
         System.out.println("response: " + response);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Should return 204 No Content");
@@ -201,7 +201,7 @@ public class CommentControllerTest {
         DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
         String content = documentContext.read("$.comment");
 
-        assertEquals("Removed By Comment Author..", content);
+        assertEquals("Comment Removed By Comment Author..", content);
 
         // assert replies are unchanged.
         List<CommentResponseDto> commentList = commentService.getAllRepliesByParentId(2);
@@ -229,7 +229,7 @@ public class CommentControllerTest {
         DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
         String content = documentContext.read("$.comment");
 
-        assertEquals("Removed By Blog Author..", content);
+        assertEquals("Comment Removed By Blog Author..", content);
     }
 
     @Test
@@ -259,5 +259,28 @@ public class CommentControllerTest {
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Should return 401");
     }
 
+    @Test
+    @DisplayName("10. should get all top-level comments from blog entry")
+    void getAllTopLevelCommentsFromBlogEntry() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts/1/comments", HttpMethod.GET, request, String.class);
+
+        System.out.println("response: "+ response);
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200");
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        System.out.println("json: " + documentContext.jsonString());
+        String comment_1  = documentContext.read("$[0].comment");
+        String comment_2  = documentContext.read("$[1].comment");
+        String comment_3  = documentContext.read("$[2].comment");
+
+        System.out.println("comment_1: " + comment_1 +  " comment_2: " + comment_2 + " comment_3: " + comment_3);
+        assertEquals("Test Comment on Test Post 1", comment_1);
+        assertEquals("Test Comment 2 on Test Post 1", comment_2);
+        assertEquals("Test Comment 3 on Test Post 1", comment_3);
+    }
 
 }

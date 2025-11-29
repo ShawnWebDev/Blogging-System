@@ -57,10 +57,6 @@ public class BlogEntry {
     @BatchSize(size = 50)
     private Set<Category> categories =  new HashSet<>();
 
-    @OneToMany(mappedBy = "blogEntry", orphanRemoval = true, fetch = FetchType.LAZY)
-    @SQLRestriction("parent_comment_id IS NULL")
-    private Set<Comment> comments = new HashSet<>();
-
     public BlogEntry() {}
 
     public BlogEntry(AppUser author, String title, String content, boolean isPublic, Set<Category> categories) {
@@ -113,9 +109,7 @@ public class BlogEntry {
     public void setCategories(Set<Category> categories) {
         this.categories = categories;
     }
-    public Set<Comment> getComments() {
-        return comments;
-    }
+
     public void addCategory(Category category) {
         this.categories.add(category);
     }

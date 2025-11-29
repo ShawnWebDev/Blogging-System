@@ -30,7 +30,6 @@ import java.util.Objects;
                 }
         )
 })
-
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
