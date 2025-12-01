@@ -2,7 +2,7 @@
 
 ## Goals
 1. To gain more experience and deeper understanding of REST API best practices and conventions.
-   * By utilizing proper HTTP methods, status codes, error handling, and Java object to JSON serialization/deserialization.
+   * By utilizing proper HTTP methods, status codes, error handling, and Java object to JSON serialization/deserialization - DTO.
    * Proper authentication and authorization (JWT and Role-Based Access Control).
    
 2. Learn and get more experience building full-stack applications by:
@@ -13,15 +13,19 @@
 
 ## Requirements
 1. Tech Stack:
-   * Java Spring Boot, MySQL, JWT (for authentication), Angular or Vue + Typescript, Docker, Nginx, AWS (EC2, ECR, S3)
+   * Java Spring Boot, MySQL, Angular or Vue + Typescript, AWS (EC2, ECR, S3)
+   * JWT (for stateless authentication),
+   * Docker and Nginx
 2. CRUD operations on Blog Posts, Post Comments, and Users:
-   * Filter posts by category, author, and/or date_updated. 
+   * Filter posts by category, author, and/or date. 
+   * Pagination and sorting for post lists
 3. Single Page App 
 4. Security:
    * Role-Based Access to differentiate between user and admin.
    * Secure endpoints with JWT and Rate limiting.
-   * CORS on the front-end.
-5. Structured logging and observability.
+5. Structured logging and observability with Actuator.
+6. Cache frequently accessed posts.
+7. OpenAPI documentation for endpoints
 
 ## Architecture
 Will follow a multi-tier architecture of:
