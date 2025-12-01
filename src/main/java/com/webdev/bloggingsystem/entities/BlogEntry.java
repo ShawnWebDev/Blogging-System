@@ -2,8 +2,6 @@ package com.webdev.bloggingsystem.entities;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.SQLRestriction;
-
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
