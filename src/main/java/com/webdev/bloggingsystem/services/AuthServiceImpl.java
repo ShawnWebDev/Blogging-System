@@ -1,13 +1,18 @@
 package com.webdev.bloggingsystem.services;
 
 import com.webdev.bloggingsystem.dto.LoginDto;
+import com.webdev.bloggingsystem.dto.UserProfile;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -47,12 +52,29 @@ public class AuthServiceImpl implements AuthService {
                         loginDto.password()
                 )
         );
-
         return this.generateToken(authentication);
     }
 
     @Override
     public void register(LoginDto loginDto, String email) {
-
+        // todo
     }
+
+    @Override
+    public UserProfile getUserProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof JwtAuthenticationToken) {
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            String username = jwt.getSubject();
+
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("SCOPE_ADMIN"));
+
+            return new UserProfile(username, isAdmin);
+        }
+
+        return null;
+    }
+
 }
