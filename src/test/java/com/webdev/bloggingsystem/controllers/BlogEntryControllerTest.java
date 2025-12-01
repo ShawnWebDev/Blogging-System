@@ -509,7 +509,7 @@ public class BlogEntryControllerTest {
     }
 
     @Test
-    @DisplayName("21. should return user not found")
+    @DisplayName("21. should return unauthorized")
     void getAllPrivateBlogEntriesForUnknownUser() {
         ResponseEntity<String> response = restTemplate
                 .getForEntity("/api/posts/me?sort=createdAt,asc", String.class);
@@ -617,6 +617,25 @@ public class BlogEntryControllerTest {
     void getAllEntriesNotAuthenticated() {
         ResponseEntity<String> response = restTemplate.getForEntity("/api/posts/me", String.class);
         System.out.println("response: " + response);
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Should return 401");
+    }
+
+    @Test
+    @DisplayName("28. should return Unauthorized on create POST endpoint")
+    void doNotCreateBlogEntryWithNoCredentials() {
+        BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
+                "Testing Http POST",
+                this.thousandChars,
+                List.of("Test Category 1", "Test Category 2"),
+                true
+        );
+        HttpEntity<Object> postEntity = new HttpEntity<>(blogEntryRequestDto);
+
+        ResponseEntity<Void> response = restTemplate
+                .exchange("/api/posts", HttpMethod.POST, postEntity, Void.class);
+
+        System.out.println("response: " + response);
+
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Should return 401");
     }
 
