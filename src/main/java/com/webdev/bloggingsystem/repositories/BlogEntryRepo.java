@@ -20,14 +20,8 @@ public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer>, JpaSpe
     @EntityGraph(value = "blog-entry-partial", type = EntityGraph.EntityGraphType.LOAD)
     Optional<BlogEntry> findBlogEntryById(Integer id);
 
-    @EntityGraph(value = "blog-entry-partial", type = EntityGraph.EntityGraphType.LOAD)
-    Optional<BlogEntry> findBlogEntryByIdAndAuthorUsername(Integer id, String authorUsername);
-
     @EntityGraph(value = "blog-entry-with-author", type = EntityGraph.EntityGraphType.LOAD)
     Optional<BlogEntry> findSimpleBlogEntryById(Integer id);
-
-    @EntityGraph(value = "blog-entry-with-author", type = EntityGraph.EntityGraphType.LOAD)
-    Optional<BlogEntry> findSimpleBlogEntryByIdAndAuthorUsername(Integer id, String authorUsername);
 
     @NonNull
     @Override
