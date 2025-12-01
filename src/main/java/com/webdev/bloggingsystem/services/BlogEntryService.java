@@ -11,9 +11,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 
 public interface BlogEntryService {
-    BlogEntryResponseDto getBlogEntryById(Integer id, String principalName);
-    PaginatedBlogEntriesResponseDto getAllBlogEntries(Pageable pageable, String username, BlogEntryFilterRequest filterRequest);
-    URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, String principalName, UriComponentsBuilder ucb);
-    void updateEntryById(Integer id, BlogEntryRequestDto blogEntryRequestDto, String principalName);
-    void deleteEntryById(Integer id, String principalName);
+    BlogEntryResponseDto getBlogEntryById(Integer id);
+    PaginatedBlogEntriesResponseDto getAllBlogEntries(Pageable pageable, BlogEntryFilterRequest filterRequest);
+    URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, UriComponentsBuilder ucb);
+    void updateEntryById(Integer id, BlogEntryRequestDto blogEntryRequestDto);
+    void deleteEntryById(Integer id);
 }

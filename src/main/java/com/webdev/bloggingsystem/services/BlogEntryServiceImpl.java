@@ -1,7 +1,16 @@
 package com.webdev.bloggingsystem.services;
 
-import com.webdev.bloggingsystem.dto.*;
-import com.webdev.bloggingsystem.entities.*;
+
+import com.webdev.bloggingsystem.dto.BlogEntryFilterRequest;
+import com.webdev.bloggingsystem.dto.BlogEntryResponseDto;
+import com.webdev.bloggingsystem.dto.PaginatedBlogEntriesResponseDto;
+import com.webdev.bloggingsystem.dto.UserProfile;
+import com.webdev.bloggingsystem.dto.BlogEntryRequestDto;
+
+import com.webdev.bloggingsystem.entities.BlogEntry;
+import com.webdev.bloggingsystem.entities.Category;
+import com.webdev.bloggingsystem.entities.AppUser;
+
 import com.webdev.bloggingsystem.exceptions.ResourceNotFoundException;
 import com.webdev.bloggingsystem.repositories.AppUserRepo;
 import com.webdev.bloggingsystem.repositories.BlogEntryRepo;
@@ -37,19 +46,21 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     private final AppUserRepo appUserRepo;
     private final CategoryRepo categoryRepo;
     private final CommentRepo commentRepo;
+    private final AuthService authService;
 
     public BlogEntryServiceImpl(
-            BlogEntryRepo blogEntryRepo, AppUserRepo appUserRepo, CategoryRepo categoryRepo, CommentRepo commentRepo)
+            BlogEntryRepo blogEntryRepo, AppUserRepo appUserRepo, CategoryRepo categoryRepo, CommentRepo commentRepo,
+            AuthService authService)
     {
         this.blogEntryRepo = blogEntryRepo;
         this.appUserRepo = appUserRepo;
         this.categoryRepo = categoryRepo;
         this.commentRepo = commentRepo;
+        this.authService = authService;
     }
 
     @Override
-    public BlogEntryResponseDto getBlogEntryById(
-            Integer id, String principalName)
+    public BlogEntryResponseDto getBlogEntryById(Integer id)
     {
         // gets single BlogEntry with full entity graph for viewing it in entirety
         // BlogEntry content, Author, Categories, top-level Comments with Comment Author, and a count of replies for each comment,
@@ -58,16 +69,16 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
 
-        // could use repo to make this check - but, want to be able to allow author to view their own private entries
-        if (principalName == null && !entry.isPublic() ||
-                principalName != null && !entry.isPublic() && !entry.getAuthor().getUsername().equals(principalName)) {
+        UserProfile userProfile = authService.getUserProfile();
+        // allow author to view their own private entries if authenticated
+        if (userProfile == null && !entry.isPublic() ||
+                userProfile != null && !entry.isPublic() && !entry.getAuthor().getUsername().equals(userProfile.username())) {
             throw new ResourceNotFoundException("Entry not found with id " + id);
         }
         logger.debug("found entry: {} with author of {} and categories of {}", entry, entry.getAuthor().getUsername(), entry.getCategories());
 
-        // returns a list of key value pairs of [blogId : total comment count] (only one since this is getting one entry)
-        List<Tuple> commentCountResult = commentRepo.countCommentsByBlogEntryIds(List.of(entry.getId()));
-        // if list is emtpy total comment count is 0
+        List<Tuple> commentCountResult = commentRepo.countCommentsByBlogEntryIds(Collections.singletonList(entry.getId()));
+
         int commentCount = commentCountResult.isEmpty() ? 0
                 : commentCountResult.getFirst().get("commentCount", Long.class).intValue();
 
@@ -76,7 +87,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
     @Override
     public PaginatedBlogEntriesResponseDto getAllBlogEntries(
-            Pageable pageable, String principleName, BlogEntryFilterRequest filterRequest)
+            Pageable pageable, BlogEntryFilterRequest filterRequest)
     {
         // Gets a page of BlogEntries for viewing lists or searching, sortable by any field in BlogEntry,
         // Can be public or users public and private entries if principalName is available,
@@ -85,17 +96,19 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         // max pageSize is set to 50 so batch size for category join table is set to 50
         // called by endpoint methods - getAllPublicBlogEntries() and getAllBlogEntriesForUser()
         logger.debug("getAllBlogEntries");
+        UserProfile userProfile = authService.getUserProfile();
         // defines a Specification object for criteria builder to build a filtering query
-        Specification<BlogEntry> spec = getBlogEntrySpecification(filterRequest, principleName);
+        Specification<BlogEntry> spec = getBlogEntrySpecification(filterRequest, userProfile);
 
         PageRequest pageRequest = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
-                pageable.getSortOr(Sort.by(Sort.Direction.DESC, "updatedAt")));
-
+                pageable.getSortOr(Sort.by(Sort.Direction.DESC, "updatedAt")
+                )
+        );
         // repo sends query with built filter and defined page, returns page
         Page<BlogEntry> blogEntries = blogEntryRepo.findAll(spec, pageRequest);
-        // signal to Hibernate to fetch categories separately in a batch to avoid fetching duplicate BlogEntries for each category (Cartesian Product) using a join.
+        // signal to Hibernate to fetch categories separately in a batch to avoid fetching duplicate BlogEntries for each category (Cartesian Product) in the join.
         logger.debug("batch a categories query..");
         blogEntries.getContent().forEach(BlogEntry::getCategories);
         // extract BlogEntry ids to use in comment counts
@@ -104,7 +117,9 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         Map<Integer, Integer> mapCommentCountToBlogIds = commentRepo.countCommentsByBlogEntryIds(blogIds)
                 .stream().collect(Collectors.toMap(
                         row -> row.get("blogId", Integer.class),
-                        row -> row.get("commentCount", Long.class).intValue()));
+                        row -> row.get("commentCount", Long.class).intValue()
+                        )
+                );
         // build BlogEntryResponseDtos setting comment counts with default value of 0 if not in map
         List<BlogEntryResponseDto> responseDtos = new ArrayList<>();
         for (BlogEntry blogEntry : blogEntries.getContent()) {
@@ -127,14 +142,15 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
     @Transactional
     @Override
-    public URI saveEntry(
-            BlogEntryRequestDto blogEntryRequestDto, String principalName, UriComponentsBuilder ucb)
+    public URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, UriComponentsBuilder ucb)
     {
         // has to fetch User and Categories to verify they exist before defining relation to the BlogEntry to be created,
         // input is validated in DTO/Controller with jakarta.validation
-        logger.debug("saveEntry: getting author {}", principalName);
-        AppUser author = appUserRepo.findByUsername(principalName)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + principalName));
+        UserProfile userProfile = authService.getUserProfile();
+
+        logger.debug("saveEntry: getting author {}", userProfile.username());
+        AppUser author = appUserRepo.findByUsername(userProfile.username())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         logger.debug("saveEntry: getting categories");
         Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
@@ -142,13 +158,15 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
         logger.debug("saveEntry: saving entry");
         // fields other than categories and author are validated with jakarta.validation in DTO
-        BlogEntry savedEntry = blogEntryRepo.save(new BlogEntry(
-                author,
-                blogEntryRequestDto.title(),
-                blogEntryRequestDto.content(),
-                blogEntryRequestDto.isPublic(),
-                categories
-        ));
+        BlogEntry savedEntry = blogEntryRepo.save(
+                new BlogEntry(
+                        author,
+                        blogEntryRequestDto.title(),
+                        blogEntryRequestDto.content(),
+                        blogEntryRequestDto.isPublic(),
+                        categories
+                )
+        );
         logger.debug("saveEntry: saved entry {}", savedEntry);
         // returns endpoint which the saved entry can be found (in response header)
         return ucb.path("/api/posts/{id}").buildAndExpand(savedEntry.getId()).toUri();
@@ -156,55 +174,67 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
     @Transactional
     @Override
-    public void updateEntryById(
-            Integer id, BlogEntryRequestDto blogEntryRequestDto, String principalName)
+    public void updateEntryById(Integer id, BlogEntryRequestDto blogEntryRequestDto)
     {
-        logger.debug("updateEntryById: getting entry by id {} and author {}", id, principalName);
-        BlogEntry entry = blogEntryRepo.findBlogEntryByIdAndAuthorUsername(id, principalName)
+        logger.debug("updateEntryById: getting entry by id {}", id);
+        BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
+
         logger.debug("found entry: {} with author of {}", entry.toString(), entry.getAuthor().getUsername());
 
-        logger.debug("updating entry by id {}", id);
-        // updates BlogEntry fields from request dto
-        if (blogEntryRequestDto.title() != null) entry.setTitle(blogEntryRequestDto.title());
-        if (blogEntryRequestDto.content() != null) entry.setContent(blogEntryRequestDto.content());
-        if (blogEntryRequestDto.isPublic() != null) entry.setPublic(blogEntryRequestDto.isPublic());
-        if (blogEntryRequestDto.categories() != null) {
-            Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
-            validateCategories(blogEntryRequestDto, categories);
+        logger.debug("getting user profile");
+        UserProfile userProfile = authService.getUserProfile();
+        if (userProfile.username().equals(entry.getAuthor().getUsername()) || userProfile.isAdmin()) {
+            logger.debug("updating entry by id {}", id);
+            // updates BlogEntry fields from request dto
+            if (blogEntryRequestDto.title() != null) entry.setTitle(blogEntryRequestDto.title());
+            if (blogEntryRequestDto.content() != null) entry.setContent(blogEntryRequestDto.content());
+            if (blogEntryRequestDto.isPublic() != null) entry.setPublic(blogEntryRequestDto.isPublic());
+            if (blogEntryRequestDto.categories() != null) {
+                Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
+                validateCategories(blogEntryRequestDto, categories);
 
-            Set<Category> categoriesToRemove = new HashSet<>(entry.getCategories());
-            // loops through categories set in current BlogEntry - removing the ones not found in update request
-            logger.debug("removing categories");
-            for (Category category : categoriesToRemove) {
-                if (!categories.contains(category)) {
-                    entry.removeCategory(category);
+                Set<Category> categoriesToRemove = new HashSet<>(entry.getCategories());
+                // loops through categories set in current BlogEntry - removing the ones not found in update request
+                logger.debug("removing categories");
+                for (Category category : categoriesToRemove) {
+                    if (!categories.contains(category)) {
+                        entry.removeCategory(category);
+                    }
+                }
+                // loops through categories from update request - adding ones not in current BlogEntry
+                logger.debug("adding categories");
+                for (Category category : categories) {
+                    if (!entry.getCategories().contains(category)) {
+                        entry.addCategory(category);
+                    }
                 }
             }
-            // loops through categories from update request - adding ones not in current BlogEntry
-            logger.debug("adding categories");
-            for (Category category : categories) {
-                if (!entry.getCategories().contains(category)) {
-                    entry.addCategory(category);
-                }
-            }
+            // updates changed BlogEntry fields only - Categories in category join table are Cascaded in database
+            blogEntryRepo.save(entry);
+        } else {
+            throw new ResourceNotFoundException("Entry not found with id " + id);
         }
-        // updates changed BlogEntry fields only - Categories in category join table are Cascaded in database
-        blogEntryRepo.save(entry);
     }
 
     @Transactional
     @Override
-    public void deleteEntryById(
-            Integer id, String principalName)
+    public void deleteEntryById(Integer id)
     {
-        logger.debug("deleteEntryById: ensuring entry by id {} is owned by author name {}", id, principalName);
-        // ensures authorized user is Author of BlogEntry to be deleted
-        BlogEntry entryToDelete = blogEntryRepo.findSimpleBlogEntryByIdAndAuthorUsername(id, principalName)
+        BlogEntry entryToDelete = blogEntryRepo.findSimpleBlogEntryById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
 
-        // uses fetched BlogEntry's id to delete after verification
-        blogEntryRepo.deleteBlogEntryById(entryToDelete.getId());
+        String author = entryToDelete.getAuthor().getUsername();
+        logger.debug("deleteEntryById: ensuring entry by id {} is owned by author name {}", id, author);
+
+        // ensures authorized user is Author of BlogEntry to be deleted
+        UserProfile userProfile = authService.getUserProfile();
+        if (userProfile.username().equals(author) || userProfile.isAdmin()) {
+            // uses fetched BlogEntry's id to delete after verification
+            blogEntryRepo.deleteBlogEntryById(entryToDelete.getId());
+        } else {
+            throw new ResourceNotFoundException("Entry not found with id " + id);
+        }
     }
 
     private static void validateCategories(
@@ -221,7 +251,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     }
 
     private static Specification<BlogEntry> getBlogEntrySpecification(
-            BlogEntryFilterRequest filterRequest, String principleName)
+            BlogEntryFilterRequest filterRequest, UserProfile userProfile)
     {
         // set base Specification object to use DISTINCT select
         Specification<BlogEntry> spec = (root, query,criteriaBuilder) -> {
@@ -233,13 +263,13 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
         // "posts" endpoint will pass null username to get public
         // "me" endpoint will pass username as String to get all for authenticated user
-        if (principleName == null) {
+        if (userProfile == null) {
             spec = spec.and(((root, query, criteriaBuilder) ->
                     criteriaBuilder.isTrue(root.get("isPublic"))));
         } else {
             spec = spec.and((root, query, criteriaBuilder) -> {
                 Join<BlogEntry, AppUser> authorJoin = root.join("author", JoinType.INNER);
-                return criteriaBuilder.equal(authorJoin.get("username"), principleName);
+                return criteriaBuilder.equal(authorJoin.get("username"), userProfile.username());
             });
         }
 
