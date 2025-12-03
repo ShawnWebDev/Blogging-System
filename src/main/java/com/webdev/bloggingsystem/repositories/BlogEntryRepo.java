@@ -2,23 +2,29 @@ package com.webdev.bloggingsystem.repositories;
 
 import com.webdev.bloggingsystem.entities.BlogEntry;
 
+import com.webdev.bloggingsystem.projections.BlogEntrySummary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.util.Optional;
 
-public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer>, JpaSpecificationExecutor<BlogEntry> {
-    @EntityGraph(value = "blog-entry-partial", type = EntityGraph.EntityGraphType.LOAD)
-    Optional<BlogEntry> findBlogEntryById(Integer id);
+public interface BlogEntryRepo extends PagingAndSortingRepository<BlogEntry, Integer>, JpaSpecificationExecutor<BlogEntry> {
+    @Query("SELECT DISTINCT " +
+            "b.id AS id, b.title AS title, b.content AS content, b.isPublic AS isPublic, " +
+            "b.createdAt AS createdAt, b.updatedAt AS updatedAt, " +
+            "a.username AS authorUsername " +
+            "FROM BlogEntry b JOIN b.author a " +
+            "WHERE b.id = :id")
+    Optional<BlogEntrySummary> findBlogEntryById(@Param("id") int id);
 
     @EntityGraph(value = "blog-entry-with-author", type = EntityGraph.EntityGraphType.LOAD)
     Optional<BlogEntry> findSimpleBlogEntryById(Integer id);
