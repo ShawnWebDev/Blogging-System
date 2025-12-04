@@ -83,27 +83,4 @@ public class BlogEntryController {
         blogEntryService.deleteEntryById(id);
         return ResponseEntity.noContent().build();
     }
-
-
-    // todo : need to test admin role later.
-    /*
-    @PutMapping("/admin/posts/{id}")
-    public ResponseEntity<?> adminUpdateBlogEntry(
-            @PathVariable Integer id, @RequestAttribute String authorName,
-            @RequestBody @Valid BlogEntryRequestDto blogEntryRequestDto)
-    {
-        // only for ADMIN role to update any post
-        blogEntryService.updateEntryById(id, blogEntryRequestDto, authorName);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("admin/posts/{id}")
-    public ResponseEntity<Void> adminDeleteBlogEntry(
-            @PathVariable Integer id, @RequestAttribute String authorName)
-    {
-        // only for ADMIN role to delete any post
-        blogEntryService.deleteEntryById(id, authorName);
-        return ResponseEntity.noContent().build();
-    }
-    */
 }

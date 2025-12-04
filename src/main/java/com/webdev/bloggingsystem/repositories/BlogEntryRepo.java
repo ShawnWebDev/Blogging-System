@@ -5,18 +5,14 @@ import com.webdev.bloggingsystem.entities.BlogEntry;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.util.Optional;
 
-public interface BlogEntryRepo extends PagingAndSortingRepository<BlogEntry, Integer>, JpaSpecificationExecutor<BlogEntry> {
+public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer>, JpaSpecificationExecutor<BlogEntry> {
     @EntityGraph(value = "blog-entry-partial")
     Optional<BlogEntry> findBlogEntryById(@Param("id") int id);
 
