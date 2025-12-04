@@ -35,5 +35,9 @@ public interface CommentRepo extends CrudRepository<Comment, Integer> {
 
     @Query("SELECT c.blogEntry.id AS blogId, count(c) AS commentCount " +
             "FROM Comment c WHERE c.blogEntry.id IN :entryIds GROUP BY c.blogEntry.id")
-    List<Tuple> countCommentsByBlogEntryIds(@Param("entryIds") List<Integer> entryIds);
+    List<Tuple> countCommentsInBlogEntryIds(@Param("entryIds") List<Integer> entryIds);
+
+    @Query("SELECT c.blogEntry.id AS blogId, count(c) AS commentCount " +
+            "FROM Comment c WHERE c.blogEntry.id = :entryId")
+    Tuple countCommentsByBlogEntryId(@Param("entryId") Integer entryId);
 }
