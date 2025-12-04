@@ -7,7 +7,7 @@ import java.time.Instant;
 import java.util.List;
 
 public record BlogEntryResponseDto(
-        Integer id,
+        int id,
         String author,
         String title,
         String content,
@@ -17,10 +17,10 @@ public record BlogEntryResponseDto(
         int totalComments,
         boolean isPublic
 ) {
-    public BlogEntryResponseDto(BlogEntry entry, int commentCount) {
+    public BlogEntryResponseDto(BlogEntry entry, String authorUsername, int commentCount) {
         this(
             entry.getId(),
-            entry.getAuthor().getUsername(),
+            authorUsername,
             entry.getTitle(),
             entry.getContent(),
             entry.getCreatedAt(),

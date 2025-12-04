@@ -9,21 +9,12 @@ import java.util.Set;
 
 @Entity
 @Table(name = "blog_entries")
-@NamedEntityGraphs({
-        @NamedEntityGraph(
-                name = "blog-entry-with-author",
-                attributeNodes = {
-                        @NamedAttributeNode("author")
-                }
-        ),
-        @NamedEntityGraph(
-                name = "blog-entry-partial",
-                attributeNodes = {
-                        @NamedAttributeNode("author"),
-                        @NamedAttributeNode("categories")
-                }
-        )
-})
+@NamedEntityGraph(
+        name = "blog-entry-partial",
+        attributeNodes = {
+                @NamedAttributeNode("categories")
+        }
+)
 public class BlogEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +34,9 @@ public class BlogEntry {
 
     @Column(name = "date_updated",  nullable = false, insertable = false, updatable = false)
     private Instant updatedAt;
+
+    @Column(name = "author_id", nullable = false, insertable = false, updatable = false)
+    private Integer authorId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
@@ -94,6 +88,9 @@ public class BlogEntry {
     }
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+    public Integer getAuthorId() {
+        return authorId;
     }
     public AppUser getAuthor() {
         return author;

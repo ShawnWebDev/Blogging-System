@@ -2,7 +2,6 @@ package com.webdev.bloggingsystem.repositories;
 
 import com.webdev.bloggingsystem.entities.BlogEntry;
 
-import com.webdev.bloggingsystem.projections.BlogEntrySummary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,20 +17,16 @@ import org.springframework.lang.Nullable;
 import java.util.Optional;
 
 public interface BlogEntryRepo extends PagingAndSortingRepository<BlogEntry, Integer>, JpaSpecificationExecutor<BlogEntry> {
-    @Query("SELECT DISTINCT " +
-            "b.id AS id, b.title AS title, b.content AS content, b.isPublic AS isPublic, " +
-            "b.createdAt AS createdAt, b.updatedAt AS updatedAt, " +
-            "a.username AS authorUsername " +
-            "FROM BlogEntry b JOIN b.author a " +
-            "WHERE b.id = :id")
-    Optional<BlogEntrySummary> findBlogEntryById(@Param("id") int id);
+    @EntityGraph(value = "blog-entry-partial")
+    Optional<BlogEntry> findBlogEntryById(@Param("id") int id);
 
+    //todo : remove this - fetch author username separately
     @EntityGraph(value = "blog-entry-with-author", type = EntityGraph.EntityGraphType.LOAD)
     Optional<BlogEntry> findSimpleBlogEntryById(Integer id);
 
     @NonNull
     @Override
-    @EntityGraph(value = "blog-entry-with-author", type =  EntityGraph.EntityGraphType.LOAD)
+//    @EntityGraph(value = "blog-entry-with-partial", type =  EntityGraph.EntityGraphType.LOAD)
     Page<BlogEntry> findAll(@Nullable Specification<BlogEntry> spec, @NonNull Pageable pageable);
 
     @Modifying
