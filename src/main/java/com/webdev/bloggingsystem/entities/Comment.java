@@ -7,29 +7,6 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "comments")
-@NamedEntityGraphs({
-        @NamedEntityGraph(
-                name = "comment-with-author",
-                attributeNodes = {
-                        @NamedAttributeNode("author")
-                }
-        ),
-        @NamedEntityGraph(
-                name = "comment-with-author-and-blogEntry",
-                attributeNodes = {
-                        @NamedAttributeNode("author"),
-                        @NamedAttributeNode(value = "blogEntry", subgraph = "entry-author")
-                },
-                subgraphs = {
-                        @NamedSubgraph(
-                                name = "entry-author",
-                                attributeNodes = {
-                                        @NamedAttributeNode("author")
-                                }
-                        )
-                }
-        )
-})
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,6 +23,9 @@ public class Comment {
 
     @Column(name = "author_id", nullable = false, insertable = false, updatable = false)
     private Integer authorId;
+
+    @Column(name = "post_id", nullable = false, insertable = false, updatable = false)
+    private Integer blogEntryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
@@ -92,6 +72,10 @@ public class Comment {
 
     public int getAuthorId() {
         return authorId;
+    }
+
+    public int getBlogEntryId() {
+        return blogEntryId;
     }
 
     public AppUser getAuthor() {
