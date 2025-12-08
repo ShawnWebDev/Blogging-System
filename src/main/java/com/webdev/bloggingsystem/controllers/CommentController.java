@@ -22,69 +22,57 @@ public class CommentController {
     }
 
     @GetMapping("/posts/{blogEntryId}/comments")
-    public ResponseEntity<List<CommentResponseDto>> getAllCommentsByBlogEntryId(
-            @PathVariable Integer blogEntryId)
+    public ResponseEntity<List<CommentResponseDto>> getAllCommentsByBlogEntryId(@PathVariable Integer blogEntryId)
     {
-        return ResponseEntity.ok(commentService.getAllCommentsByBlogEntryId(blogEntryId));
+        return ResponseEntity.ok(commentService.getAllTopLevelCommentsByBlogEntryId(blogEntryId));
     }
 
     @GetMapping("/comments/{parentId}")
-    public ResponseEntity<List<CommentResponseDto>> getAllReplyCommentsByParentId(
-            @PathVariable Integer parentId)
+    public ResponseEntity<List<CommentResponseDto>> getAllReplyCommentsByParentId(@PathVariable Integer parentId)
     {
         return ResponseEntity.ok(commentService.getAllRepliesByParentId(parentId));
     }
 
     @GetMapping("/comments/comment/{commentId}")
-    public ResponseEntity<CommentResponseDto> getSingleCommentById(
-            @PathVariable Integer commentId)
+    public ResponseEntity<CommentResponseDto> getSingleCommentById(@PathVariable Integer commentId)
     {
         return ResponseEntity.ok(commentService.getCommentById(commentId));
     }
 
     @GetMapping("/comments/me")
-    public ResponseEntity<List<CommentResponseDto>> getAllCommentsForUser(Principal principal)
+    public ResponseEntity<List<CommentResponseDto>> getAllCommentsForUser()
     {
-        return ResponseEntity.ok(commentService.getAllCommentsByUsername(principal.getName()));
+        return ResponseEntity.ok(commentService.getAllCommentsByUsername());
     }
 
-    //todo : implement and integration test endpoints using admin role
+    //todo : implement and test endpoints using admin role (UserProfile)
 
-    @PostMapping("/posts/{postId}/comments")
+    @PostMapping("/posts/{blogEntryId}/comments")
     public ResponseEntity<Void> createComment(
-            @PathVariable Integer postId, @RequestParam(name = "parentId", required = false ) Integer parentCommentId,
+            @PathVariable Integer blogEntryId, @RequestParam(name = "parentId", required = false ) Integer parentCommentId,
             @RequestBody @MaxBytes(4000) @NotBlank(message = "Input empty") String commentText,
             Principal principal, UriComponentsBuilder ucb)
     {
-        // todo : should this send the URI of the Comment or of the Post that the comment is contained?
-        // todo : should there be an anchor tag for comments to auto scroll to?
-        return ResponseEntity.created(commentService.saveComment(commentText, postId, parentCommentId, principal.getName(), ucb))
+        // todo : return CREATED with DTO - Front-end will handle page update without a refresh
+        return ResponseEntity.created(commentService.saveComment(commentText, blogEntryId, parentCommentId, ucb))
                 .build();
     }
 
     @PutMapping("/comments/comment/{commentId}")
-    public ResponseEntity<Void> updateComment(
-            @PathVariable Integer commentId,
-            @RequestBody @MaxBytes(value = 4000) @NotBlank(message = "Input empty") String commentText,
-            Principal principal)
+    public ResponseEntity<Void> updateComment(@PathVariable Integer commentId,
+            @RequestBody @MaxBytes(value = 4000) @NotBlank(message = "Input empty") String commentText)
     {
-        commentService.updateComment(commentText, commentId, principal.getName());
+        // todo : return OK with DTO - Front-end will handle page update without a refresh
+        commentService.updateComment(commentText, commentId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/comments/comment/{commentId}")
     public ResponseEntity<Void> deleteComment(
-            @PathVariable Integer commentId, Principal principal)
+            @PathVariable Integer commentId)
     {
-        commentService.deleteComment(commentId, principal.getName());
+        // on 204 NO CONTENT - Front-end will handle page update without a refresh
+        commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }
-
-
-
-    /*
-    @PutMapping("admin/comments/comment/{commentId}")
-
-    @DeleteMapping("admin/comments/{commentId}")
-    */
 }

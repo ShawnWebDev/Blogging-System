@@ -44,6 +44,9 @@ public class Comment {
     @Column(name = "date_updated", nullable = false, insertable = false, updatable = false)
     private Instant updatedAt;
 
+    @Column(name = "author_id", nullable = false, insertable = false, updatable = false)
+    private Integer authorId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private AppUser author;
@@ -85,6 +88,10 @@ public class Comment {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public int getAuthorId() {
+        return authorId;
     }
 
     public AppUser getAuthor() {
