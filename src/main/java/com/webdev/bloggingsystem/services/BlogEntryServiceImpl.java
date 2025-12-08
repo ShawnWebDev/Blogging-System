@@ -98,7 +98,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         UserProfile userProfile = authService.getUserProfile();
         Integer authorId = null;
         if (userProfile != null) {
-            authorId = appUserRepo.getIdByUsername(userProfile.username());
+            authorId = appUserRepo.findIdByUsername(userProfile.username());
         }
         // defines a Specification object for criteria builder to build the filtering query
         Specification<BlogEntry> spec = getBlogEntrySpecification(filterRequest, userProfile, authorId);
@@ -159,7 +159,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         // has to fetch User and Categories to verify they exist before defining relation to the BlogEntry to be created,
         // input is validated in DTO/Controller with jakarta.validation
         UserProfile userProfile = authService.getUserProfile();
-        Integer authorId = appUserRepo.getIdByUsername(userProfile.username());
+        Integer authorId = appUserRepo.findIdByUsername(userProfile.username());
 
         logger.debug("saveEntry: getting author {}", userProfile.username());
         AppUser authorRef = appUserRepo.getReferenceById(authorId);

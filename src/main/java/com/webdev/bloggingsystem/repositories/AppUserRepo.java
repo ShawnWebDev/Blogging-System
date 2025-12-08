@@ -24,5 +24,5 @@ public interface AppUserRepo extends JpaRepository<AppUser, Integer> {
     List<Tuple> findUsernamesById(@Param("ids") Set<Integer> ids);
 
     @Query("SELECT u.id FROM AppUser u WHERE u.username = :username")
-    Integer getIdByUsername(@Param("username") String username);
+    Integer findIdByUsername(@Param("username") String username);
 }
