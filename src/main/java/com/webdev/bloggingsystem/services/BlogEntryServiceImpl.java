@@ -90,6 +90,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         // Gets a page of BlogEntries for viewing lists or searching, sortable by any field in BlogEntry,
         // Can be public or users public and private entries if principalName is available,
         // DTOs will include Entry content, Author, and Categories, will not contain comments - just total count of them,
+        // comments can only be accessed and created by authorized users
         // default page is descending sort by updatedAt, pageSize 10, pageNumber 0
         // max pageSize is set to 50 so batch size for category join table is set to 50
         // called by endpoint methods - getAllPublicBlogEntries()"/posts" and getAllBlogEntriesForUser()"/posts/me"
