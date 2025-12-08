@@ -163,12 +163,14 @@ public class BlogEntryControllerTest {
                 .getForEntity("/api/posts?sort=createdAt,asc", String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
+
         System.out.println("response: " + response.getBody());
 
         DocumentContext documentContext = JsonPath.parse(response.getBody());
         // double . to return list of all values of specified key
         JSONArray ids = documentContext.read("$..id");
         JSONArray titles = documentContext.read("$..title");
+        JSONArray authors = documentContext.read("$..author");
 
         // Entry with id 2 is private and should not be included
         assertEquals(2, ids.size());
@@ -176,6 +178,9 @@ public class BlogEntryControllerTest {
 
         assertEquals(2, titles.size());
         assertEquals(List.of("Test Post 1", "Test Post 3"), titles);
+
+        assertEquals(2, authors.size());
+        assertEquals(List.of("TestAdmin", "TestUser"), authors);
     }
 
     @Test
@@ -346,7 +351,7 @@ public class BlogEntryControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, getResponse.getStatusCode(), "Should return 404 NOT FOUND");
 
         System.out.println("Checking associated comments are also deleted...");
-        List<Tuple> commentCountResult = commentRepo.countCommentsByBlogEntryIds(List.of(3));
+        List<Tuple> commentCountResult = commentRepo.countCommentsInBlogEntryIds(List.of(3));
         assertEquals(0, commentCountResult.isEmpty() ? 0
                 : commentCountResult.getFirst().get("commentCount", Long.class).intValue());
     }
@@ -528,6 +533,7 @@ public class BlogEntryControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         DocumentContext documentContext = JsonPath.parse(response.getBody());
         JSONArray ids = documentContext.read("$..id");
+        System.out.println("json: " + documentContext.jsonString());
         assertEquals(List.of(3, 1), ids);
     }
 
