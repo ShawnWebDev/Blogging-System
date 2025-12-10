@@ -192,12 +192,12 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         logger.debug("updateEntryById: getting entry by id {}", id);
         BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
-
-        logger.debug("found entry: {} with author of {}", entry.toString(), entry.getAuthor().getUsername());
+        String authorName = appUserRepo.findUsernameById(entry.getAuthorId());
+        logger.debug("found entry: {} with author of {}", entry, authorName);
 
         logger.debug("getting user profile");
         UserProfile userProfile = authService.getUserProfile();
-        if (userProfile.username().equals(entry.getAuthor().getUsername()) || userProfile.isAdmin()) {
+        if (userProfile.username().equals(authorName) || userProfile.isAdmin()) {
             logger.debug("updating entry by id {}", id);
             // updates BlogEntry fields from request dto
             if (blogEntryRequestDto.title() != null) entry.setTitle(blogEntryRequestDto.title());
