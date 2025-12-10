@@ -53,7 +53,8 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentResponseDto> getAllCommentsByUsername() {
         // security chain prevents unauthorized user from accessing the calling endpoint
         UserProfile userProfile = authService.getUserProfile();
-        Integer authorId = appUserRepo.findIdByUsername(userProfile.username());
+        int authorId = appUserRepo.findIdByUsername(userProfile.username())
+                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
         List<Comment> comments = commentRepo.findAllByAuthorId(authorId);
         if (comments.isEmpty()) {
             return List.of();
@@ -76,25 +77,30 @@ public class CommentServiceImpl implements CommentService {
     public CommentResponseDto getCommentById(Integer commentId) {
         Comment comment = commentRepo.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
-        String authorName = appUserRepo.findUsernameById(comment.getAuthorId());
+        String authorName = appUserRepo.findUsernameById(comment.getAuthorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
         Integer amount = commentRepo.countRepliesByParentCommentId(commentId);
-
-        return mapRequestToDto(comment, authorName, amount);
+        int replyCount = amount != null ? amount : 0;
+        return mapRequestToDto(comment, authorName, replyCount);
     }
 
     @Override
     public Map.Entry<URI, CommentResponseDto> saveComment(String commentText, Integer postId, Integer parentId, UriComponentsBuilder ucb) {
         UserProfile userProfile = authService.getUserProfile();
-        Integer authorId = appUserRepo.findIdByUsername(userProfile.username());
+        int authorId = appUserRepo.findIdByUsername(userProfile.username())
+                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
         AppUser authorRef = appUserRepo.getReferenceById(authorId);
-
         BlogEntry blogEntry = blogEntryRepo.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + postId));
+
+        if (!blogEntry.isPublic()) {
+            throw new ResourceNotFoundException("Entry not found with id " + postId);
+        }
 
         Comment parentComment = null;
         if (parentId != null) {
             parentComment = commentRepo.findById(parentId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + parentId));
+                    .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found with id " + parentId));
         }
         Comment savedComment = commentRepo.save(mapRequestToEntity(commentText, authorRef, blogEntry, parentComment));
         URI uri = ucb.path("api/comments/comment/{commentId}").buildAndExpand(savedComment.getId()).toUri();
@@ -105,34 +111,38 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponseDto updateComment(String newCommentText, Integer commentId) {
         UserProfile userProfile = authService.getUserProfile();
-        Integer userId = appUserRepo.findIdByUsername(userProfile.username());
+        int userId = appUserRepo.findIdByUsername(userProfile.username())
+                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
 
         Comment commentToUpdate = commentRepo.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
 
-        if (commentToUpdate.getAuthorId() == userId) {
-            commentToUpdate.setComment(newCommentText);
-            commentRepo.save(commentToUpdate);
-            return mapRequestToDto(commentToUpdate, userProfile.username(), 0);
+        if (commentToUpdate.getAuthorId() != userId && !userProfile.isAdmin()) {
+            throw new ResourceNotFoundException("Comment not found with id " + commentId);
         }
-
-        throw new ResourceNotFoundException("Comment not found with id " + commentId);
+        Integer amount = commentRepo.countRepliesByParentCommentId(commentId);
+        int replyCount = amount != null ? amount : 0;
+        commentToUpdate.setComment(newCommentText);
+        commentRepo.save(commentToUpdate);
+        return mapRequestToDto(commentToUpdate, userProfile.username(), replyCount);
     }
 
     @Override
     public void deleteComment(Integer commentId) {
         UserProfile userProfile = authService.getUserProfile();
-        Integer authorId = appUserRepo.findIdByUsername(userProfile.username());
-
+        int principalId = appUserRepo.findIdByUsername(userProfile.username())
+                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
         Comment commentToDelete = commentRepo.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
+        int blogAuthorId = blogEntryRepo.findAuthorIdByPostId(commentToDelete.getBlogEntryId())
+                .orElse(0);
 
         boolean authorized = false;
         String commentText = "Comment Removed By ";
-        if (commentToDelete.getAuthorId() ==  authorId) {
+        if (commentToDelete.getAuthorId() ==  principalId) {
             authorized = true;
             commentText += "Comment Author..";
-        } else if (commentToDelete.getBlogEntry().getAuthorId().equals(authorId)) {
+        } else if (blogAuthorId == principalId) {
             authorized = true;
             commentText += "Blog Author..";
         } else if (userProfile.isAdmin()) {
@@ -156,7 +166,7 @@ public class CommentServiceImpl implements CommentService {
         return comment;
     }
 
-    private static CommentResponseDto mapRequestToDto(Comment comment, String authorName, Integer amount) {
+    private static CommentResponseDto mapRequestToDto(Comment comment, String authorName, int amount) {
         return new CommentResponseDto(
                 comment.getId(),
                 comment.getBlogEntry().getId(),
@@ -175,7 +185,11 @@ public class CommentServiceImpl implements CommentService {
         List<CommentResponseDto> responseDtos = new ArrayList<>();
         for (Comment comment : comments) {
             responseDtos.add(
-                    mapRequestToDto(comment, authorIdsToNames.get(comment.getAuthorId()), replyCountMap.get(comment.getId()))
+                    mapRequestToDto(
+                            comment,
+                            authorIdsToNames.get(comment.getAuthorId()),
+                            replyCountMap.getOrDefault(comment.getId(), 0)
+                    )
             );
         }
         return responseDtos;

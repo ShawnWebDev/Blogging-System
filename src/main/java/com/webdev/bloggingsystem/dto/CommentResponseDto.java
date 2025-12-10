@@ -10,5 +10,5 @@ public record CommentResponseDto(
         Instant createdAt,
         Instant updatedAt,
         String author,
-        Integer replyCount
+        int replyCount
 ) {}

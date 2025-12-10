@@ -63,12 +63,15 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
 
-        String authorUsername = appUserRepo.findUsernameById(entry.getAuthorId());
+        String authorUsername = appUserRepo.findUsernameById(entry.getAuthorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
 
         UserProfile userProfile = authService.getUserProfile();
         // allow author to view their own private entries if authenticated
-        if (userProfile == null && !entry.isPublic() ||
-                userProfile != null && !entry.isPublic() && !authorUsername.equals(userProfile.username())) {
+        String principalUsername = userProfile != null ? userProfile.username() : null;
+        boolean isPrincipalAuthor = authorUsername.equals(principalUsername);
+        boolean isPrincipalAdmin = (userProfile != null) && userProfile.isAdmin();
+        if (!entry.isPublic() && !isPrincipalAdmin && !isPrincipalAuthor) {
             throw new ResourceNotFoundException("Entry not found with id " + id);
         }
 
@@ -96,9 +99,10 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         // called by endpoint methods - getAllPublicBlogEntries()"/posts" and getAllBlogEntriesForUser()"/posts/me"
         logger.debug("getAllBlogEntries");
         UserProfile userProfile = authService.getUserProfile();
-        Integer authorId = null;
+        int authorId = 0;
         if (userProfile != null) {
-            authorId = appUserRepo.findIdByUsername(userProfile.username());
+            authorId = appUserRepo.findIdByUsername(userProfile.username())
+                    .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
         }
         // defines a Specification object for criteria builder to build the filtering query
         Specification<BlogEntry> spec = getBlogEntrySpecification(filterRequest, userProfile, authorId);
@@ -159,7 +163,8 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         // has to fetch User and Categories to verify they exist before defining relation to the BlogEntry to be created,
         // input is validated in DTO/Controller with jakarta.validation
         UserProfile userProfile = authService.getUserProfile();
-        Integer authorId = appUserRepo.findIdByUsername(userProfile.username());
+        int authorId = appUserRepo.findIdByUsername(userProfile.username())
+                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
 
         logger.debug("saveEntry: getting author {}", userProfile.username());
         AppUser authorRef = appUserRepo.getReferenceById(authorId);
@@ -192,42 +197,45 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         logger.debug("updateEntryById: getting entry by id {}", id);
         BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
-        String authorName = appUserRepo.findUsernameById(entry.getAuthorId());
+        String authorName = appUserRepo.findUsernameById(entry.getAuthorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
         logger.debug("found entry: {} with author of {}", entry, authorName);
 
         logger.debug("getting user profile");
         UserProfile userProfile = authService.getUserProfile();
-        if (userProfile.username().equals(authorName) || userProfile.isAdmin()) {
-            logger.debug("updating entry by id {}", id);
-            // updates BlogEntry fields from request dto
-            if (blogEntryRequestDto.title() != null) entry.setTitle(blogEntryRequestDto.title());
-            if (blogEntryRequestDto.content() != null) entry.setContent(blogEntryRequestDto.content());
-            if (blogEntryRequestDto.isPublic() != null) entry.setPublic(blogEntryRequestDto.isPublic());
-            if (blogEntryRequestDto.categories() != null) {
-                Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
-                validateCategories(blogEntryRequestDto, categories);
 
-                Set<Category> categoriesToRemove = new HashSet<>(entry.getCategories());
-                // loops through categories set in current BlogEntry - removing the ones not found in update request
-                logger.debug("removing categories");
-                for (Category category : categoriesToRemove) {
-                    if (!categories.contains(category)) {
-                        entry.removeCategory(category);
-                    }
-                }
-                // loops through categories from update request - adding ones not in current BlogEntry
-                logger.debug("adding categories");
-                for (Category category : categories) {
-                    if (!entry.getCategories().contains(category)) {
-                        entry.addCategory(category);
-                    }
-                }
-            }
-            // updates changed BlogEntry fields only - Categories in category join table are Cascaded in database
-            blogEntryRepo.save(entry);
-        } else {
+        if (!userProfile.username().equals(authorName) && !userProfile.isAdmin()) {
             throw new ResourceNotFoundException("Entry not found with id " + id);
         }
+
+        logger.debug("updating entry by id {}", id);
+        // updates BlogEntry fields from request dto
+        if (blogEntryRequestDto.title() != null) entry.setTitle(blogEntryRequestDto.title());
+        if (blogEntryRequestDto.content() != null) entry.setContent(blogEntryRequestDto.content());
+        if (blogEntryRequestDto.isPublic() != null) entry.setPublic(blogEntryRequestDto.isPublic());
+        if (blogEntryRequestDto.categories() != null) {
+            Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
+            validateCategories(blogEntryRequestDto, categories);
+
+            Set<Category> categoriesToRemove = new HashSet<>(entry.getCategories());
+            // loops through categories set in current BlogEntry - removing the ones not found in update request
+            logger.debug("removing categories");
+            for (Category category : categoriesToRemove) {
+                if (!categories.contains(category)) {
+                    entry.removeCategory(category);
+                }
+            }
+            // loops through categories from update request - adding ones not in current BlogEntry
+            logger.debug("adding categories");
+            for (Category category : categories) {
+                if (!entry.getCategories().contains(category)) {
+                    entry.addCategory(category);
+                }
+            }
+        }
+        // updates changed BlogEntry fields only - Categories in category join table are Cascaded in database
+        blogEntryRepo.save(entry);
+
     }
 
     @Transactional
@@ -237,7 +245,8 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         BlogEntry entryToDelete = blogEntryRepo.findBlogEntryById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
 
-        String authorUsername = appUserRepo.findUsernameById(entryToDelete.getAuthorId());
+        String authorUsername = appUserRepo.findUsernameById(entryToDelete.getAuthorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
         logger.debug("deleteEntryById: ensuring entry by id {} is owned by author name {}", id, authorUsername);
 
         // ensures authorized user is Author of BlogEntry to be deleted
@@ -251,7 +260,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     }
 
     private static Specification<BlogEntry> getBlogEntrySpecification(
-            BlogEntryFilterRequest filterRequest, UserProfile userProfile, Integer authorId)
+            BlogEntryFilterRequest filterRequest, UserProfile userProfile, int authorId)
     {
         // set base Specification object to use DISTINCT select
         Specification<BlogEntry> spec = (root, query,criteriaBuilder) -> {
