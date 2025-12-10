@@ -83,7 +83,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public URI saveComment(String commentText, Integer postId, Integer parentId, UriComponentsBuilder ucb) {
+    public Map.Entry<URI, CommentResponseDto> saveComment(String commentText, Integer postId, Integer parentId, UriComponentsBuilder ucb) {
         UserProfile userProfile = authService.getUserProfile();
         Integer authorId = appUserRepo.findIdByUsername(userProfile.username());
         AppUser authorRef = appUserRepo.getReferenceById(authorId);
@@ -97,13 +97,13 @@ public class CommentServiceImpl implements CommentService {
                     .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + parentId));
         }
         Comment savedComment = commentRepo.save(mapRequestToEntity(commentText, authorRef, blogEntry, parentComment));
+        URI uri = ucb.path("api/comments/comment/{commentId}").buildAndExpand(savedComment.getId()).toUri();
 
-        // todo : return saved entity via DTO
-        return ucb.path("api/comments/comment/{commentId}").buildAndExpand(savedComment.getId()).toUri();
+        return Map.entry(uri, mapRequestToDto(savedComment, userProfile.username(), 0));
     }
 
     @Override
-    public void updateComment(String newCommentText, Integer commentId) {
+    public CommentResponseDto updateComment(String newCommentText, Integer commentId) {
         UserProfile userProfile = authService.getUserProfile();
         Integer userId = appUserRepo.findIdByUsername(userProfile.username());
 
@@ -113,8 +113,7 @@ public class CommentServiceImpl implements CommentService {
         if (commentToUpdate.getAuthorId() == userId) {
             commentToUpdate.setComment(newCommentText);
             commentRepo.save(commentToUpdate);
-            // todo : return updated entity via DTO
-            return;
+            return mapRequestToDto(commentToUpdate, userProfile.username(), 0);
         }
 
         throw new ResourceNotFoundException("Comment not found with id " + commentId);

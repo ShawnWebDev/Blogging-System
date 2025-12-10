@@ -9,8 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.security.Principal;
+import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -45,26 +46,24 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getAllCommentsByUsername());
     }
 
-    //todo : implement and test endpoints using admin role (UserProfile)
-
     @PostMapping("/posts/{blogEntryId}/comments")
-    public ResponseEntity<Void> createComment(
+    public ResponseEntity<CommentResponseDto> createComment(
             @PathVariable Integer blogEntryId, @RequestParam(name = "parentId", required = false ) Integer parentCommentId,
-            @RequestBody @MaxBytes(4000) @NotBlank(message = "Input empty") String commentText,
-            Principal principal, UriComponentsBuilder ucb)
+            @RequestBody @MaxBytes(4000) @NotBlank(message = "Input empty") String commentText, UriComponentsBuilder ucb)
     {
-        // todo : return CREATED with DTO - Front-end will handle page update without a refresh
-        return ResponseEntity.created(commentService.saveComment(commentText, blogEntryId, parentCommentId, ucb))
-                .build();
+        // On 200 OK, front-end will handle page update without a refresh
+        Map.Entry<URI, CommentResponseDto> commentResponseDtoEntry =
+                commentService.saveComment(commentText, blogEntryId, parentCommentId, ucb);
+        return ResponseEntity.status(201)
+                .location(commentResponseDtoEntry.getKey()).body(commentResponseDtoEntry.getValue());
     }
 
     @PutMapping("/comments/comment/{commentId}")
-    public ResponseEntity<Void> updateComment(@PathVariable Integer commentId,
+    public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Integer commentId,
             @RequestBody @MaxBytes(value = 4000) @NotBlank(message = "Input empty") String commentText)
     {
-        // todo : return OK with DTO - Front-end will handle page update without a refresh
-        commentService.updateComment(commentText, commentId);
-        return ResponseEntity.noContent().build();
+        // On 200 OK, front-end will handle page update without a refresh
+        return ResponseEntity.ok(commentService.updateComment(commentText, commentId));
     }
 
     @DeleteMapping("/comments/comment/{commentId}")
