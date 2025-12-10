@@ -1,4 +1,4 @@
-package com.webdev.bloggingsystem.controllers;
+package com.webdev.bloggingsystem.integration;
 
 import com.webdev.bloggingsystem.dto.BlogEntryRequestDto;
 import com.webdev.bloggingsystem.dto.LoginDto;
@@ -123,7 +123,7 @@ public class BlogEntryControllerTest {
                     List.of("Test Category 1", "Test Category 2"),
             true
         );
-        HttpEntity<Object> postEntity = new HttpEntity<>(blogEntryRequestDto, headers);
+        HttpEntity<BlogEntryRequestDto> postEntity = new HttpEntity<>(blogEntryRequestDto, headers);
 
         ResponseEntity<Void> response = restTemplate
                 .exchange("/api/posts", HttpMethod.POST, postEntity, Void.class);

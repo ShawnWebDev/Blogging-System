@@ -1,4 +1,4 @@
-package com.webdev.bloggingsystem.controllers;
+package com.webdev.bloggingsystem.integration;
 
 import com.webdev.bloggingsystem.dto.CommentResponseDto;
 import com.webdev.bloggingsystem.services.CommentService;
@@ -35,8 +35,8 @@ public class CommentControllerTest {
 
     private String testUserToken;
 
-    private String getToken(String username, String password) {
-        LoginDto loginDto = new LoginDto(username, password);
+    private String getToken(String username) {
+        LoginDto loginDto = new LoginDto(username, "TestPassword");
 
         ResponseEntity<String> response = restTemplate
                 .postForEntity("/auth/login", loginDto, String.class);
@@ -46,7 +46,7 @@ public class CommentControllerTest {
 
     @BeforeAll
     public void beforeAll() {
-        this.testUserToken = this.getToken("TestUser", "TestPassword");
+        this.testUserToken = this.getToken("TestUser");
     }
 
     @Test

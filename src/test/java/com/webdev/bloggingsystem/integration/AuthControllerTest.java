@@ -1,4 +1,4 @@
-package com.webdev.bloggingsystem.controllers;
+package com.webdev.bloggingsystem.integration;
 
 import com.webdev.bloggingsystem.dto.LoginDto;
 import org.junit.jupiter.api.Assertions;
@@ -27,8 +27,18 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void testAuthLoginBadCredentials() {
+    public void testAuthLoginBadUsername() {
         LoginDto loginDto = new LoginDto("NotATestAdmin", "TestPassword");
+
+        ResponseEntity<String> response = restTemplate
+                .postForEntity("/auth/login", loginDto, String.class);
+
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    public void testAuthLoginBadPassword() {
+        LoginDto loginDto = new LoginDto("TestAdmin", "NotAPassword");
 
         ResponseEntity<String> response = restTemplate
                 .postForEntity("/auth/login", loginDto, String.class);
