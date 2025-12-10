@@ -16,7 +16,7 @@ public interface AppUserRepo extends JpaRepository<AppUser, Integer> {
     Optional<AppUser> findAppUserAndRolesByUsername(@Param("username") String username);
 
     @Query("SELECT u.username FROM AppUser u WHERE u.id = :id")
-    String findUsernameById(@Param("id") Integer id);
+    Optional<String> findUsernameById(@Param("id") Integer id);
 
     @Query("SELECT u.id AS userId, u.username AS username " +
             "FROM AppUser u " +
@@ -24,5 +24,5 @@ public interface AppUserRepo extends JpaRepository<AppUser, Integer> {
     List<Tuple> findUsernamesById(@Param("ids") Set<Integer> ids);
 
     @Query("SELECT u.id FROM AppUser u WHERE u.username = :username")
-    Integer findIdByUsername(@Param("username") String username);
+    Optional<Integer> findIdByUsername(@Param("username") String username);
 }
