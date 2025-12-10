@@ -62,9 +62,6 @@ public class BlogEntry {
     public Integer getId() {
         return id;
     }
-    public void setId(Integer id) {
-        this.id = id;
-    }
     public String getTitle() {
         return title;
     }
@@ -89,22 +86,12 @@ public class BlogEntry {
     public Instant getUpdatedAt() {
         return updatedAt;
     }
-    public Integer getAuthorId() {
+    public int getAuthorId() {
         return authorId;
-    }
-    public AppUser getAuthor() {
-        return author;
-    }
-    public void setAuthor(AppUser author) {
-        this.author = author;
     }
     public Set<Category> getCategories() {
         return categories;
     }
-    public void setCategories(Set<Category> categories) {
-        this.categories = categories;
-    }
-
     public void addCategory(Category category) {
         this.categories.add(category);
     }
@@ -122,21 +109,5 @@ public class BlogEntry {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
-    }
-
-    // compares only id fields, returns false for entities not persisted - where this.id == null
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || this.getClass() != o.getClass() || this.getId() == null) return false;
-        BlogEntry entry = (BlogEntry) o;
-        return Objects.equals(this.getId(), entry.getId());
-    }
-
-    // sets hashcode for entities not persisted to 31 as temporary fallback
-    @Override
-    public int hashCode() {
-        if (this.getId() == null) return 31;
-        return this.getId().hashCode();
     }
 }

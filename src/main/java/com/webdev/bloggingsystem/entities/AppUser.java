@@ -96,20 +96,4 @@ public class AppUser {
                 ", createdAt=" + createdAt +
                 '}';
     }
-
-    // compares only id fields, returns false for entities not persisted - where this.id == null
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || this.getClass() != o.getClass() || this.getId() == null) return false;
-        AppUser user = (AppUser) o;
-        return Objects.equals(this.getId(), user.getId());
-    }
-
-    // sets hashcode for entities not persisted to 31 as temporary fallback
-    @Override
-    public int hashCode() {
-        if (this.getId() == null) return 31;
-        return this.getId().hashCode();
-    }
 }

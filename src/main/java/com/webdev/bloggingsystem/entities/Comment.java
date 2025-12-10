@@ -3,7 +3,6 @@ package com.webdev.bloggingsystem.entities;
 import jakarta.persistence.*;
 
 import java.time.Instant;
-import java.util.Objects;
 
 @Entity
 @Table(name = "comments")
@@ -49,55 +48,33 @@ public class Comment {
     public Integer getId() {
         return id;
     }
-
     public void setId(Integer id) {
         this.id = id;
     }
-
     public String getComment() {
         return comment;
     }
-
     public void setComment(String comment) {
         this.comment = comment;
     }
-
     public Instant getCreatedAt() {
         return createdAt;
     }
-
     public Instant getUpdatedAt() {
         return updatedAt;
     }
-
     public int getAuthorId() {
         return authorId;
     }
-
     public int getBlogEntryId() {
         return blogEntryId;
     }
-
-    public AppUser getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(AppUser author) {
-        this.author = author;
-    }
-
     public BlogEntry getBlogEntry() {
         return blogEntry;
     }
-
-    public void setBlogEntry(BlogEntry blogEntry) {
-        this.blogEntry = blogEntry;
-    }
-
     public Comment getParentComment() {
         return parentComment;
     }
-
     public void setParentComment(Comment parentComment) {
         this.parentComment = parentComment;
     }
@@ -109,21 +86,5 @@ public class Comment {
                 ", comment='" + comment + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
-    }
-
-    // compares only id fields, returns false for entities not persisted - where this.id == null
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || this.getClass() != o.getClass() || this.getId() == null) return false;
-        Comment comment = (Comment) o;
-        return Objects.equals(this.getId(), comment.getId());
-    }
-
-    // sets hashcode for entities not persisted to 31 as temporary fallback
-    @Override
-    public int hashCode() {
-        if (this.getId() == null) return 31;
-        return this.getId().hashCode();
     }
 }
