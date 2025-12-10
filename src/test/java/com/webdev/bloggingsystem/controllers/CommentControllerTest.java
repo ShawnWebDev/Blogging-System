@@ -108,7 +108,7 @@ public class CommentControllerTest {
     @Test
     @DisplayName("3. should create a reply comment and return it's uri.")
     @DirtiesContext
-    void createReplyCommentAndReturnUri() {
+    void createReplyComment() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + this.testUserToken);
         String commentText = "Test Reply 3 to Comment 1 on Test Post 1";
@@ -166,7 +166,7 @@ public class CommentControllerTest {
         ResponseEntity<Void> response = restTemplate
                 .exchange("/api/comments/comment/2", HttpMethod.PUT, request, Void.class);
 
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Should return 204 No Content");
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         System.out.println("response: " + response);
 
         ResponseEntity<String> getResponse = restTemplate
