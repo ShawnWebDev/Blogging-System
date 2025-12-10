@@ -16,6 +16,9 @@ public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer>, JpaSpe
     @EntityGraph(value = "blog-entry-partial")
     Optional<BlogEntry> findBlogEntryById(@Param("id") int id);
 
+    @Query("SELECT b.authorId FROM BlogEntry b WHERE b.id = :blogEntryId")
+    Optional<Integer> findAuthorIdByPostId(@Param("blogEntryId") Integer blogEntryId);
+
     @NonNull
     @Override
     Page<BlogEntry> findAll(@Nullable Specification<BlogEntry> spec, @NonNull Pageable pageable);
