@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 public interface CommentService {
-    List<CommentResponseDto> getAllRepliesByParentId(Integer parentId);
-    CommentResponseDto getCommentById(Integer commentId);
+    List<CommentResponseDto> getAllRepliesByParentId(int parentId);
+    CommentResponseDto getCommentById(int commentId);
     List<CommentResponseDto> getAllCommentsByUsername();
-    List<CommentResponseDto> getAllTopLevelCommentsByBlogEntryId(Integer blogEntryId);
-    Map.Entry<URI, CommentResponseDto> saveComment(String commentText, Integer postId, Integer parentId, UriComponentsBuilder ucb);
-    CommentResponseDto updateComment(String newCommentText, Integer commentId);
-    void deleteComment(Integer commentId);
+    List<CommentResponseDto> getAllTopLevelCommentsByBlogEntryId(int blogEntryId);
+    Map.Entry<URI, CommentResponseDto> saveComment(String commentText, int postId, Integer parentId, UriComponentsBuilder ucb);
+    CommentResponseDto updateComment(String newCommentText, int commentId);
+    void deleteComment(int commentId);
 }

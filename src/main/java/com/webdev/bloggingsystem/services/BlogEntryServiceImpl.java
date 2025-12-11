@@ -57,7 +57,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     }
 
     @Override
-    public BlogEntryResponseDto getBlogEntryById(Integer id)
+    public BlogEntryResponseDto getBlogEntryById(int id)
     {
         logger.debug("getBlogEntryById: findBlogEntryById");
         BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
@@ -192,7 +192,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
     @Transactional
     @Override
-    public void updateEntryById(Integer id, BlogEntryRequestDto blogEntryRequestDto)
+    public void updateEntryById(int id, BlogEntryRequestDto blogEntryRequestDto)
     {
         logger.debug("updateEntryById: getting entry by id {}", id);
         BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
@@ -240,7 +240,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
     @Transactional
     @Override
-    public void deleteEntryById(Integer id)
+    public void deleteEntryById(int id)
     {
         BlogEntry entryToDelete = blogEntryRepo.findBlogEntryById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));

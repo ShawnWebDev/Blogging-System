@@ -40,7 +40,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentResponseDto> getAllRepliesByParentId(Integer parentId) {
+    public List<CommentResponseDto> getAllRepliesByParentId(int parentId) {
         List<Comment> comments = commentRepo.findAllByParentCommentId(parentId);
         if (comments.isEmpty()) {
             return List.of();
@@ -64,7 +64,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentResponseDto> getAllTopLevelCommentsByBlogEntryId(Integer blogEntryId) {
+    public List<CommentResponseDto> getAllTopLevelCommentsByBlogEntryId(int blogEntryId) {
         List<Comment> comments = commentRepo.fetchTopLevelCommentsByBlogEntryId(blogEntryId);
         if (comments.isEmpty()) {
             return List.of();
@@ -74,7 +74,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentResponseDto getCommentById(Integer commentId) {
+    public CommentResponseDto getCommentById(int commentId) {
         Comment comment = commentRepo.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
         String authorName = appUserRepo.findUsernameById(comment.getAuthorId())
@@ -85,7 +85,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Map.Entry<URI, CommentResponseDto> saveComment(String commentText, Integer postId, Integer parentId, UriComponentsBuilder ucb) {
+    public Map.Entry<URI, CommentResponseDto> saveComment(String commentText, int postId, Integer parentId, UriComponentsBuilder ucb) {
         UserProfile userProfile = authService.getUserProfile();
         int authorId = appUserRepo.findIdByUsername(userProfile.username())
                 .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
@@ -109,7 +109,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentResponseDto updateComment(String newCommentText, Integer commentId) {
+    public CommentResponseDto updateComment(String newCommentText, int commentId) {
         UserProfile userProfile = authService.getUserProfile();
         int userId = appUserRepo.findIdByUsername(userProfile.username())
                 .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
@@ -128,7 +128,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void deleteComment(Integer commentId) {
+    public void deleteComment(int commentId) {
         UserProfile userProfile = authService.getUserProfile();
         int principalId = appUserRepo.findIdByUsername(userProfile.username())
                 .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
