@@ -3,8 +3,9 @@ package com.webdev.bloggingsystem.integration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.webdev.bloggingsystem.dto.CategoryRequestDto;
+import com.webdev.bloggingsystem.dto.CategoryResponseDto;
 import com.webdev.bloggingsystem.dto.LoginDto;
-import com.webdev.bloggingsystem.services.CategoryService;
+import com.webdev.bloggingsystem.repositories.CategoryRepo;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +27,7 @@ public class CategoryControllerTest {
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
-    private CategoryService categoryService;
+    CategoryRepo categoryRepo;
 
     private String testUserToken;
 
@@ -40,7 +42,7 @@ public class CategoryControllerTest {
 
     @BeforeAll
     public void beforeAll() {
-        this.testUserToken = this.getToken("TestUser");
+        this.testUserToken = this.getToken("TestAdmin");
     }
 
     @Test
@@ -56,12 +58,11 @@ public class CategoryControllerTest {
         assertEquals(3, categoryNames.size(), "three categories should be returned");
     }
 
-    // todo continue here.
     @Test
-    @DisplayName("Create category")
-    void createCategory() {
+    @DisplayName("Cannot create category without admin role")
+    void createCategoryNonAdmin() {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + this.testUserToken);
+        headers.add("Authorization", "Bearer " + this.getToken("TestUser"));
 
         CategoryRequestDto categoryDto = new CategoryRequestDto(
                 "New category 1",
@@ -69,18 +70,84 @@ public class CategoryControllerTest {
         );
         HttpEntity<CategoryRequestDto> request = new HttpEntity<>(categoryDto, headers);
 
-        ResponseEntity<Void> response = restTemplate
-                .exchange("/api/categories", HttpMethod.POST, request, Void.class);
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/categories", HttpMethod.POST, request, String.class);
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode(), "Should return 201 CREATED");
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(), "Should return 403 FORBIDDEN");
+    }
+
+    // todo: finish
+    @Test
+    @DisplayName("Create category with admin role")
+    @DirtiesContext
+    void createCategoryAdmin() {
+        CategoryRequestDto categoryDto = new CategoryRequestDto(
+                "New category **",
+                "New category description."
+        );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        HttpEntity<CategoryRequestDto> request = new HttpEntity<>(categoryDto, headers);
+
+        ResponseEntity<CategoryResponseDto> response = restTemplate
+                .exchange("/api/categories", HttpMethod.POST, request, CategoryResponseDto.class);
+
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
     }
 
     @Test
     @DisplayName("Update category")
-    void updateCategory() {}
+    void updateCategory() {
+        CategoryRequestDto categoryDto = new CategoryRequestDto(
+                "Updated category 1",
+                "Updated category 1 - description test."
+        );
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        HttpEntity<CategoryRequestDto> request = new HttpEntity<>(categoryDto, headers);
+
+        ResponseEntity<CategoryResponseDto> response = restTemplate
+                .exchange("/api/categories/1", HttpMethod.PUT, request, CategoryResponseDto.class);
+
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
+    }
 
     @Test
     @DisplayName("Delete category")
-    void deleteCategory() {}
+    @DirtiesContext
+    void deleteCategory() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        int count = categoryRepo.countPostsWithCategoryId(1);
+        System.out.println("count of posts with category id before delete: " + count);
+
+        ResponseEntity<Void> response = restTemplate
+                .exchange("/api/categories/1", HttpMethod.DELETE, request, Void.class);
+
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Should return 204 NO CONTENT");
+
+        ResponseEntity<String> allCategories = restTemplate.getForEntity("/api/categories", String.class);
+        assertEquals(HttpStatus.OK, allCategories.getStatusCode(), "Should return 200 OK");
+
+        DocumentContext documentContext = JsonPath.parse(allCategories.getBody());
+        JSONArray categoryNames = documentContext.read("$..categoryName");
+        System.out.println(categoryNames);
+        assertEquals(2, categoryNames.size(), "two categories should be returned");
+
+        ResponseEntity<String> blogEntryResponse = restTemplate
+                .getForEntity("/api/posts?sort=createdAt,asc&categoryName=Test Category 2", String.class);
+
+        System.out.println("blogEntryResponse: " + blogEntryResponse);
+
+        int count2 = categoryRepo.countPostsWithCategoryId(1);
+        System.out.println("count of posts with category id before delete: " + count2);
+    }
 
 }
