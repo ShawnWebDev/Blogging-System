@@ -34,7 +34,7 @@ Will follow a multi-tier architecture of:
    * Exposes REST endpoints, handle logic + security, and interaction with database layer.
    * Controller, Service, Repository.
 2. Database:
-   * MySQL.
+   * H2 for development & testing / MySQL for production.
    * Stores all persistent data for Users, Roles, Blog Entries, Blog Comments, and Blog Categories.
    * Normalized schema with constraints for one-to-many and many-to-many relationships.
 3. Frontend:
@@ -75,7 +75,7 @@ Planned Authorities - `PUBLIC` (not authenticated), `USER` (basic user/author) a
 | Comment   | `DELETE`    | `/api/comments/{commentId}`            | Delete a comment's text (Sets comment text to 'Comment removed by (Comment Author, Blog Author, OR Admin)')                                          | `BLOG/COMMENT AUTHOR(USER), ADMIN` |
 | AppUser   | `POST`      | `/api/auth/register`                   | Register a new user account.                                                                                                                         | `PUBLIC`                           |
 | AppUser   | `POST`      | `/api/auth/login`                      | Authenticate user and receive a JWT.                                                                                                                 | `PUBLIC`                           |
-| Category  | `GET`       | `/api/categories`                      | Retrieve all categories.                                                                                                                             | `PUBLIC`                           |
+| Category  | `GET`       | `/api/categories`                      | Retrieve all categories and count of posts with each.                                                                                                | `PUBLIC`                           |
 | Category  | `POST`      | `/api/categories`                      | Create a new category.                                                                                                                               | `ADMIN`                            |
 | Category  | `PUT`       | `/api/categories/{id}`                 | Update a category.                                                                                                                                   | `ADMIN`                            |
 | Category  | `DELETE`    | `/api/categories/{id}`                 | Delete a category.                                                                                                                                   | `ADMIN`                            |
