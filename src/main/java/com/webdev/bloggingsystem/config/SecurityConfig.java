@@ -46,13 +46,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/auth/login").permitAll()
-                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/api/posts/me").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/comments/**").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/posts/{}/comments").authenticated()
-                                .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/api/categories/**").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAuthority("SCOPE_ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/api/categories/**").hasAuthority("SCOPE_ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAuthority("SCOPE_ADMIN")
                                 .requestMatchers(HttpMethod.POST).authenticated()
                                 .requestMatchers(HttpMethod.PUT).authenticated()
                                 .requestMatchers(HttpMethod.DELETE).authenticated()
