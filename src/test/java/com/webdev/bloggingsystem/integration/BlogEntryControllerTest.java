@@ -645,4 +645,24 @@ public class BlogEntryControllerTest {
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Should return 401");
     }
 
+    // TODO : add and test unique title validation -- is value necessary?
+    @Test
+    @DisplayName("29. should return title exists")
+    void doNotCreateBlogEntryWithExistingTitle() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
+                "Test Post 1",
+                this.thousandChars,
+                List.of("Test Category 1", "Test Category 2"),
+                true
+        );
+        HttpEntity<Object> postEntity = new HttpEntity<>(blogEntryRequestDto, headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts", HttpMethod.POST, postEntity, String.class);
+
+        System.out.println("response: " + response);
+        assertEquals("{\"title\":\"Title must be unique, please try again\"}", response.getBody());
+    }
 }

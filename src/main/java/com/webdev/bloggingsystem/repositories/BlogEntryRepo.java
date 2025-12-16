@@ -26,4 +26,6 @@ public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer>, JpaSpe
     @Modifying
     @Query(value = "DELETE FROM blog_entries WHERE id = :id", nativeQuery = true)
     void deleteBlogEntryById(@Param("id") Integer id);
+
+    boolean existsByTitle(String title);
 }

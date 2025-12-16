@@ -1,6 +1,7 @@
 package com.webdev.bloggingsystem.dto;
 
 import com.webdev.bloggingsystem.exceptions.MaxBytes;
+import com.webdev.bloggingsystem.exceptions.UniqueTitle;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
 public record BlogEntryRequestDto(
         @Size(min = 4, message = "Minimum of 4 characters")
         @MaxBytes(255)
+        @UniqueTitle
         String title,
         @Size(min = 1000, message = "Minimum of 1000 characters")
         @MaxBytes(value = 65535)
