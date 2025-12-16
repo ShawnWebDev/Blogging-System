@@ -1,5 +1,6 @@
 package com.webdev.bloggingsystem.integration;
 
+import com.webdev.bloggingsystem.dto.CommentRequestDto;
 import com.webdev.bloggingsystem.dto.CommentResponseDto;
 import com.webdev.bloggingsystem.services.CommentService;
 
@@ -79,9 +80,11 @@ public class CommentControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + this.testUserToken);
 
-        String commentText = "Test Comment #2 on Test Post 1";
+        CommentRequestDto commentDto = new CommentRequestDto(
+                "Test Comment #2 on Test Post 1"
+        );
 
-        HttpEntity<String> request = new HttpEntity<>(commentText, headers);
+        HttpEntity<CommentRequestDto> request = new HttpEntity<>(commentDto, headers);
 
         ResponseEntity<String> response = restTemplate
                 .exchange("/api/posts/1/comments", HttpMethod.POST, request, String.class);
@@ -99,7 +102,7 @@ public class CommentControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         DocumentContext documentContext = JsonPath.parse(response.getBody());
         String comment  = documentContext.read("$.comment");
-        assertEquals(commentText, comment);
+        assertEquals(commentDto.comment(), comment);
 
         System.out.println("response: " + response);
         System.out.println("documentContext: " + documentContext.jsonString());
@@ -111,9 +114,11 @@ public class CommentControllerTest {
     void createReplyComment() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + this.testUserToken);
-        String commentText = "Test Reply 3 to Comment 1 on Test Post 1";
+        CommentRequestDto commentDto = new CommentRequestDto(
+                "Test Reply 3 to Comment 1 on Test Post 1"
+        );
 
-        HttpEntity<String> request = new HttpEntity<>(commentText, headers);
+        HttpEntity<CommentRequestDto> request = new HttpEntity<>(commentDto, headers);
 
         ResponseEntity<String> response = restTemplate
                 .exchange("/api/posts/1/comments?parentId=1", HttpMethod.POST, request, String.class);
@@ -131,7 +136,7 @@ public class CommentControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
         DocumentContext documentContext = JsonPath.parse(response.getBody());
         String comment  = documentContext.read("$.comment");
-        assertEquals(commentText, comment);
+        assertEquals(commentDto.comment(), comment);
 
         System.out.println("response: " + response);
         System.out.println("documentContext: " + documentContext.jsonString());
@@ -160,8 +165,10 @@ public class CommentControllerTest {
     void updateComment() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + this.testUserToken);
-        String updatedComment = "Test Reply 1 to Comment 1 on Test Post 1 -- UPDATED";
-        HttpEntity<String> request = new HttpEntity<>(updatedComment, headers);
+        CommentRequestDto updatedComment = new CommentRequestDto(
+                "Test Reply 1 to Comment 1 on Test Post 1 -- UPDATED"
+        );
+        HttpEntity<CommentRequestDto> request = new HttpEntity<>(updatedComment, headers);
 
         ResponseEntity<Void> response = restTemplate
                 .exchange("/api/comments/comment/2", HttpMethod.PUT, request, Void.class);
@@ -175,7 +182,7 @@ public class CommentControllerTest {
         DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
         System.out.println("documentContext: " + documentContext.jsonString());
         String content = documentContext.read("$.comment");
-        assertEquals(updatedComment, content);
+        assertEquals(updatedComment.comment(), content);
 
         System.out.println("response: " + response);
         System.out.println(content);
@@ -281,6 +288,55 @@ public class CommentControllerTest {
         assertEquals("Test Comment on Test Post 1", comment_1);
         assertEquals("Test Comment 2 on Test Post 1", comment_2);
         assertEquals("Test Comment 3 on Test Post 1", comment_3);
+    }
+
+    @Test
+    @DisplayName("11. exceed max input")
+    void testMaxInput() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+
+        String commentText = "Test Comment #2 on Test Post 1";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 135; i++) {
+            sb.append(commentText);
+        }
+        String content = sb.toString();
+        CommentRequestDto commentDto = new CommentRequestDto(
+            content
+        );
+        //headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+        HttpEntity<CommentRequestDto> request = new HttpEntity<>(commentDto, headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts/1/comments", HttpMethod.POST, request, String.class);
+
+        System.out.println("response: " + response);
+        System.out.println("response body : " + response.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400");
+        assertEquals("{\"comment\":\"Input length exceeded\"}", response.getBody());
+    }
+
+    @Test
+    @DisplayName("11. exceed max input")
+    void testNoInput() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+
+        CommentRequestDto commentDto = new CommentRequestDto(
+                ""
+        );
+
+        //headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+        HttpEntity<CommentRequestDto> request = new HttpEntity<>(commentDto, headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts/1/comments", HttpMethod.POST, request, String.class);
+
+        System.out.println("response: " + response);
+        System.out.println("response body : " + response.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400");
+        assertEquals("{\"comment\":\"Input empty\"}", response.getBody());
     }
 
 }

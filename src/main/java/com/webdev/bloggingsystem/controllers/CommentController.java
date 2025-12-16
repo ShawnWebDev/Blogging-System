@@ -1,11 +1,14 @@
 package com.webdev.bloggingsystem.controllers;
 
+import com.webdev.bloggingsystem.dto.CommentRequestDto;
 import com.webdev.bloggingsystem.dto.CommentResponseDto;
 import com.webdev.bloggingsystem.exceptions.MaxBytes;
 import com.webdev.bloggingsystem.services.CommentService;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -47,23 +50,24 @@ public class CommentController {
     }
 
     @PostMapping("/posts/{blogEntryId}/comments")
-    public ResponseEntity<CommentResponseDto> createComment(
+    public ResponseEntity<?> createComment(
             @PathVariable Integer blogEntryId, @RequestParam(name = "parentId", required = false ) Integer parentCommentId,
-            @RequestBody @MaxBytes(4000) @NotBlank(message = "Input empty") String commentText, UriComponentsBuilder ucb)
+            @RequestBody @Valid CommentRequestDto commentText, UriComponentsBuilder ucb)
     {
         // On 200 OK, front-end will handle page update without a refresh
         Map.Entry<URI, CommentResponseDto> commentResponseDtoEntry =
-                commentService.saveComment(commentText, blogEntryId, parentCommentId, ucb);
+                commentService.saveComment(commentText.comment(), blogEntryId, parentCommentId, ucb);
         return ResponseEntity.status(201)
                 .location(commentResponseDtoEntry.getKey()).body(commentResponseDtoEntry.getValue());
     }
 
+
     @PutMapping("/comments/comment/{commentId}")
-    public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Integer commentId,
-            @RequestBody @MaxBytes(value = 4000) @NotBlank(message = "Input empty") String commentText)
+    public ResponseEntity<?> updateComment(@PathVariable Integer commentId,
+            @RequestBody @Valid CommentRequestDto commentText)
     {
         // On 200 OK, front-end will handle page update without a refresh
-        return ResponseEntity.ok(commentService.updateComment(commentText, commentId));
+        return ResponseEntity.ok(commentService.updateComment(commentText.comment(), commentId));
     }
 
     @DeleteMapping("/comments/comment/{commentId}")
