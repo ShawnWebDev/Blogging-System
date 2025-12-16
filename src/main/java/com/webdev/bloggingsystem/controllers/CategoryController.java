@@ -3,6 +3,7 @@ package com.webdev.bloggingsystem.controllers;
 import com.webdev.bloggingsystem.dto.CategoryRequestDto;
 import com.webdev.bloggingsystem.dto.CategoryResponseDto;
 import com.webdev.bloggingsystem.services.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,12 +28,12 @@ public class CategoryController {
 
     // todo : set up input validation and return validation errors if needed on request dto in create and update methods
     @PostMapping
-    public ResponseEntity<?> createCategory(@RequestBody CategoryRequestDto categoryDto) {
+    public ResponseEntity<?> createCategory(@RequestBody @Valid CategoryRequestDto categoryDto) {
         return ResponseEntity.ok(categoryService.createCategory(categoryDto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(@RequestBody CategoryRequestDto categoryDto, @PathVariable Integer id) {
+    public ResponseEntity<?> updateCategory(@RequestBody @Valid CategoryRequestDto categoryDto, @PathVariable Integer id) {
         return ResponseEntity.ok(categoryService.updateCategory(categoryDto, id));
     }
 

@@ -20,10 +20,7 @@ public class MaxBytesValidator implements ConstraintValidator<MaxBytes, String> 
         int byteCount = s.getBytes(StandardCharsets.UTF_8).length;
 
         if (byteCount > this.maxBytes) {
-            constraintValidatorContext.disableDefaultConstraintViolation();
-            constraintValidatorContext.buildConstraintViolationWithTemplate(
-                    this.message
-                    )
+            constraintValidatorContext.buildConstraintViolationWithTemplate(this.message)
                     .addConstraintViolation();
             return false;
         }

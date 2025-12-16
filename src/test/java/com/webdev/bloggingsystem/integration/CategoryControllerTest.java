@@ -77,7 +77,6 @@ public class CategoryControllerTest {
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(), "Should return 403 FORBIDDEN");
     }
 
-    // todo: finish
     @Test
     @DisplayName("Create category with admin role")
     @DirtiesContext
@@ -148,6 +147,51 @@ public class CategoryControllerTest {
 
         int count2 = categoryRepo.countPostsWithCategoryId(1);
         System.out.println("count of posts with category id before delete: " + count2);
+    }
+
+    @Test
+    @DisplayName("Do not create category with name over max bytes")
+    void createCategoryWithNameOverMaxBytes() {
+        CategoryRequestDto categoryDto = new CategoryRequestDto(
+                "New category **New category **New category **New category **New category ** " +
+                        "New category **New category **New category **New category **New category **" +
+                        "New category **New category **New category **New category **New category **" +
+                        "New category **New category **New category **New category **New category **",
+                "New category description."
+        );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        HttpEntity<CategoryRequestDto> request = new HttpEntity<>(categoryDto, headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/categories", HttpMethod.POST, request, String.class);
+
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 401 BAD REQUEST");
+        assertEquals("{\"categoryName\":\"Input length exceeded\"}", response.getBody());
+    }
+
+    @Test
+    @DisplayName("Do not create category with name over max bytes")
+    void createCategoryWithDescriptionOverMaxBytes() {
+        CategoryRequestDto categoryDto = new CategoryRequestDto(
+                "New category **",
+                "New category description ***** New category description ***** New category description *****" +
+                        "New category description ***** New category description ***** New category description *****" +
+                        "New category description ***** New category description ***** New category description *****."
+        );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + this.testUserToken);
+        HttpEntity<CategoryRequestDto> request = new HttpEntity<>(categoryDto, headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/categories", HttpMethod.POST, request, String.class);
+
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 401 BAD REQUEST");
+        assertEquals("{\"description\":\"Input length exceeded\"}", response.getBody());
     }
 
 }
