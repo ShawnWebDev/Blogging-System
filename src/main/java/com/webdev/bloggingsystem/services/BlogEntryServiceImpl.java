@@ -70,8 +70,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         // allow author to view their own private entries if authenticated
         String principalUsername = userProfile != null ? userProfile.username() : null;
         boolean isPrincipalAuthor = authorUsername.equals(principalUsername);
-        boolean isPrincipalAdmin = (userProfile != null) && userProfile.isAdmin();
-        if (!entry.isPublic() && !isPrincipalAdmin && !isPrincipalAuthor) {
+        if (!entry.isPublic() && !isPrincipalAuthor) {
             throw new ResourceNotFoundException("Entry not found with id " + id);
         }
 
