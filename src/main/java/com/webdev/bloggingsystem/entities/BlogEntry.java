@@ -62,6 +62,9 @@ public class BlogEntry {
     public Integer getId() {
         return id;
     }
+    public void setId(Integer id) {
+        this.id = id;
+    }
     public String getTitle() {
         return title;
     }
@@ -88,6 +91,9 @@ public class BlogEntry {
     }
     public int getAuthorId() {
         return authorId;
+    }
+    public void setAuthorId(Integer authorId) {
+        this.authorId = authorId;
     }
     public Set<Category> getCategories() {
         return categories;
