@@ -5,8 +5,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.6</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>3.5.8</version>
+        <relativePath/>
     </parent>
     <groupId>com.webdev</groupId>
     <artifactId>BloggingSystem</artifactId>
@@ -28,7 +28,6 @@
     </scm>
     <properties>
         <java.version>25</java.version>
-        <logback.version>1.5.19</logback.version>
         <start-class>com.webdev.bloggingsystem.BloggingSystemApplication</start-class>
     </properties>
 
@@ -40,12 +39,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
