@@ -1,14 +1,11 @@
 package com.webdev.bloggingsystem.services;
 
 
-import com.webdev.bloggingsystem.dto.BlogEntryFilterRequest;
-import com.webdev.bloggingsystem.dto.BlogEntryResponseDto;
-import com.webdev.bloggingsystem.dto.PaginatedBlogEntriesResponseDto;
-import com.webdev.bloggingsystem.dto.UserProfile;
-import com.webdev.bloggingsystem.dto.BlogEntryRequestDto;
+import com.webdev.bloggingsystem.dto.*;
 import com.webdev.bloggingsystem.entities.BlogEntry;
 import com.webdev.bloggingsystem.entities.Category;
 import com.webdev.bloggingsystem.entities.AppUser;
+import com.webdev.bloggingsystem.entities.Comment;
 import com.webdev.bloggingsystem.exceptions.ResourceNotFoundException;
 import com.webdev.bloggingsystem.repositories.AppUserRepo;
 import com.webdev.bloggingsystem.repositories.BlogEntryRepo;
@@ -82,7 +79,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         logger.debug("commentCount: {} ", commentCount);
         logger.debug("entry: {}", entry);
 
-        return new BlogEntryResponseDto(entry, authorUsername, commentCount);
+        return mapRequestToDto(entry, authorUsername, commentCount);
     }
 
     @Override
@@ -98,13 +95,12 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         // called by endpoint methods - getAllPublicBlogEntries()"/posts" and getAllBlogEntriesForUser()"/posts/me"
         logger.debug("getAllBlogEntries");
         UserProfile userProfile = authService.getUserProfile();
-        int authorId = 0;
-        if (userProfile != null) {
-            authorId = appUserRepo.findIdByUsername(userProfile.username())
-                    .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
-        }
+        int authorId = this.getAuthorIdByUserProfile(userProfile);
+
         // defines a Specification object for criteria builder to build the filtering query
-        Specification<BlogEntry> spec = getBlogEntrySpecification(filterRequest, userProfile, authorId);
+        Specification<BlogEntry> spec = filterRequest != null ?
+                getBlogEntrySpecification(filterRequest, userProfile, authorId) : null;
+
         PageRequest pageRequest = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
@@ -112,37 +108,18 @@ public class BlogEntryServiceImpl implements BlogEntryService {
                 )
         );
         Page<BlogEntry> blogEntries = blogEntryRepo.findAll(spec, pageRequest);
+
         // signal to Hibernate to fetch categories separately in a batch to avoid fetching duplicate BlogEntries for each category
         blogEntries.getContent().forEach(BlogEntry::getCategories);
 
-        // extract BlogEntry ids to use in comment counts and username fetching
-        List<Integer> blogIds = blogEntries.getContent().stream().map(BlogEntry::getId).toList();
         // map BlogEntry ids to total comment counts
-        Map<Integer, Integer> mapCommentCountToBlogIds = commentRepo.countCommentsInBlogEntryIds(blogIds)
-                .stream().collect(Collectors.toMap(
-                                row -> row.get("blogId", Integer.class),
-                                row -> row.get("commentCount", Long.class).intValue()
-                        )
-                );
-
-        Set<Integer> authorIds = blogEntries.getContent().stream().map(BlogEntry::getAuthorId).collect(Collectors.toSet());
+        Map<Integer, Integer> mapCommentCountToBlogIds = this.mapBlogIdsToCommentCounts(blogEntries.getContent());
         // map author ids to username
-        Map<Integer, String> mapAuthorIdToUsername = appUserRepo.findUsernamesById(authorIds)
-                .stream().collect(Collectors.toMap(
-                                row -> row.get("userId", Integer.class),
-                                row -> row.get("username", String.class)
-                        )
-                );
+        Map<Integer, String> mapAuthorIdToUsername = this.mapUserIdsAuthorNames(blogEntries.getContent());
 
-        List<BlogEntryResponseDto> responseDtos = new ArrayList<>();
-        for (BlogEntry blogEntry : blogEntries.getContent()) {
-            responseDtos.add(new BlogEntryResponseDto(
-                    blogEntry,
-                    mapAuthorIdToUsername.get(blogEntry.getAuthorId()),
-                    mapCommentCountToBlogIds.getOrDefault(blogEntry.getId(), 0)
-                    )
-            );
-        }
+        List<BlogEntryResponseDto> responseDtos = mapBlogEntryToResponseDto(
+                blogEntries.getContent(), mapCommentCountToBlogIds, mapAuthorIdToUsername
+        );
 
         return new PaginatedBlogEntriesResponseDto(
                 responseDtos,
@@ -157,13 +134,12 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
     @Transactional
     @Override
-    public URI saveEntry(BlogEntryRequestDto blogEntryRequestDto, UriComponentsBuilder ucb)
+    public Map.Entry<URI, BlogEntryResponseDto> saveEntry(BlogEntryRequestDto blogEntryRequestDto, UriComponentsBuilder ucb)
     {
         // has to fetch User and Categories to verify they exist before defining relation to the BlogEntry to be created,
         // input is validated in DTO/Controller with jakarta.validation
         UserProfile userProfile = authService.getUserProfile();
-        int authorId = appUserRepo.findIdByUsername(userProfile.username())
-                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
+        int authorId = this.getAuthorIdByUserProfile(userProfile);
 
         logger.debug("saveEntry: getting author {}", userProfile.username());
         AppUser authorRef = appUserRepo.getReferenceById(authorId);
@@ -186,12 +162,13 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
         logger.debug("saveEntry: saved entry {}", savedEntry);
         // returns endpoint which the saved entry can be found (in response header)
-        return ucb.path("/api/posts/{id}").buildAndExpand(savedEntry.getId()).toUri();
+        URI uri = ucb.path("/api/posts/{id}").buildAndExpand(savedEntry.getId()).toUri();
+        return Map.entry(uri, mapRequestToDto(savedEntry, userProfile.username(), 0));
     }
 
     @Transactional
     @Override
-    public void updateEntryById(int id, BlogEntryRequestDto blogEntryRequestDto)
+    public BlogEntryResponseDto updateEntryById(int id, BlogEntryRequestDto blogEntryRequestDto)
     {
         logger.debug("updateEntryById: getting entry by id {}", id);
         BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
@@ -235,6 +212,11 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         // updates changed BlogEntry fields only - Categories in category join table are Cascaded in database
         blogEntryRepo.save(entry);
 
+        Tuple commentCountResult = commentRepo.countCommentsByBlogEntryId(entry.getId());
+        int commentCount = commentCountResult != null ?
+                commentCountResult.get("commentCount" , Long.class).intValue() : 0;
+
+        return mapRequestToDto(entry, userProfile.username(), commentCount);
     }
 
     @Transactional
@@ -256,6 +238,64 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         } else {
             throw new ResourceNotFoundException("Entry not found with id " + id);
         }
+    }
+
+
+    private int getAuthorIdByUserProfile(UserProfile userProfile)
+    {
+        if (userProfile == null) {
+            return 0;
+        }
+        return appUserRepo.findIdByUsername(userProfile.username())
+                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
+    }
+
+    private Map<Integer, Integer> mapBlogIdsToCommentCounts(List<BlogEntry> entries)
+    {
+        List<Integer> blogIds = entries.stream().map(BlogEntry::getId).toList();
+        return commentRepo.countCommentsInBlogEntryIds(blogIds)
+                .stream().collect(Collectors.toMap(
+                                row -> row.get("blogId", Integer.class),
+                                row -> row.get("commentCount", Long.class).intValue()
+                        )
+                );
+    }
+
+    private Map<Integer, String> mapUserIdsAuthorNames(List<BlogEntry> entries)
+    {
+        Set<Integer> authorIds = entries.stream().map(BlogEntry::getAuthorId).collect(Collectors.toSet());
+        return appUserRepo.findUsernamesById(authorIds)
+                .stream().collect(Collectors.toMap(
+                                row -> row.get("userId", Integer.class),
+                                row -> row.get("username", String.class)
+                        )
+                );
+    }
+
+    private static BlogEntryResponseDto mapRequestToDto(BlogEntry entry, String authorUsername, int commentCount)
+    {
+        return new BlogEntryResponseDto(
+                entry.getId(),
+                authorUsername,
+                entry.getTitle(),
+                entry.getContent(),
+                entry.getCreatedAt(),
+                entry.getUpdatedAt(),
+                entry.getCategories().stream().map(Category::getCategoryName).toList(),
+                commentCount,
+                entry.isPublic()
+        );
+    }
+
+    private static List<BlogEntryResponseDto> mapBlogEntryToResponseDto(
+            List<BlogEntry> entries, Map<Integer, Integer> commentCounts, Map<Integer, String> authorNames)
+    {
+        return entries.stream()
+                .map(entry -> mapRequestToDto(
+                        entry,
+                        authorNames.get(entry.getAuthorId()),
+                        commentCounts.getOrDefault(entry.getId(), 0)
+                )).toList();
     }
 
     private static Specification<BlogEntry> getBlogEntrySpecification(
@@ -321,4 +361,5 @@ public class BlogEntryServiceImpl implements BlogEntryService {
             throw new ResourceNotFoundException("Categories not found: "  + dtoCategories);
         }
     }
+
 }

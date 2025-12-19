@@ -125,8 +125,8 @@ public class BlogEntryControllerTest {
         );
         HttpEntity<BlogEntryRequestDto> postEntity = new HttpEntity<>(blogEntryRequestDto, headers);
 
-        ResponseEntity<Void> response = restTemplate
-                .exchange("/api/posts", HttpMethod.POST, postEntity, Void.class);
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts", HttpMethod.POST, postEntity, String.class);
 
         System.out.println("response: " + response);
 
@@ -270,14 +270,13 @@ public class BlogEntryControllerTest {
 
         HttpEntity<Object> request = new HttpEntity<>(entryToUpdate, headers);
 
-        ParameterizedTypeReference<Map<String, String>> responseType =
-                new ParameterizedTypeReference<>() {};
         // putForEntity does not exist.
-        ResponseEntity<Map<String, String>> response = restTemplate
-                .exchange("/api/posts/3", HttpMethod.PUT, request, responseType);
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts/3", HttpMethod.PUT, request, String.class);
+
         System.out.println("response: " + response);
 
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Should return 204 NO CONTENT");
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should return 200 OK");
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 

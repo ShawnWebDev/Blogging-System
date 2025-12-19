@@ -12,6 +12,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
+import java.net.URI;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api")
@@ -57,8 +60,11 @@ public class BlogEntryController {
     {
         // validates and creates BlogEntry from input DTO,
         // returns 400 BAD_REQUEST on validation errors - includes errors in body
-        // or 201 CREATED + URI in header if successful
-        return ResponseEntity.created(blogEntryService.saveEntry(blogEntryRequestDto, ucb)).build();
+        // or 201 CREATED + URI in header and DTO in body if successful
+        Map.Entry<URI, BlogEntryResponseDto> blogEntryResponseDtoEntry =
+                blogEntryService.saveEntry(blogEntryRequestDto, ucb);
+        return ResponseEntity.status(201)
+                .location(blogEntryResponseDtoEntry.getKey()).body(blogEntryResponseDtoEntry.getValue());
     }
 
     @PutMapping("/posts/{id}")
@@ -68,9 +74,8 @@ public class BlogEntryController {
         // validates and updates BlogEntry from input DTO,
         // returns 400 BAD_REQUEST on validation errors - includes errors in body
         // 404 NOT_FOUND if authenticated user is not Author,
-        // or 204 NO_CONTENT if successful and redirect to GET endpoint using known id
-        blogEntryService.updateEntryById(id, blogEntryRequestDto);
-        return ResponseEntity.noContent().build();
+        // or 200 OK and DTO in body if successful
+        return ResponseEntity.ok(blogEntryService.updateEntryById(id, blogEntryRequestDto));
     }
 
     @DeleteMapping("/posts/{id}")
