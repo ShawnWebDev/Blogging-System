@@ -66,8 +66,14 @@ public class Comment {
     public int getAuthorId() {
         return authorId;
     }
+    public void setAuthorId(Integer authorId) {
+        this.authorId = authorId;
+    }
     public int getBlogEntryId() {
         return blogEntryId;
+    }
+    public void setBlogEntryId(Integer blogEntryId) {
+        this.blogEntryId = blogEntryId;
     }
     public BlogEntry getBlogEntry() {
         return blogEntry;
