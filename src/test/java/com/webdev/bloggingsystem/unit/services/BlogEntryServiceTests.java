@@ -1,7 +1,6 @@
 package com.webdev.bloggingsystem.unit.services;
 
-import com.webdev.bloggingsystem.dto.BlogEntryResponseDto;
-import com.webdev.bloggingsystem.dto.UserProfile;
+import com.webdev.bloggingsystem.dto.*;
 import com.webdev.bloggingsystem.entities.AppUser;
 import com.webdev.bloggingsystem.entities.BlogEntry;
 import com.webdev.bloggingsystem.entities.Category;
@@ -16,17 +15,23 @@ import jakarta.persistence.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 // TODO : UNIT TEST ALL PATHS IN METHODS OF SERVICE LAYERS OF ALL ENTITIES!
@@ -45,26 +50,29 @@ public class BlogEntryServiceTests {
     AuthService authService;
     @Mock
     Tuple mockedTuple;
+    @Mock
+    UriComponentsBuilder mockedUcb;
 
     @InjectMocks
     BlogEntryServiceImpl blogEntryService;
 
     private static BlogEntry publicEntry;
     private static BlogEntry privateEntry;
-
     private static AppUser testAuthor;
+    private static Set<Category> categories = new HashSet<>();
+    private static Category category1;
+    private static Category category2;
 
 
     @BeforeAll
     static void setUp() {
-        Set<Category> categories = new HashSet<>();
-        Category category1 = new Category(
+        category1 = new Category(
                 "Test Category 1",
                 "Testing mock for category 1."
         );
         category1.setId(1);
         categories.add(category1);
-        Category category2 = new Category(
+        category2 = new Category(
                 "Test Category 2",
                 "Testing mock for category 2."
         );
@@ -84,7 +92,7 @@ public class BlogEntryServiceTests {
                 "Test Entry",
                 "Test Content",
                 true,
-                categories
+                new HashSet<>(Set.of(category1))
         );
         publicEntry.setId(1);
         publicEntry.setAuthorId(1);
@@ -96,21 +104,22 @@ public class BlogEntryServiceTests {
                 false,
                 categories
         );
-        privateEntry.setId(1);
+        privateEntry.setId(2);
         privateEntry.setAuthorId(1);
     }
 
     @Test
     void testGetBlogEntryById_publicByAuthor() {
         String principalName = "Test Author";
+        int entryId = publicEntry.getId();
         UserProfile userProfile = new UserProfile(principalName, false);
-        when(blogEntryRepo.findBlogEntryById(1)).thenReturn(Optional.of(publicEntry));
+        when(blogEntryRepo.findBlogEntryById(entryId)).thenReturn(Optional.of(publicEntry));
         when(appUserRepo.findUsernameById(1)).thenReturn(Optional.of(testAuthor.getUsername()));
         when(authService.getUserProfile()).thenReturn(userProfile);
         when(commentRepo.countCommentsByBlogEntryId(1)).thenReturn(mockedTuple);
         when(mockedTuple.get("commentCount", Long.class)).thenReturn(0L);
 
-        BlogEntryResponseDto blogEntryResponseDto = blogEntryService.getBlogEntryById(1);
+        BlogEntryResponseDto blogEntryResponseDto = blogEntryService.getBlogEntryById(entryId);
 
         BlogEntryResponseDto expectedBlogEntryResponse = new BlogEntryResponseDto(
                 1,
@@ -119,7 +128,7 @@ public class BlogEntryServiceTests {
                 "Test Content",
                 null,
                 null,
-                List.of("Test Category 1", "Test Category 2"),
+                List.of("Test Category 1"),
                 0,
                 true
         );
@@ -130,14 +139,15 @@ public class BlogEntryServiceTests {
     @Test
     void testGetBlogEntryById_publicByNonAuthor() {
         String principalName = "Test Non-Author";
+        int entryId = publicEntry.getId();
         UserProfile userProfile = new UserProfile(principalName, false);
-        when(blogEntryRepo.findBlogEntryById(1)).thenReturn(Optional.of(publicEntry));
+        when(blogEntryRepo.findBlogEntryById(entryId)).thenReturn(Optional.of(publicEntry));
         when(appUserRepo.findUsernameById(1)).thenReturn(Optional.of(testAuthor.getUsername()));
         when(authService.getUserProfile()).thenReturn(userProfile);
-        when(commentRepo.countCommentsByBlogEntryId(1)).thenReturn(mockedTuple);
+        when(commentRepo.countCommentsByBlogEntryId(entryId)).thenReturn(mockedTuple);
         when(mockedTuple.get("commentCount", Long.class)).thenReturn(0L);
 
-        BlogEntryResponseDto blogEntryResponseDto = blogEntryService.getBlogEntryById(1);
+        BlogEntryResponseDto blogEntryResponseDto = blogEntryService.getBlogEntryById(entryId);
 
         BlogEntryResponseDto expectedBlogEntryResponse = new BlogEntryResponseDto(
                 1,
@@ -146,7 +156,7 @@ public class BlogEntryServiceTests {
                 "Test Content",
                 null,
                 null,
-                List.of("Test Category 1", "Test Category 2"),
+                List.of("Test Category 1"),
                 0,
                 true
         );
@@ -157,17 +167,18 @@ public class BlogEntryServiceTests {
     @Test
     void testGetBlogEntryById_privateByAuthor() {
         String principalName = "Test Author";
+        int entryId = privateEntry.getId();
         UserProfile userProfile = new UserProfile(principalName, false);
-        when(blogEntryRepo.findBlogEntryById(1)).thenReturn(Optional.of(privateEntry));
+        when(blogEntryRepo.findBlogEntryById(entryId)).thenReturn(Optional.of(privateEntry));
         when(appUserRepo.findUsernameById(1)).thenReturn(Optional.of(testAuthor.getUsername()));
         when(authService.getUserProfile()).thenReturn(userProfile);
-        when(commentRepo.countCommentsByBlogEntryId(1)).thenReturn(mockedTuple);
+        when(commentRepo.countCommentsByBlogEntryId(entryId)).thenReturn(mockedTuple);
         when(mockedTuple.get("commentCount", Long.class)).thenReturn(0L);
 
-        BlogEntryResponseDto blogEntryResponseDto = blogEntryService.getBlogEntryById(1);
+        BlogEntryResponseDto blogEntryResponseDto = blogEntryService.getBlogEntryById(entryId);
 
         BlogEntryResponseDto expectedBlogEntryResponse = new BlogEntryResponseDto(
-                1,
+                2,
                 "Test Author",
                 "Test Entry",
                 "Test Content",
@@ -184,17 +195,84 @@ public class BlogEntryServiceTests {
     @Test
     void testGetBlogEntryById_privateByNonAuthor() {
         String principalName = "Test Non-Author";
+        int entryId = privateEntry.getId();
         UserProfile userProfile = new UserProfile(principalName, false);
-        when(blogEntryRepo.findBlogEntryById(1)).thenReturn(Optional.of(privateEntry));
+
+        when(blogEntryRepo.findBlogEntryById(entryId)).thenReturn(Optional.of(privateEntry));
         when(appUserRepo.findUsernameById(1)).thenReturn(Optional.of(testAuthor.getUsername()));
         when(authService.getUserProfile()).thenReturn(userProfile);
 
         Exception ex = assertThrows(ResourceNotFoundException.class, () ->
-                blogEntryService.getBlogEntryById(1));
+                blogEntryService.getBlogEntryById(entryId));
 
-        assertEquals("Entry not found with id 1", ex.getMessage());
+        assertEquals("Entry not found with id " + entryId, ex.getMessage());
     }
 
-    //todo: continue unit tests for the rest of the methods starting at getAllBlogEntries()
+    @Test
+    void testGetAllBlogEntriesPageable() { // tested more in depth in ../integration/BlogEntryControllerTest
+        BlogEntry entry1 = new BlogEntry(); entry1.setId(10); entry1.setAuthorId(1);
+        BlogEntry entry2 = new BlogEntry(); entry2.setId(20); entry2.setAuthorId(2);
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<BlogEntry> dummyPage = new PageImpl<>(List.of(entry1, entry2), pageable, 2);
+        when(blogEntryRepo.findAll(any(Specification.class), any(Pageable.class))).thenReturn(dummyPage);
+
+        PaginatedBlogEntriesResponseDto pageDto = blogEntryService.getAllBlogEntries(
+                pageable,
+                new BlogEntryFilterRequest(null, null, null)
+        );
+
+        System.out.println(pageDto);
+        assertEquals(2, pageDto.entries().size());
+    }
+
+    @Test
+    void testUpdateEntryWithNewCategory() {
+        UserProfile userProfile = new UserProfile(testAuthor.getUsername(), false);
+        when(blogEntryRepo.findBlogEntryById(1)).thenReturn(Optional.of(publicEntry));
+        when(appUserRepo.findUsernameById(1)).thenReturn(Optional.of(testAuthor.getUsername()));
+        when(authService.getUserProfile()).thenReturn(userProfile);
+        when(categoryRepo.findByCategoryNameIn(List.of("Test Category 1", "Test Category 2"))).thenReturn(categories);
+        BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
+                null,
+                null,
+                List.of("Test Category 1", "Test Category 2"),
+                null
+        );
+
+        when(blogEntryRepo.save(any())).thenReturn(publicEntry);
+
+        BlogEntryResponseDto result = blogEntryService.updateEntryById(1, blogEntryRequestDto);
+        ArgumentCaptor<BlogEntry> captor = ArgumentCaptor.forClass(BlogEntry.class);
+        verify(blogEntryRepo).save(captor.capture());
+
+        BlogEntry savedEntry = captor.getValue();
+        assertEquals(2, savedEntry.getCategories().size());
+        assertEquals(List.of("Test Category 1", "Test Category 2"), result.categories());
+    }
+
+    @Test
+    void testUpdateEntryRemoveCategory() {
+        UserProfile userProfile = new UserProfile(testAuthor.getUsername(), false);
+        when(blogEntryRepo.findBlogEntryById(2)).thenReturn(Optional.of(privateEntry));
+        when(appUserRepo.findUsernameById(1)).thenReturn(Optional.of(testAuthor.getUsername()));
+        when(authService.getUserProfile()).thenReturn(userProfile);
+        when(categoryRepo.findByCategoryNameIn(List.of("Test Category 1"))).thenReturn(Set.of(category1));
+        BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
+                null,
+                null,
+                List.of("Test Category 1"),
+                null
+        );
+        when(blogEntryRepo.save(any())).thenReturn(privateEntry);
+
+        BlogEntryResponseDto result = blogEntryService.updateEntryById(2, blogEntryRequestDto);
+        ArgumentCaptor<BlogEntry> captor = ArgumentCaptor.forClass(BlogEntry.class);
+        verify(blogEntryRepo).save(captor.capture());
+
+        BlogEntry savedEntry = captor.getValue();
+        assertEquals(1, savedEntry.getCategories().size());
+        assertEquals(List.of("Test Category 1"), result.categories());
+    }
 
 }
