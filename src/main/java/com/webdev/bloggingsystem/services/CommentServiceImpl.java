@@ -10,6 +10,7 @@ import com.webdev.bloggingsystem.repositories.AppUserRepo;
 import com.webdev.bloggingsystem.repositories.BlogEntryRepo;
 import com.webdev.bloggingsystem.repositories.CommentRepo;
 
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -84,14 +85,16 @@ public class CommentServiceImpl implements CommentService {
         return mapRequestToDto(comment, authorName, replyCount);
     }
 
+    @Transactional
     @Override
     public Map.Entry<URI, CommentResponseDto> saveComment(String commentText, int postId, Integer parentId, UriComponentsBuilder ucb) {
+        BlogEntry blogEntry = blogEntryRepo.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + postId));
+
         UserProfile userProfile = authService.getUserProfile();
         int authorId = appUserRepo.findIdByUsername(userProfile.username())
                 .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
         AppUser authorRef = appUserRepo.getReferenceById(authorId);
-        BlogEntry blogEntry = blogEntryRepo.findById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + postId));
 
         if (!blogEntry.isPublic()) {
             throw new ResourceNotFoundException("Entry not found with id " + postId);
@@ -102,38 +105,42 @@ public class CommentServiceImpl implements CommentService {
             parentComment = commentRepo.findById(parentId)
                     .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found with id " + parentId));
         }
-        Comment savedComment = commentRepo.save(mapRequestToEntity(commentText, authorRef, blogEntry, parentComment));
+        Comment commentToSave = mapRequestToEntity(commentText, authorRef, blogEntry, parentComment);
+        Comment savedComment = commentRepo.save(commentToSave);
         URI uri = ucb.path("api/comments/comment/{commentId}").buildAndExpand(savedComment.getId()).toUri();
 
         return Map.entry(uri, mapRequestToDto(savedComment, userProfile.username(), 0));
     }
 
+    @Transactional
     @Override
     public CommentResponseDto updateComment(String newCommentText, int commentId) {
-        UserProfile userProfile = authService.getUserProfile();
-        int userId = appUserRepo.findIdByUsername(userProfile.username())
-                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
-
         Comment commentToUpdate = commentRepo.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
 
-        if (commentToUpdate.getAuthorId() != userId && !userProfile.isAdmin()) {
+        UserProfile userProfile = authService.getUserProfile();
+        String authorUsername = appUserRepo.findUsernameById(commentToUpdate.getAuthorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
+
+        if (!userProfile.username().equals(authorUsername)) {
             throw new ResourceNotFoundException("Comment not found with id " + commentId);
         }
         Integer amount = commentRepo.countRepliesByParentCommentId(commentId);
         int replyCount = amount != null ? amount : 0;
         commentToUpdate.setComment(newCommentText);
         commentRepo.save(commentToUpdate);
-        return mapRequestToDto(commentToUpdate, userProfile.username(), replyCount);
+        return mapRequestToDto(commentToUpdate, authorUsername, replyCount);
     }
 
+    @Transactional
     @Override
     public void deleteComment(int commentId) {
+        Comment commentToDelete = commentRepo.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
+
         UserProfile userProfile = authService.getUserProfile();
         int principalId = appUserRepo.findIdByUsername(userProfile.username())
                 .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
-        Comment commentToDelete = commentRepo.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId));
         int blogAuthorId = blogEntryRepo.findAuthorIdByPostId(commentToDelete.getBlogEntryId())
                 .orElse(0);
 
