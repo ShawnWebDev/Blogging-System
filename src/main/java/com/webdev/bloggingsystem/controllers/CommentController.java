@@ -2,13 +2,10 @@ package com.webdev.bloggingsystem.controllers;
 
 import com.webdev.bloggingsystem.dto.CommentRequestDto;
 import com.webdev.bloggingsystem.dto.CommentResponseDto;
-import com.webdev.bloggingsystem.exceptions.MaxBytes;
 import com.webdev.bloggingsystem.services.CommentService;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -46,7 +43,7 @@ public class CommentController {
     @GetMapping("/comments/me")
     public ResponseEntity<List<CommentResponseDto>> getAllCommentsForUser()
     {
-        return ResponseEntity.ok(commentService.getAllCommentsByUsername());
+        return ResponseEntity.ok(commentService.getAllUsersComments());
     }
 
     @PostMapping("/posts/{blogEntryId}/comments")
