@@ -24,7 +24,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
 
@@ -34,8 +33,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-// TODO : UNIT TEST ALL PATHS IN METHODS OF SERVICE LAYERS OF ALL ENTITIES!
 
+// todo: refactor and finish
 @ExtendWith(MockitoExtension.class)
 public class BlogEntryServiceTests {
     @Mock
@@ -50,8 +49,6 @@ public class BlogEntryServiceTests {
     AuthService authService;
     @Mock
     Tuple mockedTuple;
-    @Mock
-    UriComponentsBuilder mockedUcb;
 
     @InjectMocks
     BlogEntryServiceImpl blogEntryService;
@@ -88,7 +85,7 @@ public class BlogEntryServiceTests {
         testAuthor.setIsActive(true);
 
         publicEntry = new BlogEntry(
-                testAuthor,
+                1,
                 "Test Entry",
                 "Test Content",
                 true,
@@ -98,7 +95,7 @@ public class BlogEntryServiceTests {
         publicEntry.setAuthorId(1);
 
         privateEntry = new BlogEntry(
-                testAuthor,
+                1,
                 "Test Entry",
                 "Test Content",
                 false,
@@ -274,5 +271,8 @@ public class BlogEntryServiceTests {
         assertEquals(1, savedEntry.getCategories().size());
         assertEquals(List.of("Test Category 1"), result.categories());
     }
+
+    // todo: finish unit testing this class (Save, Update, Delete)
+    // further tested in integration tests
 
 }

@@ -4,13 +4,12 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.BatchSize;
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "blog_entries")
 @NamedEntityGraph(
-        name = "blog-entry-partial",
+        name = "blog-entry-categories",
         attributeNodes = {
                 @NamedAttributeNode("categories")
         }
@@ -18,6 +17,7 @@ import java.util.Set;
 public class BlogEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, insertable = false, updatable = false)
     private Integer id;
 
     @Column(nullable = false)
@@ -35,12 +35,8 @@ public class BlogEntry {
     @Column(name = "date_updated",  nullable = false, insertable = false, updatable = false)
     private Instant updatedAt;
 
-    @Column(name = "author_id", nullable = false, insertable = false, updatable = false)
+    @Column(name = "author_id", nullable = false)
     private Integer authorId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    private AppUser author;
 
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinTable(name = "posts_categories",
@@ -51,8 +47,8 @@ public class BlogEntry {
 
     public BlogEntry() {}
 
-    public BlogEntry(AppUser author, String title, String content, boolean isPublic, Set<Category> categories) {
-        this.author = author;
+    public BlogEntry(Integer authorId, String title, String content, boolean isPublic, Set<Category> categories) {
+        this.authorId = authorId;
         this.title = title;
         this.content = content;
         this.isPublic = isPublic;

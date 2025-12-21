@@ -4,8 +4,6 @@ package com.webdev.bloggingsystem.services;
 import com.webdev.bloggingsystem.dto.*;
 import com.webdev.bloggingsystem.entities.BlogEntry;
 import com.webdev.bloggingsystem.entities.Category;
-import com.webdev.bloggingsystem.entities.AppUser;
-import com.webdev.bloggingsystem.entities.Comment;
 import com.webdev.bloggingsystem.exceptions.ResourceNotFoundException;
 import com.webdev.bloggingsystem.repositories.AppUserRepo;
 import com.webdev.bloggingsystem.repositories.BlogEntryRepo;
@@ -109,7 +107,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         );
         Page<BlogEntry> blogEntries = blogEntryRepo.findAll(spec, pageRequest);
 
-        // signal to Hibernate to fetch categories separately in a batch to avoid fetching duplicate BlogEntries for each category
+        // signal to Hibernate to fetch categories separately in a batch, avoiding fetching duplicate BlogEntries for each category
         blogEntries.getContent().forEach(BlogEntry::getCategories);
 
         // map BlogEntry ids to total comment counts
@@ -141,9 +139,6 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         UserProfile userProfile = authService.getUserProfile();
         int authorId = this.getAuthorIdByUserProfile(userProfile);
 
-        logger.debug("saveEntry: getting author {}", userProfile.username());
-        AppUser authorRef = appUserRepo.getReferenceById(authorId);
-
         logger.debug("saveEntry: getting categories");
         Set<Category> categories = categoryRepo.findByCategoryNameIn(blogEntryRequestDto.categories());
         validateCategories(blogEntryRequestDto, categories);
@@ -152,7 +147,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         // fields other than categories and author are validated with jakarta.validation in DTO
         BlogEntry savedEntry = blogEntryRepo.save(
                 new BlogEntry(
-                        authorRef,
+                        authorId,
                         blogEntryRequestDto.title(),
                         blogEntryRequestDto.content(),
                         blogEntryRequestDto.isPublic(),
@@ -361,5 +356,4 @@ public class BlogEntryServiceImpl implements BlogEntryService {
             throw new ResourceNotFoundException("Categories not found: "  + dtoCategories);
         }
     }
-
 }

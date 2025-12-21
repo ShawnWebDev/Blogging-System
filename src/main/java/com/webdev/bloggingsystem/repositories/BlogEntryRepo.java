@@ -13,7 +13,7 @@ import org.springframework.lang.Nullable;
 import java.util.Optional;
 
 public interface BlogEntryRepo extends JpaRepository<BlogEntry, Integer>, JpaSpecificationExecutor<BlogEntry> {
-    @EntityGraph(value = "blog-entry-partial")
+    @EntityGraph(value = "blog-entry-categories")
     Optional<BlogEntry> findBlogEntryById(@Param("id") int id);
 
     @Query("SELECT b.authorId FROM BlogEntry b WHERE b.id = :blogEntryId")
