@@ -51,7 +51,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentResponseDto> getAllCommentsByUsername() {
+    public List<CommentResponseDto> getAllUsersComments() {
         // security chain prevents unauthorized user from accessing the calling endpoint
         UserProfile userProfile = authService.getUserProfile();
         int authorId = appUserRepo.findIdByUsername(userProfile.username())
@@ -94,19 +94,17 @@ public class CommentServiceImpl implements CommentService {
         UserProfile userProfile = authService.getUserProfile();
         int authorId = appUserRepo.findIdByUsername(userProfile.username())
                 .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
-        AppUser authorRef = appUserRepo.getReferenceById(authorId);
 
         if (!blogEntry.isPublic()) {
             throw new ResourceNotFoundException("Entry not found with id " + postId);
         }
 
-        Comment parentComment = null;
-        if (parentId != null) {
-            parentComment = commentRepo.findById(parentId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found with id " + parentId));
+        //Comment parentComment = null;
+        if (parentId != null && !commentRepo.existsById(parentId)) {
+            throw new ResourceNotFoundException("Parent comment not found with id " + parentId);
         }
-        Comment commentToSave = mapRequestToEntity(commentText, authorRef, blogEntry, parentComment);
-        Comment savedComment = commentRepo.save(commentToSave);
+        //Comment commentToSave = ;
+        Comment savedComment = commentRepo.save(mapRequestToEntity(commentText, authorId, postId, parentId));
         URI uri = ucb.path("api/comments/comment/{commentId}").buildAndExpand(savedComment.getId()).toUri();
 
         return Map.entry(uri, mapRequestToDto(savedComment, userProfile.username(), 0));
@@ -165,10 +163,10 @@ public class CommentServiceImpl implements CommentService {
         throw new ResourceNotFoundException("Comment not found with id " + commentId);
     }
 
-    private static Comment mapRequestToEntity(String commentText, AppUser author, BlogEntry blogEntry, Comment parentComment) {
-        Comment comment = new Comment(commentText, author, blogEntry);
-        if (parentComment != null) {
-            comment.setParentComment(parentComment);
+    private static Comment mapRequestToEntity(String commentText, int authorId, int blogEntryId, Integer parentCommentId) {
+        Comment comment = new Comment(commentText, authorId, blogEntryId);
+        if (parentCommentId != null) {
+            comment.setParentCommentId(parentCommentId);
         }
         return comment;
     }
@@ -176,8 +174,8 @@ public class CommentServiceImpl implements CommentService {
     private static CommentResponseDto mapRequestToDto(Comment comment, String authorName, int amount) {
         return new CommentResponseDto(
                 comment.getId(),
-                comment.getBlogEntry().getId(),
-                comment.getParentComment() != null ? comment.getParentComment().getId() : null,
+                comment.getBlogEntryId(),
+                comment.getParentCommentId(),
                 comment.getComment(),
                 comment.getCreatedAt(),
                 comment.getUpdatedAt(),

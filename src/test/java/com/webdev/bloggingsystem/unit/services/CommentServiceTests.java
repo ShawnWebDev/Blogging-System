@@ -71,7 +71,7 @@ public class CommentServiceTests {
         appUser.setId(1);
 
         blogEntry = new BlogEntry(
-                appUser,
+                1,
                 "Title",
                 "Content",
                 true,
@@ -81,7 +81,7 @@ public class CommentServiceTests {
         blogEntry.setAuthorId(1);
 
         privateBlogEntry = new BlogEntry(
-                appUser,
+                1,
                 "Private Title",
                 "Private Content",
                 false,
@@ -93,16 +93,16 @@ public class CommentServiceTests {
         testComments = new ArrayList<>();
         testComment1 = new Comment(
                 "Test comment one..",
-                appUser,
-                blogEntry
+                1,
+                1
         );
         testComment1.setId(1);
         testComment1.setAuthorId(1);
 
         testComment2 = new Comment(
                 "Test comment two..",
-                appUser,
-                blogEntry
+                1,
+                1
         );
         testComment2.setId(2);
         testComment2.setAuthorId(1);
@@ -110,8 +110,8 @@ public class CommentServiceTests {
 
         testComment3 = new Comment(
                 "Test comment three..",
-                appUser,
-                blogEntry
+                1,
+                1
         );
         testComment3.setId(3);
         testComment3.setAuthorId(1);
@@ -122,8 +122,8 @@ public class CommentServiceTests {
 
         testComment4 = new Comment(
                 "Test comment four..",
-                appUser,
-                blogEntry
+                1,
+                1
         );
         testComment4.setId(4);
         testComment4.setAuthorId(1);
@@ -206,14 +206,14 @@ public class CommentServiceTests {
     }
 
     @Test
-    public void testGetAllCommentsByUsername_NotFound() {
+    public void testGetAllUsersComments_NotFound() {
         when(authService.getUserProfile()).thenReturn(
                 new UserProfile("Non Poster", false)
         );
         when(appUserRepo.findIdByUsername(anyString())).thenReturn(Optional.of(1));
         when(commentRepo.findAllByAuthorId(1)).thenReturn(List.of());
 
-        List<CommentResponseDto> result = commentService.getAllCommentsByUsername();
+        List<CommentResponseDto> result = commentService.getAllUsersComments();
         System.out.println(result);
         assertEquals(List.of(), result);
 
@@ -227,7 +227,7 @@ public class CommentServiceTests {
     }
 
     @Test
-    public void testGetAllCommentsByUsername_Found() {
+    public void testGetAllUsersComments_Found() {
         when(authService.getUserProfile()).thenReturn(
                 new UserProfile("Test User", false)
         );
@@ -237,7 +237,7 @@ public class CommentServiceTests {
         when(mockedTuple.get("userId", Integer.class)).thenReturn(1);
         when(mockedTuple.get("username", String.class)).thenReturn("Test User");
 
-        List<CommentResponseDto> result = commentService.getAllCommentsByUsername();
+        List<CommentResponseDto> result = commentService.getAllUsersComments();
         System.out.println(result);
         assertEquals(List.of(expectedResponse1,expectedResponse2, expectedResponse3), result);
 
@@ -321,7 +321,6 @@ public class CommentServiceTests {
                 new UserProfile("Test User", false)
         );
         when(appUserRepo.findIdByUsername(anyString())).thenReturn(Optional.of(1));
-        when(appUserRepo.getReferenceById(anyInt())).thenReturn(appUser);
         when(blogEntryRepo.findById(anyInt())).thenReturn(Optional.of(blogEntry));
         when(commentRepo.save(any(Comment.class))).thenReturn(testComment1);
         when(mockUcb.path(anyString())).thenReturn(UriComponentsBuilder.fromPath("api/comments/comment/1"));
@@ -355,7 +354,6 @@ public class CommentServiceTests {
         when(blogEntryRepo.findById(anyInt())).thenReturn(Optional.of(privateBlogEntry));
         when(authService.getUserProfile()).thenReturn(new UserProfile("Test User", false));
         when(appUserRepo.findIdByUsername(anyString())).thenReturn(Optional.of(1));
-        when(appUserRepo.getReferenceById(anyInt())).thenReturn(appUser);
         Exception ex = assertThrows(ResourceNotFoundException.class, () ->
                 commentService.saveComment("To Private entry", 2, null, mockUcb));
         assertEquals("Entry not found with id " + 2, ex.getMessage());

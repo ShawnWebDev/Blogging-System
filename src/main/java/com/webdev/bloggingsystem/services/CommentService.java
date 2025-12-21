@@ -10,7 +10,7 @@ import java.util.Map;
 public interface CommentService {
     List<CommentResponseDto> getAllRepliesByParentId(int parentId);
     CommentResponseDto getCommentById(int commentId);
-    List<CommentResponseDto> getAllCommentsByUsername();
+    List<CommentResponseDto> getAllUsersComments();
     List<CommentResponseDto> getAllTopLevelCommentsByBlogEntryId(int blogEntryId);
     Map.Entry<URI, CommentResponseDto> saveComment(String commentText, int postId, Integer parentId, UriComponentsBuilder ucb);
     CommentResponseDto updateComment(String newCommentText, int commentId);

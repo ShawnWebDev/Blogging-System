@@ -16,18 +16,18 @@ public interface CommentRepo extends CrudRepository<Comment, Integer> {
 
     Integer countRepliesByParentCommentId(Integer parentCommentId);
 
-    @Query("SELECT c FROM Comment c WHERE c.blogEntryId = :blogEntryId AND c.parentComment IS NULL")
+    @Query("SELECT c FROM Comment c WHERE c.blogEntryId = :blogEntryId AND c.parentCommentId IS NULL")
     List<Comment> fetchTopLevelCommentsByBlogEntryId(@Param("blogEntryId") Integer blogEntryId);
 
-    @Query("SELECT c.parentComment.id AS parentId, count(c) AS replyCount " +
-            "FROM Comment c WHERE c.parentComment.id IN :parentIds GROUP BY c.parentComment.id")
+    @Query("SELECT c.parentCommentId AS parentId, count(c) AS replyCount " +
+            "FROM Comment c WHERE c.parentCommentId IN :parentIds GROUP BY c.parentCommentId")
     List<Tuple> countRepliesByParentCommentIds(@Param("parentIds") List<Integer> parentIds);
 
-    @Query("SELECT c.blogEntry.id AS blogId, count(c) AS commentCount " +
-            "FROM Comment c WHERE c.blogEntry.id IN :entryIds GROUP BY c.blogEntry.id")
+    @Query("SELECT c.blogEntryId AS blogId, count(c) AS commentCount " +
+            "FROM Comment c WHERE c.blogEntryId IN :entryIds GROUP BY c.blogEntryId")
     List<Tuple> countCommentsInBlogEntryIds(@Param("entryIds") List<Integer> entryIds);
 
-    @Query("SELECT c.blogEntry.id AS blogId, count(c) AS commentCount " +
-            "FROM Comment c WHERE c.blogEntry.id = :entryId GROUP BY c.blogEntry.id")
+    @Query("SELECT c.blogEntryId AS blogId, count(c) AS commentCount " +
+            "FROM Comment c WHERE c.blogEntryId = :entryId GROUP BY c.blogEntryId")
     Tuple countCommentsByBlogEntryId(@Param("entryId") Integer entryId);
 }

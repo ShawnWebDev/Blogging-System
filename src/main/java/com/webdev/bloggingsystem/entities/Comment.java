@@ -20,29 +20,22 @@ public class Comment {
     @Column(name = "date_updated", nullable = false, insertable = false, updatable = false)
     private Instant updatedAt;
 
-    @Column(name = "author_id", nullable = false, insertable = false, updatable = false)
+    @Column(name = "author_id", nullable = false)
     private Integer authorId;
 
-    @Column(name = "post_id", nullable = false, insertable = false, updatable = false)
+    @Column(name = "post_id", nullable = false)
     private Integer blogEntryId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    private AppUser author;
+    @Column(name = "parent_comment_id")
+    private Integer parentCommentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private BlogEntry blogEntry;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_comment_id")
-    private Comment parentComment;
 
     public Comment() {}
-    public Comment(String comment, AppUser author, BlogEntry blogEntry) {
+    // todo : remove whole entity references and use id references (FK) instead
+    public Comment(String comment, Integer authorId, Integer blogEntryId) {
         this.comment = comment;
-        this.author = author;
-        this.blogEntry = blogEntry;
+        this.authorId = authorId;
+        this.blogEntryId = blogEntryId;
     }
 
     public Integer getId() {
@@ -75,14 +68,11 @@ public class Comment {
     public void setBlogEntryId(Integer blogEntryId) {
         this.blogEntryId = blogEntryId;
     }
-    public BlogEntry getBlogEntry() {
-        return blogEntry;
+    public Integer getParentCommentId() {
+        return parentCommentId;
     }
-    public Comment getParentComment() {
-        return parentComment;
-    }
-    public void setParentComment(Comment parentComment) {
-        this.parentComment = parentComment;
+    public void setParentCommentId(Integer parentCommentId) {
+        this.parentCommentId = parentCommentId;
     }
 
     @Override
