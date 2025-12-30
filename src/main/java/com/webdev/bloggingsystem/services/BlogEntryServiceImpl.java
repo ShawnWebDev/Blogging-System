@@ -55,11 +55,8 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     public BlogEntryResponseDto getBlogEntryById(int id)
     {
         logger.debug("getBlogEntryById: findBlogEntryById");
-        BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
-
-        String authorUsername = appUserRepo.findUsernameById(entry.getAuthorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
+        BlogEntry entry = this.getBlogEntryByIdOrThrowNotFound(id);
+        String authorUsername = this.getUsernameByIdOrThrowNotFound(entry.getAuthorId());
 
         UserProfile userProfile = authService.getUserProfile();
         // allow author to view their own private entries if authenticated
@@ -166,10 +163,8 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     public BlogEntryResponseDto updateEntryById(int id, BlogEntryRequestDto blogEntryRequestDto)
     {
         logger.debug("updateEntryById: getting entry by id {}", id);
-        BlogEntry entry = blogEntryRepo.findBlogEntryById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
-        String authorName = appUserRepo.findUsernameById(entry.getAuthorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
+        BlogEntry entry = this.getBlogEntryByIdOrThrowNotFound(id);
+        String authorName = this.getUsernameByIdOrThrowNotFound(entry.getAuthorId());
         logger.debug("found entry: {} with author of {}", entry, authorName);
 
         logger.debug("getting user profile");
@@ -218,13 +213,10 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     @Override
     public void deleteEntryById(int id)
     {
-        BlogEntry entryToDelete = blogEntryRepo.findBlogEntryById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
+        BlogEntry entryToDelete = this.getBlogEntryByIdOrThrowNotFound(id);
+        String authorUsername = this.getUsernameByIdOrThrowNotFound(entryToDelete.getAuthorId());
 
-        String authorUsername = appUserRepo.findUsernameById(entryToDelete.getAuthorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
         logger.debug("deleteEntryById: ensuring entry by id {} is owned by author name {}", id, authorUsername);
-
         // ensures authorized user is Author of BlogEntry to be deleted
         UserProfile userProfile = authService.getUserProfile();
         if (userProfile.username().equals(authorUsername) || userProfile.isAdmin()) {
@@ -235,6 +227,15 @@ public class BlogEntryServiceImpl implements BlogEntryService {
         }
     }
 
+    private BlogEntry getBlogEntryByIdOrThrowNotFound(int id) {
+        return blogEntryRepo.findBlogEntryById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Entry not found with id " + id));
+    }
+
+    private String getUsernameByIdOrThrowNotFound(int id) {
+        return appUserRepo.findUsernameById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Username not found"));
+    }
 
     private int getAuthorIdByUserProfile(UserProfile userProfile)
     {

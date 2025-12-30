@@ -45,6 +45,8 @@ public class CommentControllerTest {
         return response.getBody();
     }
 
+    // todo: test update by non author
+
     @BeforeAll
     public void beforeAll() {
         this.testUserToken = this.getToken("TestUser");

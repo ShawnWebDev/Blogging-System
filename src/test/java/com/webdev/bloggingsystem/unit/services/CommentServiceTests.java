@@ -239,7 +239,7 @@ public class CommentServiceTests {
 
         List<CommentResponseDto> result = commentService.getAllUsersComments();
         System.out.println(result);
-        assertEquals(List.of(expectedResponse1,expectedResponse2, expectedResponse3), result);
+        assertEquals(List.of(expectedResponse1, expectedResponse2, expectedResponse3), result);
 
         ArgumentCaptor<String> userNameCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Integer> userIdCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -352,8 +352,6 @@ public class CommentServiceTests {
     @Test
     public void testSaveComment_toPrivateEntry() {
         when(blogEntryRepo.findById(anyInt())).thenReturn(Optional.of(privateBlogEntry));
-        when(authService.getUserProfile()).thenReturn(new UserProfile("Test User", false));
-        when(appUserRepo.findIdByUsername(anyString())).thenReturn(Optional.of(1));
         Exception ex = assertThrows(ResourceNotFoundException.class, () ->
                 commentService.saveComment("To Private entry", 2, null, mockUcb));
         assertEquals("Entry not found with id " + 2, ex.getMessage());
@@ -409,6 +407,8 @@ public class CommentServiceTests {
         verify(commentRepo).save(commentCaptor.capture());
         assertEquals(testComment2.getComment(), commentCaptor.getValue().getComment());
         assertEquals("Comment Removed By Comment Author..", commentCaptor.getValue().getComment());
+        //revert
+        testComment2.setComment("Test comment two..");
     }
 
     @Test
@@ -428,6 +428,8 @@ public class CommentServiceTests {
         verify(commentRepo).save(commentCaptor.capture());
         assertEquals(testComment2.getComment(), commentCaptor.getValue().getComment());
         assertEquals("Comment Removed By Blog Author..", commentCaptor.getValue().getComment());
+        //revert
+        testComment2.setComment("Test comment two..");
     }
 
     @Test
@@ -447,6 +449,8 @@ public class CommentServiceTests {
         verify(commentRepo).save(commentCaptor.capture());
         assertEquals(testComment2.getComment(), commentCaptor.getValue().getComment());
         assertEquals("Comment Removed By Admin..", commentCaptor.getValue().getComment());
+        //revert
+        testComment2.setComment("Test comment two..");
     }
 
     //service methods will be further tested in CommentControllerTests : integration tests

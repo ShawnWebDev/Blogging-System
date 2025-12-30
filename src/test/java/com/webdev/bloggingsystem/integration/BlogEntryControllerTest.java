@@ -644,7 +644,6 @@ public class BlogEntryControllerTest {
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Should return 401");
     }
 
-    // TODO : add and test unique title validation -- is value necessary?
     @Test
     @DisplayName("29. should return title exists")
     void doNotCreateBlogEntryWithExistingTitle() {
