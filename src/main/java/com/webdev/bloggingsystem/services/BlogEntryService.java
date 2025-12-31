@@ -13,7 +13,7 @@ import java.util.Map;
 
 public interface BlogEntryService {
     BlogEntryResponseDto getBlogEntryById(int id);
-    PaginatedBlogEntriesResponseDto getAllBlogEntries(Pageable pageable, BlogEntryFilterRequest filterRequest);
+    PaginatedBlogEntriesResponseDto getAllBlogEntries(Pageable pageable, BlogEntryFilterRequest filterRequest, boolean userOnly);
     Map.Entry<URI, BlogEntryResponseDto> saveEntry(BlogEntryRequestDto blogEntryRequestDto, UriComponentsBuilder ucb);
     BlogEntryResponseDto updateEntryById(int id, BlogEntryRequestDto blogEntryRequestDto);
     void deleteEntryById(int id);
