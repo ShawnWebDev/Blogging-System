@@ -45,8 +45,6 @@ public class CommentControllerTest {
         return response.getBody();
     }
 
-    // todo: test update by non author
-
     @BeforeAll
     public void beforeAll() {
         this.testUserToken = this.getToken("TestUser");
@@ -320,7 +318,7 @@ public class CommentControllerTest {
     }
 
     @Test
-    @DisplayName("11. exceed max input")
+    @DisplayName("12. no input")
     void testNoInput() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + this.testUserToken);
@@ -341,4 +339,21 @@ public class CommentControllerTest {
         assertEquals("{\"comment\":\"Input empty\"}", response.getBody());
     }
 
+    @Test
+    @DisplayName("13. should not update by non author")
+    void testUpdateCommentNonAuthor() {
+        String nonAuthorToken = this.getToken("TestUser2");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + nonAuthorToken);
+        CommentRequestDto updatedComment = new CommentRequestDto(
+                "Test Reply 1 to Comment 1 on Test Post 1 -- UPDATED"
+        );
+        HttpEntity<CommentRequestDto> request = new HttpEntity<>(updatedComment, headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/comments/comment/2", HttpMethod.PUT, request, String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
+        System.out.println("response: " + response);
+    }
 }

@@ -24,17 +24,19 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-// todo: refactor and finish
 @ExtendWith(MockitoExtension.class)
 public class BlogEntryServiceTests {
     @Mock
@@ -49,6 +51,8 @@ public class BlogEntryServiceTests {
     AuthService authService;
     @Mock
     Tuple mockedTuple;
+    @Mock
+    UriComponentsBuilder mockUcb;
 
     @InjectMocks
     BlogEntryServiceImpl blogEntryService;
@@ -59,6 +63,8 @@ public class BlogEntryServiceTests {
     private static Set<Category> categories = new HashSet<>();
     private static Category category1;
     private static Category category2;
+    private static BlogEntryResponseDto expectedPublicBlogEntryResponse;
+    private static BlogEntryResponseDto expectedPrivateBlogEntryResponse;
 
 
     @BeforeAll
@@ -87,7 +93,7 @@ public class BlogEntryServiceTests {
         publicEntry = new BlogEntry(
                 1,
                 "Test Entry",
-                "Test Content",
+                "Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars.",
                 true,
                 new HashSet<>(Set.of(category1))
         );
@@ -103,6 +109,30 @@ public class BlogEntryServiceTests {
         );
         privateEntry.setId(2);
         privateEntry.setAuthorId(1);
+
+        expectedPublicBlogEntryResponse = new BlogEntryResponseDto(
+                1,
+                "Test Author",
+                "Test Entry",
+                "Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars.",
+                null,
+                null,
+                List.of("Test Category 1"),
+                0,
+                true
+        );
+
+        expectedPrivateBlogEntryResponse = new BlogEntryResponseDto(
+                2,
+                "Test Author",
+                "Test Entry",
+                "Test Content",
+                null,
+                null,
+                List.of("Test Category 1", "Test Category 2"),
+                0,
+                false
+        );
     }
 
     @Test
@@ -118,19 +148,7 @@ public class BlogEntryServiceTests {
 
         BlogEntryResponseDto blogEntryResponseDto = blogEntryService.getBlogEntryById(entryId);
 
-        BlogEntryResponseDto expectedBlogEntryResponse = new BlogEntryResponseDto(
-                1,
-                "Test Author",
-                "Test Entry",
-                "Test Content",
-                null,
-                null,
-                List.of("Test Category 1"),
-                0,
-                true
-        );
-
-        assertEquals(expectedBlogEntryResponse, blogEntryResponseDto);
+        assertEquals(expectedPublicBlogEntryResponse, blogEntryResponseDto);
     }
 
     @Test
@@ -146,19 +164,7 @@ public class BlogEntryServiceTests {
 
         BlogEntryResponseDto blogEntryResponseDto = blogEntryService.getBlogEntryById(entryId);
 
-        BlogEntryResponseDto expectedBlogEntryResponse = new BlogEntryResponseDto(
-                1,
-                "Test Author",
-                "Test Entry",
-                "Test Content",
-                null,
-                null,
-                List.of("Test Category 1"),
-                0,
-                true
-        );
-
-        assertEquals(expectedBlogEntryResponse, blogEntryResponseDto);
+        assertEquals(expectedPublicBlogEntryResponse, blogEntryResponseDto);
     }
 
     @Test
@@ -174,19 +180,7 @@ public class BlogEntryServiceTests {
 
         BlogEntryResponseDto blogEntryResponseDto = blogEntryService.getBlogEntryById(entryId);
 
-        BlogEntryResponseDto expectedBlogEntryResponse = new BlogEntryResponseDto(
-                2,
-                "Test Author",
-                "Test Entry",
-                "Test Content",
-                null,
-                null,
-                List.of("Test Category 1", "Test Category 2"),
-                0,
-                false
-        );
-
-        assertEquals(expectedBlogEntryResponse, blogEntryResponseDto);
+        assertEquals(expectedPrivateBlogEntryResponse, blogEntryResponseDto);
     }
 
     @Test
@@ -224,6 +218,41 @@ public class BlogEntryServiceTests {
     }
 
     @Test
+    void testSaveBlogEntry() {
+        BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
+                "Test Entry",
+            "Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars.",
+                List.of("Test Category 1"),
+                true
+        );
+        when(authService.getUserProfile()).thenReturn(new UserProfile("Test Author", false));
+        when(appUserRepo.findIdByUsername("Test Author")).thenReturn(Optional.of(1));
+        when(categoryRepo.findByCategoryNameIn(List.of("Test Category 1"))).thenReturn(Set.of(category1));
+        when(blogEntryRepo.save(any())).thenReturn(publicEntry);
+        when(mockUcb.path(anyString())).thenReturn(UriComponentsBuilder.fromPath("api/posts/1"));
+        Map.Entry<URI, BlogEntryResponseDto> actualBlogEntryResponse = blogEntryService.saveEntry(blogEntryRequestDto, mockUcb);
+
+        assertEquals(expectedPublicBlogEntryResponse, actualBlogEntryResponse.getValue());
+    }
+
+    @Test
+    void testSaveBlogEntryInvalidCategory() {
+        BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
+                "Test Entry",
+                "Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars,Test Content of 300 chars.",
+                List.of("Test Category 99"),
+                true
+        );
+        when(authService.getUserProfile()).thenReturn(new UserProfile("Test Author", false));
+        when(appUserRepo.findIdByUsername("Test Author")).thenReturn(Optional.of(1));
+        when(categoryRepo.findByCategoryNameIn(List.of("Test Category 99"))).thenReturn(Set.of());
+
+        Exception ex = assertThrows(ResourceNotFoundException.class, () ->
+                blogEntryService.saveEntry(blogEntryRequestDto, mockUcb));
+        assertEquals("Categories not found: [Test Category 99]", ex.getMessage());
+    }
+
+    @Test
     void testUpdateEntryWithNewCategory() {
         UserProfile userProfile = new UserProfile(testAuthor.getUsername(), false);
         when(blogEntryRepo.findBlogEntryById(1)).thenReturn(Optional.of(publicEntry));
@@ -246,6 +275,9 @@ public class BlogEntryServiceTests {
         BlogEntry savedEntry = captor.getValue();
         assertEquals(2, savedEntry.getCategories().size());
         assertEquals(List.of("Test Category 1", "Test Category 2"), result.categories());
+
+        //revert
+        publicEntry.removeCategory(category2);
     }
 
     @Test
@@ -270,9 +302,45 @@ public class BlogEntryServiceTests {
         BlogEntry savedEntry = captor.getValue();
         assertEquals(1, savedEntry.getCategories().size());
         assertEquals(List.of("Test Category 1"), result.categories());
+
+        //revert
+        privateEntry.addCategory(category2);
     }
 
-    // todo: finish unit testing this class (Save, Update, Delete)
-    // further tested in integration tests
+    @Test
+    void testDeleteEntryAsAuthor() {
+        UserProfile userProfile = new UserProfile(testAuthor.getUsername(), false);
+        when(blogEntryRepo.findBlogEntryById(1)).thenReturn(Optional.of(publicEntry));
+        when(appUserRepo.findUsernameById(1)).thenReturn(Optional.of(testAuthor.getUsername()));
+        when(authService.getUserProfile()).thenReturn(userProfile);
+        blogEntryService.deleteEntryById(1);
+        ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
+        verify(blogEntryRepo).deleteBlogEntryById(captor.capture());
+        assertEquals(1, captor.getValue());
+    }
 
+    @Test
+    void testDeleteEntryAsAdmin() {
+        UserProfile userProfile = new UserProfile("Test Admin", true);
+        when(blogEntryRepo.findBlogEntryById(1)).thenReturn(Optional.of(publicEntry));
+        when(appUserRepo.findUsernameById(1)).thenReturn(Optional.of(testAuthor.getUsername()));
+        when(authService.getUserProfile()).thenReturn(userProfile);
+        blogEntryService.deleteEntryById(1);
+        ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
+        verify(blogEntryRepo).deleteBlogEntryById(captor.capture());
+        assertEquals(1, captor.getValue());
+    }
+
+    @Test
+    void testDeleteEntryAsUnauthorized() {
+        UserProfile userProfile = new UserProfile("Fake Author", false);
+        when(blogEntryRepo.findBlogEntryById(1)).thenReturn(Optional.of(publicEntry));
+        when(appUserRepo.findUsernameById(1)).thenReturn(Optional.of(testAuthor.getUsername()));
+        when(authService.getUserProfile()).thenReturn(userProfile);
+        Exception ex = assertThrows(ResourceNotFoundException.class, () ->
+                blogEntryService.deleteEntryById(1));
+        assertEquals("Entry not found with id 1", ex.getMessage());
+    }
+
+    // further tested in integration tests
 }

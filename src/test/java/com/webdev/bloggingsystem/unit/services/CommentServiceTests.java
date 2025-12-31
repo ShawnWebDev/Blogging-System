@@ -2,7 +2,6 @@ package com.webdev.bloggingsystem.unit.services;
 
 import com.webdev.bloggingsystem.dto.CommentResponseDto;
 import com.webdev.bloggingsystem.dto.UserProfile;
-import com.webdev.bloggingsystem.entities.AppUser;
 import com.webdev.bloggingsystem.entities.BlogEntry;
 import com.webdev.bloggingsystem.entities.Comment;
 import com.webdev.bloggingsystem.exceptions.ResourceNotFoundException;
@@ -48,7 +47,6 @@ public class CommentServiceTests {
     @InjectMocks
     CommentServiceImpl commentService;
 
-    private static AppUser appUser;
     private static BlogEntry blogEntry;
     private static BlogEntry privateBlogEntry;
     private static List<Comment> testComments;
@@ -63,13 +61,6 @@ public class CommentServiceTests {
 
     @BeforeAll
     static void setUp() {
-        appUser = new AppUser(
-                "Test User",
-                "Test password",
-                "testEmail@email.com"
-        );
-        appUser.setId(1);
-
         blogEntry = new BlogEntry(
                 1,
                 "Title",

@@ -478,7 +478,7 @@ public class BlogEntryControllerTest {
         Map<String, String> errors = response.getBody();
         assertNotNull(errors);
         assertEquals("Minimum of 4 characters", errors.get("title"));
-        assertEquals("Minimum of 1000 characters", errors.get("content"));
+        assertEquals("Minimum of 300 characters", errors.get("content"));
         assertEquals("Must have between 1 and 4 categories", errors.get("categories"));
     }
 
@@ -508,7 +508,7 @@ public class BlogEntryControllerTest {
         Map<String, String> errors = response.getBody();
         assertNotNull(errors);
         assertEquals("Minimum of 4 characters", errors.get("title"));
-        assertEquals("Minimum of 1000 characters", errors.get("content"));
+        assertEquals("Minimum of 300 characters", errors.get("content"));
         assertEquals("Must have between 1 and 4 categories", errors.get("categories"));
     }
 
@@ -543,7 +543,7 @@ public class BlogEntryControllerTest {
                 .getForEntity("/api/posts?afterDate=2025-09-30T04:00:00", String.class);
         System.out.println("response: " + response);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 404 BAD REQUEST");
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
         assertEquals("Invalid Date Format - must be yyyy-mm-dd", response.getBody());
     }
 
