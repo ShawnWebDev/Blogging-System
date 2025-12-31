@@ -39,19 +39,17 @@ public class BlogEntryController {
     {
         // returns 200 OK with a page of public only BlogEntries - optionally filtered by categories, after date, and/or before date
         // default page is sorted descending by updatedAt, pageSize=10, pageNumber=0
-        System.out.println("getAllBlogEntriesForUser: filters: " + blogEntryFilter.categoryName() + " " + blogEntryFilter.afterDate() + " " + blogEntryFilter.beforeDate());
-        return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, blogEntryFilter));
+        return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, blogEntryFilter, false));
     }
 
     @GetMapping("/posts/me")
     public ResponseEntity<PaginatedBlogEntriesResponseDto> getAllBlogEntriesForUser(
             Pageable pageable, @ModelAttribute BlogEntryFilterRequest blogEntryFilter)
     {
-        // returns 200 OK with a page of the authenticated users BlogEntries where they are the Author -
+        // returns 200 OK with a page of the authenticated users BlogEntries where they are the Author - public and private
         // optionally filtered by categories, after date, and/or before date
         // default page is sorted descending by updatedAt, pageSize=10, pageNumber=0
-        System.out.println("getAllBlogEntriesForUser: filters: " + blogEntryFilter.categoryName() + " " + blogEntryFilter.afterDate() + " " + blogEntryFilter.beforeDate());
-        return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, blogEntryFilter));
+        return ResponseEntity.ok(blogEntryService.getAllBlogEntries(pageable, blogEntryFilter, true));
     }
 
     @PostMapping("/posts")

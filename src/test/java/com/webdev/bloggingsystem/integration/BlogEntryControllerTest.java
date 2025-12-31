@@ -29,8 +29,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test") // <-- for H2 testing, MySQL testing will require a different class or something like-
-// @BeforeEach that reverts the test data .
+@ActiveProfiles("test") // <-- for H2 testing only
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BlogEntryControllerTest {
     @Autowired
@@ -66,7 +65,7 @@ public class BlogEntryControllerTest {
 
     @BeforeAll
     public void beforeAll() {
-        this.testUserToken = this.getToken("TestUser");
+        this.testUserToken = this.getToken("TestAdmin");
         Path maxBytesFp = Paths.get("src/test/resources/testData/testDtoMaxBytesWithSimpleEmojis.txt");
         Path thousandCharsFp = Paths.get("src/test/resources/testData/testThousandChars.txt");
         try {
@@ -149,7 +148,7 @@ public class BlogEntryControllerTest {
         String content = documentContext.read("$.content");
         JSONArray categories = documentContext.read("$.categories");
 
-        assertEquals(4, id);
+        assertEquals(5, id);
         assertEquals(this.thousandChars, content);
         assertEquals("Test Category 1", categories.getFirst());
         assertEquals("Test Category 2", categories.get(1));
@@ -173,14 +172,14 @@ public class BlogEntryControllerTest {
         JSONArray authors = documentContext.read("$..author");
 
         // Entry with id 2 is private and should not be included
-        assertEquals(2, ids.size());
-        assertEquals(List.of(1, 3), ids);
+        assertEquals(3, ids.size());
+        assertEquals(List.of(1, 3, 4), ids);
 
-        assertEquals(2, titles.size());
-        assertEquals(List.of("Test Post 1", "Test Post 3"), titles);
+        assertEquals(3, titles.size());
+        assertEquals(List.of("Test Post 1", "Test Post 3", "Test Post 4"), titles);
 
-        assertEquals(2, authors.size());
-        assertEquals(List.of("TestAdmin", "TestUser"), authors);
+        assertEquals(3, authors.size());
+        assertEquals(List.of("TestAdmin", "TestUser", "TestUser2"), authors);
     }
 
     @Test
@@ -221,12 +220,12 @@ public class BlogEntryControllerTest {
         int totalElements = documentContext.read("$.totalEntries");
 
         // Entry with id 2 is private and should not be included
-        assertEquals(2, ids.size());
-        assertEquals(List.of(3, 1), ids);
-        assertEquals(2, totalElements);
+        assertEquals(3, ids.size());
+        assertEquals(List.of(4, 3, 1), ids);
+        assertEquals(3, totalElements);
 
-        assertEquals(2, titles.size());
-        assertEquals(List.of("Test Post 3", "Test Post 1"), titles);
+        assertEquals(3, titles.size());
+        assertEquals(List.of("Test Post 4", "Test Post 3", "Test Post 1"), titles);
     }
 
     @Test
@@ -243,8 +242,9 @@ public class BlogEntryControllerTest {
     @Test
     @DisplayName("9. should NOT allow private entry to be viewed by non-author")
     void getPrivateBlogEntryWithNonAuthor() {
+        String token = this.getToken("TestUser2");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + this.testUserToken);
+        headers.add("Authorization", "Bearer " + token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         // test data = BlogEntry with id 2 is private and owned by TestAdmin.
@@ -304,17 +304,20 @@ public class BlogEntryControllerTest {
         );
         HttpEntity<Object> request = new HttpEntity<>(entryToUpdate, headers);
 
-        ResponseEntity<Void> response = restTemplate
-                .exchange("/api/posts/99", HttpMethod.PUT, request, Void.class);
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts/99", HttpMethod.PUT, request, String.class);
+
+        System.out.println(response);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
     }
 
     @Test
-    @DisplayName("12. should not update entry if non-author")
+    @DisplayName("12. should not update entry if not admin")
     void updateNonAuthorEntry() {
+        String token = this.getToken("TestUser2");
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + this.testUserToken);
+        headers.add("Authorization", "Bearer " + token);
 
         BlogEntryRequestDto entryToUpdate = new BlogEntryRequestDto(
             "Updated Non-existent Post",
@@ -325,7 +328,7 @@ public class BlogEntryControllerTest {
         HttpEntity<BlogEntryRequestDto> request = new HttpEntity<>(entryToUpdate, headers);
         ResponseEntity<Void> response = restTemplate
                 .exchange("/api/posts/1", HttpMethod.PUT, request, Void.class);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(), "Should return 403");
         System.out.println("response: " + response);
     }
 
@@ -369,7 +372,7 @@ public class BlogEntryControllerTest {
     }
 
     @Test
-    @DisplayName("15. should not delete entry if non-author")
+    @DisplayName("15. should not delete entry if not admin")
     void deleteNonAuthorEntry() {
         String token = this.getToken("TestUser2");
         HttpHeaders headers = new HttpHeaders();
@@ -380,7 +383,7 @@ public class BlogEntryControllerTest {
         ResponseEntity<Void> response = restTemplate
                 .exchange("/api/posts/3", HttpMethod.DELETE, request, Void.class);
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return 404 NOT FOUND");
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(), "Should return 403");
 
         //token = this.getToken("TestUser2", "TestPassword");
         headers = new HttpHeaders();
@@ -404,7 +407,7 @@ public class BlogEntryControllerTest {
 
         Integer initialCategoryCount = this.countCategoriesJoinTableEntries(3);
         System.out.println("initialCategoryCount: " + initialCategoryCount);
-        assertEquals(2, initialCategoryCount);
+        assertEquals(3, initialCategoryCount);
         System.out.println("delete entry");
         System.out.println(restTemplate
                 .exchange("/api/posts/3", HttpMethod.DELETE, request, Void.class));
@@ -417,11 +420,10 @@ public class BlogEntryControllerTest {
     }
 
     @Test
-    @DisplayName("17. should return all BlogEntries for authenticated TestAdmin sorted ascending by createdAt")
+    @DisplayName("17. should return all BlogEntries of authenticated user sorted ascending by createdAt")
     void getAllBlogEntriesForAdmin() {
         HttpHeaders headers = new HttpHeaders();
-        String token = this.getToken("TestAdmin");
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", "Bearer " + testUserToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate
@@ -533,7 +535,7 @@ public class BlogEntryControllerTest {
         DocumentContext documentContext = JsonPath.parse(response.getBody());
         JSONArray ids = documentContext.read("$..id");
         System.out.println("json: " + documentContext.jsonString());
-        assertEquals(List.of(3, 1), ids);
+        assertEquals(List.of(4, 3, 1), ids);
     }
 
     @Test
@@ -663,4 +665,26 @@ public class BlogEntryControllerTest {
         System.out.println("response: " + response);
         assertEquals("{\"title\":\"Title must be unique, please try again\"}", response.getBody());
     }
+
+    @Test
+    @DisplayName("30. should get all public entries by category with authed user")
+    void getAllEntriesByCategoryWithAuthedUser() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + testUserToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate
+                .exchange("/api/posts?categoryName=Test Category 2", HttpMethod.GET, entity, String.class);
+        System.out.println("response: " + response);
+    }
+
+    @Test
+    @DisplayName("30. should not get all private entries by category with non-authed user")
+    void notGetAllPrivateEntriesByCategoryWithNonAuthedUser() {
+        ResponseEntity<String> response = restTemplate
+                .getForEntity("/api/posts/me?categoryName=Test Category 2", String.class);
+        System.out.println("response: " + response);
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Should return 401");
+    }
+
 }

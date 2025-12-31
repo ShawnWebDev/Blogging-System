@@ -210,7 +210,8 @@ public class BlogEntryServiceTests {
 
         PaginatedBlogEntriesResponseDto pageDto = blogEntryService.getAllBlogEntries(
                 pageable,
-                new BlogEntryFilterRequest(null, null, null)
+                new BlogEntryFilterRequest(null, null, null),
+                false
         );
 
         System.out.println(pageDto);

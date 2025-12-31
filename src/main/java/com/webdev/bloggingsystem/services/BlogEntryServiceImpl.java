@@ -79,7 +79,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
     @Override
     public PaginatedBlogEntriesResponseDto getAllBlogEntries(
-            Pageable pageable, BlogEntryFilterRequest filterRequest)
+            Pageable pageable, BlogEntryFilterRequest filterRequest, boolean userOnly)
     {
         // Gets a page of BlogEntries for viewing lists or searching, sortable by any field in BlogEntry,
         // Can be public or users public and private entries if principalName is available,
@@ -94,7 +94,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
 
         // defines a Specification object for criteria builder to build the filtering query
         Specification<BlogEntry> spec = filterRequest != null ?
-                getBlogEntrySpecification(filterRequest, userProfile, authorId) : null;
+                getBlogEntrySpecification(filterRequest, userProfile, authorId, userOnly) : null;
 
         PageRequest pageRequest = PageRequest.of(
                 pageable.getPageNumber(),
@@ -295,7 +295,7 @@ public class BlogEntryServiceImpl implements BlogEntryService {
     }
 
     private static Specification<BlogEntry> getBlogEntrySpecification(
-            BlogEntryFilterRequest filterRequest, UserProfile userProfile, int authorId)
+            BlogEntryFilterRequest filterRequest, UserProfile userProfile, int authorId, boolean userOnly)
     {
         // set base Specification object to use DISTINCT select
         Specification<BlogEntry> spec = (root, query,criteriaBuilder) -> {
@@ -305,15 +305,15 @@ public class BlogEntryServiceImpl implements BlogEntryService {
             return criteriaBuilder.conjunction();
         };
 
-        // "posts" endpoint will pass null username to get all public
-        // "me" endpoint will pass username as String to get all for authenticated user
-        if (userProfile == null) {
+
+        if (userProfile == null || !userOnly) {
             spec = spec.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.isTrue(root.get("isPublic")));
         } else {
             spec = spec.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.get("authorId"), authorId));
         }
+
         // adds category filter
         if (filterRequest.categoryName() != null) {
             logger.debug("getBlogEntrySpecification: filterRequest.categoryName is  {}", filterRequest.categoryName());
