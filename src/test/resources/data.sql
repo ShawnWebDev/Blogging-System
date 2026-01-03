@@ -7,7 +7,8 @@ INSERT INTO Users(username, password, email, date_created, is_active)
 VALUES
     ('TestAdmin', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', 'TestEmail@email.com', '2025-10-05', TRUE),
     ('TestUser', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', 'TestEmail@email.com', '2025-10-05', TRUE),
-    ('TestUser2', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', 'TestEmail@email.com', '2025-10-15', TRUE);
+    ('TestUser2', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', 'TestEmail@email.com', '2025-10-15', TRUE),
+    ('Te5tU$er', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', 'TestEmail@email.com', '2026-01-03', TRUE);
 
 INSERT INTO Users_Roles(user_id, role_id)
 VALUES
