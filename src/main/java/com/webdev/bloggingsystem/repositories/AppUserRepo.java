@@ -25,4 +25,6 @@ public interface AppUserRepo extends JpaRepository<AppUser, Integer> {
 
     @Query("SELECT u.id FROM AppUser u WHERE u.username = :username")
     Optional<Integer> findIdByUsername(@Param("username") String username);
+
+    boolean existsByUsername(@Param("username") String username);
 }

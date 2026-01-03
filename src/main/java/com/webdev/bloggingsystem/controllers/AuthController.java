@@ -1,8 +1,10 @@
 package com.webdev.bloggingsystem.controllers;
 
 import com.webdev.bloggingsystem.dto.LoginDto;
+import com.webdev.bloggingsystem.dto.RegisterDto;
 import com.webdev.bloggingsystem.services.AuthService;
 
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,13 @@ public class AuthController {
         String token = authService.login(loginDto);
         logger.debug("Created token {} ", token);
         return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterDto registerDto) {
+        logger.debug("Received request to register user {}", registerDto.username());
+        authService.register(registerDto);
+        return ResponseEntity.status(201).build();
     }
 
 }

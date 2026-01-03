@@ -34,7 +34,7 @@ public class SecurityConfig {
 
     @Bean
     PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean
@@ -45,7 +45,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/auth/login").permitAll()
+                                .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/api/comments/**").authenticated() // all commenters need to be registered and authenticated
                                 .requestMatchers(HttpMethod.GET, "/api/posts/me").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/posts/{}/comments").authenticated()
