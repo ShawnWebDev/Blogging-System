@@ -4,7 +4,7 @@ import com.webdev.bloggingsystem.exceptions.MaxBytes;
 import jakarta.validation.constraints.NotBlank;
 
 public record CommentRequestDto(
-        @MaxBytes(4000)
+        @MaxBytes(500)
         @NotBlank(message = "Input empty")
         String comment
 ) {

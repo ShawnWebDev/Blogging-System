@@ -314,7 +314,7 @@ public class CommentControllerTest {
         System.out.println("response: " + response);
         System.out.println("response body : " + response.getBody());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400");
-        assertEquals("{\"comment\":\"Input length exceeded\"}", response.getBody());
+        assertEquals("{\"comment\":\"Input length exceeded, max size 500\"}", response.getBody());
     }
 
     @Test

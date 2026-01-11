@@ -169,7 +169,7 @@ public class CategoryControllerTest {
 
         System.out.println("response: " + response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 401 BAD REQUEST");
-        assertEquals("{\"categoryName\":\"Input length exceeded\"}", response.getBody());
+        assertEquals("{\"categoryName\":\"Input length exceeded, max size 255\"}", response.getBody());
     }
 
     @Test

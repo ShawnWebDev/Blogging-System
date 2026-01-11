@@ -593,7 +593,7 @@ public class BlogEntryControllerTest {
 
         System.out.println("response: " + response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
-        assertEquals("{\"title\":\"Input length exceeded\"}", response.getBody());
+        assertEquals("{\"title\":\"Input length exceeded, max size 255\"}", response.getBody());
     }
 
     @Test
@@ -616,7 +616,7 @@ public class BlogEntryControllerTest {
 
         System.out.println("response: " + response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
-        assertEquals("{\"content\":\"Input length exceeded\"}", response.getBody());
+        assertEquals("{\"content\":\"Input length exceeded, max size: 65535\"}", response.getBody());
     }
 
     @Test
