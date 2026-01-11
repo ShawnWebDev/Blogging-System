@@ -12,7 +12,7 @@ public class MaxBytesValidator implements ConstraintValidator<MaxBytes, String> 
     @Override
     public void initialize(MaxBytes constraintAnnotation) {
         this.maxBytes = constraintAnnotation.value();
-        this.message = constraintAnnotation.message() + ", max size: " + this.maxBytes;
+        this.message = constraintAnnotation.message();
     }
 
     @Override
@@ -20,8 +20,10 @@ public class MaxBytesValidator implements ConstraintValidator<MaxBytes, String> 
         int byteCount = s.getBytes(StandardCharsets.UTF_8).length;
 
         if (byteCount > this.maxBytes) {
-            constraintValidatorContext.buildConstraintViolationWithTemplate(this.message)
-                    .addConstraintViolation();
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate(
+                    this.message + " Max: " + this.maxBytes + " - Used: " + byteCount).addConstraintViolation();
+
             return false;
         }
 

@@ -18,6 +18,8 @@ import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -167,13 +169,17 @@ public class CategoryControllerTest {
         ResponseEntity<String> response = restTemplate
                 .exchange("/api/categories", HttpMethod.POST, request, String.class);
 
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        String categoryErr = documentContext.read("$.categoryName");
+        int categoryNameBytes = categoryDto.categoryName().getBytes(StandardCharsets.UTF_8).length;
+
         System.out.println("response: " + response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 401 BAD REQUEST");
-        assertEquals("{\"categoryName\":\"Input length exceeded, max size 255\"}", response.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
+        assertEquals(categoryErr, "Input length exceeded! Max: 255 - Used: " + categoryNameBytes);
     }
 
     @Test
-    @DisplayName("Do not create category with name over max bytes")
+    @DisplayName("Do not create category with description over max bytes")
     void createCategoryWithDescriptionOverMaxBytes() {
         CategoryRequestDto categoryDto = new CategoryRequestDto(
                 "New category **",
@@ -189,9 +195,13 @@ public class CategoryControllerTest {
         ResponseEntity<String> response = restTemplate
                 .exchange("/api/categories", HttpMethod.POST, request, String.class);
 
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        String categoryErr = documentContext.read("$.description");
+        int categoryDescBytes = categoryDto.description().getBytes(StandardCharsets.UTF_8).length;
+
         System.out.println("response: " + response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 401 BAD REQUEST");
-        assertEquals("{\"description\":\"Input length exceeded\"}", response.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
+        assertEquals(categoryErr, "Input length exceeded! Max: 255 - Used: " + categoryDescBytes);
     }
 
 }

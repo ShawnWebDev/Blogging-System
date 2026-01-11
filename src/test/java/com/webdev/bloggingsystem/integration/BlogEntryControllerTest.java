@@ -20,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -577,10 +578,11 @@ public class BlogEntryControllerTest {
     void shouldNotAllowMaxBytesToBeExceededInTitle() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + this.testUserToken);
+        String title = "😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁 " +
+                "😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁";
 
         BlogEntryRequestDto blogEntryRequestDto = new BlogEntryRequestDto(
-                "😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁 " +
-                "😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁",
+                title,
                 this.thousandChars,
                 List.of("Test Category 1", "Test Category 2"),
                 true
@@ -591,9 +593,13 @@ public class BlogEntryControllerTest {
         ResponseEntity<String> response = restTemplate
                 .exchange("/api/posts", HttpMethod.POST, postEntity, String.class);
 
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        String titleErr = documentContext.read("$.title");
+        int titleBytes = title.getBytes(StandardCharsets.UTF_8).length;
+
         System.out.println("response: " + response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
-        assertEquals("{\"title\":\"Input length exceeded, max size 255\"}", response.getBody());
+        assertEquals(titleErr, "Input length exceeded! Max: 255 - Used: " + titleBytes);
     }
 
     @Test
@@ -614,9 +620,13 @@ public class BlogEntryControllerTest {
         ResponseEntity<String> response = restTemplate
                 .exchange("/api/posts", HttpMethod.POST, postEntity, String.class);
 
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        String contentErr = documentContext.read("$.content");
+        int contentBytes = this.testDtoMaxByteContent.getBytes(StandardCharsets.UTF_8).length;
+
         System.out.println("response: " + response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
-        assertEquals("{\"content\":\"Input length exceeded, max size: 65535\"}", response.getBody());
+        assertEquals(contentErr, "Input length exceeded! Max: 65535 - Used: " + contentBytes);
     }
 
     @Test

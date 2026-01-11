@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 public @interface MaxBytes {
 
     int value();
-    String message() default "Input length exceeded";
+    String message() default "Input length exceeded!";
 
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

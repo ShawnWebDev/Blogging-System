@@ -21,6 +21,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -311,10 +312,13 @@ public class CommentControllerTest {
         ResponseEntity<String> response = restTemplate
                 .exchange("/api/posts/1/comments", HttpMethod.POST, request, String.class);
 
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        String commentErr = documentContext.read("$.comment");
+        int commentBytes = commentDto.comment().getBytes(StandardCharsets.UTF_8).length;
+
         System.out.println("response: " + response);
-        System.out.println("response body : " + response.getBody());
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400");
-        assertEquals("{\"comment\":\"Input length exceeded, max size 500\"}", response.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return 400 BAD REQUEST");
+        assertEquals(commentErr, "Input length exceeded! Max: 500 - Used: " + commentBytes);
     }
 
     @Test
