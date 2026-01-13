@@ -53,7 +53,7 @@ public class SecurityConfig {
 //                                .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAuthority("SCOPE_ADMIN")
 //                                .requestMatchers(HttpMethod.POST, "/api/categories/**").hasAuthority("SCOPE_ADMIN")
 //                                .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAuthority("SCOPE_ADMIN")
-                                .requestMatchers(HttpMethod.POST, "api/posts/{}/comments").authenticated() // comments are added to posts/{id}/comments
+                                .requestMatchers(HttpMethod.POST, "/api/posts/{}/comments").authenticated() // comments are added to posts/{id}/comments
                                 .requestMatchers(HttpMethod.POST).hasAuthority("SCOPE_ADMIN")
                                 .requestMatchers(HttpMethod.PUT).hasAuthority("SCOPE_ADMIN")
                                 .requestMatchers(HttpMethod.DELETE).hasAuthority("SCOPE_ADMIN")
