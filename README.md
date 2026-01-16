@@ -1,59 +1,51 @@
-# Blogging System REST API 
+# Full-Stack Blogging System (SSR + HTMX)
+
+## Overview
+A modern blogging platform that feels like a highly interactive single-page application, using server-side rendering and Hypermedia without a heavy JavaScript front-end.
 
 ## Goals
-1. To gain more experience and deeper understanding of REST API best practices and conventions.
-   * By utilizing proper HTTP methods, status codes, error handling, and Java object to JSON serialization/deserialization - DTO.
-   * Proper authentication and authorization (JWT and Role-Based Access Control).
-   
-2. Learn and get more experience building full-stack applications by:
-   * Planning components, system modularity, and testing strategies.
-   * Designing the ERD and schema of the relational database focused on normalization and performance for SQL and RDMS experience.
-   * Building this API with Java & Spring for Object-Oriented Design experience utilizing Controller, Service, & Repository layers.
-   * Displaying it with a JavaScript Front-End Framework.
+1. To gain more experience and deeper understanding of Hypermedia-Driven Development best practices and conventions.
+   * Utilize HTMX to swap HTML fragments dynamically to reduce latency and complexity.
+2. Optimize for Performance & SEO
+   * Eliminate the need for separate frontend build, large JavaScript bundles, and frontend state management.
+   * Better SEO with fully rendered HTML for better indexability.
+   * No CORS issues.
+3. Deepen Spring Boot and Relational Data Expertise
+   * System planning, modularity, and testing strategies.
+   * Design schema with focus on normalization and performance.
 
 ## Requirements
 1. Tech Stack:
-   * Java Spring Boot, MySQL, Angular or Vue + Typescript, AWS (EC2, ECR, S3)
-   * JWT (for stateless authentication),
-   * Docker and Nginx
-2. CRUD operations on Blog Posts, Post Comments, and Users:
-   * Filter posts by category, author, and/or date. 
-   * Pagination and sorting for post lists
-3. Single Page App 
-4. Security:
-   * Role-Based Access to differentiate between user and admin.
-   * Secure endpoints with JWT and Rate limiting.
-5. Structured logging and observability with Actuator.
-6. Cache frequently accessed posts.
-7. OpenAPI documentation for endpoints
+   * *Backend:* Java 21+, Spring Boot 3, Spring MVC, Spring Data JPA, Spring Security.
+   * *Templating:* SSR Thymeleaf.
+   * *Interactivity:* HTMX & Vanilla CSS.
+   * *Database:* MariaDB.
+   * *Deployment:* AWS EC2 + S3(for DB backups in private bucket and css/image files in public bucket), Nginx(for reverse proxy & SSL with Certbot).
+2. Core Features:
+   * *CRUD operations* on Blog Posts, Post Comments, and Categories -
+     * Filter posts by category and/or date. 
+     * Pagination on post lists .
+   * Single Page App *Feel* -
+     * No full browser refreshes to get new content.
+   * *Security* -
+     * Role-Based Access to differentiate between users and admin.
+     * Session based auth with CSRF.
+3. Structured logging and observability with Actuator.
+4. Cache frequently accessed posts.
+5. JavaDoc documentation.
 
 ## Architecture
 Will follow a multi-tier architecture of:
-1. Backend:
-   * Java/Spring Boot.
-   * Exposes REST endpoints, handle logic + security, and interaction with database layer.
-   * Controller, Service, Repository.
-2. Database:
-   * H2 for development & testing / MySQL for production.
-   * Stores all persistent data for Users, Roles, Blog Entries, Blog Comments, and Blog Categories.
-   * Normalized schema with constraints for one-to-many and many-to-many relationships.
-3. Frontend:
-   * Typescript + Angular OR VUE (have not decided yet, would need to learn basics of Angular if so).
-   * Single Page Application for consuming REST API, rendering user interface, and client side routing. 
-   * HTTP/JSON communication.
-4. Deployment:
-   * Docker to contain Spring API and MySQL database.
-   * Nginx for reverse proxy, to serve any static files, and SSL/TLS decryption.
-   * Single AWS EC2 instance for cost efficiency.
-   * ECR to hold the images for future migration to ECS if needed for scaling.
+1. View Layer (Thymeleaf, HTMX, CSS): Utilizes fully rendered HTML with Thymeleaf, HTMX intercepts user interactions and requests the needed Thymeleaf fragments for partial page updates.
+2. Controller Layer (Spring MVC): Returns full HTML views or Thymeleaf fragments as requested by HTMX.
+3. Service Layer (Java, Spring Boot): Handles logic and coordinates between persistence and controller layers.
+4. Persistence Layer (Spring Data JPA): Manages data flow to and from MariaDB.
 
-### Future Considerations
-* AWS ECR to store Docker images (API and MySQL).
-* Possibility to decouple MySQL by migrating to its own RDS or EC2 instance.
-* Scaling the backend can be done with AWS ALB load balancing of multiple EC2 instances or utilization of ECS for container orchestration and horizontal instance scaling with API Docker image in ECR.
-* Scaling the frontend can be done with S3 and CloudFront or its own EC2 instance(s)
+### Future Scaling Considerations
+* Decouple MariaDB by migrating to its own EC2 instance.
+* AWS load balancing and multiple EC2 instances for application & separate JWT service instead of sessions.
 
-## Planned API Endpoints
+## Planned Endpoints
 Role Based access - Entries can be set as `PUBLIC` or `PRIVATE` - meaning they will not show on public `GET` endpoints if requesting user is not the Author.
 
 Planned Authorities - `PUBLIC` (not authenticated), `USER` (basic user/author) and `ADMIN` (administrator)
