@@ -31,7 +31,7 @@ public class Comment {
 
 
     public Comment() {}
-    // todo : remove whole entity references and use id references (FK) instead
+
     public Comment(String comment, Integer authorId, Integer blogEntryId) {
         this.comment = comment;
         this.authorId = authorId;
