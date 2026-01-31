@@ -19,17 +19,26 @@
     <main>
         <hr>
         <section>
-            <h2>Posts...</h2>
+            <div>
+                Selection of categories to filter by... (Will be own component)
+            </div>
+        </section>
+        <hr>
+
+        <section>
+            <h3>All Posts...(Will be own component as will page displaying each post)</h3>
 
         </section>
 
         <section>
+            <h3>Comments... This will be within each blog post (Will be own component)</h3>
 
-            <h2>Comments...</h2>
-            <div hx-trigger="logoutSuccess from:body" hx-get="/remove" hx-swap="delete" hx-target="#comment-form-container"></div>
+            <div hx-trigger="logoutSuccess from:body" hx-get="/removeCommentForm" hx-swap="innerHTML" hx-target="#comment-form-container"></div>
             <div hx-trigger="loginSuccess from:body" hx-get="/commentForm" hx-swap="innerHTML" hx-target="#comment-form-container"></div>
+
             <div id="comment-form-container">
-                <div sec:authorize="isAuthenticated()" th:replace="~{components/comment-components :: comment-form}"></div>
+                <div sec:authorize="isAuthenticated()" th:replace="~{components/comment-components :: comment-form-enabled}"></div>
+                <div sec:authorize="isAnonymous()" th:replace="~{components/comment-components :: comment-form-disabled}"></div>
             </div>
         </section>
 

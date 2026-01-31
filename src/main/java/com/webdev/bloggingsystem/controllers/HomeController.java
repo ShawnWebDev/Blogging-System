@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+
 @Controller
 public class HomeController {
 
@@ -17,6 +18,7 @@ public class HomeController {
     public String blog() {
         return "blog";
     }
+
 
     @GetMapping("/loginSuccess")
     public String loginSuccess(HttpServletResponse response) {
@@ -39,12 +41,12 @@ public class HomeController {
 
     @GetMapping("/commentForm")
     public String commentForm() {
-        return "/components/comment-components::comment-form";
+        return "/components/comment-components::comment-form-enabled";
     }
 
-    @GetMapping("/remove")
+    @GetMapping("/removeCommentForm")
     public String remove() {
-        return "";
+        return "/components/comment-components::comment-form-disabled";
     }
 
 }
