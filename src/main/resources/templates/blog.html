@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/htmx.min.js"></script>
+    <link rel="stylesheet" href="/main.css">
+    <link rel="stylesheet" href="/pico.fluid.classless.conditional.jade.min.css">
+    <title>Hello</title>
+</head>
+<body class="pico">
+
+    <header>
+        <h1>Welcome to my blog!</h1>
+        <div sec:authorize="isAuthenticated()" th:replace="~{components/header-components :: auth-head}"></div>
+        <div sec:authorize="isAnonymous()" th:replace="~{components/header-components :: login-form}"></div>
+    </header>
+
+    <main>
+        <hr>
+        <section>
+            <h2>Posts...</h2>
+
+        </section>
+
+        <section>
+
+            <h2>Comments...</h2>
+            <div hx-trigger="logoutSuccess from:body" hx-get="/remove" hx-swap="delete" hx-target="#comment-form-container"></div>
+            <div hx-trigger="loginSuccess from:body" hx-get="/commentForm" hx-swap="innerHTML" hx-target="#comment-form-container"></div>
+            <div id="comment-form-container">
+                <div sec:authorize="isAuthenticated()" th:replace="~{components/comment-components :: comment-form}"></div>
+            </div>
+        </section>
+
+    </main>
+
+
+</body>
+</html>

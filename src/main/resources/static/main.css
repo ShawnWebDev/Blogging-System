@@ -1,17 +1,39 @@
-#todos-list,
-.todo-actions {
+body {
+    padding: 1rem;
+}
+
+header {
     display: flex;
-}
-
-#todos-list {
-    gap: 1rem;
-}
-
-.todo-actions {
     justify-content: space-between;
 }
 
-.htmx-request {
-    opacity: 0.5;
-    transition: opacity 200ms ease-in;
+header,
+main {
+    max-width: 80rem;
+    margin: auto;
+}
+
+.center-box {
+    margin: auto;
+    max-width: 50rem;
+}
+
+#login-container {
+    max-width: 35rem;
+}
+
+#login-container form input {
+    max-height: 3rem;
+}
+
+@media screen and (max-width: 1024px) {
+    body {
+        padding: 0.5rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    body {
+        padding: 1px;
+    }
 }

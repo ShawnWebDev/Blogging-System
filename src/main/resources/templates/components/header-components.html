@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome</title>
+</head>
+<body>
+
+  <div th:fragment="auth-head" class="login-container">
+    <form sec:authorize="isAuthenticated()" hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button type="submit">Logout</button>
+    </form>
+  </div>
+
+  <div th:fragment="login-form" class="login-container">
+    <form hx-post="/login" hx-target=".login-container" hx-swap="outerHTML" method="post">
+      <fieldset role="group">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input type="text" name="username" id="username" placeholder="Username" required th:aria-invalid="${loginError}"/>
+        <input type="password" name="password" id="password" placeholder="Password" required th:aria-invalid="${loginError}"/>
+        <input type="submit" value="Sign In"/>
+      </fieldset>
+
+      <small th:if="${loginError}">Invalid username or password.</small>
+      <small th:if="${logout}">You have been logged out.</small>
+    </form>
+  </div>
+
+
+</body>
+</html>

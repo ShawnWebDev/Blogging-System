@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/htmx.min.js"></script>
+  <link rel="stylesheet" href="/main.css">
+  <link rel="stylesheet" href="/pico.fluid.classless.conditional.jade.min.css">
+  <title>Login</title>
+</head>
+<body class="pico">
+
+  <header>
+    <h2 sec:authorize="isAnonymous()">Please sign in to continue.</h2>
+    <h2 sec:authorize="isAuthenticated()">You are already signed in!</h2>
+  </header>
+
+  <main>
+    <form th:action="@{/login}" method="post">
+      <fieldset>
+        <label>Username:
+          <input type="text" name="username" id="username" placeholder="Username" required/>
+        </label>
+        <label>Password:
+          <input type="password" name="password" id="password" placeholder="Password" required/>
+        </label>
+        <input type="submit" value="Sign In"/>
+      </fieldset>
+
+      <small th:if="${param.error}">Invalid username or password.</small>
+      <small th:if="${param.logout}">You have been logged out.</small>
+    </form>
+  </main>
+
+</body>
+</html>
