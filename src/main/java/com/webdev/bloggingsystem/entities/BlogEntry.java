@@ -1,58 +1,42 @@
 package com.webdev.bloggingsystem.entities;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.BatchSize;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.MappedCollection;
+import org.springframework.data.relational.core.mapping.Table;
+
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-@Table(name = "blog_entries")
-@NamedEntityGraph(
-        name = "blog-entry-categories",
-        attributeNodes = {
-                @NamedAttributeNode("categories")
-        }
-)
+@Table("blog_entries")
 public class BlogEntry {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, insertable = false, updatable = false)
     private Integer id;
 
-    @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "is_public", nullable = false)
     private boolean isPublic;
 
-    @Column(name = "date_published", nullable = false, insertable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "date_updated",  nullable = false, insertable = false, updatable = false)
     private Instant updatedAt;
 
-    @Column(name = "author_id", nullable = false)
-    private Integer authorId;
+    private int authorId;
 
-    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @JoinTable(name = "posts_categories",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id"))
-    @BatchSize(size = 50)
-    private Set<Category> categories =  new HashSet<>();
+    @MappedCollection(idColumn = "post_id")
+    private Set<BlogEntryCategories> categoryIds;
 
     public BlogEntry() {}
 
-    public BlogEntry(Integer authorId, String title, String content, boolean isPublic, Set<Category> categories) {
+    public BlogEntry(Integer authorId, String title, String content, boolean isPublic) {
         this.authorId = authorId;
         this.title = title;
         this.content = content;
         this.isPublic = isPublic;
-        this.categories = categories;
+        categoryIds = new HashSet<>();
+        createdAt = Instant.now();
     }
 
     public Integer getId() {
@@ -85,20 +69,30 @@ public class BlogEntry {
     public Instant getUpdatedAt() {
         return updatedAt;
     }
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
     public int getAuthorId() {
         return authorId;
     }
-    public void setAuthorId(Integer authorId) {
+    public void setAuthorId(int authorId) {
         this.authorId = authorId;
     }
-    public Set<Category> getCategories() {
-        return categories;
+    public Set<BlogEntryCategories> getCategoryIds() {
+        return categoryIds;
     }
+    public void setCategoryIds(Set<BlogEntryCategories> categoryIds) {
+        this.categoryIds = categoryIds;
+    }
+
     public void addCategory(Category category) {
-        this.categories.add(category);
+        this.categoryIds.add(new BlogEntryCategories(category.getId()));
     }
+
     public void removeCategory(Category category) {
-        this.categories.remove(category);
+        if (this.categoryIds != null) {
+            this.categoryIds.remove(new BlogEntryCategories(category.getId()));
+        }
     }
 
     @Override

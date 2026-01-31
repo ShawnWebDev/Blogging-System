@@ -1,39 +1,30 @@
 package com.webdev.bloggingsystem.entities;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.MappedCollection;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-@Table(name = "users")
+@Table("users")
 public class AppUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true, nullable = false)
     private String username;
 
-    @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
     private String email;
 
-    @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
-    @Column(name = "date_created", nullable = false, insertable = false, updatable = false)
-    private LocalDate createdAt;
+    private LocalDate dateCreated;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
-    private Set<Role> roles = new HashSet<>();
-
+    @MappedCollection(idColumn = "user_id")
+    private Set<UsersRoles> roleIds;
 
     public AppUser() {}
 
@@ -42,6 +33,7 @@ public class AppUser {
         this.password = password;
         this.email = email;
         this.isActive = true;
+        this.dateCreated = LocalDate.now();
     }
 
     public Integer getId() {
@@ -71,18 +63,29 @@ public class AppUser {
     public boolean getIsActive() {
         return isActive;
     }
-    public void setIsActive(boolean isActive) {
+    public void isActive(boolean isActive) {
         this.isActive = isActive;
     }
-    public LocalDate getCreatedAt() {
-        return createdAt;
+    public LocalDate getDateCreated() {
+        return dateCreated;
     }
-    public Set<Role> getRoles() {
-        return roles;
+
+    public Set<UsersRoles> getRoleIds() {
+        return roleIds;
     }
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public void addRole(Role role) {
+        if (this.roleIds == null) {
+            this.roleIds = new HashSet<>();
+        }
+        this.roleIds.add(new UsersRoles(role.getId()));
     }
+
+    public void removeRole(Role role) {
+        if (this.roleIds != null) {
+            this.roleIds.remove(new UsersRoles(role.getId()));
+        }
+    }
+
 
     @Override
     public String toString() {
@@ -91,7 +94,8 @@ public class AppUser {
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", isActive=" + isActive +
-                ", createdAt=" + createdAt +
+                ", createdAt=" + dateCreated +
+                ", roleIds=" + roleIds +
                 '}';
     }
 }

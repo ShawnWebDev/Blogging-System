@@ -1,18 +1,15 @@
 package com.webdev.bloggingsystem.entities;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Objects;
 
-@Entity
-@Table(name = "roles")
+@Table("roles")
 public class Role {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(unique = true, nullable = false)
 
-    @Enumerated(EnumType.STRING)
     private RoleType role;
 
     public Role() {}

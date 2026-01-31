@@ -1,32 +1,25 @@
 package com.webdev.bloggingsystem.entities;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
 
-@Entity
-@Table(name = "comments")
+@Table("comments")
 public class Comment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String comment;
 
-    @Column(name = "date_created", nullable = false, insertable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "date_updated", nullable = false, insertable = false, updatable = false)
     private Instant updatedAt;
 
-    @Column(name = "author_id", nullable = false)
-    private Integer authorId;
+    private int authorId;
 
-    @Column(name = "post_id", nullable = false)
-    private Integer blogEntryId;
+    private int blogEntryId;
 
-    @Column(name = "parent_comment_id")
     private Integer parentCommentId;
 
 
@@ -36,6 +29,7 @@ public class Comment {
         this.comment = comment;
         this.authorId = authorId;
         this.blogEntryId = blogEntryId;
+        createdAt = Instant.now();
     }
 
     public Integer getId() {
@@ -55,6 +49,9 @@ public class Comment {
     }
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
     public int getAuthorId() {
         return authorId;
