@@ -5,8 +5,7 @@ body {
 header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    min-height: 6rem;
+    max-height: 3rem;
 }
 
 header,
@@ -18,14 +17,6 @@ main {
 .center-box {
     margin: auto;
     max-width: 50rem;
-}
-
-#login-container {
-    max-width: 35rem;
-}
-
-#login-container form input {
-    max-height: 3rem;
 }
 
 @media screen and (max-width: 1024px) {
