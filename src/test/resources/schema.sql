@@ -55,6 +55,6 @@ CREATE TABLE `posts_categories` (
         UNIQUE KEY `post_id` (`post_id`,`category_id`),
         KEY `Posts_Categories_Categories_FK` (`category_id`),
         KEY `Posts_Categories_Blog_Entry_FK` (`post_id`),
-        CONSTRAINT `Posts_Categories_Blog_Entry_FK` FOREIGN KEY (`post_id`) REFERENCES `blog_entries` (`id`),
-        CONSTRAINT `Posts_Categories_Categories_FK` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`)
+        CONSTRAINT `Posts_Categories_Blog_Entry_FK` FOREIGN KEY (`post_id`) REFERENCES `blog_entries` (`id`) ON DELETE CASCADE,
+        CONSTRAINT `Posts_Categories_Categories_FK` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE
 );
