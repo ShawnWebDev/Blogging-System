@@ -1,7 +1,7 @@
 package com.webdev.bloggingsystem.repositories;
 
 import com.webdev.bloggingsystem.entities.AppUser;
-import com.webdev.bloggingsystem.entities.Author;
+import com.webdev.bloggingsystem.entities.DTO.Author;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
