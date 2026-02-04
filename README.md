@@ -23,8 +23,7 @@ A modern blogging platform that feels like a highly interactive single-page appl
    * *Deployment:* AWS EC2 + S3(for DB backups in private bucket and css/image files in public bucket), Nginx(for reverse proxy & SSL with Certbot).
 2. Core Features:
    * *CRUD operations* on Blog Posts, Post Comments, and Categories -
-     * Filter posts by category or date. 
-     * Pagination on post lists .
+     * Filter Blog posts by category.
    * Single Page App *Feel* -
      * Reduced full browser refreshes to get new content.
    * *Security* -
@@ -42,4 +41,5 @@ Will follow a multi-tier architecture of:
 
 ### Future Scaling Considerations
 * Migrating MariaDB to its own EC2 instance.
-* AWS load balancing multiple EC2 instances for application.
+* AWS load balancing multiple EC2 instances for application. 
+* Pagination on BlogEntry/Comment lists.
