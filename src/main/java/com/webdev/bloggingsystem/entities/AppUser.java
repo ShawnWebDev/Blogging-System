@@ -1,39 +1,31 @@
 package com.webdev.bloggingsystem.entities;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.MappedCollection;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
-@Table("users")
 public class AppUser {
-    @Id
     private Integer id;
 
     private String username;
 
     private String password;
 
-    private String email;
-
     private boolean isActive;
 
     private LocalDate dateCreated;
 
-    @MappedCollection(idColumn = "user_id")
-    private Set<UsersRoles> roleIds;
+    private RoleType role;
 
-    public AppUser() {}
-
-    public AppUser(String username, String password, String email) {
+    public AppUser(String username, String password) {
         this.username = username;
         this.password = password;
-        this.email = email;
-        this.isActive = true;
-        this.dateCreated = LocalDate.now();
+    }
+
+    public static AppUser createUser(String username, String password) {
+        AppUser appUser = new AppUser(username, password);
+        appUser.isActive(true);
+        appUser.setDateCreated(LocalDate.now());
+        appUser.setRole(RoleType.USER);
+        return appUser;
     }
 
     public Integer getId() {
@@ -54,12 +46,6 @@ public class AppUser {
     public void setPassword(String password) {
         this.password = password;
     }
-    public String getEmail() {
-        return email;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }
     public boolean getIsActive() {
         return isActive;
     }
@@ -69,21 +55,14 @@ public class AppUser {
     public LocalDate getDateCreated() {
         return dateCreated;
     }
-
-    public Set<UsersRoles> getRoleIds() {
-        return roleIds;
+    public void setDateCreated(LocalDate dateCreated) {
+        this.dateCreated = dateCreated;
     }
-    public void addRole(Role role) {
-        if (this.roleIds == null) {
-            this.roleIds = new HashSet<>();
-        }
-        this.roleIds.add(new UsersRoles(role.getId()));
+    public RoleType getRole() {
+        return role;
     }
-
-    public void removeRole(Role role) {
-        if (this.roleIds != null) {
-            this.roleIds.remove(new UsersRoles(role.getId()));
-        }
+    public void setRole(RoleType role) {
+        this.role = role;
     }
 
 
@@ -92,10 +71,9 @@ public class AppUser {
         return "AppUser{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
                 ", isActive=" + isActive +
                 ", createdAt=" + dateCreated +
-                ", roleIds=" + roleIds +
+                ", role=" + role +
                 '}';
     }
 }
