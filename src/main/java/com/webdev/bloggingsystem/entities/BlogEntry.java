@@ -7,6 +7,8 @@ public class BlogEntry {
 
     private String title;
 
+    private String description;
+
     private String content;
 
     private boolean isPublic;
@@ -19,12 +21,19 @@ public class BlogEntry {
 
     public BlogEntry() {}
 
-    public BlogEntry(Integer authorId, String title, String content, boolean isPublic) {
+    public BlogEntry(int authorId, String title, String description, String content, boolean isPublic) {
         this.authorId = authorId;
         this.title = title;
+        this.description = description;
         this.content = content;
         this.isPublic = isPublic;
-        createdAt = Instant.now();
+    }
+
+    public static BlogEntry createBlogEntry(
+            int authorId, String title, String description, String content, boolean isPublic) {
+        BlogEntry blogEntry = new BlogEntry(authorId, title, description, content, isPublic);
+        blogEntry.setCreatedAt(Instant.now());
+        return blogEntry;
     }
 
     public Integer getId() {
@@ -38,6 +47,12 @@ public class BlogEntry {
     }
     public void setTitle(String title) {
         this.title = title;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
     }
     public String getContent() {
         return content;
@@ -54,6 +69,9 @@ public class BlogEntry {
     public Instant getCreatedAt() {
         return createdAt;
     }
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
     public Instant getUpdatedAt() {
         return updatedAt;
     }
@@ -63,19 +81,21 @@ public class BlogEntry {
     public int getAuthorId() {
         return authorId;
     }
-    public void setAuthorId(int authorId) {
-        this.authorId = authorId;
+    public void setAuthorId(int author) {
+        this.authorId = author;
     }
 
     @Override
     public String toString() {
         return "BlogEntry{" +
                 "id=" + id +
-                ", title='" + title + '\'' +
-                ", content='" + content + '\'' +
+                ", title=" + title +
+                ", description=" + description +
+                ", content=" + content +
                 ", isPublic=" + isPublic +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", authorId=" + authorId +
                 '}';
     }
 }
