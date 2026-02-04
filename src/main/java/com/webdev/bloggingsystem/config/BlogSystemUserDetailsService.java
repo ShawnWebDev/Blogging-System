@@ -1,10 +1,11 @@
 package com.webdev.bloggingsystem.config;
 
 import com.webdev.bloggingsystem.entities.AppUser;
-import com.webdev.bloggingsystem.entities.Role;
-import com.webdev.bloggingsystem.entities.UsersRoles;
-import com.webdev.bloggingsystem.repositories.AppUserRepo;
-import com.webdev.bloggingsystem.repositories.RoleRepo;
+
+import com.webdev.bloggingsystem.entities.RoleType;
+import com.webdev.bloggingsystem.repositories.AppUserDao;
+
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -15,30 +16,29 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class BlogSystemUserDetailsService implements UserDetailsService {
-    private final AppUserRepo appUserRepo;
-    private final RoleRepo roleRepo;
 
-    public BlogSystemUserDetailsService(AppUserRepo appUserRepo, RoleRepo roleRepo) {
-        this.appUserRepo = appUserRepo;
-        this.roleRepo = roleRepo;
+    private final AppUserDao appUserDao;
+
+    public BlogSystemUserDetailsService(AppUserDao appUserDao) {
+        this.appUserDao = appUserDao;
     }
 
     @Override
+    @NullMarked
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        AppUser appUser = appUserRepo.findByUsername(username)
+        AppUser appUser = appUserDao.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
 
-        Set<Integer> roleIds = appUser.getRoleIds().stream().map(UsersRoles::roleId).collect(Collectors.toSet());
-        Set<Role> roles = roleRepo.findAllByIdIn(roleIds);
+        RoleType roleType = appUser.getRole();
         Collection<GrantedAuthority> authorities = new HashSet<>();
-        for (Role role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role.getRole().name()));
+
+        if (roleType.equals(RoleType.ADMIN)) {
+            authorities.add(new SimpleGrantedAuthority(RoleType.USER.name()));
         }
+        authorities.add(new SimpleGrantedAuthority(appUser.getRole().name()));
 
         return new User(
                 appUser.getUsername(),
