@@ -14,8 +14,9 @@ CREATE TABLE `blog_entries` (
         `id` int NOT NULL AUTO_INCREMENT,
         `content` text NOT NULL,
         `title` varchar(255) NOT NULL,
-        `date_published` datetime NOT NULL,
-        `date_updated` datetime DEFAULT NULL,
+        `description` varchar(500) NOT NULL,
+        `created_at` datetime NOT NULL,
+        `updated_at` datetime,
         `is_public` tinyint(1) NOT NULL,
         `author_id` int NOT NULL,
         PRIMARY KEY (`id`),
@@ -26,8 +27,8 @@ CREATE TABLE `blog_entries` (
 CREATE TABLE `comments` (
         `id` int NOT NULL AUTO_INCREMENT,
         `content` varchar(500) NOT NULL,
-        `date_created` datetime NOT NULL,
-        `date_updated` datetime DEFAULT NULL,
+        `created_at` datetime NOT NULL,
+        `updated_at` datetime,
         `parent_comment_id` int DEFAULT NULL,
         `author_id` int NOT NULL,
         `post_id` int NOT NULL,
@@ -42,10 +43,10 @@ CREATE TABLE `comments` (
 
 CREATE TABLE `categories` (
         `id` int NOT NULL AUTO_INCREMENT,
-        `category` varchar(255) NOT NULL,
+        `category_name` varchar(255) NOT NULL,
         `description` varchar(500) NOT NULL,
         PRIMARY KEY (`id`),
-        UNIQUE KEY `Categories_UNIQUE` (`category`)
+        UNIQUE KEY `Categories_UNIQUE` (`category_name`)
 );
 
 CREATE TABLE `posts_categories` (
