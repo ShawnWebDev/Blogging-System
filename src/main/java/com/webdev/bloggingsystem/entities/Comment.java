@@ -1,13 +1,8 @@
 package com.webdev.bloggingsystem.entities;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.time.Instant;
 
-@Table("comments")
 public class Comment {
-    @Id
     private Integer id;
 
     private String comment;

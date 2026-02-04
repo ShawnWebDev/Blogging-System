@@ -1,16 +1,8 @@
 package com.webdev.bloggingsystem.entities;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.MappedCollection;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
-@Table("blog_entries")
 public class BlogEntry {
-    @Id
     private Integer id;
 
     private String title;
@@ -25,9 +17,6 @@ public class BlogEntry {
 
     private int authorId;
 
-    @MappedCollection(idColumn = "post_id")
-    private Set<BlogEntryCategories> categoryIds;
-
     public BlogEntry() {}
 
     public BlogEntry(Integer authorId, String title, String content, boolean isPublic) {
@@ -35,7 +24,6 @@ public class BlogEntry {
         this.title = title;
         this.content = content;
         this.isPublic = isPublic;
-        categoryIds = new HashSet<>();
         createdAt = Instant.now();
     }
 
@@ -77,22 +65,6 @@ public class BlogEntry {
     }
     public void setAuthorId(int authorId) {
         this.authorId = authorId;
-    }
-    public Set<BlogEntryCategories> getCategoryIds() {
-        return categoryIds;
-    }
-    public void setCategoryIds(Set<BlogEntryCategories> categoryIds) {
-        this.categoryIds = categoryIds;
-    }
-
-    public void addCategory(Category category) {
-        this.categoryIds.add(new BlogEntryCategories(category.getId()));
-    }
-
-    public void removeCategory(Category category) {
-        if (this.categoryIds != null) {
-            this.categoryIds.remove(new BlogEntryCategories(category.getId()));
-        }
     }
 
     @Override
