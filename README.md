@@ -23,14 +23,16 @@ A modern blogging platform that feels like a highly interactive single-page appl
    * *Deployment:* AWS EC2 + S3(for DB backups in private bucket and css/image files in public bucket), Nginx(for reverse proxy & SSL with Certbot).
 2. Core Features:
    * *CRUD operations* on Blog Posts, Post Comments, and Categories -
+     * Text Editor for Creation & Update of Blog Post & Comment content JSONs.
      * Filter Blog posts by category.
    * Single Page App *Feel* -
      * Reduced full browser refreshes to get new content.
-   * *Security* -
+   * *Security*
      * Role-Based Access to differentiate between users and admin.
      * Session based auth with CSRF.
+   * *Markdown-To-HTML*
+     * CommonMark library for parsing MD files to HTML
 3. Cache frequently accessed posts.
-4. JavaDoc documentation.
 
 ## Architecture
 Will follow a multi-tier architecture of:
