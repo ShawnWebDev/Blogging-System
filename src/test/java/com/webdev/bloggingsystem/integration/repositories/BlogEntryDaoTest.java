@@ -31,7 +31,7 @@ public class BlogEntryDaoTest extends BaseRepoTest {
         BlogEntry blogEntry = blogEntryDao.findById(1).orElse(null);
         Assertions.assertNotNull(blogEntry);
         Assertions.assertEquals(1, blogEntry.getId());
-        Assertions.assertEquals("Test Public Post 1", blogEntry.getTitle());
+        Assertions.assertEquals("Test Post 1", blogEntry.getTitle());
 
         System.out.println("result: " + blogEntry);
     }
@@ -45,28 +45,27 @@ public class BlogEntryDaoTest extends BaseRepoTest {
     }
 
     @Test
-    public void testFindAll() {
-        List<BlogEntry> result = blogEntryDao.findAllFull();
+    public void testFindAllSimplePaginatedPage1() {
+        List<SimpleBlogEntry> result = blogEntryDao.findAllSimple(1, 5);
+        System.out.println("result: " + result);
+
         Assertions.assertNotNull(result);
         Assertions.assertFalse(result.isEmpty());
-        Assertions.assertEquals(4, result.size());
-
-        System.out.println("result: " + result);
+        Assertions.assertEquals(5, result.size());
     }
 
     @Test
-    public void testFindAllSimple() {
-        List<SimpleBlogEntry> result = blogEntryDao.findAllSimple();
-        Assertions.assertNotNull(result);
-        Assertions.assertFalse(result.isEmpty());
-        Assertions.assertEquals(4, result.size());
-
+    public void testFindAllSimplePaginatedPage2() {
+        List<SimpleBlogEntry> result = blogEntryDao.findAllSimple(2, 5);
         System.out.println("result: " + result);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.isEmpty());
     }
 
     @Test
     public void testFindAllByCategory() {
-        List<SimpleBlogEntry> result = blogEntryDao.findAllBlogEntriesToCategoryId(3);
+        List<SimpleBlogEntry> result = blogEntryDao.findAllSimpleBlogEntriesToCategoryId(3, 1, 5);
         Assertions.assertNotNull(result);
         Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals(2, result.size());
@@ -81,8 +80,7 @@ public class BlogEntryDaoTest extends BaseRepoTest {
             1,
             "Test title",
             "Test Description",
-            "Test Content",
-            true
+            "Test Content"
         );
 
         int postId = blogEntryDao.insert(blogEntry);
@@ -106,13 +104,12 @@ public class BlogEntryDaoTest extends BaseRepoTest {
                 1,
                 "Test title",
                 "Test Description",
-                "Test Content",
-                true
+                "Test Content"
         );
         Set<Integer> set = Set.of(10, 20, 30);
 
         int postId = blogEntryDao.insert(blogEntry);
-        Assertions.assertEquals(5, postId);
+        Assertions.assertEquals(6, postId);
 
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> categoryDao.batchInsertJoins(set, postId));
     }
@@ -139,8 +136,7 @@ public class BlogEntryDaoTest extends BaseRepoTest {
                 1,
                 "Fake title",
                 "Fake Description",
-                "Fake Content",
-                true
+                "Fake Content"
         );
         blogEntry.setId(99);
         Assertions.assertEquals(0, blogEntryDao.update(blogEntry));

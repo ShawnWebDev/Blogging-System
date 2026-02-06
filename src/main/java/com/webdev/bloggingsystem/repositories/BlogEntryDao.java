@@ -8,6 +8,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -25,14 +27,13 @@ public class BlogEntryDao {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbc.sql(
-                "INSERT INTO blog_entries (content, title, description, created_at, updated_at, is_public, author_id) " +
-                "VALUES (:content, :title, :description, :created_at, :updated_at, :is_public, :author_id)")
+                "INSERT INTO blog_entries (content, title, description, created_at, updated_at, author_id) " +
+                "VALUES (:content, :title, :description, :created_at, :updated_at, :author_id)")
                     .param("content", blogEntry.getContent())
                     .param("title", blogEntry.getTitle())
                     .param("description", blogEntry.getDescription())
                     .param("created_at", blogEntry.getCreatedAt())
                     .param("updated_at", blogEntry.getUpdatedAt())
-                    .param("is_public", blogEntry.isPublic())
                     .param("author_id", blogEntry.getAuthorId())
                     .update(keyHolder);
 
@@ -48,41 +49,57 @@ public class BlogEntryDao {
                     .optional();
     }
 
-    public List<BlogEntry> findAllFull() {
-        return jdbc.sql(
-                "SELECT * FROM blog_entries")
-                    .query(BlogEntry.class)
-                    .list();
+    public int count() {
+        return jdbc.sql("SELECT count(b.id) FROM blog_entries b")
+                .query(Integer.class)
+                .single();
     }
 
-    public List<SimpleBlogEntry> findAllSimple() {
+    public List<SimpleBlogEntry> findAllSimple(int pageNumber, int pageSize) {
+        int offset = (pageNumber - 1) * pageSize;
         return jdbc.sql(
-                "SELECT id, title, description, created_at FROM blog_entries")
-                    .query(SimpleBlogEntry.class)
-                    .list();
-    }
-
-    public List<SimpleBlogEntry> findAllBlogEntriesToCategoryId(int categoryId) {
-        return jdbc.sql(
-                "SELECT b.id, b.title, b.description, b.created_at " +
+                "SELECT b.id, b.title, b.description, b.created_at, " +
+                        "GROUP_CONCAT(c.category_name) AS category_list " +
                 "FROM blog_entries b " +
                 "JOIN posts_categories pc ON pc.post_id = b.id " +
-                "WHERE pc.category_id = :categoryId")
+                "JOIN categories c ON c.id = pc.category_id " +
+                "GROUP BY b.id " +
+                "ORDER BY b.id " +
+                "LIMIT :pageSize OFFSET :offset")
+                    .param("pageSize", pageSize)
+                    .param("offset", offset)
+                    .query((rs, _) -> simpleBlogEntryExtractor(rs))
+                    .list();
+    }
+
+    public List<SimpleBlogEntry> findAllSimpleBlogEntriesToCategoryId(int categoryId, int pageNumber, int pageSize) {
+        int offset = (pageNumber - 1) * pageSize;
+        return jdbc.sql(
+                "SELECT b.id, b.title, b.description, b.created_at, " +
+                        "GROUP_CONCAT(c.category_name) AS category_list " +
+                "FROM blog_entries b " +
+                "JOIN posts_categories pc ON pc.post_id = b.id " +
+                "JOIN categories c ON c.id = pc.category_id " +
+                "WHERE pc.category_id = :categoryId " +
+                "GROUP BY b.id " +
+                "ORDER BY b.id " +
+                "LIMIT :pageSize OFFSET :offset")
                     .param("categoryId", categoryId)
-                    .query(SimpleBlogEntry.class)
+                    .param("pageSize", pageSize)
+                    .param("offset", offset)
+                    .query((rs, _) -> simpleBlogEntryExtractor(rs))
                     .list();
     }
 
     public int update(BlogEntry blogEntry) {
         return jdbc.sql(
                 "UPDATE blog_entries " +
-                "SET title = :title, description = :description, content = :content, is_public = :isPublic, updated_at = :updatedAt " +
+                "SET title = :title, description = :description, content = :content, updated_at = :updatedAt " +
                 "WHERE id = :id")
                     .param("id", blogEntry.getId())
                     .param("title", blogEntry.getTitle())
                     .param("description", blogEntry.getDescription())
                     .param("content", blogEntry.getContent())
-                    .param("isPublic", blogEntry.isPublic())
                     .param("updatedAt", Instant.now())
                     .update();
     }
@@ -92,5 +109,15 @@ public class BlogEntryDao {
                 "DELETE from blog_entries WHERE id = :id")
                     .param("id", id)
                     .update();
+    }
+
+    private static SimpleBlogEntry simpleBlogEntryExtractor(ResultSet rs) throws SQLException {
+        return new SimpleBlogEntry(
+                rs.getInt("id"),
+                rs.getString("title"),
+                rs.getString("description"),
+                rs.getTimestamp("created_at").toInstant(),
+                List.of(rs.getString("category_list").split(","))
+        );
     }
 }
