@@ -13,12 +13,13 @@ VALUES
     ('Test Category 2', 'Just a test category 2.'),
     ('Test Category 3', 'Just a test category 3.');
 
-INSERT INTO `blog_entries` (title, description, created_at, updated_at, content, is_public, author_id)
+INSERT INTO `blog_entries` (title, description, created_at, updated_at, content, author_id)
 VALUES
-    ('Test Public Post 1', 'Test Description 1', '2025-09-30', '2025-09-30','Test Post 1 - TestAdmin content is here.',TRUE, 1),
-    ('Test Private Post 1', 'Test Description 2', '2025-10-02', '2025-10-03', 'Test Private Post 1 - TestAdmin content is here.',FALSE, 1),
-    ('Test Public Post 2', 'Test Description 3', '2025-10-03', '2025-10-05','Test Public Post 2 - TestUser content is here.',TRUE, 2),
-    ('Test Public Post 3', 'Test Description 4', '2025-10-03', '2025-12-31','Test Public Post 3 - TestUser2 content is here.',TRUE, 3);
+    ('Test Post 1', 'Test Description 1', '2025-09-30', '2025-09-30','Test Post 1 - TestAdmin content is here.', 1),
+    ('Test Post 2', 'Test Description 2', '2025-10-02', '2025-10-03', 'Test Post 2 - TestAdmin content is here.', 1),
+    ('Test Post 3', 'Test Description 3', '2025-10-03', '2025-10-05','Test Post 3 - TestUser content is here.', 2),
+    ('Test Post 4', 'Test Description 4', '2025-10-03', '2025-12-31','Test Post 4 - TestUser2 content is here.', 3),
+    ('Test Post 5', 'Test Description 5', '2026-02-06', null,'Test Post 5 - Te5tU$er content is here.', 4);
 
 INSERT INTO `posts_categories` (post_id, category_id)
 VALUES
@@ -29,7 +30,8 @@ VALUES
     (3,1),
     (3,2),
     (3,3),
-    (4,3);
+    (4,3),
+    (5,1);
 
 INSERT INTO `comments` (content, created_at, updated_at, parent_comment_id, author_id, post_id)
 VALUES

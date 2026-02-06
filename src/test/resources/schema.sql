@@ -17,7 +17,6 @@ CREATE TABLE `blog_entries` (
         `description` varchar(500) NOT NULL,
         `created_at` datetime NOT NULL,
         `updated_at` datetime,
-        `is_public` tinyint(1) NOT NULL,
         `author_id` int NOT NULL,
         PRIMARY KEY (`id`),
         KEY `Blog_Entry_Users_FK` (`author_id`),

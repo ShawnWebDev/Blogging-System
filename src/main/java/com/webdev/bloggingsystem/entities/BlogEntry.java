@@ -11,8 +11,6 @@ public class BlogEntry {
 
     private String content;
 
-    private boolean isPublic;
-
     private Instant createdAt;
 
     private Instant updatedAt;
@@ -21,17 +19,16 @@ public class BlogEntry {
 
     public BlogEntry() {}
 
-    public BlogEntry(int authorId, String title, String description, String content, boolean isPublic) {
+    public BlogEntry(int authorId, String title, String description, String content) {
         this.authorId = authorId;
         this.title = title;
         this.description = description;
         this.content = content;
-        this.isPublic = isPublic;
     }
 
     public static BlogEntry createBlogEntry(
-            int authorId, String title, String description, String content, boolean isPublic) {
-        BlogEntry blogEntry = new BlogEntry(authorId, title, description, content, isPublic);
+            int authorId, String title, String description, String content) {
+        BlogEntry blogEntry = new BlogEntry(authorId, title, description, content);
         blogEntry.setCreatedAt(Instant.now());
         return blogEntry;
     }
@@ -60,12 +57,6 @@ public class BlogEntry {
     public void setContent(String content) {
         this.content = content;
     }
-    public boolean isPublic() {
-        return isPublic;
-    }
-    public void setPublic(boolean aPublic) {
-        isPublic = aPublic;
-    }
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -92,7 +83,6 @@ public class BlogEntry {
                 ", title=" + title +
                 ", description=" + description +
                 ", content=" + content +
-                ", isPublic=" + isPublic +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", authorId=" + authorId +
