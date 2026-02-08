@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 
+
 @Controller
 public class HomeController {
 
@@ -14,39 +15,24 @@ public class HomeController {
         return "index";
     }
 
-    @GetMapping("/blog")
-    public String blog() {
-        return "blog";
-    }
-
 
     @GetMapping("/loginSuccess")
     public String loginSuccess(HttpServletResponse response) {
         response.setHeader("HX-Trigger", "loginSuccess");
-        return "components/header-components::auth-head";
-    }
-
-    @GetMapping("/loginError")
-    public String loginError(Model model) {
-        model.addAttribute("loginError", true);
-        return "/components/header-components::login-form";
+        return "components/auth-components::logout-form";
     }
 
     @GetMapping("/logoutSuccess")
     public String logout(Model model, HttpServletResponse response) {
         response.setHeader("HX-Trigger", "logoutSuccess");
         model.addAttribute("logout", true);
-        return "/components/header-components::login-form";
+        return "components/auth-components::login-form";
     }
 
-    @GetMapping("/commentForm")
-    public String commentForm() {
-        return "/components/comment-components::comment-form-enabled";
-    }
-
-    @GetMapping("/removeCommentForm")
-    public String remove() {
-        return "/components/comment-components::comment-form-disabled";
+    @GetMapping("/loginError")
+    public String loginError(Model model) {
+        model.addAttribute("loginError", true);
+        return "components/auth-components::login-form";
     }
 
 }
