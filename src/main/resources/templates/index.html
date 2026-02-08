@@ -1,41 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="/htmx.min.js" defer></script>
-  <link rel="stylesheet" href="/main.css">
-  <link rel="stylesheet" href="/pico.fluid.classless.conditional.jade.min.css">
-  <title>Welcome</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/htmx.min.js" defer></script>
+    <link rel="stylesheet" href="/main.css">
+    <link rel="stylesheet" href="/pico.fluid.classless.conditional.jade.min.css">
+    <title>Welcome</title>
 </head>
+
 <body class="pico">
 
-  <header>
-    <h1 th:text="${heading}" th:fragment="header" id="header" hx-swap-oob="true"></h1>
+    <header th:replace="components/header-components :: full-header"></header>
 
-    <nav>
-      <ul>
-        <li>
-          <a hx-get="/" hx-target="#main-content">About Me</a>
-        </li>
-        <li>
-          <a hx-get="/" hx-target="#main-content">Portfolio</a>
-        </li>
-        <li>
-          <a hx-get="/blog" hx-target="#main-content">Blog</a>
-        </li>
-        <li>
-          <a hx-get="/" hx-target="#main-content">Contact</a>
-        </li>
-      </ul>
-    </nav>
-  </header>
-
-  <main id="main-content" hx-swap-oob="true">
-    <h2>
-      Welcome to my website,
-    </h2>
-  </main>
+    <main th:fragment="about-main" id="main-content">
+        <h2>
+          Welcome to my website,
+        </h2>
+    </main>
 
 </body>
 </html>

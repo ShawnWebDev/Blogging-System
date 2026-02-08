@@ -1,13 +1,34 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome</title>
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <body>
 
-  <h1 th:text="${heading}" th:fragment="header" id="header" hx-swap-oob="true"></h1>
+  <h1 th:text="${heading}" th:fragment="simple-header" hx-swap-oob="true" id="header"></h1>
+
+  <header th:fragment="full-header">
+    <h1 th:text="${heading}" id="header"></h1>
+    <section id="auth">
+      <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components :: logout-form}"></div>
+      <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components :: login-form}"></div>
+    </section>
+    <nav>
+      <ul>
+        <li>
+          <a hx-get="/" hx-target="#main-content">About Me</a>
+        </li>
+        <li>
+          <a hx-get="/" hx-target="#main-content">Portfolio</a>
+        </li>
+        <li>
+          <a hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML">Blog</a>
+        </li>
+        <li>
+          <a hx-get="/" hx-target="#main-content">Contact</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
 
 
 

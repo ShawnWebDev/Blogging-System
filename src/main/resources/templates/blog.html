@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/htmx.min.js"></script>
+    <script src="/htmx.min.js" defer></script>
     <link rel="stylesheet" href="/main.css">
     <link rel="stylesheet" href="/pico.fluid.classless.conditional.jade.min.css">
     <title>Blog</title>
@@ -11,14 +11,9 @@
 
 <body class="pico">
 
-    <header th:replace="~{components/header-components :: blog-header}"></header>
+    <header th:replace="components/header-components :: full-header"></header>
 
     <main th:fragment="blog-main" id="main-content" hx-swap-oob="true">
-        <section id="auth">
-            <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components :: logout-form}"></div>
-            <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components :: login-form}"></div>
-        </section>
-
         <section id="categories">
             <hr>
             <h2>Search by category:</h2>
