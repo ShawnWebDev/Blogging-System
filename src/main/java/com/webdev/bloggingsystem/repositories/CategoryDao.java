@@ -1,8 +1,10 @@
 package com.webdev.bloggingsystem.repositories;
 
 import com.webdev.bloggingsystem.entities.Category;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,6 +20,19 @@ public class CategoryDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public int insert(Category category) {
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbc.sql(
+                "INSERT INTO categories (category_name, description) " +
+                "VALUES (:categoryName, :description)")
+                    .param("categoryName", category.getCategoryName())
+                    .param("description", category.getDescription())
+                    .update(keyHolder);
+
+        return keyHolder.getKey().intValue();
+    }
+
     public int batchInsertJoins(Set<Integer> categoryIds, int blogId) {
         int result = 0;
         if (categoryIds != null && !categoryIds.isEmpty()) {
@@ -26,28 +41,26 @@ public class CategoryDao {
                     .toList();
 
             result = jdbcTemplate.batchUpdate(
-            "INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)",
-            batchArgs).length;
+                    "INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)", batchArgs).length;
         }
         return result;
     }
 
-    public List<Category> findAllCategoriesToBlogId(int blogId) {
+    public List<Category> findAll() {
         return jdbc.sql(
-                "SELECT * FROM categories c " +
-                "JOIN posts_categories pc ON pc.category_id = c.id " +
-                "WHERE pc.post_id = :blogId ORDER BY c.id")
-                .param("blogId", blogId)
-                .query(Category.class)
-                .list();
+                "SELECT * FROM categories")
+                    .query(Category.class)
+                    .list();
     }
 
-    public List<Category> findAllCategoriesIn(Set<Integer> categoryIds) {
+    public int update(Category category) {
         return jdbc.sql(
-                "SELECT * FROM categories c " +
-                        "WHERE c.id IN (:categoryIds) ORDER BY c.id ")
-                .param("categoryIds", categoryIds)
-                .query(Category.class)
-                .list();
+                "UPDATE categories " +
+                "SET category_name = :categoryName, description = :description " +
+                "WHERE id = :id")
+                    .param("id", category.getId())
+                    .param("categoryName", category.getCategoryName())
+                    .param("description", category.getDescription())
+                    .update();
     }
 }
