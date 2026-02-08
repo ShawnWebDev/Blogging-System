@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Components</title>
+</head>
+<body>
+
+<section th:fragment="all-posts" id="posts" hx-swap="outerHTML settle:100ms">
+    <h3>All Posts...</h3>
+    <article th:each="post : ${posts}">
+        <section >
+            <h5 th:text="${post.title}"></h5>
+            <span th:each="category : ${post.categories}">
+                <a th:hx-get="@{/blog/blogComponent/posts(category=${category})}" hx-target="#posts" th:text="${category}" />
+            </span>
+        </section>
+        <section>
+            <p th:text="${post.description}"></p>
+        </section>
+
+    </article>
+</section>
+
+</body>
+</html>

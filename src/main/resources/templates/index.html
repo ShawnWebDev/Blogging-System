@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,12 +15,8 @@
 | Portfolio
 | Blog
 -->
-  <header>
-
-  </header>
-
   <main>
-    <p >Click <a th:href="@{/blog}">here</a> to see a greeting.</p>
+    <p>Click <a th:hx-get="@{/blog}" hx-target="main" hx-swap="outerHTML">here</a> to see a greeting.</p>
 
   </main>
 

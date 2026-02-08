@@ -7,34 +7,28 @@
 </head>
 <body>
 
-  <div th:fragment="auth-head" class="login-container">
-    <form hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML">
-      <button type="submit">Logout</button>
-      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-    </form>
-  </div>
+<header th:fragment="blog-header">
+  <h1 th:text="${heading}"></h1>
 
-  <div th:fragment="login-form" class="login-container">
-        <small th:if="${logout} or ${param.logout}">You have logged out.</small>
-        <button onclick="getElementById('login-modal').showModal()">Login</button>
-    <dialog id="login-modal" th:open="${loginError}">
-      <article>
-        <header>
-          <strong>Please sign in.</strong>
-          <button aria-label="Close" rel="prev" onclick="getElementById('login-modal').close()"></button>
-        </header>
-        <form hx-post="/login" hx-target=".login-container" hx-swap="outerHTML" method="post">
-          <fieldset>
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <input type="text" name="username" placeholder="Username" required th:aria-invalid="${loginError}"/>
-            <input type="password" name="password" placeholder="Password" required th:aria-invalid="${loginError}"/>
-            <input type="submit" value="Sign In"/>
-          </fieldset>
-          <small th:if="${loginError}">Invalid username or password.</small>
-        </form>
-      </article>
-    </dialog>
-  </div>
+  <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components :: logout-form}"></div>
+  <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components :: login-form}"></div>
+  <nav>
+    <ul>
+      <li>
+        <a>About Me</a>
+      </li>
+      <li>
+        <a>Portfolio</a>
+      </li>
+      <li>
+        <a>Blog</a>
+      </li>
+      <li>
+        <a>Contact</a>
+      </li>
+    </ul>
+  </nav>
+</header>
 
 
 </body>
