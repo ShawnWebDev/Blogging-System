@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.FragmentsRendering;
 
@@ -12,10 +13,19 @@ import org.springframework.web.servlet.view.FragmentsRendering;
 public class HomeController {
 
     @GetMapping("/")
-    public String home(Model model, HttpServletResponse response) {
+    public View home(Model model, HttpServletResponse response,
+                       @RequestHeader(value = "HX-Request", required = false) boolean isHtmx,
+                       @RequestHeader(value = "HX-Current-URL", required = false) String currentUrl) {
         model.addAttribute("heading", "Hello World!");
-        response.setHeader("HX-Push-Url", "/");
-        return "index";
+
+        if (currentUrl == null || !currentUrl.endsWith("/")) {
+            response.setHeader("HX-Push-Url", "/");
+        }
+
+        if (isHtmx) {
+            return FragmentsRendering.fragment("components/header-components::simple-header").fragment("index::about-main").build();
+        }
+        return FragmentsRendering.fragment("index").build();
     }
 
     @GetMapping("/loginSuccess")

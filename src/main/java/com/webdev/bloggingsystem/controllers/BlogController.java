@@ -33,15 +33,18 @@ public class BlogController {
 
     @GetMapping
     public View blog(Model model, HttpServletResponse response,
+                     @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
                      @RequestHeader(value = "HX-Request", required = false) boolean isHtmx,
-                     @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
+                     @RequestHeader(value = "HX-Current-URL", required = false) String currentUrl) {
 
         // will need count to show how many pages are available when I implement that part.
         // int count = blogEntryDao.count();
         List<SimpleBlogEntry> blogEntries = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
         List<Category> categories = categoryDao.findAll();
 
-        response.setHeader("HX-Push-Url", "/blog");
+        if (currentUrl == null || !currentUrl.endsWith("/blog")) {
+            response.setHeader("HX-Push-Url", "/blog");
+        }
 
         model.addAttribute("heading", "Welcome to my blog!");
         model.addAttribute("posts", blogEntries);
@@ -49,10 +52,10 @@ public class BlogController {
 
         if (isHtmx) {
             // for htmx request, only needs heading h1 and blog-main
-            return FragmentsRendering.fragment("components/header-components::header").fragment("blog::blog-main").build();
+            return FragmentsRendering.fragment("components/header-components::simple-header").fragment("blog::blog-main").build();
         }
         // for refresh or direct to /blog, index contains heading, nav, and css/js, only needs blog-main
-        return FragmentsRendering.fragment("index").fragment("blog::blog-main").build();
+        return FragmentsRendering.fragment("blog").build();
     }
 
     @GetMapping("/blogComponent/commentForm")
