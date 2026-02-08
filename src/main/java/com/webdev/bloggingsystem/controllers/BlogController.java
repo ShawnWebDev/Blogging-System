@@ -48,10 +48,11 @@ public class BlogController {
         model.addAttribute("categories", categories);
 
         if (isHtmx) {
-            return FragmentsRendering.fragment("components/header-components::blog-header").fragment("blog::blog-main").build();
+            // for htmx request, only needs heading h1 and blog-main
+            return FragmentsRendering.fragment("components/header-components::header").fragment("blog::blog-main").build();
         }
-
-        return FragmentsRendering.fragment("blog").build();
+        // for refresh or direct to /blog, index contains heading, nav, and css/js, only needs blog-main
+        return FragmentsRendering.fragment("index").fragment("blog::blog-main").build();
     }
 
     @GetMapping("/blogComponent/commentForm")

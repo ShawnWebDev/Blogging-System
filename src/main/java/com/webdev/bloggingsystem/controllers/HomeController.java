@@ -4,35 +4,37 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.FragmentsRendering;
 
 
 @Controller
 public class HomeController {
 
     @GetMapping("/")
-    public String home() {
+    public String home(Model model, HttpServletResponse response) {
+        model.addAttribute("heading", "Hello World!");
+        response.setHeader("HX-Push-Url", "/");
         return "index";
     }
 
-
     @GetMapping("/loginSuccess")
-    public String loginSuccess(HttpServletResponse response) {
+    public View loginSuccess(HttpServletResponse response) {
         response.setHeader("HX-Trigger", "loginSuccess");
-        return "components/auth-components::logout-form";
+        return FragmentsRendering.fragment("components/auth-components::logout-form").build();
     }
 
     @GetMapping("/logoutSuccess")
-    public String logout(Model model, HttpServletResponse response) {
+    public View logout(Model model, HttpServletResponse response) {
         response.setHeader("HX-Trigger", "logoutSuccess");
         model.addAttribute("logout", true);
-        return "components/auth-components::login-form";
+        return FragmentsRendering.fragment("components/auth-components::login-form").build();
     }
 
     @GetMapping("/loginError")
-    public String loginError(Model model) {
+    public View loginError(Model model) {
         model.addAttribute("loginError", true);
-        return "components/auth-components::login-form";
+        return FragmentsRendering.fragment("components/auth-components::login-form").build();
     }
 
 }

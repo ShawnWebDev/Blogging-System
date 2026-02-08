@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,28 +7,8 @@
 </head>
 <body>
 
-<header th:fragment="blog-header">
-  <h1 th:text="${heading}"></h1>
+  <h1 th:text="${heading}" th:fragment="header" id="header" hx-swap-oob="true"></h1>
 
-  <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components :: logout-form}"></div>
-  <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components :: login-form}"></div>
-  <nav>
-    <ul>
-      <li>
-        <a>About Me</a>
-      </li>
-      <li>
-        <a>Portfolio</a>
-      </li>
-      <li>
-        <a>Blog</a>
-      </li>
-      <li>
-        <a>Contact</a>
-      </li>
-    </ul>
-  </nav>
-</header>
 
 
 </body>
