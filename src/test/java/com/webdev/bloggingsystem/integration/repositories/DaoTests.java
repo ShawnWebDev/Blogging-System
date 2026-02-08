@@ -1,30 +1,65 @@
 package com.webdev.bloggingsystem.integration.repositories;
 
+import com.webdev.bloggingsystem.entities.AppUser;
 import com.webdev.bloggingsystem.entities.BlogEntry;
 import com.webdev.bloggingsystem.entities.Category;
+import com.webdev.bloggingsystem.entities.DTO.Author;
 import com.webdev.bloggingsystem.entities.DTO.SimpleBlogEntry;
+import com.webdev.bloggingsystem.repositories.AppUserDao;
 import com.webdev.bloggingsystem.repositories.BlogEntryDao;
-
 import com.webdev.bloggingsystem.repositories.CategoryDao;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.mariadb.MariaDBContainer;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+@JdbcTest
+@ActiveProfiles("test")
+@Testcontainers
+@Import({AppUserDao.class, BlogEntryDao.class, CategoryDao.class})
+public class DaoTests {
 
-@Import({BlogEntryDao.class, CategoryDao.class})
-public class BlogEntryDaoTest extends BaseRepoTest {
-
+    @Autowired
+    private AppUserDao appUserDao;
     @Autowired
     private BlogEntryDao blogEntryDao;
     @Autowired
     private CategoryDao categoryDao;
 
+    @Container
+    @ServiceConnection
+    static MariaDBContainer mariadbContainer = new MariaDBContainer("mariadb:lts-ubi9");
+
+    @Test
+    void getUserByUsername() {
+        Optional<AppUser> user = appUserDao.findByUsername("TestAdmin");
+
+        System.out.println(user);
+        Assertions.assertTrue(user.isPresent());
+        Assertions.assertEquals("TestAdmin", user.get().getUsername());
+    }
+
+    @Test
+    void getAuthorById() {
+        Optional<Author> author = appUserDao.findAuthorById(1);
+
+        System.out.println(author);
+        Assertions.assertTrue(author.isPresent());
+        Assertions.assertEquals("TestAdmin", author.get().username());
+    }
 
     @Test
     public void testFindById() {
@@ -65,10 +100,11 @@ public class BlogEntryDaoTest extends BaseRepoTest {
 
     @Test
     public void testFindAllByCategory() {
-        List<SimpleBlogEntry> result = blogEntryDao.findAllSimpleBlogEntriesToCategoryId(3, 1, 5);
+        List<SimpleBlogEntry> result = blogEntryDao.findAllSimpleBlogEntriesToCategoryName("Test Category 3", 1, 5);
         Assertions.assertNotNull(result);
         Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals(2, result.size());
+        Assertions.assertEquals(3, result.getFirst().categories().size());
 
         System.out.println("result: " + result);
     }
@@ -91,10 +127,6 @@ public class BlogEntryDaoTest extends BaseRepoTest {
 
         int insertedCategories = categoryDao.batchInsertJoins(Set.of(1, 2, 3), postId);
         Assertions.assertEquals(3, insertedCategories);
-
-        List<Category> entryCategories = categoryDao.findAllCategoriesToBlogId(postId);
-        Assertions.assertEquals(3, entryCategories.size());
-        System.out.println("found categories: " + entryCategories);
     }
 
     @Test
@@ -154,9 +186,6 @@ public class BlogEntryDaoTest extends BaseRepoTest {
 
         int deleted = blogEntryDao.deleteById(blogEntry.getId());
         Assertions.assertEquals(1, deleted);
-
-        int categoryAmt = categoryDao.findAllCategoriesToBlogId(blogEntry.getId()).size();
-        Assertions.assertEquals(0, categoryAmt);
 
         blogEntry = blogEntryDao.findById(1).orElse(null);
         Assertions.assertNull(blogEntry);

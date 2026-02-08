@@ -1,11 +1,10 @@
 package com.webdev.bloggingsystem.repositories;
 
 import com.webdev.bloggingsystem.entities.BlogEntry;
-
 import com.webdev.bloggingsystem.entities.DTO.SimpleBlogEntry;
+
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
@@ -24,7 +23,7 @@ public class BlogEntryDao {
     }
 
     public int insert(BlogEntry blogEntry) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbc.sql(
                 "INSERT INTO blog_entries (content, title, description, created_at, updated_at, author_id) " +
@@ -59,7 +58,7 @@ public class BlogEntryDao {
         int offset = (pageNumber - 1) * pageSize;
         return jdbc.sql(
                 "SELECT b.id, b.title, b.description, b.created_at, " +
-                        "GROUP_CONCAT(c.category_name) AS category_list " +
+                    "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                 "FROM blog_entries b " +
                 "JOIN posts_categories pc ON pc.post_id = b.id " +
                 "JOIN categories c ON c.id = pc.category_id " +
@@ -72,19 +71,24 @@ public class BlogEntryDao {
                     .list();
     }
 
-    public List<SimpleBlogEntry> findAllSimpleBlogEntriesToCategoryId(int categoryId, int pageNumber, int pageSize) {
+    public List<SimpleBlogEntry> findAllSimpleBlogEntriesToCategoryName(String categoryName, int pageNumber, int pageSize) {
         int offset = (pageNumber - 1) * pageSize;
+        // first, the subquery limits selection to only post_ids that have relation to specified category_name.
+        // second, columns are selected and joined to a concatenated string of all grouped category_names related to those post_ids.
         return jdbc.sql(
                 "SELECT b.id, b.title, b.description, b.created_at, " +
-                        "GROUP_CONCAT(c.category_name) AS category_list " +
+                    "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                 "FROM blog_entries b " +
                 "JOIN posts_categories pc ON pc.post_id = b.id " +
                 "JOIN categories c ON c.id = pc.category_id " +
-                "WHERE pc.category_id = :categoryId " +
+                "WHERE b.id IN (" +
+                    "SELECT pc_sub.post_id FROM posts_categories pc_sub " +
+                    "JOIN categories c_sub ON c_sub.id = pc_sub.category_id " +
+                    "WHERE c_sub.category_name = :categoryName) " +
                 "GROUP BY b.id " +
                 "ORDER BY b.id " +
                 "LIMIT :pageSize OFFSET :offset")
-                    .param("categoryId", categoryId)
+                    .param("categoryName", categoryName)
                     .param("pageSize", pageSize)
                     .param("offset", offset)
                     .query((rs, _) -> simpleBlogEntryExtractor(rs))
