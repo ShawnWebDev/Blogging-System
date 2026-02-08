@@ -8,42 +8,24 @@
     <link rel="stylesheet" href="/pico.fluid.classless.conditional.jade.min.css">
     <title>Hello</title>
 </head>
+
 <body class="pico">
+    <header th:replace="~{components/header-components :: blog-header}"></header>
 
-    <header>
-        <h1>Welcome to my blog!</h1>
-        <div sec:authorize="isAuthenticated()" th:replace="~{components/header-components :: auth-head}"></div>
-        <div sec:authorize="isAnonymous()" th:replace="~{components/header-components :: login-form}"></div>
-    </header>
-
-    <main>
-        <hr>
-        <section>
+    <main th:fragment="blog-main">
+        <section id="categories">
+            <hr>
+            <h2>Search by category:</h2>
             <div>
-                Selection of categories to filter by... (Will be own component)
+                <div th:each="category : ${categories}">
+
+                </div>
             </div>
-        </section>
-        <hr>
-
-        <section>
-            <h3>All Posts...(Will be own component as will page displaying each post)</h3>
-
+            <hr>
         </section>
 
-        <section>
-            <h3>Comments... This will be within each blog post (Will be own component)</h3>
-
-            <div hx-trigger="logoutSuccess from:body" hx-get="/removeCommentForm" hx-swap="innerHTML" hx-target="#comment-form-container"></div>
-            <div hx-trigger="loginSuccess from:body" hx-get="/commentForm" hx-swap="innerHTML" hx-target="#comment-form-container"></div>
-
-            <div id="comment-form-container">
-                <div sec:authorize="isAuthenticated()" th:replace="~{components/comment-components :: comment-form-enabled}"></div>
-                <div sec:authorize="isAnonymous()" th:replace="~{components/comment-components :: comment-form-disabled}"></div>
-            </div>
-        </section>
-
+        <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
     </main>
-
 
 </body>
 </html>

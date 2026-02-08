@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome</title>
+  <title>Comment Components</title>
 </head>
 <body>
 
@@ -15,6 +15,19 @@
   <div th:fragment="comment-form-disabled">
     <p>disabled comment form will be here....</p>
   </div>
+
+
+  <section th:fragment="comment-section" id="comments">
+    <h3>Comments...</h3>
+    <p>This will be within each blog post (Will be own component)</p>
+    <div hx-trigger="logoutSuccess from:body" hx-get="/blog/blogComponent/removeCommentForm" hx-swap="innerHTML" hx-target="#comment-form-container"></div>
+    <div hx-trigger="loginSuccess from:body" hx-get="/blog/blogComponent/commentForm" hx-swap="innerHTML" hx-target="#comment-form-container"></div>
+
+    <div id="comment-form-container">
+      <div sec:authorize="isAuthenticated()" th:replace="~{components/comment-components :: comment-form-enabled}"></div>
+      <div sec:authorize="isAnonymous()" th:replace="~{components/comment-components :: comment-form-disabled}"></div>
+    </div>
+  </section>
 
 
 </body>
