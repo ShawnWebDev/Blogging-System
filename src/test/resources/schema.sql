@@ -42,8 +42,8 @@ CREATE TABLE `comments` (
 
 CREATE TABLE `categories` (
         `id` int NOT NULL AUTO_INCREMENT,
-        `category_name` varchar(255) NOT NULL,
-        `description` varchar(500) NOT NULL,
+        `category_name` varchar(100) NOT NULL,
+        `description` varchar(255) NOT NULL,
         PRIMARY KEY (`id`),
         UNIQUE KEY `Categories_UNIQUE` (`category_name`)
 );
