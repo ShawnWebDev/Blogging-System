@@ -15,11 +15,11 @@
 
     <main th:fragment="blog-main" id="main-content">
         <hr>
-        <h3>Search by category:</h3>
+        <h3>Search By Category:</h3>
         <section id="categories">
             <article th:each="category : ${categories}" th:hx-get="@{/blog/blogComponent/posts(category=${category.categoryName})}" hx-target="#posts" hx-swap="innerHTML swap:200ms" class="category-selection">
                 <header>
-                    <h5 th:text="${category.categoryName}"></h5>
+                    <h6 th:text="${category.categoryName}"></h6>
                 </header>
                 <small th:text="${category.description}"></small>
             </article>
