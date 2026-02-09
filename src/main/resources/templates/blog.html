@@ -15,9 +15,9 @@
 
     <main th:fragment="blog-main" id="main-content">
         <hr>
-        <h2>Search by category:</h2>
+        <h3>Search by category:</h3>
         <section id="categories">
-            <article th:each="category : ${categories}">
+            <article th:each="category : ${categories}" th:hx-get="@{/blog/blogComponent/posts(category=${category.categoryName})}" hx-target="#posts" hx-swap="innerHTML swap:200ms" class="category-selection">
                 <header>
                     <h5 th:text="${category.categoryName}"></h5>
                 </header>
@@ -25,6 +25,7 @@
             </article>
         </section>
         <hr>
+        <h3>All Posts...</h3>
         <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
     </main>
 

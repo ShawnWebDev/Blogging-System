@@ -6,8 +6,7 @@
 </head>
 <body>
 
-<section th:fragment="all-posts" id="posts" hx-swap="outerHTML settle:100ms">
-    <h3>All Posts...</h3>
+<section th:fragment="all-posts" id="posts">
     <article th:each="post : ${posts}">
         <header>
             <h5 th:text="${post.title}"></h5>
@@ -18,7 +17,7 @@
 
         <footer>
             <small th:each="category : ${post.categories}">
-                <a th:hx-get="@{/blog/blogComponent/posts(category=${category})}" hx-target="#posts" th:text="${category}"/>
+                <a th:hx-get="@{/blog/blogComponent/posts(category=${category})}" hx-target="#posts" hx-swap="innerHTML swap:200ms" th:text="${category}"/>
             </small>
         </footer>
     </article>
