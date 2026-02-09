@@ -9,16 +9,18 @@
 <section th:fragment="all-posts" id="posts" hx-swap="outerHTML settle:100ms">
     <h3>All Posts...</h3>
     <article th:each="post : ${posts}">
-        <section >
+        <header>
             <h5 th:text="${post.title}"></h5>
-            <span th:each="category : ${post.categories}">
-                <a th:hx-get="@{/blog/blogComponent/posts(category=${category})}" hx-target="#posts" th:text="${category}" />
-            </span>
-        </section>
-        <section>
-            <p th:text="${post.description}"></p>
-        </section>
+            <span>@ <small th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></small></span>
+        </header>
 
+        <p th:text="${post.description}"></p>
+
+        <footer>
+            <small th:each="category : ${post.categories}">
+                <a th:hx-get="@{/blog/blogComponent/posts(category=${category})}" hx-target="#posts" th:text="${category}"/>
+            </small>
+        </footer>
     </article>
 </section>
 

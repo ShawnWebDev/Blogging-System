@@ -5,26 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="/htmx.min.js" defer></script>
     <link rel="stylesheet" href="/main.css">
-    <link rel="stylesheet" href="/pico.fluid.classless.conditional.jade.min.css">
+    <link rel="stylesheet" href="/pico.classless.jade.min.css">
     <title>Blog</title>
 </head>
 
 <body class="pico">
 
-    <header th:replace="components/header-components :: full-header"></header>
+    <header th:replace="~{components/header-components :: full-header}"></header>
 
-    <main th:fragment="blog-main" id="main-content" hx-swap-oob="true">
+    <main th:fragment="blog-main" id="main-content">
+        <hr>
+        <h2>Search by category:</h2>
         <section id="categories">
-            <hr>
-            <h2>Search by category:</h2>
-            <div>
-                <div th:each="category : ${categories}">
-
-                </div>
-            </div>
-            <hr>
+            <article th:each="category : ${categories}">
+                <header>
+                    <h5 th:text="${category.categoryName}"></h5>
+                </header>
+                <small th:text="${category.description}"></small>
+            </article>
         </section>
-
+        <hr>
         <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
     </main>
 
