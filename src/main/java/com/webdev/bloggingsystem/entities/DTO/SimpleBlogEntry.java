@@ -4,5 +4,5 @@ import java.time.Instant;
 import java.util.List;
 
 public record SimpleBlogEntry(
-        int id, String title, String description, Instant createdAt, List<String> categories) {
+        int id, String title, String description, Instant createdAt, List<String> categories, String thumbnailUrl) {
 }

@@ -116,7 +116,8 @@ public class DaoTests {
             1,
             "Test title",
             "Test Description",
-            "Test Content"
+            "Test Content",
+                ""
         );
 
         int postId = blogEntryDao.insert(blogEntry);
@@ -136,7 +137,8 @@ public class DaoTests {
                 1,
                 "Test title",
                 "Test Description",
-                "Test Content"
+                "Test Content",
+                ""
         );
         Set<Integer> set = Set.of(10, 20, 30);
 
@@ -151,9 +153,12 @@ public class DaoTests {
     public void testUpdateBlogEntry() {
         BlogEntry blogEntry = blogEntryDao.findById(1).orElse(null);
         Assertions.assertNotNull(blogEntry);
+        System.out.println("slug before title update: " + blogEntry.getSlug());
 
         blogEntry.setContent("Updated Content Here...");
         blogEntry.setTitle("Updated Title");
+
+        Assertions.assertEquals("updated-title", blogEntry.getSlug());
 
         Assertions.assertEquals(1, blogEntryDao.update(blogEntry));
 
@@ -168,7 +173,8 @@ public class DaoTests {
                 1,
                 "Fake title",
                 "Fake Description",
-                "Fake Content"
+                "Fake Content",
+                ""
         );
         blogEntry.setId(99);
         Assertions.assertEquals(0, blogEntryDao.update(blogEntry));

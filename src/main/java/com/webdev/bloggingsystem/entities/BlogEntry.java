@@ -15,22 +15,34 @@ public class BlogEntry {
 
     private Instant updatedAt;
 
+    private String slug;
+
+    private String thumbnailUrl;
+
     private int authorId;
 
     public BlogEntry() {}
 
-    public BlogEntry(int authorId, String title, String description, String content) {
+    public BlogEntry(int authorId, String title, String description, String content, String thumbnailUrl) {
         this.authorId = authorId;
         this.title = title;
         this.description = description;
         this.content = content;
+        this.thumbnailUrl = thumbnailUrl;
     }
 
-    public static BlogEntry createBlogEntry(
-            int authorId, String title, String description, String content) {
-        BlogEntry blogEntry = new BlogEntry(authorId, title, description, content);
+    public static BlogEntry createBlogEntry(int authorId, String title, String description, String content, String thumbnailUrl) {
+        BlogEntry blogEntry = new BlogEntry(authorId, title, description, content, thumbnailUrl);
         blogEntry.setCreatedAt(Instant.now());
+        blogEntry.setSlug(generateSlugFromTitle(title));
         return blogEntry;
+    }
+
+    private static String generateSlugFromTitle(String title) {
+        return title.toLowerCase()
+                .replaceAll("[^a-z0-9\\s]", "") // replaces everything NOT a-z, 0-9, or space
+                .trim() // remove outer whitespace
+                .replaceAll("\\s+", "-"); // replace one or more space with a hyphen
     }
 
     public Integer getId() {
@@ -44,6 +56,7 @@ public class BlogEntry {
     }
     public void setTitle(String title) {
         this.title = title;
+        this.setSlug(generateSlugFromTitle(title)); // <-- for updating
     }
     public String getDescription() {
         return description;
@@ -69,6 +82,18 @@ public class BlogEntry {
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
+    public String getSlug() {
+        return slug;
+    }
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
     public int getAuthorId() {
         return authorId;
     }
@@ -80,7 +105,9 @@ public class BlogEntry {
     public String toString() {
         return "BlogEntry{" +
                 "id=" + id +
+                ", slug='" + slug + '\'' +
                 ", title=" + title +
+                ", thumbnailUrl='" + thumbnailUrl + '\'' +
                 ", description=" + description +
                 ", content=" + content +
                 ", createdAt=" + createdAt +

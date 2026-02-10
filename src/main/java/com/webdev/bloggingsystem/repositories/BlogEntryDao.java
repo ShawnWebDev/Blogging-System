@@ -26,14 +26,16 @@ public class BlogEntryDao {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbc.sql(
-                "INSERT INTO blog_entries (content, title, description, created_at, updated_at, author_id) " +
-                "VALUES (:content, :title, :description, :created_at, :updated_at, :author_id)")
+                "INSERT INTO blog_entries (content, title, description, created_at, updated_at, slug, author_id, thumbnail_url) " +
+                "VALUES (:content, :title, :description, :created_at, :updated_at, :slug, :author_id, :thumbnail_url)")
                     .param("content", blogEntry.getContent())
                     .param("title", blogEntry.getTitle())
+                    .param("slug", blogEntry.getSlug())
                     .param("description", blogEntry.getDescription())
                     .param("created_at", blogEntry.getCreatedAt())
                     .param("updated_at", blogEntry.getUpdatedAt())
                     .param("author_id", blogEntry.getAuthorId())
+                    .param("thumbnail_url", blogEntry.getThumbnailUrl())
                     .update(keyHolder);
 
         return keyHolder.getKey().intValue();
@@ -57,7 +59,7 @@ public class BlogEntryDao {
     public List<SimpleBlogEntry> findAllSimple(int pageNumber, int pageSize) {
         int offset = (pageNumber - 1) * pageSize;
         return jdbc.sql(
-                "SELECT b.id, b.title, b.description, b.created_at, " +
+                "SELECT b.id, b.title, b.description, b.created_at, b.thumbnail_url, " +
                     "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                 "FROM blog_entries b " +
                 "JOIN posts_categories pc ON pc.post_id = b.id " +
@@ -76,7 +78,7 @@ public class BlogEntryDao {
         // first, the subquery limits selection to only post_ids that have relation to specified category_name.
         // second, columns are selected and joined to a concatenated string of all grouped category_names related to those post_ids.
         return jdbc.sql(
-                "SELECT b.id, b.title, b.description, b.created_at, " +
+                "SELECT b.id, b.title, b.description, b.created_at, b.thumbnail_url, " +
                     "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                 "FROM blog_entries b " +
                 "JOIN posts_categories pc ON pc.post_id = b.id " +
@@ -98,13 +100,15 @@ public class BlogEntryDao {
     public int update(BlogEntry blogEntry) {
         return jdbc.sql(
                 "UPDATE blog_entries " +
-                "SET title = :title, description = :description, content = :content, updated_at = :updatedAt " +
+                "SET title = :title, description = :description, content = :content, updated_at = :updatedAt, slug = :slug, thumbnail_url = :thumbnailUrl " +
                 "WHERE id = :id")
                     .param("id", blogEntry.getId())
                     .param("title", blogEntry.getTitle())
                     .param("description", blogEntry.getDescription())
                     .param("content", blogEntry.getContent())
                     .param("updatedAt", Instant.now())
+                    .param("slug", blogEntry.getSlug())
+                    .param("thumbnailUrl", blogEntry.getThumbnailUrl())
                     .update();
     }
 
@@ -121,7 +125,8 @@ public class BlogEntryDao {
                 rs.getString("title"),
                 rs.getString("description"),
                 rs.getTimestamp("created_at").toInstant(),
-                List.of(rs.getString("category_list").split(","))
+                List.of(rs.getString("category_list").split(",")),
+                rs.getString("thumbnail_url")
         );
     }
 }
