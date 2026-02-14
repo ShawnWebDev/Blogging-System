@@ -9,15 +9,20 @@
     <title>Blog</title>
 </head>
 
-<body class="pico">
+<body>
 
     <header th:replace="~{components/header-components :: full-header}"></header>
 
     <main th:fragment="blog-main" id="main-content">
         <hr>
         <h3>Search By Category:</h3>
+        <a href="#" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="innerHTML swap:200ms">All Posts</a>
         <section id="categories">
-            <article th:each="category : ${categories}" th:hx-get="@{/blog/blogComponent/posts(category=${category.categoryName})}" hx-target="#posts" hx-swap="innerHTML swap:200ms" class="category-selection">
+            <article class="category-selection"
+                     th:each="category : ${categories}"
+                     th:hx-get="@{/blog/blogComponent/posts(category=${category.categoryName})}"
+                     hx-target="#posts"
+                     hx-swap="innerHTML swap:200ms">
                 <header>
                     <h6 th:text="${category.categoryName}"></h6>
                 </header>
@@ -25,7 +30,6 @@
             </article>
         </section>
         <hr>
-        <h3>All Posts...</h3>
         <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
     </main>
 

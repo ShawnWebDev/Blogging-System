@@ -5,32 +5,29 @@
 
   <h1 th:text="${heading}" th:fragment="simple-header" hx-swap-oob="true" id="header"></h1>
 
-  <header th:fragment="full-header">
+  <header th:fragment="full-header" id="main-header">
     <h1 th:text="${heading}" id="header"></h1>
-    <section id="auth">
-      <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components :: logout-form}"></div>
-      <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components :: login-form}"></div>
-    </section>
     <nav>
       <ul>
         <li>
-          <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML">About Me</a>
+          <a href="#" hx-get="/" hx-target="#main-content" hx-swap="outerHTML">About Me</a>
         </li>
         <li>
-          <a hx-get="/" hx-target="#main-content">Portfolio</a>
+          <a href="#" hx-get="/" hx-target="#main-content">Portfolio</a>
         </li>
         <li>
-          <a hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML">Blog</a>
+          <a href="#" hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML">Blog</a>
         </li>
         <li>
-          <a hx-get="/" hx-target="#main-content">Contact</a>
+          <a href="#" hx-get="/" hx-target="#main-content">Contact</a>
+        </li>
+        <li>
+          <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components :: login-form}"></div>
+          <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components :: logout-form}"></div>
         </li>
       </ul>
     </nav>
   </header>
-
-
-
 
 </body>
 </html>

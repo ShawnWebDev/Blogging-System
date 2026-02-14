@@ -48,6 +48,7 @@ public class BlogController {
 
         model.addAttribute("heading", "Welcome to my blog!");
         model.addAttribute("posts", blogEntries);
+        model.addAttribute("postsHeading", "All Posts");
         model.addAttribute("categories", categories);
 
         if (isHtmx) {
@@ -69,10 +70,17 @@ public class BlogController {
     }
 
     @GetMapping("/blogComponent/posts")
-    public View posts(Model model, @RequestParam("category") String categoryName,
+    public View posts(Model model, @RequestParam(value = "category", defaultValue = "All", required = false) String categoryName,
                         @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
-        List<SimpleBlogEntry> sortedBlogEntries = blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, PAGE_SIZE);
+
+        List<SimpleBlogEntry> sortedBlogEntries;
+        if (categoryName.equals("All")) {
+            sortedBlogEntries = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
+        } else {
+            sortedBlogEntries = blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, PAGE_SIZE);
+        }
         model.addAttribute("posts", sortedBlogEntries);
+        model.addAttribute("postsHeading", categoryName + " Posts");
         return FragmentsRendering.fragment("components/blog-components::all-posts").build();
     }
 

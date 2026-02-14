@@ -9,16 +9,15 @@
 <body>
 
 <div th:fragment="logout-form" class="login-container">
-    <form hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML">
+    <form id="logout-form">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <button type="submit">Logout</button>
     </form>
+    <a href="#" hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML" hx-include="#logout-form input">Logout</a>
 </div>
 
 <div th:fragment="login-form" class="login-container">
-    <small th:if="${logout} or ${param.logout}">You have logged out.</small>
-    <button onclick="getElementById('login-modal').showModal()">Login</button>
-    <dialog id="login-modal" th:open="${loginError}">
+    <a onclick="getElementById('login-modal').showModal()">Login</a>
+    <dialog id="login-modal" th:open="${loginError} or ${logout}">
         <article>
             <header>
                 <strong>Please sign in to comment.</strong>
@@ -38,6 +37,7 @@
                     <input type="submit" value="Sign In"/>
                 </fieldset>
                 <small th:if="${loginError}">Invalid username or password.</small>
+                <small th:if="${logout}">You have logged out.</small>
             </form>
         </article>
     </dialog>
