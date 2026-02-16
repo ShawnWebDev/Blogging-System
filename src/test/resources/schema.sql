@@ -20,6 +20,7 @@ CREATE TABLE `blog_entries` (
         `author_id` int NOT NULL,
         `slug` varchar(255) NOT NULL,
         `thumbnail_url` varchar(255) NOT NULL,
+        `thumbnail_alt` varchar(255) NOT NULL,
         PRIMARY KEY (`id`),
         KEY `Blog_Entry_Users_FK` (`author_id`),
         CONSTRAINT `Blog_Entry_Users_FK` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`),

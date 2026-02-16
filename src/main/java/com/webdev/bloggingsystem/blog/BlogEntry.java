@@ -19,11 +19,13 @@ public class BlogEntry {
 
     private String thumbnailUrl;
 
+    private String thumbnailAlt;
+
     private int authorId;
 
     public BlogEntry() {}
 
-    public BlogEntry(int authorId, String title, String description, String content, String thumbnailUrl) {
+    public BlogEntry(int authorId, String title, String description, String content, String thumbnailUrl, String thumbnailAlt) {
         this.authorId = authorId;
         this.title = title;
         this.description = description;
@@ -31,8 +33,8 @@ public class BlogEntry {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    public static BlogEntry createBlogEntry(int authorId, String title, String description, String content, String thumbnailUrl) {
-        BlogEntry blogEntry = new BlogEntry(authorId, title, description, content, thumbnailUrl);
+    public static BlogEntry createBlogEntry(int authorId, String title, String description, String content, String thumbnailUrl, String thumbnailAlt) {
+        BlogEntry blogEntry = new BlogEntry(authorId, title, description, content, thumbnailUrl, thumbnailAlt);
         blogEntry.setCreatedAt(Instant.now());
         blogEntry.setSlug(generateSlugFromTitle(title));
         return blogEntry;
@@ -94,6 +96,12 @@ public class BlogEntry {
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
     }
+    public String getThumbnailAlt() {
+        return thumbnailAlt;
+    }
+    public void setThumbnailAlt(String thumbnailAlt) {
+        this.thumbnailAlt = thumbnailAlt;
+    }
     public int getAuthorId() {
         return authorId;
     }
@@ -105,9 +113,10 @@ public class BlogEntry {
     public String toString() {
         return "BlogEntry{" +
                 "id=" + id +
-                ", slug='" + slug + '\'' +
+                ", slug='" + slug +
                 ", title=" + title +
-                ", thumbnailUrl='" + thumbnailUrl + '\'' +
+                ", thumbnailUrl='" + thumbnailUrl +
+                ", thumbnailAlt='" + thumbnailAlt +
                 ", description=" + description +
                 ", content=" + content +
                 ", createdAt=" + createdAt +
