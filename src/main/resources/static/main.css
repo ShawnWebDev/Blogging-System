@@ -3,10 +3,13 @@
 }
 
 header {
-    display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
     align-items: center;
+}
+
+header, #categories {
+    display: flex;
+    justify-content: space-between;
     align-content: center;
 }
 
@@ -19,8 +22,9 @@ a {
     transition: all 300ms ease-in-out;
 }
 
-#posts header {
-    align-content: center;
+#header, .post header h5, .category-selection header h6 {
+    margin: 0;
+    line-height: 1;
 }
 
 #posts.htmx-added, #main-content.htmx-added {
@@ -34,12 +38,9 @@ a {
 }
 
 #categories {
-    display: flex;
     flex-wrap: nowrap;
-    justify-content: space-between;
-    gap: 1rem;
+    gap: 0.5rem;
     overflow-y: scroll;
-    padding-top: 2rem;
 }
 
 .category-selection {
@@ -53,7 +54,6 @@ a {
 
 .category-selection header {
     justify-content: center;
-    align-content: center;
 }
 
 .category-selection:hover {
@@ -67,5 +67,8 @@ a {
     }
     nav ul {
         flex-wrap: wrap;
+    }
+    #categories {
+        gap: 0.25rem;
     }
 }
