@@ -1,13 +1,12 @@
 package com.webdev.bloggingsystem.integration.repositories;
 
-import com.webdev.bloggingsystem.entities.AppUser;
-import com.webdev.bloggingsystem.entities.BlogEntry;
-import com.webdev.bloggingsystem.entities.Category;
-import com.webdev.bloggingsystem.entities.DTO.Author;
-import com.webdev.bloggingsystem.entities.DTO.SimpleBlogEntry;
-import com.webdev.bloggingsystem.repositories.AppUserDao;
-import com.webdev.bloggingsystem.repositories.BlogEntryDao;
-import com.webdev.bloggingsystem.repositories.CategoryDao;
+import com.webdev.bloggingsystem.user.AppUser;
+import com.webdev.bloggingsystem.blog.BlogEntry;
+import com.webdev.bloggingsystem.user.AuthorDto;
+import com.webdev.bloggingsystem.blog.SimpleBlogEntryDto;
+import com.webdev.bloggingsystem.user.AppUserDao;
+import com.webdev.bloggingsystem.blog.BlogEntryDao;
+import com.webdev.bloggingsystem.blog.CategoryDao;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -54,7 +53,7 @@ public class DaoTests {
 
     @Test
     void getAuthorById() {
-        Optional<Author> author = appUserDao.findAuthorById(1);
+        Optional<AuthorDto> author = appUserDao.findAuthorById(1);
 
         System.out.println(author);
         Assertions.assertTrue(author.isPresent());
@@ -81,7 +80,7 @@ public class DaoTests {
 
     @Test
     public void testFindAllSimplePaginatedPage1() {
-        List<SimpleBlogEntry> result = blogEntryDao.findAllSimple(1, 5);
+        List<SimpleBlogEntryDto> result = blogEntryDao.findAllSimple(1, 5);
         System.out.println("result: " + result);
 
         Assertions.assertNotNull(result);
@@ -91,7 +90,7 @@ public class DaoTests {
 
     @Test
     public void testFindAllSimplePaginatedPage2() {
-        List<SimpleBlogEntry> result = blogEntryDao.findAllSimple(2, 5);
+        List<SimpleBlogEntryDto> result = blogEntryDao.findAllSimple(2, 5);
         System.out.println("result: " + result);
 
         Assertions.assertNotNull(result);
@@ -100,7 +99,7 @@ public class DaoTests {
 
     @Test
     public void testFindAllByCategory() {
-        List<SimpleBlogEntry> result = blogEntryDao.findAllSimpleBlogEntriesToCategoryName("Test Category 3", 1, 5);
+        List<SimpleBlogEntryDto> result = blogEntryDao.findAllSimpleBlogEntriesToCategoryName("Test Category 3", 1, 5);
         Assertions.assertNotNull(result);
         Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals(2, result.size());
