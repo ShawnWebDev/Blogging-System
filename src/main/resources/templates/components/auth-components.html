@@ -34,10 +34,10 @@
                         Password:
                         <input type="password" name="password" placeholder="Password" required th:aria-invalid="${loginError}"/>
                     </label>
-                    <input type="submit" value="Sign In"/>
                 </fieldset>
                 <small th:if="${loginError}">Invalid username or password.</small>
                 <small th:if="${logout}">You have logged out.</small>
+                <input type="submit" value="Sign In"/>
             </form>
         </article>
     </dialog>
