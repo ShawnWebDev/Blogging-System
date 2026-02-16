@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +13,11 @@
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
     </form>
     <a href="#" hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML" hx-include="#logout-form input">Logout</a>
+    <div>
+        <a sec:authorize="hasAuthority('ADMIN')" hx-get="/blog/createPost" hx-target="#main-content" hx-swap="innerHTML">
+            Create Post
+        </a>
+    </div>
 </div>
 
 <div th:fragment="login-form" class="login-container">

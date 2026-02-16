@@ -10,16 +10,16 @@
     <nav>
       <ul>
         <li>
-          <a href="#" hx-get="/" hx-target="#main-content" hx-swap="outerHTML">About Me</a>
+          <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML">About Me</a>
         </li>
         <li>
-          <a href="#" hx-get="/" hx-target="#main-content">Portfolio</a>
+          <a hx-get="/" hx-target="#main-content">Portfolio</a>
         </li>
         <li>
-          <a href="#" hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML">Blog</a>
+          <a hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML">Blog</a>
         </li>
         <li>
-          <a href="#" hx-get="/" hx-target="#main-content">Contact</a>
+          <a hx-get="/" hx-target="#main-content">Contact</a>
         </li>
         <li>
           <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components :: login-form}"></div>
