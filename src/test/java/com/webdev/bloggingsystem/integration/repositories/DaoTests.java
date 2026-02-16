@@ -116,6 +116,7 @@ public class DaoTests {
             "Test title",
             "Test Description",
             "Test Content",
+                "",
                 ""
         );
 
@@ -137,6 +138,7 @@ public class DaoTests {
                 "Test title",
                 "Test Description",
                 "Test Content",
+                "",
                 ""
         );
         Set<Integer> set = Set.of(10, 20, 30);
@@ -173,6 +175,7 @@ public class DaoTests {
                 "Fake title",
                 "Fake Description",
                 "Fake Content",
+                "",
                 ""
         );
         blogEntry.setId(99);
