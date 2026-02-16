@@ -1,13 +1,13 @@
 package com.webdev.bloggingsystem.blog;
 
-import jakarta.servlet.http.HttpServletResponse;
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.FragmentsRendering;
 
 import java.util.List;
@@ -27,45 +27,40 @@ public class BlogController {
     }
 
     @GetMapping
-    public View blog(Model model, HttpServletResponse response,
-                     @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
-                     @RequestHeader(value = "HX-Request", required = false) boolean isHtmx,
-                     @RequestHeader(value = "HX-Current-URL", required = false) String currentUrl) {
+    public FragmentsRendering blog(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest,
+                           @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
 
         // will need count to show how many pages are available when I implement that part.
         // int count = blogEntryDao.count();
         List<SimpleBlogEntryDto> blogEntries = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
         List<Category> categories = categoryDao.findAll();
-
-        if (currentUrl == null || !currentUrl.endsWith("/blog")) {
-            response.setHeader("HX-Push-Url", "/blog");
+        // checks if request is from HTMX and the current address is not already set to /blog,
+        // then pushes /blog into browser history and address bar.
+        if (htmxRequest.getCurrentUrl() == null || !htmxRequest.getCurrentUrl().endsWith("/blog")) {
+            htmxResponse.setPushUrl("/blog");
         }
 
         model.addAttribute("heading", "Welcome to my blog!");
         model.addAttribute("posts", blogEntries);
-        model.addAttribute("postsHeading", "All Posts");
+        model.addAttribute("postsHeading", "All Posts");    // used for dynamic heading of 'all-posts' fragment with category filter
         model.addAttribute("categories", categories);
 
-        if (isHtmx) {
-            // for htmx request, only needs heading h1 and blog-main
-            return FragmentsRendering.fragment("components/header-components::simple-header").fragment("blog::blog-main").build();
+        if (htmxRequest.isHtmxRequest()) {
+            // for htmx request, only needs heading h1 and blog-main with all-posts
+            return FragmentsRendering
+                    .fragment("components/header-components::simple-header")
+                    .fragment("blog::blog-main")
+                    .build();
         }
-        // for refresh or direct to /blog, index contains heading, nav, and css/js, only needs blog-main
-        return FragmentsRendering.fragment("blog").build();
-    }
-
-    @GetMapping("/blogComponent/commentForm")
-    public View commentForm() {
-        return FragmentsRendering.fragment("components/comment-components::comment-form-enabled").build();
-    }
-
-    @GetMapping("/blogComponent/removeCommentForm")
-    public View remove() {
-        return FragmentsRendering.fragment("components/comment-components::comment-form-disabled").build();
+        // for refresh or direct to /blog, contains heading fragment with nav, css/js, and blog-main fragment with all-posts
+        return FragmentsRendering
+                .fragment("blog")
+                .build();
     }
 
     @GetMapping("/blogComponent/posts")
-    public View posts(Model model, @RequestParam(value = "category", defaultValue = "All", required = false) String categoryName,
+    public FragmentsRendering posts(Model model,
+                        @RequestParam(value = "category", defaultValue = "All", required = false) String categoryName,
                         @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
 
         List<SimpleBlogEntryDto> sortedBlogEntries;
@@ -76,10 +71,34 @@ public class BlogController {
         }
         model.addAttribute("posts", sortedBlogEntries);
         model.addAttribute("postsHeading", categoryName + " Posts");
-        return FragmentsRendering.fragment("components/blog-components::all-posts").build();
+
+        return FragmentsRendering
+                .fragment("components/blog-components::all-posts")
+                .build();
+    }
+
+    @GetMapping("/createPost")
+    public FragmentsRendering createPost(Model model) {
+        return FragmentsRendering
+                .fragment("components/post-components::create-post")
+                .build();
     }
 
 
+
+    @GetMapping("/blogComponent/commentForm")
+    public FragmentsRendering commentForm() {
+        return FragmentsRendering
+                .fragment("components/comment-components::comment-form-enabled")
+                .build();
+    }
+
+    @GetMapping("/blogComponent/removeCommentForm")
+    public FragmentsRendering removeCommentForm() {
+        return FragmentsRendering
+                .fragment("components/comment-components::comment-form-disabled")
+                .build();
+    }
 
 
 }
