@@ -1,7 +1,4 @@
-package com.webdev.bloggingsystem.repositories;
-
-import com.webdev.bloggingsystem.entities.BlogEntry;
-import com.webdev.bloggingsystem.entities.DTO.SimpleBlogEntry;
+package com.webdev.bloggingsystem.blog;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -56,7 +53,7 @@ public class BlogEntryDao {
                 .single();
     }
 
-    public List<SimpleBlogEntry> findAllSimple(int pageNumber, int pageSize) {
+    public List<SimpleBlogEntryDto> findAllSimple(int pageNumber, int pageSize) {
         int offset = (pageNumber - 1) * pageSize;
         return jdbc.sql(
                 "SELECT b.id, b.title, b.description, b.created_at, b.thumbnail_url, " +
@@ -73,7 +70,7 @@ public class BlogEntryDao {
                     .list();
     }
 
-    public List<SimpleBlogEntry> findAllSimpleBlogEntriesToCategoryName(String categoryName, int pageNumber, int pageSize) {
+    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesToCategoryName(String categoryName, int pageNumber, int pageSize) {
         int offset = (pageNumber - 1) * pageSize;
         // first, the subquery limits selection to only post_ids that have relation to specified category_name.
         // second, columns are selected and joined to a concatenated string of all grouped category_names related to those post_ids.
@@ -119,8 +116,8 @@ public class BlogEntryDao {
                     .update();
     }
 
-    private static SimpleBlogEntry simpleBlogEntryExtractor(ResultSet rs) throws SQLException {
-        return new SimpleBlogEntry(
+    private static SimpleBlogEntryDto simpleBlogEntryExtractor(ResultSet rs) throws SQLException {
+        return new SimpleBlogEntryDto(
                 rs.getInt("id"),
                 rs.getString("title"),
                 rs.getString("description"),

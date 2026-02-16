@@ -1,4 +1,4 @@
-package com.webdev.bloggingsystem.controllers;
+package com.webdev.bloggingsystem;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;

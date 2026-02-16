@@ -1,6 +1,4 @@
-package com.webdev.bloggingsystem.repositories;
-
-import com.webdev.bloggingsystem.entities.Category;
+package com.webdev.bloggingsystem.blog;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.JdbcClient;

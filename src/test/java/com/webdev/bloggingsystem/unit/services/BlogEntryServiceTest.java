@@ -1,8 +1,8 @@
 package com.webdev.bloggingsystem.unit.services;
 
-import com.webdev.bloggingsystem.repositories.BlogEntryDao;
-import com.webdev.bloggingsystem.repositories.CategoryDao;
-import com.webdev.bloggingsystem.services.BlogEntryService;
+import com.webdev.bloggingsystem.blog.BlogEntryDao;
+import com.webdev.bloggingsystem.blog.CategoryDao;
+import com.webdev.bloggingsystem.blog.BlogEntryService;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

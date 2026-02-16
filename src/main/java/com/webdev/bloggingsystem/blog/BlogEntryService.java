@@ -1,7 +1,5 @@
-package com.webdev.bloggingsystem.services;
+package com.webdev.bloggingsystem.blog;
 
-import com.webdev.bloggingsystem.repositories.BlogEntryDao;
-import com.webdev.bloggingsystem.repositories.CategoryDao;
 import org.springframework.stereotype.Service;
 
 @Service

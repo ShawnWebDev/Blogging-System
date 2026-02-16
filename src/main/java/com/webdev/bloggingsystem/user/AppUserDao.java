@@ -1,7 +1,5 @@
-package com.webdev.bloggingsystem.repositories;
+package com.webdev.bloggingsystem.user;
 
-import com.webdev.bloggingsystem.entities.AppUser;
-import com.webdev.bloggingsystem.entities.DTO.Author;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
@@ -23,12 +21,12 @@ public class AppUserDao {
         ).param("username", username).query(AppUser.class).optional();
     }
 
-    public Optional<Author> findAuthorById(int id) {
+    public Optional<AuthorDto> findAuthorById(int id) {
         return jdbc.sql(
                 "SELECT u.id, u.username " +
                         "FROM users u " +
                         "WHERE u.id = :id"
-        ).param("id", id).query(Author.class).optional();
+        ).param("id", id).query(AuthorDto.class).optional();
     }
 
 

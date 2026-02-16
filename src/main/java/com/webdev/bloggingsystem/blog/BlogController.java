@@ -1,9 +1,4 @@
-package com.webdev.bloggingsystem.controllers;
-
-import com.webdev.bloggingsystem.entities.Category;
-import com.webdev.bloggingsystem.entities.DTO.SimpleBlogEntry;
-import com.webdev.bloggingsystem.repositories.BlogEntryDao;
-import com.webdev.bloggingsystem.repositories.CategoryDao;
+package com.webdev.bloggingsystem.blog;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
@@ -39,7 +34,7 @@ public class BlogController {
 
         // will need count to show how many pages are available when I implement that part.
         // int count = blogEntryDao.count();
-        List<SimpleBlogEntry> blogEntries = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
+        List<SimpleBlogEntryDto> blogEntries = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
         List<Category> categories = categoryDao.findAll();
 
         if (currentUrl == null || !currentUrl.endsWith("/blog")) {
@@ -73,7 +68,7 @@ public class BlogController {
     public View posts(Model model, @RequestParam(value = "category", defaultValue = "All", required = false) String categoryName,
                         @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
 
-        List<SimpleBlogEntry> sortedBlogEntries;
+        List<SimpleBlogEntryDto> sortedBlogEntries;
         if (categoryName.equals("All")) {
             sortedBlogEntries = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
         } else {

@@ -1,9 +1,4 @@
-package com.webdev.bloggingsystem.config;
-
-import com.webdev.bloggingsystem.entities.AppUser;
-
-import com.webdev.bloggingsystem.entities.RoleType;
-import com.webdev.bloggingsystem.repositories.AppUserDao;
+package com.webdev.bloggingsystem.user;
 
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
