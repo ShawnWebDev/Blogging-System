@@ -6,23 +6,33 @@
 </head>
 <body>
 
+<!--All blog posts-->
 <section th:fragment="all-posts" id="posts">
-    <h3 th:text="${postsHeading}"></h3>
-    <article th:each="post : ${posts}">
+    <header>
+        <h4 th:text="${postsHeading}"></h4>
+        <a th:if="${postsHeading != 'All Posts'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms">Back to all posts</a>
+    </header>
+    <article th:each="post : ${posts}" class="post">
         <header>
             <h5 th:text="${post.title}"></h5>
             <span>@ <small th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></small></span>
         </header>
 
-        <p th:text="${post.description}"></p>
+        <section class="post-description">
+            <img th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}"/>
+            <p th:text="${post.description}"></p>
+        </section>
+
 
         <footer>
             <small th:each="category : ${post.categories}">
-                <a th:hx-get="@{/blog/blogComponent/posts(category=${category})}" hx-target="#posts" hx-swap="innerHTML swap:200ms" th:text="${category}"/>
+                <a th:hx-get="@{/blog/blogComponent/posts(category=${category})}" hx-target="#posts" hx-swap="outerHTML swap:200ms" th:text="${category}"/>
             </small>
         </footer>
     </article>
 </section>
+
+
 
 </body>
 </html>
