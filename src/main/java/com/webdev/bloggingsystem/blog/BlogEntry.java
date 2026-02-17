@@ -31,6 +31,7 @@ public class BlogEntry {
         this.description = description;
         this.content = content;
         this.thumbnailUrl = thumbnailUrl;
+        this.thumbnailAlt = thumbnailAlt;
     }
 
     public static BlogEntry createBlogEntry(int authorId, String title, String description, String content, String thumbnailUrl, String thumbnailAlt) {
