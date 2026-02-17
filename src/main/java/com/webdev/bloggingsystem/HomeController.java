@@ -37,6 +37,7 @@ public class HomeController {
     @HxTrigger("logoutSuccess")
     @GetMapping("/logoutSuccess")
     public FragmentsRendering logout(Model model) {
+
         model.addAttribute("logout", true);
         return FragmentsRendering.fragment("components/auth-components::login-form").build();
     }

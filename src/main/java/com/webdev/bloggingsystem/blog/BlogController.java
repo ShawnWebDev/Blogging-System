@@ -3,11 +3,11 @@ package com.webdev.bloggingsystem.blog;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.FragmentsRendering;
 
 import java.util.List;
@@ -58,6 +58,14 @@ public class BlogController {
                 .build();
     }
 
+    @PostMapping("/createPost")
+    public String createPost(Model model, @Valid @ModelAttribute("inventoryItem") FullBlogEntryDto fullBlogEntryDto) {
+        // redirect or trigger load of created resource
+        return "";
+    }
+
+    // ** HTMX ONLY REQUESTS **
+    @HxRequest
     @GetMapping("/blogComponent/posts")
     public FragmentsRendering posts(Model model,
                         @RequestParam(value = "category", defaultValue = "All", required = false) String categoryName,
@@ -77,15 +85,15 @@ public class BlogController {
                 .build();
     }
 
-    @GetMapping("/createPost")
-    public FragmentsRendering createPost(Model model) {
+    @HxRequest
+    @GetMapping("/blogComponent/createPost")
+    public FragmentsRendering createPostView(Model model) {
         return FragmentsRendering
                 .fragment("components/post-components::create-post")
                 .build();
     }
 
-
-
+    @HxRequest
     @GetMapping("/blogComponent/commentForm")
     public FragmentsRendering commentForm() {
         return FragmentsRendering
@@ -93,6 +101,7 @@ public class BlogController {
                 .build();
     }
 
+    @HxRequest
     @GetMapping("/blogComponent/removeCommentForm")
     public FragmentsRendering removeCommentForm() {
         return FragmentsRendering
