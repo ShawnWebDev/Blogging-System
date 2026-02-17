@@ -51,6 +51,13 @@ public class CategoryDao {
                     .list();
     }
 
+    public List<SimpleCategoryDto> findAllNames() {
+        return jdbc.sql(
+                "SELECT id, category_name AS name FROM categories")
+                    .query(SimpleCategoryDto.class)
+                    .list();
+    }
+
     public int update(Category category) {
         return jdbc.sql(
                 "UPDATE categories " +
