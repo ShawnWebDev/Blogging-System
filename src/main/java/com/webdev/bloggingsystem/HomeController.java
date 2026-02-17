@@ -18,14 +18,14 @@ public class HomeController {
 
         model.addAttribute("heading", "Hello World!");
 
+        if (!htmxRequest.isHtmxRequest()) {
+            return FragmentsRendering.fragment("index").build();
+        }
+
         if (htmxRequest.getCurrentUrl() == null || !htmxRequest.getCurrentUrl().endsWith("/")) {
             htmxResponse.setPushUrl("/");
         }
-        if (htmxRequest.isHtmxRequest()) {
-            return FragmentsRendering.fragment("components/header-components::simple-header").fragment("index::about-main").build();
-        }
-
-        return FragmentsRendering.fragment("index").build();
+        return FragmentsRendering.fragment("components/header-components::simple-header").fragment("index::about-main").build();
     }
 
     @HxTrigger("loginSuccess")
