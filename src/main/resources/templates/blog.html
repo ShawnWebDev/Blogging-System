@@ -15,7 +15,7 @@
 
     <main th:fragment="blog-main" id="main-content">
         <hr>
-        <h4>Filter By Category:</h4>
+        <h2>Filter By Category:</h2>
         <section id="categories">
             <article class="category-selection"
                      th:each="category : ${categories}"
@@ -23,7 +23,7 @@
                      hx-target="#posts"
                      hx-swap="outerHTML swap:200ms">
                 <header>
-                    <h6 th:text="${category.categoryName}"></h6>
+                    <h5 th:text="${category.categoryName}"></h5>
                 </header>
                 <small th:text="${category.description}"></small>
             </article>

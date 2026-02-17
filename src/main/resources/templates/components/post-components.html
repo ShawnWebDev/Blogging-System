@@ -6,9 +6,30 @@
 </head>
 <body>
 
-    <section th:fragment="create-post" id="create-post-form">
-        <p>Create Post Form</p>
-    </section>
+    <article th:fragment="content-block(index)" class="content-block" data-type="HEADING">
+        <label>Block Type:
+            <select th:name="|contentBlocks[${index}].type|" onchange="this.closest('.content-block').dataset.type = this.value;">
+                <option th:each="blockType : ${blockTypes}" th:value="${blockType.name}" th:text="${blockType.name}"></option>
+            </select>
+        </label>
+        <label class="text-field">Text:
+            <textarea th:name="|contentBlocks[${index}].text|"></textarea>
+        </label>
+
+        <fieldset class="image-fields">
+            <label>Image URL:
+                <input type="url" th:name="|contentBlocks[${index}].url|">
+            </label>
+            <label>Image Alt:
+                <input type="text" th:name="|contentBlocks[${index}].alt|">
+            </label>
+            <label>Image caption:
+                <input type="url" th:name="|contentBlocks[${index}].caption|">
+            </label>
+        </fieldset>
+
+        <button type="button" onclick="this.closest('.content-block').remove()">- Remove Block</button>
+    </article>
 
 </body>
 </html>

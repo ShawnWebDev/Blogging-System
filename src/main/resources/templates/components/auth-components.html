@@ -14,7 +14,7 @@
     </form>
     <a href="#" hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML" hx-include="#logout-form input">Logout</a>
     <div>
-        <a sec:authorize="hasAuthority('ADMIN')" hx-get="/blog/blogComponent/createPost" hx-target="#main-content" hx-swap="innerHTML">
+        <a sec:authorize="hasAuthority('ADMIN')" hx-get="/blog/createPost" hx-target="#main-content" hx-swap="innerHTML">
             Create Post
         </a>
     </div>
