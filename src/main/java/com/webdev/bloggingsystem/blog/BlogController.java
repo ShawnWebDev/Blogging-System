@@ -2,11 +2,12 @@ package com.webdev.bloggingsystem.blog;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
-
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
+
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.FragmentsRendering;
 
@@ -28,41 +29,84 @@ public class BlogController {
 
     @GetMapping
     public FragmentsRendering blog(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest,
-                           @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
+                         @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
 
         // will need count to show how many pages are available when I implement that part.
         // int count = blogEntryDao.count();
         List<SimpleBlogEntryDto> blogEntries = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
         List<Category> categories = categoryDao.findAll();
-        // checks if request is from HTMX and the current address is not already set to /blog,
-        // then pushes /blog into browser history and address bar.
-        if (htmxRequest.getCurrentUrl() == null || !htmxRequest.getCurrentUrl().endsWith("/blog")) {
-            htmxResponse.setPushUrl("/blog");
-        }
+
 
         model.addAttribute("heading", "Welcome to my blog!");
         model.addAttribute("posts", blogEntries);
         model.addAttribute("postsHeading", "All Posts");    // used for dynamic heading of 'all-posts' fragment with category filter
         model.addAttribute("categories", categories);
 
-        if (htmxRequest.isHtmxRequest()) {
-            // for htmx request, only needs heading h1 and blog-main with all-posts
+        if (!htmxRequest.isHtmxRequest()) {
+            // for refresh or direct to /blog, contains heading fragment with nav, css/js, and blog-main fragment with all-posts
             return FragmentsRendering
-                    .fragment("components/header-components::simple-header")
-                    .fragment("blog::blog-main")
+                    .fragment("blog")
                     .build();
         }
-        // for refresh or direct to /blog, contains heading fragment with nav, css/js, and blog-main fragment with all-posts
+        // checks if request is from HTMX and the current address is not already set to /blog,
+        // then pushes /blog into browser history and address bar.
+        if (htmxRequest.getCurrentUrl() == null || !htmxRequest.getCurrentUrl().endsWith("/blog")) {
+            htmxResponse.setPushUrl("/blog");
+        }
+        // for htmx request, only needs heading h1 and blog-main with all-posts
         return FragmentsRendering
-                .fragment("blog")
+                .fragment("components/header-components::simple-header")
+                .fragment("blog::blog-main")
+                .build();
+    }
+
+    @GetMapping("/createPost")
+    public FragmentsRendering createPostView(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
+        model.addAttribute("post", new CreateBlogEntryDto());
+        model.addAttribute("heading", "Create A Post");
+        model.addAttribute("categoryList", categoryDao.findAllNames());
+        model.addAttribute("blockTypes", BlockType.values());
+
+        if (!htmxRequest.isHtmxRequest()) {
+            // for refresh or direct to /blog/createPost
+            return FragmentsRendering
+                    .fragment("create-post")
+                    .build();
+        }
+        if (htmxRequest.getCurrentUrl() == null || !htmxRequest.getCurrentUrl().endsWith("/createPost")) {
+            htmxResponse.setPushUrl("/blog/createPost");
+        }
+
+        return FragmentsRendering
+                .fragment("components/header-components::simple-header")
+                .fragment("create-post::create-post")
                 .build();
     }
 
     @PostMapping("/createPost")
-    public String createPost(Model model, @Valid @ModelAttribute("inventoryItem") FullBlogEntryDto fullBlogEntryDto) {
+    public FragmentsRendering createPost(@Valid @ModelAttribute("post") CreateBlogEntryDto createBlogEntryDto,
+                                         BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return FragmentsRendering
+                    .fragment("components/header-components::simple-header")
+                    .fragment("create-post::create-post")
+                    .build();
+        }
+
         // redirect or trigger load of created resource
-        return "";
+        System.out.println(createBlogEntryDto);
+        model.addAttribute("heading", "Create A Post");
+        model.addAttribute("categoryList", categoryDao.findAllNames());
+        model.addAttribute("blockTypes", BlockType.values());
+
+        return FragmentsRendering
+                .fragment("components/header-components::simple-header")
+                .fragment("create-post::create-post")
+                .build();
     }
+
+
+
 
     // ** HTMX ONLY REQUESTS **
     @HxRequest
@@ -86,13 +130,18 @@ public class BlogController {
     }
 
     @HxRequest
-    @GetMapping("/blogComponent/createPost")
-    public FragmentsRendering createPostView(Model model) {
+    @GetMapping("/blogComponent/addBlock")
+    public FragmentsRendering addBlock(Model model,
+                                       @RequestParam int index) {
+        model.addAttribute("index", index);
+        model.addAttribute("blockTypes", BlockType.values());
         return FragmentsRendering
-                .fragment("components/post-components::create-post")
+                .fragment("components/post-components::content-block")
                 .build();
     }
 
+
+    // ** move to comment controller **
     @HxRequest
     @GetMapping("/blogComponent/commentForm")
     public FragmentsRendering commentForm() {

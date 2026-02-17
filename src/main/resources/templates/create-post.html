@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/htmx.min.js" defer></script>
+  <link rel="stylesheet" href="/main.css">
+  <link rel="stylesheet" href="/pico.classless.jade.min.css">
+  <title>Create Post</title>
+</head>
+<body>
+
+  <header th:replace="~{components/header-components :: full-header}"></header>
+
+  <main id="main-content">
+
+    <section th:fragment="create-post" id="create-post-form">
+
+      <form action="#" hx-post="/blog/createPost" th:object="${post}">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <label>Title:
+          <input type="text" th:field="*{title}" required/>
+          <small th:errors="*{title}" th:text="${#fields.errors('title')}"></small>
+        </label>
+        <label>Description:
+          <textarea type="text" th:field="*{description}" required></textarea>
+          <small th:errors="*{description}" th:text="${#fields.errors('description')}"></small>
+        </label>
+        <label>Thumbnail URL:
+          <input type="text" th:field="*{thumbnailUrl}" required/>
+          <small th:errors="*{thumbnailUrl}" th:text="${#fields.errors('thumbnailUrl')}"></small>
+        </label>
+        <label>Thumbnail Alt:
+          <input type="text" th:field="*{thumbnailAlt}" required/>
+          <small th:errors="*{thumbnailAlt}" th:text="${#fields.errors('thumbnailAlt')}"></small>
+        </label>
+
+        <fieldset role="group" class="form-group">
+          <legend>Categories <small>(one minimum)</small>:</legend>
+          <select th:field="*{categories[0]}">
+            <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
+          </select>
+          <select th:field="*{categories[1]}">
+            <option value="0">None</option>
+            <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
+          </select>
+          <select th:field="*{categories[2]}">
+            <option value="0">None</option>
+            <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
+          </select>
+          <select th:field="*{categories[3]}">
+            <option value="0">None</option>
+            <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
+          </select>
+        </fieldset>
+
+        <fieldset id="blocks-container">
+          <legend>Content Blocks:</legend>
+          <div th:replace="~{components/post-components::content-block(0)}"></div>
+        </fieldset>
+
+        <button type="button"
+                hx-get="/blog/blogComponent/addBlock"
+                hx-vals='js:{index: document.querySelectorAll(".content-block").length}'
+                hx-target="#blocks-container"
+                hx-swap="beforeend">
+          + Add Content Block</button>
+
+        <input type="submit" value="Create Post">
+      </form>
+
+    </section>
+
+  </main>
+
+</body>
+</html>
