@@ -24,6 +24,7 @@ public class SecurityConfig {
                         .maximumSessions(1).maxSessionsPreventsLogin(false).expiredUrl("/blog?logout")
                 )
                 .authorizeHttpRequests(requests -> requests
+                        .requestMatchers("/blog/blogComponent/createPost").hasAuthority("ADMIN")
                         .requestMatchers(
                                 "/", "/blog/**", "/loginError",
                                 "/removeCommentForm", "/favicon.ico", "/**.css", "/**.js"
