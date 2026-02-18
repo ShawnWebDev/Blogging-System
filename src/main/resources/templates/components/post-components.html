@@ -18,13 +18,13 @@
 
         <fieldset class="image-fields">
             <label>Image URL:
-                <input type="url" th:name="|contentBlocks[${index}].url|" th:text="${block.url}"/>
+                <input type="url" th:name="|contentBlocks[${index}].url|" th:value="${block.url}"/>
             </label>
             <label>Image Alt:
-                <input type="text" th:name="|contentBlocks[${index}].alt|" th:text="${block.alt}"/>
+                <input type="text" th:name="|contentBlocks[${index}].alt|" th:value="${block.alt}"/>
             </label>
             <label>Image caption:
-                <input type="url" th:name="|contentBlocks[${index}].caption|" th:text="${block.caption}"/>
+                <input type="url" th:name="|contentBlocks[${index}].caption|" th:value="${block.caption}"/>
             </label>
         </fieldset>
         <button type="button" onclick="this.closest('.content-block').remove()">- Remove Block</button>
