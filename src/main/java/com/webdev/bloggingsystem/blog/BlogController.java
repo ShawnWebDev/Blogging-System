@@ -83,6 +83,9 @@ public class BlogController {
                 .build();
     }
 
+    //todo : figure out how to validate 'content' length using the generated JSON from createBlogEntryDto
+    // : in a service layer!
+
     @PostMapping("/createPost")
     public FragmentsRendering createPost(@Valid @ModelAttribute("post") CreateBlogEntryDto createBlogEntryDto,
                                          BindingResult result, Model model) {
@@ -95,17 +98,17 @@ public class BlogController {
 
         // redirect or trigger load of created resource
         System.out.println(createBlogEntryDto);
+
         model.addAttribute("heading", "Create A Post");
         model.addAttribute("categoryList", categoryDao.findAllNames());
         model.addAttribute("blockTypes", BlockType.values());
+        model.addAttribute("post", createBlogEntryDto);
 
         return FragmentsRendering
                 .fragment("components/header-components::simple-header")
                 .fragment("create-post::create-post")
                 .build();
     }
-
-
 
 
     // ** HTMX ONLY REQUESTS **
@@ -135,6 +138,7 @@ public class BlogController {
                                        @RequestParam int index) {
         model.addAttribute("index", index);
         model.addAttribute("blockTypes", BlockType.values());
+        model.addAttribute("block", new BlogEntryContentBlockDto());
         return FragmentsRendering
                 .fragment("components/post-components::content-block")
                 .build();

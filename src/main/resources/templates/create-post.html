@@ -14,9 +14,9 @@
 
   <main id="main-content">
 
-    <section th:fragment="create-post" id="create-post-form">
+    <section th:fragment="create-post" id="create-post-form" th:attr="data-next-index=${post.contentBlocks.size()}">
 
-      <form action="#" hx-post="/blog/createPost" th:object="${post}">
+      <form action="#" hx-post="/blog/createPost" th:object="${post}" hx-target="#create-post-form" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <label>Title:
           <input type="text" th:field="*{title}" required/>
@@ -26,14 +26,16 @@
           <textarea type="text" th:field="*{description}" required></textarea>
           <small th:errors="*{description}" th:text="${#fields.errors('description')}"></small>
         </label>
-        <label>Thumbnail URL:
-          <input type="text" th:field="*{thumbnailUrl}" required/>
-          <small th:errors="*{thumbnailUrl}" th:text="${#fields.errors('thumbnailUrl')}"></small>
-        </label>
-        <label>Thumbnail Alt:
-          <input type="text" th:field="*{thumbnailAlt}" required/>
-          <small th:errors="*{thumbnailAlt}" th:text="${#fields.errors('thumbnailAlt')}"></small>
-        </label>
+        <div role="group">
+          <label>Thumbnail URL:
+            <input type="text" th:field="*{thumbnailUrl}" required/>
+            <small th:errors="*{thumbnailUrl}" th:text="${#fields.errors('thumbnailUrl')}"></small>
+          </label>
+          <label>Thumbnail Alt:
+            <input type="text" th:field="*{thumbnailAlt}" required/>
+            <small th:errors="*{thumbnailAlt}" th:text="${#fields.errors('thumbnailAlt')}"></small>
+          </label>
+        </div>
 
         <fieldset role="group" class="form-group">
           <legend>Categories <small>(one minimum)</small>:</legend>
@@ -56,12 +58,14 @@
 
         <fieldset id="blocks-container">
           <legend>Content Blocks:</legend>
-          <div th:replace="~{components/post-components::content-block(0)}"></div>
+          <th:block th:each="block, iter : ${post.contentBlocks}">
+            <div th:replace="~{components/post-components::content-block(${iter.index}, ${block})}"></div>
+          </th:block>
         </fieldset>
 
         <button type="button"
                 hx-get="/blog/blogComponent/addBlock"
-                hx-vals='js:{index: document.querySelectorAll(".content-block").length}'
+                hx-vals='js:{index: document.getElementById("create-post-form").dataset.nextIndex++}'
                 hx-target="#blocks-container"
                 hx-swap="beforeend">
           + Add Content Block</button>
