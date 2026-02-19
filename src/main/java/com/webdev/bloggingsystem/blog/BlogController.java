@@ -21,12 +21,15 @@ public class BlogController {
 
     private final BlogEntryDao blogEntryDao;
     private final CategoryDao categoryDao;
+    private final BlogEntryService blogEntryService;
 
-    public BlogController(BlogEntryDao blogEntryDao, CategoryDao categoryDao) {
+    public BlogController(BlogEntryDao blogEntryDao, CategoryDao categoryDao, BlogEntryService blogEntryService) {
         this.blogEntryDao = blogEntryDao;
         this.categoryDao = categoryDao;
+        this.blogEntryService = blogEntryService;
     }
 
+    // called when requesting main blog template
     @GetMapping
     public FragmentsRendering blog(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest,
                          @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
@@ -60,6 +63,7 @@ public class BlogController {
                 .build();
     }
 
+    // called when requesting blog entry input form template
     @GetMapping("/createPost")
     public FragmentsRendering createPostView(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
         model.addAttribute("post", new CreateBlogEntryDto());
@@ -83,9 +87,10 @@ public class BlogController {
                 .build();
     }
 
-    //todo : figure out how to validate 'content' length using the generated JSON from createBlogEntryDto
-    // : in a service layer!
+    //todo : validate input
+    // figure out how to validate 'content' length using the generated JSON from createBlogEntryDto in the service layer!
 
+    // called when submitting a new blog entry
     @PostMapping("/createPost")
     public FragmentsRendering createPost(@Valid @ModelAttribute("post") CreateBlogEntryDto createBlogEntryDto,
                                          BindingResult result, Model model) {
@@ -96,8 +101,9 @@ public class BlogController {
                     .build();
         }
 
-        // redirect or trigger load of created resource
-        System.out.println(createBlogEntryDto);
+        // redirect to created resource
+        System.out.println("*** toString: " + createBlogEntryDto);
+        System.out.println("*** toJson: " + blogEntryService.createPost(createBlogEntryDto));
 
         model.addAttribute("heading", "Create A Post");
         model.addAttribute("categoryList", categoryDao.findAllNames());
@@ -112,6 +118,8 @@ public class BlogController {
 
 
     // ** HTMX ONLY REQUESTS **
+
+    // called when filtering posts by category
     @HxRequest
     @GetMapping("/blogComponent/posts")
     public FragmentsRendering posts(Model model,
@@ -132,6 +140,7 @@ public class BlogController {
                 .build();
     }
 
+    // called when adding "content block" to blog entry input form
     @HxRequest
     @GetMapping("/blogComponent/addBlock")
     public FragmentsRendering addBlock(Model model,

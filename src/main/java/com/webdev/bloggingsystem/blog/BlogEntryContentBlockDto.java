@@ -1,5 +1,8 @@
 package com.webdev.bloggingsystem.blog;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class BlogEntryContentBlockDto {
     private BlockType type;
     private String text;
