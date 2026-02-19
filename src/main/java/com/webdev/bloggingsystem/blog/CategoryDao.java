@@ -53,7 +53,7 @@ public class CategoryDao {
 
     public List<SimpleCategoryDto> findAllNames() {
         return jdbc.sql(
-                "SELECT id, category_name AS name FROM categories")
+                "SELECT id, category_name AS name FROM categories ORDER BY name")
                     .query(SimpleCategoryDto.class)
                     .list();
     }
