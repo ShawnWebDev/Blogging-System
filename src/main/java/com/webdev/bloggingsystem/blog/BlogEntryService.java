@@ -1,14 +1,19 @@
 package com.webdev.bloggingsystem.blog;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
 @Service
 public class BlogEntryService {
+    private final int MAX_BYTES = 65535;
+    private final Logger logger = LoggerFactory.getLogger(BlogEntryService.class);
     private final BlogEntryDao blogEntryDao;
     private final CategoryDao categoryDao;
     private final ObjectMapper mapper;
@@ -20,8 +25,19 @@ public class BlogEntryService {
     }
 
     public String createPost(CreateBlogEntryDto dto) {
-        List<BlogEntryContentBlockDto> cleanedBlocks = removeEmptyContentBlocks(dto.getContentBlocks());
+        // todo : create method or validation annotation to check for unique title
+        //  : create method or validation annotation to check for max bytes in content JSON String
+        List<BlogEntryContentBlockDto> cleanedBlocks = sanitizeContentBlocks(dto.getContentBlocks());
         String content = mapper.writeValueAsString(cleanedBlocks);
+
+        int bytes = content.getBytes(StandardCharsets.UTF_8).length;
+        if (bytes > MAX_BYTES) {
+            logger.error("Content block exceeds maximum allowed bytes!!!");
+            // send error to ui
+        } else {
+            logger.info("Content block is being saved...");
+            //save to db, get id, save to category join table with batchInsertJoins(Set, int)
+        }
 
         return content;
     }
@@ -32,18 +48,37 @@ public class BlogEntryService {
         List<BlogEntryContentBlockDto> contentBlockList mapper.readValue(entry.content, new TypeReference<List<BlogEntryContentBlockDto>>() {});
         // get all values from converted content & category list
         return new FullBlogEntryDto();
-    }*/
-
-
-    static List<BlogEntryContentBlockDto> removeEmptyContentBlocks(List<BlogEntryContentBlockDto> contentBlocks) {
-        return contentBlocks.stream()
-                .filter(Objects::nonNull)
-                .filter(block -> block.getType() != null)
-                .filter(block ->
-                        (block.getText() != null && !block.getText().isBlank()) ||
-                        (block.getUrl() != null && !block.getUrl().isBlank())
-                ).toList();
     }
 
+    public String updatePost(int id) {
+
+    }
+
+    public String deletePost(int id) {
+
+    }
+
+    */
+
+
+    // removes 'content blocks' that are null, have a null type or have null or blank text or url field
+    // they have to have heading, paragraph, or code text or a url (for image) to be valid. - used in create and update
+    static List<BlogEntryContentBlockDto> sanitizeContentBlocks(List<BlogEntryContentBlockDto> contentBlocks) {
+        return contentBlocks.stream()
+                .filter(Objects::nonNull)
+                .filter(block ->
+                        (block.getType() != null) && (
+                        (block.getText() != null && !block.getText().isBlank()) ||
+                        (block.getUrl() != null && !block.getUrl().isBlank()))
+                ).map(block -> {
+                    // need to also check for null and blank in text and url because one could still be null or blank, the filter would only remove one.
+                        if (block.getText() != null && !block.getText().isBlank()) block.setText(block.getText().trim());
+                        if (block.getText() != null && !block.getUrl().isBlank()) block.setUrl(block.getUrl().trim());
+                        if (block.getAlt() != null && !block.getAlt().isBlank()) block.setAlt(block.getAlt().trim());
+                        if (block.getCaption() != null && !block.getCaption().isBlank()) block.setCaption(block.getCaption().trim());
+                        return block;
+                }
+                ).toList();
+    }
 
 }
