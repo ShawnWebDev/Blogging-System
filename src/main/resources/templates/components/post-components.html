@@ -27,8 +27,17 @@
                 <input type="text" th:name="|contentBlocks[${index}].caption|" th:value="${block.caption}"/>
             </label>
         </fieldset>
-        <button type="button" onclick="this.closest('.content-block').remove()">- Remove Block</button>
+        <button type="button"
+                onclick="if (confirm('Are you sure?')) {
+                    this.closest('.content-block').remove();
+                    htmx.trigger('#byte-validator', 'block-removed');
+                }"
+        >- Remove Block</button>
     </article>
+
+    <div th:fragment="byte-count" id="byte-count" hx-swap-oob="true">
+        <span th:text="${byteCount}">Bytes</span><span> bytes used.</span>
+    </div>
 
 </body>
 </html>

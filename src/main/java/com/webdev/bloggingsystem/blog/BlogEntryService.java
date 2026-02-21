@@ -24,22 +24,18 @@ public class BlogEntryService {
         this.mapper = objectMapper;
     }
 
-    public String createPost(CreateBlogEntryDto dto) {
+    public void createPost(CreateBlogEntryDto dto) {
         // todo : create method or validation annotation to check for unique title
         //  : create method or validation annotation to check for max bytes in content JSON String
-        List<BlogEntryContentBlockDto> cleanedBlocks = sanitizeContentBlocks(dto.getContentBlocks());
-        String content = mapper.writeValueAsString(cleanedBlocks);
-
-        int bytes = content.getBytes(StandardCharsets.UTF_8).length;
+        int bytes = this.getCurrentByteCount(dto.getContentBlocks());
         if (bytes > MAX_BYTES) {
             logger.error("Content block exceeds maximum allowed bytes!!!");
+            throw new RuntimeException("Content block exceeds maximum allowed bytes!!!");
             // send error to ui
         } else {
             logger.info("Content block is being saved...");
             //save to db, get id, save to category join table with batchInsertJoins(Set, int)
         }
-
-        return content;
     }
 
 /*
@@ -60,9 +56,21 @@ public class BlogEntryService {
 
     */
 
+    public int getCurrentByteCount(List<BlogEntryContentBlockDto> contentBlocks) {
+        logger.info("Getting current bytes count");
+
+        List<BlogEntryContentBlockDto> cleanedBlocks = sanitizeContentBlocks(contentBlocks);
+        String content = mapper.writeValueAsString(cleanedBlocks);
+        int count = content.getBytes(StandardCharsets.UTF_8).length;
+        logger.info("Current JSON string: \n {}", content);
+        logger.info("Current bytes count is {}", count);
+
+        return count;
+    }
+
 
     // removes 'content blocks' that are null, have a null type or have null or blank text or url field
-    // they have to have heading, paragraph, or code text or a url (for image) to be valid. - used in create and update
+    // they have to have heading, paragraph, or code text or a url (for image) to be valid. - to be used in create and update
     static List<BlogEntryContentBlockDto> sanitizeContentBlocks(List<BlogEntryContentBlockDto> contentBlocks) {
         return contentBlocks.stream()
                 .filter(Objects::nonNull)

@@ -5,18 +5,21 @@ import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.FragmentsRendering;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Controller
 @RequestMapping("/blog")
 public class BlogController {
-
+    private final Logger logger = LoggerFactory.getLogger(BlogController.class);
     private static final int PAGE_SIZE = 10;
 
     private final BlogEntryDao blogEntryDao;
@@ -103,7 +106,8 @@ public class BlogController {
 
         // redirect to created resource
         System.out.println("*** toString: " + createBlogEntryDto);
-        System.out.println("*** toJson: " + blogEntryService.createPost(createBlogEntryDto));
+        System.out.println("*** blog entry service -> ");
+        blogEntryService.createPost(createBlogEntryDto);
 
         model.addAttribute("heading", "Create A Post");
         model.addAttribute("categoryList", categoryDao.findAllNames());
@@ -142,7 +146,7 @@ public class BlogController {
 
     // called when adding "content block" to blog entry input form
     @HxRequest
-    @GetMapping("/blogComponent/addBlock")
+    @GetMapping("/postComponent/addBlock")
     public FragmentsRendering addBlock(Model model,
                                        @RequestParam int index) {
         model.addAttribute("index", index);
@@ -150,6 +154,17 @@ public class BlogController {
         model.addAttribute("block", new BlogEntryContentBlockDto());
         return FragmentsRendering
                 .fragment("components/post-components::content-block")
+                .build();
+    }
+
+    @HxRequest
+    @PostMapping("/postComponent/validateSize")
+    public FragmentsRendering validateSize(Model model, @ModelAttribute("post") CreateBlogEntryDto post) {
+        int count = blogEntryService.getCurrentByteCount(post.getContentBlocks());
+        model.addAttribute("byteCount", count + " / " + BlogEntryService.MAX_BYTES);
+
+        return FragmentsRendering
+                .fragment("components/post-components::byte-count")
                 .build();
     }
 

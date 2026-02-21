@@ -62,17 +62,22 @@
             <div th:replace="~{components/post-components::content-block(${iter.index}, ${block})}"></div>
           </th:block>
         </fieldset>
-
-        <button type="button"
-                hx-get="/blog/blogComponent/addBlock"
-                hx-vals='js:{index: document.getElementById("create-post-form").dataset.nextIndex++}'
-                hx-target="#blocks-container"
-                hx-swap="beforeend">
-          + Add Content Block</button>
-
+        <div>
+          <div id="byte-count"></div>
+          <button type="button" id="add-block-btn"
+                  hx-get="/blog/postComponent/addBlock"
+                  hx-vals='js:{index: document.getElementById("create-post-form").dataset.nextIndex++}'
+                  hx-target="#blocks-container"
+                  hx-swap="beforeend">
+            + Add Content Block</button>
+          <div style="display: none;" id="byte-validator"
+               hx-post="/blog/postComponent/validateSize"
+               hx-trigger="block-removed, load, keyup from:#blocks-container changed delay:400ms"
+               hx-target="#byte-count"
+               hx-include="closest form"></div>
+        </div>
         <input type="submit" value="Create Post">
       </form>
-
     </section>
 
   </main>
