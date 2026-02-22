@@ -1,25 +1,25 @@
-:root {
-    --jade: rgba(0, 122, 80, 1);
-}
-
 header {
     flex-wrap: wrap;
     align-items: center;
-}
-
-header, #categories, .post-description, .form-group {
-    display: flex;
-    justify-content: space-between;
-    align-content: center;
 }
 
 a {
     cursor: pointer;
 }
 
+/*grouped styles*/
+
+header, #post-container, #categories, .post-description, .form-group,
+.content-block[data-type="IMAGE"] .image-fields {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+}
+
 #posts, #main-content {
     opacity: 1;
-    transition: all 300ms ease-in-out;
+    scale: 1;
+    transition: all 250ms ease-in;
 }
 
 #header, .post header h5, .post footer nav,
@@ -30,13 +30,42 @@ a {
 
 #posts.htmx-added, #posts.htmx-swapping,
 #main-content.htmx-added {
-    margin: 0 -0.25rem;
+    margin: 0 -1rem;
     opacity: 0;
+    scale: 0.95;
+}
+
+/* blog styles */
+
+#post-container {
+    flex-wrap: wrap;
+    column-gap: 1vw;
+    row-gap: 0;
+}
+
+.post {
+    flex: 40%;
+}
+
+.post footer {
+    padding: 0 1rem;
+}
+
+.post-description {
+    justify-content: left;
+    align-content: center;
+    gap: 1vw;
+}
+
+.post-description img {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 0.5rem;
 }
 
 #categories {
     flex-wrap: nowrap;
-    gap: 0.5rem;
+    gap: 1vw;
     overflow-y: scroll;
 }
 
@@ -54,26 +83,16 @@ a {
 }
 
 .category-selection:hover {
-    border: 2px solid var(--jade);
+    border: 2px solid var(--pico-primary);
 }
 
-.post footer {
-    padding: 0 1rem;
-}
-
-.post-description {
-    justify-content: left;
-    align-content: center;
+/* blog form styles */
+.form-group {
     gap: 1rem;
 }
 
-.post-description img {
-    width: 5rem;
-    height: 5rem;
-}
-
-.form-group select {
-    width: fit-content;
+.form-group label, .form-group select  {
+    flex: 1;
 }
 
 .image-fields, .text-field {
@@ -84,11 +103,9 @@ a {
     display: block;
 }
 
-.content-block[data-type="IMAGE"] .image-fields {
-    display: flex;
-    justify-content: space-between;
+.error {
+    color: #d43636;
 }
-
 
 @media only screen and (max-width: 1024px) {
     #main-header {
@@ -97,7 +114,21 @@ a {
     nav ul {
         flex-wrap: wrap;
     }
-    #categories {
+    .post {
+        flex: 100%;
+    }
+    #post-container, #categories {
         gap: 0.25rem;
+    }
+    .post-description img {
+        width: 4rem;
+        height: 4rem;
+    }
+    .form-group {
+        gap: 0.25rem;
+        flex-wrap: wrap;
+    }
+    .form-group select  {
+        flex: 40%;
     }
 }
