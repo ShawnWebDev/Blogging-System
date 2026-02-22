@@ -38,14 +38,7 @@ public class BlogController {
 
         // will need count to show how many pages are available when I implement that part.
         // int count = blogEntryDao.count();
-        List<SimpleBlogEntryDto> blogEntries = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
-        List<Category> categories = categoryDao.findAll();
-
-
-        model.addAttribute("heading", "Welcome to my blog!");
-        model.addAttribute("posts", blogEntries);
-        model.addAttribute("postsHeading", "All Posts");    // used for dynamic heading of 'all-posts' fragment with category filter
-        model.addAttribute("categories", categories);
+        this.populateBlogDashboardModel(model, pageNumber);
 
         if (!htmxRequest.isHtmxRequest()) {
             // for refresh or direct to /blog, contains heading fragment with nav, css/js, and blog-main fragment with all-posts
@@ -68,11 +61,7 @@ public class BlogController {
     // called when requesting blog entry input form template
     @GetMapping("/createPost")
     public FragmentsRendering createPostView(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
-        model.addAttribute("post", new CreateBlogEntryDto());
-        model.addAttribute("heading", "Create A Post");
-        model.addAttribute("categoryList", categoryDao.findAllNames());
-        model.addAttribute("blockTypes", BlockType.values());
-
+        this.populatePostModel(model, new CreateBlogEntryDto());
         if (!htmxRequest.isHtmxRequest()) {
             // for refresh or direct to /blog/createPost
             return FragmentsRendering
@@ -93,27 +82,37 @@ public class BlogController {
     @PostMapping("/createPost")
     public FragmentsRendering createPost(@Valid @ModelAttribute("post") CreateBlogEntryDto createBlogEntryDto,
                                          BindingResult result, Model model) {
-        model.addAttribute("heading", "Create A Post");
-        model.addAttribute("categoryList", categoryDao.findAllNames());
-        model.addAttribute("blockTypes", BlockType.values());
-        model.addAttribute("post", createBlogEntryDto);
 
         if (result.hasErrors()) {
+            this.populatePostModel(model, createBlogEntryDto);
             return FragmentsRendering
                     .fragment("components/header-components::simple-header")
                     .fragment("create-post::create-post")
                     .build();
         }
 
-        // redirect to created resource
-        System.out.println("*** toString: " + createBlogEntryDto);
-        System.out.println("*** blog entry service -> ");
         blogEntryService.createPost(createBlogEntryDto);
 
+        this.populateBlogDashboardModel(model, 1);
         return FragmentsRendering
                 .fragment("components/header-components::simple-header")
-                .fragment("create-post::create-post")
+                .fragment("blog::blog-main")
+                .header("HX-Push-Url", "/blog")
                 .build();
+    }
+
+    private void populatePostModel(Model model, CreateBlogEntryDto post) {
+        model.addAttribute("heading", "Create A Post");
+        model.addAttribute("categoryList", categoryDao.findAllNames());
+        model.addAttribute("blockTypes", BlockType.values());
+        model.addAttribute("post", post);
+    }
+
+    private void populateBlogDashboardModel(Model model, int pageNumber) {
+        model.addAttribute("heading", "Welcome to my blog!");
+        model.addAttribute("posts", blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE));
+        model.addAttribute("postsHeading", "All Posts");    // used for dynamic heading of 'all-posts' fragment with category filter
+        model.addAttribute("categories", categoryDao.findAll());
     }
 
 
