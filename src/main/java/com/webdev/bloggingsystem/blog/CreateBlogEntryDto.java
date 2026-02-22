@@ -1,18 +1,22 @@
 package com.webdev.bloggingsystem.blog;
 
 
+import com.webdev.bloggingsystem.errorHandling.MaxBytes;
+import com.webdev.bloggingsystem.errorHandling.UniqueTitle;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class CreateBlogEntryDto {
-
+    @UniqueTitle
+    @MaxBytes(value = 255)
     private String title;
-
+    @MaxBytes(value = 500)
     private String description;
-
+    @MaxBytes(value = 255)
     private String thumbnailUrl;
-
+    @MaxBytes(value = 255)
     private String thumbnailAlt;
 
     private int[] categoryIds = new int[4];

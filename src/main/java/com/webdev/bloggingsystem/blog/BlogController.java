@@ -13,13 +13,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.FragmentsRendering;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Controller
 @RequestMapping("/blog")
 public class BlogController {
-    private final Logger logger = LoggerFactory.getLogger(BlogController.class);
+    private static final Logger logger = LoggerFactory.getLogger(BlogController.class);
     private static final int PAGE_SIZE = 10;
 
     private final BlogEntryDao blogEntryDao;
@@ -90,13 +89,15 @@ public class BlogController {
                 .build();
     }
 
-    //todo : validate input
-    // figure out how to validate 'content' length using the generated JSON from createBlogEntryDto in the service layer!
-
     // called when submitting a new blog entry
     @PostMapping("/createPost")
     public FragmentsRendering createPost(@Valid @ModelAttribute("post") CreateBlogEntryDto createBlogEntryDto,
                                          BindingResult result, Model model) {
+        model.addAttribute("heading", "Create A Post");
+        model.addAttribute("categoryList", categoryDao.findAllNames());
+        model.addAttribute("blockTypes", BlockType.values());
+        model.addAttribute("post", createBlogEntryDto);
+
         if (result.hasErrors()) {
             return FragmentsRendering
                     .fragment("components/header-components::simple-header")
@@ -108,11 +109,6 @@ public class BlogController {
         System.out.println("*** toString: " + createBlogEntryDto);
         System.out.println("*** blog entry service -> ");
         blogEntryService.createPost(createBlogEntryDto);
-
-        model.addAttribute("heading", "Create A Post");
-        model.addAttribute("categoryList", categoryDao.findAllNames());
-        model.addAttribute("blockTypes", BlockType.values());
-        model.addAttribute("post", createBlogEntryDto);
 
         return FragmentsRendering
                 .fragment("components/header-components::simple-header")

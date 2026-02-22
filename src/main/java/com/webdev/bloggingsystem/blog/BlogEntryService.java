@@ -1,9 +1,11 @@
 package com.webdev.bloggingsystem.blog;
 
+import com.webdev.bloggingsystem.errorHandling.BlogEntryException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import tools.jackson.core.type.TypeReference;
+
 import tools.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
@@ -12,8 +14,9 @@ import java.util.Objects;
 
 @Service
 public class BlogEntryService {
-    private final int MAX_BYTES = 65535;
-    private final Logger logger = LoggerFactory.getLogger(BlogEntryService.class);
+    public static final int MAX_BYTES = 65535; // for TEXT type in MariaDB Column 'blog_entries.content'
+    private static final Logger logger = LoggerFactory.getLogger(BlogEntryService.class);
+
     private final BlogEntryDao blogEntryDao;
     private final CategoryDao categoryDao;
     private final ObjectMapper mapper;
@@ -30,7 +33,7 @@ public class BlogEntryService {
         int bytes = this.getCurrentByteCount(dto.getContentBlocks());
         if (bytes > MAX_BYTES) {
             logger.error("Content block exceeds maximum allowed bytes!!!");
-            throw new RuntimeException("Content block exceeds maximum allowed bytes!!!");
+            throw new BlogEntryException("Content block exceeds maximum allowed bytes!!!");
             // send error to ui
         } else {
             logger.info("Content block is being saved...");
@@ -57,15 +60,9 @@ public class BlogEntryService {
     */
 
     public int getCurrentByteCount(List<BlogEntryContentBlockDto> contentBlocks) {
-        logger.info("Getting current bytes count");
-
-        List<BlogEntryContentBlockDto> cleanedBlocks = sanitizeContentBlocks(contentBlocks);
-        String content = mapper.writeValueAsString(cleanedBlocks);
-        int count = content.getBytes(StandardCharsets.UTF_8).length;
-        logger.info("Current JSON string: \n {}", content);
-        logger.info("Current bytes count is {}", count);
-
-        return count;
+        return mapper.writeValueAsString(sanitizeContentBlocks(contentBlocks))
+                .getBytes(StandardCharsets.UTF_8)
+                .length;
     }
 
 

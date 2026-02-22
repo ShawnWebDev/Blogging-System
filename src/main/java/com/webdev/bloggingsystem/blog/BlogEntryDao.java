@@ -53,6 +53,11 @@ public class BlogEntryDao {
                 .single();
     }
 
+    public boolean existsByTitle(String title) {
+        return jdbc.sql("SELECT 1 FROM blog_entries WHERE title = :title LIMIT 1")
+                .param("title", title).query(Integer.class).optional().isPresent();
+    }
+
     public List<SimpleBlogEntryDto> findAllSimple(int pageNumber, int pageSize) {
         int offset = (pageNumber - 1) * pageSize;
         return jdbc.sql(
