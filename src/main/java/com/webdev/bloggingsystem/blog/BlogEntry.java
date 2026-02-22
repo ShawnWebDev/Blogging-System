@@ -25,8 +25,7 @@ public class BlogEntry {
 
     public BlogEntry() {}
 
-    public BlogEntry(int authorId, String title, String description, String content, String thumbnailUrl, String thumbnailAlt) {
-        this.authorId = authorId;
+    public BlogEntry(String title, String description, String content, String thumbnailUrl, String thumbnailAlt) {
         this.title = title;
         this.description = description;
         this.content = content;
@@ -34,8 +33,8 @@ public class BlogEntry {
         this.thumbnailAlt = thumbnailAlt;
     }
 
-    public static BlogEntry createBlogEntry(int authorId, String title, String description, String content, String thumbnailUrl, String thumbnailAlt) {
-        BlogEntry blogEntry = new BlogEntry(authorId, title, description, content, thumbnailUrl, thumbnailAlt);
+    public static BlogEntry createBlogEntry(String title, String description, String content, String thumbnailUrl, String thumbnailAlt) {
+        BlogEntry blogEntry = new BlogEntry(title, description, content, thumbnailUrl, thumbnailAlt);
         blogEntry.setCreatedAt(Instant.now());
         blogEntry.setSlug(generateSlugFromTitle(title));
         return blogEntry;
@@ -103,12 +102,6 @@ public class BlogEntry {
     public void setThumbnailAlt(String thumbnailAlt) {
         this.thumbnailAlt = thumbnailAlt;
     }
-    public int getAuthorId() {
-        return authorId;
-    }
-    public void setAuthorId(int author) {
-        this.authorId = author;
-    }
 
     @Override
     public String toString() {
@@ -122,7 +115,6 @@ public class BlogEntry {
                 ", content=" + content +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", authorId=" + authorId +
                 '}';
     }
 }

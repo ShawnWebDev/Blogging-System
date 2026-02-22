@@ -13,13 +13,13 @@ VALUES
     ('Test Category 2', 'Just a test category 2.'),
     ('Test Category 3', 'Just a test category 3.');
 
-INSERT INTO `blog_entries` (title, description, created_at, updated_at, content, author_id, slug, thumbnail_url, thumbnail_alt)
+INSERT INTO `blog_entries` (title, description, created_at, updated_at, content, slug, thumbnail_url, thumbnail_alt)
 VALUES
-    ('Test Post 1', 'Test Description 1', '2025-09-30', '2025-09-30','Test Post 1 - TestAdmin content is here.', 1, 'test-post-1', '', ''),
-    ('Test Post 2', 'Test Description 2', '2025-10-02', '2025-10-03', 'Test Post 2 - TestAdmin content is here.', 1, 'test-post-2', '', ''),
-    ('Test Post 3', 'Test Description 3', '2025-10-03', '2025-10-05','Test Post 3 - TestUser content is here.', 2, 'test-post-3', '', ''),
-    ('Test Post 4', 'Test Description 4', '2025-10-03', '2025-12-31','Test Post 4 - TestUser2 content is here.', 3, 'test-post-4', '', ''),
-    ('Test Post 5', 'Test Description 5', '2026-02-06', null,'Test Post 5 - Te5tU$er content is here.', 4, 'test-post-5', '', '');
+    ('Test Post 1', 'Test Description 1', '2025-09-30', '2025-09-30','Test Post 1 - TestAdmin content is here.', 'test-post-1', '', ''),
+    ('Test Post 2', 'Test Description 2', '2025-10-02', '2025-10-03', 'Test Post 2 - TestAdmin content is here.', 'test-post-2', '', ''),
+    ('Test Post 3', 'Test Description 3', '2025-10-03', '2025-10-05','Test Post 3 - TestUser content is here.',  'test-post-3', '', ''),
+    ('Test Post 4', 'Test Description 4', '2025-10-03', '2025-12-31','Test Post 4 - TestUser2 content is here.',  'test-post-4', '', ''),
+    ('Test Post 5', 'Test Description 5', '2026-02-06', null,'Test Post 5 - Te5tU$er content is here.', 'test-post-5', '', '');
 
 INSERT INTO `posts_categories` (post_id, category_id)
 VALUES

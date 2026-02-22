@@ -17,13 +17,10 @@ CREATE TABLE `blog_entries` (
         `description` varchar(500) NOT NULL,
         `created_at` datetime NOT NULL,
         `updated_at` datetime,
-        `author_id` int NOT NULL,
         `slug` varchar(255) NOT NULL,
         `thumbnail_url` varchar(255) NOT NULL,
         `thumbnail_alt` varchar(255) NOT NULL,
         PRIMARY KEY (`id`),
-        KEY `Blog_Entry_Users_FK` (`author_id`),
-        CONSTRAINT `Blog_Entry_Users_FK` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`),
         UNIQUE KEY `Slug_UNIQUE` (`slug`)
 );
 

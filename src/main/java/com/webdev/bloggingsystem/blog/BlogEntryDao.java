@@ -23,15 +23,14 @@ public class BlogEntryDao {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbc.sql(
-                "INSERT INTO blog_entries (content, title, description, created_at, updated_at, slug, author_id, thumbnail_url, thumbnail_alt) " +
-                "VALUES (:content, :title, :description, :created_at, :updated_at, :slug, :author_id, :thumbnail_url, :thumbnail_alt)")
+                "INSERT INTO blog_entries (content, title, description, created_at, updated_at, slug, thumbnail_url, thumbnail_alt) " +
+                "VALUES (:content, :title, :description, :created_at, :updated_at, :slug, :thumbnail_url, :thumbnail_alt)")
                     .param("content", blogEntry.getContent())
                     .param("title", blogEntry.getTitle())
                     .param("slug", blogEntry.getSlug())
                     .param("description", blogEntry.getDescription())
                     .param("created_at", blogEntry.getCreatedAt())
                     .param("updated_at", blogEntry.getUpdatedAt())
-                    .param("author_id", blogEntry.getAuthorId())
                     .param("thumbnail_url", blogEntry.getThumbnailUrl())
                     .param("thumbnail_alt", blogEntry.getThumbnailAlt())
                     .update(keyHolder);

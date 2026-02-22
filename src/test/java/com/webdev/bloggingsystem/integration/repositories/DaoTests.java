@@ -112,7 +112,6 @@ public class DaoTests {
     @Transactional
     public void insertBlogEntryWithCategories() {
         BlogEntry blogEntry = BlogEntry.createBlogEntry(
-            1,
             "Test title",
             "Test Description",
             "Test Content",
@@ -134,7 +133,6 @@ public class DaoTests {
     @Transactional
     public void insertBlogEntryWithNonExistentCategories() {
         BlogEntry blogEntry = BlogEntry.createBlogEntry(
-                1,
                 "Test title",
                 "Test Description",
                 "Test Content",
@@ -171,7 +169,6 @@ public class DaoTests {
     @Transactional
     public void testUpdateNonExistentBlogEntry() {
         BlogEntry blogEntry = BlogEntry.createBlogEntry(
-                1,
                 "Fake title",
                 "Fake Description",
                 "Fake Content",
