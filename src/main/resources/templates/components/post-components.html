@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -38,8 +38,6 @@
     <div th:fragment="byte-count" id="byte-count" hx-swap-oob="true">
         <span th:text="${byteCount}">Bytes</span><span> bytes used.</span>
     </div>
-
-    <div id="blog-error"></div>
 
 </body>
 </html>

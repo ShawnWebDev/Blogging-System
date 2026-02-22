@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
         response.setReswap(HtmxReswap.none());
         model.addAttribute("errorMsg", ex.getMessage());
         return FragmentsRendering
-                .fragment("components/error-components::error-message")
+                .fragment("components/error-components::blog-error-message")
                 .build();
     }
 
