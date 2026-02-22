@@ -21,7 +21,7 @@ CREATE TABLE `blog_entries` (
         `thumbnail_url` varchar(255) NOT NULL,
         `thumbnail_alt` varchar(255) NOT NULL,
         PRIMARY KEY (`id`),
-        UNIQUE KEY `Slug_UNIQUE` (`slug`)
+        UNIQUE KEY `title_UNIQUE` (`title`)
 );
 
 CREATE TABLE `comments` (
