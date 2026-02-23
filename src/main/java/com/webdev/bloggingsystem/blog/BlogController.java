@@ -57,11 +57,37 @@ public class BlogController {
                 .fragment("blog::blog-main")
                 .build();
     }
+    // "/blog/{id}" only to be used by HTMX internal navigation
+    @HxRequest
+    @GetMapping("/{id}")
+    public FragmentsRendering blogViewFromId(Model model, @PathVariable Integer id) {
+        FullBlogEntryDto entryDto = blogEntryService.readPostById(id);
+        model.addAttribute("entry", entryDto);
+        model.addAttribute("test", "from id: " + id);
+
+        return FragmentsRendering
+                .fragment("single-post::single-post")
+                .header("HX-Push-Url", "/blog/"+entryDto.slug())
+                .build();
+    }
+    // "/blog/{slug}" to be used by external links, direct url, refresh
+    @GetMapping("/{slug}")
+    public FragmentsRendering blogViewFromSlug(Model model, @PathVariable String slug) {
+        FullBlogEntryDto entryDto = blogEntryService.readPostBySlug(slug);
+        model.addAttribute("entry", entryDto);
+        model.addAttribute("test", "from slug: " + slug);
+        model.addAttribute("heading", "Welcome to my blog!");
+
+        return FragmentsRendering
+                .fragment("single-post")
+                .build();
+    }
+
 
     // called when requesting blog entry input form template
     @GetMapping("/createPost")
     public FragmentsRendering createPostView(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
-        this.populatePostModel(model, new CreateBlogEntryDto());
+        this.populateCreatePostModel(model, new CreateBlogEntryDto());
         if (!htmxRequest.isHtmxRequest()) {
             // for refresh or direct to /blog/createPost
             return FragmentsRendering
@@ -84,7 +110,7 @@ public class BlogController {
                                          BindingResult result, Model model) {
 
         if (result.hasErrors()) {
-            this.populatePostModel(model, createBlogEntryDto);
+            this.populateCreatePostModel(model, createBlogEntryDto);
             return FragmentsRendering
                     .fragment("components/header-components::simple-header")
                     .fragment("create-post::create-post")
@@ -101,9 +127,9 @@ public class BlogController {
                 .build();
     }
 
-    private void populatePostModel(Model model, CreateBlogEntryDto post) {
+    private void populateCreatePostModel(Model model, CreateBlogEntryDto post) {
         model.addAttribute("heading", "Create A Post");
-        model.addAttribute("categoryList", categoryDao.findAllNames());
+        model.addAttribute("categoryList", categoryDao.findAllNames()); // SimpleCategoryDto
         model.addAttribute("blockTypes", BlockType.values());
         model.addAttribute("post", post);
     }
@@ -112,7 +138,7 @@ public class BlogController {
         model.addAttribute("heading", "Welcome to my blog!");
         model.addAttribute("posts", blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE));
         model.addAttribute("postsHeading", "All Posts");    // used for dynamic heading of 'all-posts' fragment with category filter
-        model.addAttribute("categories", categoryDao.findAll());
+        model.addAttribute("categories", categoryDao.findAll()); // Full Category with description
     }
 
 
@@ -123,7 +149,7 @@ public class BlogController {
     @GetMapping("/blogComponent/posts")
     public FragmentsRendering posts(Model model,
                         @RequestParam(value = "category", defaultValue = "All", required = false) String categoryName,
-                        @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
+                        @RequestParam(value = "pageNumber", defaultValue = "1", required = false) Integer pageNumber) {
 
         List<SimpleBlogEntryDto> sortedBlogEntries;
         if (categoryName.equals("All")) {
@@ -143,7 +169,7 @@ public class BlogController {
     @HxRequest
     @GetMapping("/postComponent/addBlock")
     public FragmentsRendering addBlock(Model model,
-                                       @RequestParam int index) {
+                                       @RequestParam Integer index) {
         model.addAttribute("index", index);
         model.addAttribute("blockTypes", BlockType.values());
         model.addAttribute("block", new BlogEntryContentBlockDto());

@@ -1,6 +1,7 @@
 package com.webdev.bloggingsystem.blog;
 
 import java.time.Instant;
+import java.util.List;
 
 public class BlogEntry {
     private Integer id;
@@ -21,7 +22,7 @@ public class BlogEntry {
 
     private String thumbnailAlt;
 
-    private int authorId;
+    private List<String> categoryNames;
 
     public BlogEntry() {}
 
@@ -31,6 +32,16 @@ public class BlogEntry {
         this.content = content;
         this.thumbnailUrl = thumbnailUrl;
         this.thumbnailAlt = thumbnailAlt;
+    }
+
+    public BlogEntry(String title, String description, String content, Instant createdAt, Instant updatedAt, String slug, List<String> categoryNames) {
+        this.title = title;
+        this.description = description;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.slug = slug;
+        this.categoryNames = categoryNames;
     }
 
     public static BlogEntry createBlogEntry(String title, String description, String content, String thumbnailUrl, String thumbnailAlt) {
@@ -102,19 +113,26 @@ public class BlogEntry {
     public void setThumbnailAlt(String thumbnailAlt) {
         this.thumbnailAlt = thumbnailAlt;
     }
+    public List<String> getCategoryNames() {
+        return categoryNames;
+    }
+    public void setCategoryNames(List<String> categoryNames) {
+        this.categoryNames = categoryNames;
+    }
 
     @Override
     public String toString() {
         return "BlogEntry{" +
-                "id=" + id +
-                ", slug='" + slug +
-                ", title=" + title +
-                ", thumbnailUrl='" + thumbnailUrl +
-                ", thumbnailAlt='" + thumbnailAlt +
-                ", description=" + description +
-                ", content=" + content +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                "id= " + id +
+                ", slug= " + slug +
+                ", title= " + title +
+                ", thumbnailUrl= " + thumbnailUrl +
+                ", thumbnailAlt= " + thumbnailAlt +
+                ", description= " + description +
+                ", content= " + content +
+                ", createdAt= " + createdAt +
+                ", updatedAt= " + updatedAt +
+                ", categoryNames= " + categoryNames +
                 '}';
     }
 }

@@ -6,9 +6,8 @@
 </head>
 <body>
 
-<!--All blog posts-->
+<!--blog dashboard components-->
 <section th:fragment="all-posts" id="posts">
-
     <header>
         <h3 th:text="${postsHeading}"></h3>
         <a th:if="${postsHeading != 'All Posts'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms">Back to all posts</a>
@@ -17,15 +16,13 @@
     <section id="post-container">
         <article th:each="post : ${posts}" class="post">
             <header>
-                <h5 th:text="${post.title}"></h5>
+                <h5><a th:text="${post.title}" th:hx-get="@{/blog/{id}(id = ${post.id})}" hx-target="#main-content"></a></h5>
                 <small>@ <time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
             </header>
-
             <section class="post-description">
                 <img th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}"/>
                 <p th:text="${post.description}"></p>
             </section>
-
             <footer>
                 <nav>
                     <ul>
@@ -37,8 +34,9 @@
             </footer>
         </article>
     </section>
-
 </section>
+
+<!--single post components-->
 
 
 

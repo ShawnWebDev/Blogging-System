@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
@@ -28,36 +29,50 @@ public class BlogEntryService {
     }
 
     public void createPost(CreateBlogEntryDto dto) {
-        // todo : create method or validation annotation to check for unique title
-        //  : create method or validation annotation to check for max bytes in content JSON String
         int bytes = this.getCurrentByteCount(dto.getContentBlocks());
         if (bytes > MAX_BYTES) {
             logger.error("Content block exceeds maximum allowed bytes!!!");
             throw new BlogEntryException("Content block exceeds maximum allowed bytes!!!");
             // send error to ui
-        } else {
-            logger.info("Content block is being saved...");
-            //save to db, get id, save to category join table with batchInsertJoins(Set, int)
         }
+        String jsonString = mapper.writeValueAsString(dto.getContentBlocks());
+        logger.info("JSON String: {} ", jsonString);
+        logger.info("Blocks List: {} ", mapper.readValue(jsonString, new TypeReference<List<BlogEntryContentBlockDto>>() {}));
+
+        //save to db, get id, save to category join table with batchInsertJoins(Set, int)
+        logger.info("Content block is being saved...");
     }
 
-/*
-    public FullBlogEntryDto readPost(int id) {
-        BlogEntry entry = blogentryDao.findById(id);
-        List<BlogEntryContentBlockDto> contentBlockList mapper.readValue(entry.content, new TypeReference<List<BlogEntryContentBlockDto>>() {});
+    public FullBlogEntryDto readPostById(int id) {
+        BlogEntry entry = blogEntryDao.findById(id)
+                .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
+
+        List<BlogEntryContentBlockDto> contentBlockList = mapper.readValue(entry.getContent(), new TypeReference<>() {});
         // get all values from converted content & category list
-        return new FullBlogEntryDto();
+        return new FullBlogEntryDto(
+                entry.getTitle(), entry.getSlug(), entry.getDescription(), entry.getCreatedAt(), entry.getUpdatedAt(),
+                entry.getCategoryNames(), contentBlockList);
+    }
+
+    public FullBlogEntryDto readPostBySlug(String slug) {
+        BlogEntry entry = blogEntryDao.findBySlug(slug)
+                .orElseThrow(() -> new BlogEntryException("Entry not found: " + slug));
+
+        List<BlogEntryContentBlockDto> contentBlockList = mapper.readValue(entry.getContent(), new TypeReference<>() {});
+        // get all values from converted content & category list
+        return new FullBlogEntryDto(
+                entry.getTitle(), entry.getSlug(), entry.getDescription(), entry.getCreatedAt(), entry.getUpdatedAt(),
+                entry.getCategoryNames(), contentBlockList);
     }
 
     public String updatePost(int id) {
-
+        return "";
     }
 
     public String deletePost(int id) {
-
+        return "";
     }
 
-    */
 
     public int getCurrentByteCount(List<BlogEntryContentBlockDto> contentBlocks) {
         return mapper.writeValueAsString(sanitizeContentBlocks(contentBlocks))

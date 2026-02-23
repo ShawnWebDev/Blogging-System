@@ -64,8 +64,18 @@ public class DaoTests {
     public void testFindById() {
         BlogEntry blogEntry = blogEntryDao.findById(1).orElse(null);
         Assertions.assertNotNull(blogEntry);
-        Assertions.assertEquals(1, blogEntry.getId());
         Assertions.assertEquals("Test Post 1", blogEntry.getTitle());
+        Assertions.assertEquals(List.of("Test Category 1", "Test Category 2"), blogEntry.getCategoryNames());
+
+        System.out.println("result: " + blogEntry);
+    }
+
+    @Test
+    public void testFindBySlug() {
+        BlogEntry blogEntry = blogEntryDao.findBySlug("test-post-1").orElse(null);
+        Assertions.assertNotNull(blogEntry);
+        Assertions.assertEquals("Test Post 1", blogEntry.getTitle());
+        Assertions.assertEquals(List.of("Test Category 1", "Test Category 2"), blogEntry.getCategoryNames());
 
         System.out.println("result: " + blogEntry);
     }

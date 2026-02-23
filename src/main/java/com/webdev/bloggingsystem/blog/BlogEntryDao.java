@@ -39,12 +39,27 @@ public class BlogEntryDao {
     }
 
     public Optional<BlogEntry> findById(int id) {
-        return jdbc.sql(
-                "SELECT * FROM blog_entries b " +
-                "WHERE b.id = :id")
+        return jdbc.sql("SELECT b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, " +
+                        "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
+                                "FROM blog_entries b " +
+                                "JOIN posts_categories pc ON pc.post_id = b.id " +
+                                "JOIN categories c ON c.id = pc.category_id " +
+                                "WHERE b.id = :id")
                     .param("id", id)
-                    .query(BlogEntry.class)
+                    .query((rs, _) -> singleBlogEntryExtractor(rs))
                     .optional();
+    }
+
+    public Optional<BlogEntry> findBySlug(String slug) {
+        return jdbc.sql("SELECT b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, " +
+                        "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
+                        "FROM blog_entries b " +
+                        "JOIN posts_categories pc ON pc.post_id = b.id " +
+                        "JOIN categories c ON c.id = pc.category_id " +
+                        "WHERE b.slug = :slug")
+                .param("slug", slug)
+                .query((rs, _) -> singleBlogEntryExtractor(rs))
+                .optional();
     }
 
     public int count() {
@@ -131,6 +146,18 @@ public class BlogEntryDao {
                 List.of(rs.getString("category_list").split(",")),
                 rs.getString("thumbnail_url"),
                 rs.getString("thumbnail_alt")
+        );
+    }
+
+    private static BlogEntry singleBlogEntryExtractor(ResultSet rs) throws SQLException {
+        return new BlogEntry(
+                rs.getString("title"),
+                rs.getString("description"),
+                rs.getString("content"),
+                rs.getTimestamp("created_at").toInstant(),
+                rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toInstant() : null,
+                rs.getString("slug"),
+                List.of(rs.getString("category_list").split(","))
         );
     }
 }
