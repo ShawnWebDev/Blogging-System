@@ -12,6 +12,7 @@
                 <option th:each="bt : ${blockTypes}" th:value="${bt.name}" th:text="${bt.name}" th:selected="${block.type?.name() == bt.name}"></option>
             </select>
         </label>
+
         <label class="text-field">Text:
             <textarea th:name="|contentBlocks[${index}].text|" th:text="${block.text}"></textarea>
         </label>

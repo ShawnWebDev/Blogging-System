@@ -15,44 +15,52 @@
 
     <section th:fragment="create-post" id="create-post-form" th:attr="data-next-index=${post.contentBlocks.size()}">
 
-      <form action="#" hx-post="/blog/createPost" th:object="${post}" hx-target="#create-post-form" hx-swap="outerHTML">
+      <form action="#" hx-post="/blog/createPost" hx-target="#create-post-form" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <label>Title:
-          <input type="text" th:field="*{title}" required/>
-          <small th:errors="*{title}" th:text="${#fields.errors('title')}" class="error"></small>
+          <input type="text" name="title" th:value="${post.title}" required/>
+          <small th:errors="${post.title}" th:text="${#fields.errors('post.title')}" class="error"></small>
         </label>
         <label>Description:
-          <textarea type="text" th:field="*{description}" required></textarea>
-          <small th:errors="*{description}" th:text="${#fields.errors('description')}" class="error"></small>
+          <textarea name="description" th:text="${post.description}" required></textarea>
+          <small th:errors="${post.description}" th:text="${#fields.errors('post.description')}" class="error"></small>
         </label>
         <div class="form-group">
           <label>Thumbnail URL:
-            <input type="text" th:field="*{thumbnailUrl}" required/>
-            <small th:errors="*{thumbnailUrl}" th:text="${#fields.errors('thumbnailUrl')}" class="error"></small>
+            <input type="text" name="thumbnailUrl" th:value="${post.thumbnailUrl}" required/>
+            <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
           </label>
           <label>Thumbnail Alt:
-            <input type="text" th:field="*{thumbnailAlt}" required/>
-            <small th:errors="*{thumbnailUrl}" th:text="${#fields.errors('thumbnailUrl')}" class="error"></small>
+            <input type="text" name="thumbnailAlt" th:value="${post.thumbnailAlt}" required/>
+            <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
           </label>
         </div>
 
         <fieldset class="form-group">
-          <legend>Categories <small>(one minimum)</small>:</legend>
-          <select th:field="*{categories[0]}">
-            <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
-          </select>
-          <select th:field="*{categories[1]}">
-            <option value="0">None</option>
-            <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
-          </select>
-          <select th:field="*{categories[2]}">
-            <option value="0">None</option>
-            <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
-          </select>
-          <select th:field="*{categories[3]}">
-            <option value="0">None</option>
-            <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
-          </select>
+          <legend>Categories:</legend>
+          <label>Category 1:
+            <select name="categories[0]">
+              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
+            </select>
+          </label>
+          <label>Category 2:
+            <select name="categories[1]">
+              <option value="0">None</option>
+              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
+            </select>
+          </label>
+          <label>Category 3:
+            <select name="categories[2]">
+              <option value="0">None</option>
+              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
+            </select>
+          </label>
+          <label>Category 4:
+            <select name="categories[3]">
+              <option value="0">None</option>
+              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
+            </select>
+          </label>
         </fieldset>
 
         <fieldset id="blocks-container">
@@ -61,6 +69,7 @@
             <div th:replace="~{components/post-components::content-block(${iter.index}, ${block})}"></div>
           </th:block>
         </fieldset>
+
         <div>
           <div id="byte-count"></div>
           <button type="button" id="add-block-btn"
@@ -69,13 +78,14 @@
                   hx-target="#blocks-container"
                   hx-swap="beforeend">
             + Add Content Block</button>
-          <div style="display: none;" id="byte-validator"
+          <!--hidden, used to trigger update of byte-count-->
+          <div id="byte-validator"
                hx-post="/blog/postComponent/validateSize"
                hx-trigger="block-removed, load, keyup from:#blocks-container changed delay:400ms"
                hx-target="#byte-count"
                hx-include="closest form"></div>
+          <div id="blog-error"></div>
         </div>
-        <div id="blog-error"></div>
         <input type="submit" value="Create Post">
       </form>
     </section>

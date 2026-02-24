@@ -1,17 +1,24 @@
 :root {
     --main-bg-color: rgb(19, 23, 31);
-    --secondary-bg-color: rgb(40, 48, 64);
     --main-accent-color: rgb(127, 166, 36);
-
+    --main-accent-color-muted: rgba(127, 166, 36, 0.90);
+    --secondary-accent-color: rgb(40, 48, 64);
+    --secondary-accent-color-muted: rgba(40, 48, 64, 0.65);
     --main-text-color: rgb(227, 230, 233);
-    /*--secondary-text-color: */
+    --transparent-color: rgba(0, 0, 0, 0.4);
 }
+
+/* Layout Styles */
 
 body {
     background-color: var(--main-bg-color);
     color: var(--main-text-color);
     padding: 0;
     margin: 0;
+}
+
+#main-header h1, #main-content {
+    padding: 0.25rem;
 }
 
 #main-header {
@@ -21,30 +28,45 @@ body {
     border-bottom: 2px solid var(--main-accent-color);
 }
 
+#main-header section {
+    display: none;
+}
+
 nav ul {
     display: flex;
     gap: 0.5rem;
     list-style: none;
-    padding: 0;
+    padding: 0 0 1rem 0;
     margin: 0;
 }
 
-nav ul li button {
+nav ul li, nav ul li a {
+    width: fit-content;
+}
+
+nav ul li a {
     cursor: pointer;
-    color: var(--main-accent-color);
+    color: var(--main-accent-color-muted);
     background-color: var(--main-bg-color);
-    border: none;
+    border: 1px solid var(--main-bg-color);
+    padding: 0.5rem 0.25rem;
     font-size: 1rem;
-    width: 100%;
+    transition: all 300ms ease-in-out;
+    display: block;
 }
 
-nav ul li button:hover {
-    background-color: var(--secondary-bg-color);
+nav ul li a:hover {
+    background-color: var(--secondary-accent-color);
+    color: var(--main-text-color);
+    border: 1px solid var(--transparent-color);
+    border-radius: 0 0.5rem 0.5rem 0;
 }
 
-#main-content {
-
+button, a {
+    font-size: 0.9rem;
 }
+
+/* FORM STYLES */
 
 .close-btn {
     width: 1.5rem;
@@ -70,11 +92,11 @@ dialog article form {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: var(--transparent-color);
 }
 
 #login-modal[open] article {
-    background-color: var(--secondary-bg-color);
+    background-color: var(--secondary-accent-color);
     padding: 1rem;
     border-radius: 0.25rem;
     color: var(--main-text-color);
@@ -85,14 +107,53 @@ dialog article form {
     flex-direction: column;
     align-items: flex-end;
     gap: 0.5rem;
-
 }
 
-/*bigger than 1024*/
+.image-fields, .text-field {
+    display: none;
+}
+
+.content-block:is([data-type="HEADING"], [data-type="PARAGRAPH"], [data-type="BLOCKQUOTE"], [data-type="CODE"]) .text-field {
+    display: block;
+}
+
+.content-block:is([data-type="IMAGE"]) .image-fields {
+    display: flex;
+}
+#byte-validator {
+    display: none;
+}
+
+.btn-primary {
+    background-color: var(--secondary-accent-color);
+    border: 2px solid var(--secondary-accent-color);
+    color: var(--main-text-color);
+    box-shadow: none;
+    cursor: pointer;
+}
+
+/*768-1023*/
+@media (min-width: 768px) {
+    #main-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0;
+    }
+    nav ul {
+        padding: 0;
+    }
+}
+
+/*1024-1360*/
 @media (min-width: 1024px) {
     body {
         display: flex;
         gap: calc(2rem + 2vw);
+    }
+    #main-content {
+        max-width: 60rem;
+        padding: 1.5rem 0;
     }
     #main-header {
         display: block;
@@ -100,23 +161,43 @@ dialog article form {
         justify-content: flex-start;
         align-items: flex-start;
         align-content: flex-start;
-        border-right: 2px solid var(--main-accent-color);
+        border-right: 2px solid var(--secondary-accent-color-muted);
         border-bottom: none;
         height: 100vh;
         position: sticky;
         top: 0;
-        padding: 0;
+        padding: 0 1rem 0 calc(2rem + 2vw);
+        overflow-y: scroll;
+        max-width: 15rem;
     }
-    nav ul {
+    #main-header section {
+        display: block;
+    }
+    #main-header h2, #main-header h3, #main-header h4 {
+        margin: 0;
+    }
+    #main-header h2, #main-header nav, #main-header section {
+        border-bottom: 2px solid var(--secondary-accent-color-muted);
+        padding: 1.5rem 0;
+    }
+    #main-header nav ul {
         flex-direction: column;
+        align-items: flex-end;
+    }
+    #main-header nav ul li, #main-header nav ul li a {
+        width: 100%;
+        text-align: left;
     }
 }
 
-/*bigger than 768*/
-@media (min-width: 768px) {
-    #main-header {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
+@media (min-width: 1360px) {
+    body {
+        gap: calc(2rem + 5vw);
     }
+    #main-header {
+        padding: 0 1rem 0 calc(2rem + 5vw);
+    }
+
 }
+
+

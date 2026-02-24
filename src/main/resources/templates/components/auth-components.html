@@ -13,13 +13,13 @@
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
     </form>
     <button hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML" hx-include="#logout-form input">Logout</button>
-    <button sec:authorize="hasAuthority('ADMIN')" hx-get="/blog/createPost" hx-target="#main-content" hx-swap="innerHTML">
+    <button sec:authorize="hasAuthority('ADMIN')" hx-get="/blog/createPost" hx-target="#main-content" hx-swap="innerHTML" class="btn-primary">
         Create Post
     </button>
 </div>
 
 <div th:fragment="login-form" class="login-container">
-    <button onclick="getElementById('login-modal').showModal()">Login</button>
+    <button onclick="getElementById('login-modal').showModal()" class="btn-primary">Login</button>
     <dialog id="login-modal" th:open="${loginError}">
         <article>
             <header>

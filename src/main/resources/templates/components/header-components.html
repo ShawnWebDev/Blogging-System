@@ -3,27 +3,36 @@
 
 <body>
   <header th:fragment="full-header" id="main-header">
-    <h1 id="header">Shawn Osborne</h1>
+    <h2>Shawn Osborne</h2>
+    <section>
+      <h3>Hello World!</h3>
+      <p>
+        I'm Shawn, software engineer among many other things. Welcome to my little corner of the web.
+      </p>
+    </section>
     <nav>
       <ul>
         <li>
-          <button hx-get="/" hx-target="#main-content" hx-swap="outerHTML">About Me</button>
+          <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML">About Me</a>
         </li>
         <li>
-          <button hx-get="/" hx-target="#main-content">Portfolio</button>
+          <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML">Portfolio</a>
         </li>
         <li>
-          <button hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML">Blog</button>
+          <a hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML">Blog</a>
         </li>
         <li>
-          <button hx-get="/" hx-target="#main-content">Contact</button>
-        </li>
-        <li>
-          <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components :: login-form}"></div>
-          <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components :: logout-form}"></div>
+          <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML">Contact</a>
         </li>
       </ul>
     </nav>
+    <section>
+      <h4>Contact</h4>
+    </section>
+    <section>
+      <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components :: login-form}"></div>
+      <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components :: logout-form}"></div>
+    </section>
   </header>
 
 </body>
