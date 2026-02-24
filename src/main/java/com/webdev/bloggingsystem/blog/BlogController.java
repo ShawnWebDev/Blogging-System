@@ -31,6 +31,18 @@ public class BlogController {
         this.blogEntryService = blogEntryService;
     }
 
+    private void populateCreatePostModel(Model model, CreateBlogEntryDto post) {
+        model.addAttribute("categoryList", categoryDao.findAllNames()); // SimpleCategoryDto
+        model.addAttribute("blockTypes", BlockType.values());
+        model.addAttribute("post", post);
+    }
+
+    private void populateBlogDashboardModel(Model model, int pageNumber) {
+        model.addAttribute("posts", blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE));
+        model.addAttribute("postsHeading", "All Posts");    // used for dynamic heading of 'all-posts' fragment with category filter
+        model.addAttribute("categories", categoryDao.findAll()); // Full Category with description
+    }
+
     // called when requesting main blog template
     @GetMapping
     public FragmentsRendering blog(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest,
@@ -53,10 +65,10 @@ public class BlogController {
         }
         // for htmx request, only needs heading h1 and blog-main with all-posts
         return FragmentsRendering
-                .fragment("components/header-components::simple-header")
                 .fragment("blog::blog-main")
                 .build();
     }
+
     // "/blog/{id}" only to be used by HTMX internal navigation
     @HxRequest
     @GetMapping("/{id}")
@@ -70,19 +82,18 @@ public class BlogController {
                 .header("HX-Push-Url", "/blog/"+entryDto.slug())
                 .build();
     }
+
     // "/blog/{slug}" to be used by external links, direct url, refresh
     @GetMapping("/{slug}")
     public FragmentsRendering blogViewFromSlug(Model model, @PathVariable String slug) {
         FullBlogEntryDto entryDto = blogEntryService.readPostBySlug(slug);
         model.addAttribute("entry", entryDto);
         model.addAttribute("test", "from slug: " + slug);
-        model.addAttribute("heading", "Welcome to my blog!");
 
         return FragmentsRendering
                 .fragment("single-post")
                 .build();
     }
-
 
     // called when requesting blog entry input form template
     @GetMapping("/createPost")
@@ -99,7 +110,6 @@ public class BlogController {
         }
 
         return FragmentsRendering
-                .fragment("components/header-components::simple-header")
                 .fragment("create-post::create-post")
                 .build();
     }
@@ -112,7 +122,6 @@ public class BlogController {
         if (result.hasErrors()) {
             this.populateCreatePostModel(model, createBlogEntryDto);
             return FragmentsRendering
-                    .fragment("components/header-components::simple-header")
                     .fragment("create-post::create-post")
                     .build();
         }
@@ -121,28 +130,11 @@ public class BlogController {
 
         this.populateBlogDashboardModel(model, 1);
         return FragmentsRendering
-                .fragment("components/header-components::simple-header")
                 .fragment("blog::blog-main")
                 .header("HX-Push-Url", "/blog")
                 .build();
     }
 
-    private void populateCreatePostModel(Model model, CreateBlogEntryDto post) {
-        model.addAttribute("heading", "Create A Post");
-        model.addAttribute("categoryList", categoryDao.findAllNames()); // SimpleCategoryDto
-        model.addAttribute("blockTypes", BlockType.values());
-        model.addAttribute("post", post);
-    }
-
-    private void populateBlogDashboardModel(Model model, int pageNumber) {
-        model.addAttribute("heading", "Welcome to my blog!");
-        model.addAttribute("posts", blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE));
-        model.addAttribute("postsHeading", "All Posts");    // used for dynamic heading of 'all-posts' fragment with category filter
-        model.addAttribute("categories", categoryDao.findAll()); // Full Category with description
-    }
-
-
-    // ** HTMX ONLY REQUESTS **
 
     // called when filtering posts by category
     @HxRequest
