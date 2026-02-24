@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="/htmx.min.js" defer></script>
     <link rel="stylesheet" href="/main.css">
-    <link rel="stylesheet" href="/pico.classless.jade.min.css">
     <title>Blog</title>
 </head>
 <body>
@@ -13,12 +12,12 @@
     <header th:replace="~{components/header-components :: full-header}"></header>
 
     <main th:fragment="single-post" id="main-content">
-        <div>
-            <span th:text="${test}"></span>
-        </div>
-        <div>
-            <span th:text="${entry}"></span>
-        </div>
+
+        <section>
+
+        </section>
+
+
         <!-- todo: needs comments section component-->
     </main>
 

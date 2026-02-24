@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="/htmx.min.js" defer></script>
     <link rel="stylesheet" href="/main.css">
-    <link rel="stylesheet" href="/pico.classless.jade.min.css">
     <title>Blog</title>
 </head>
 
@@ -14,21 +13,20 @@
     <header th:replace="~{components/header-components :: full-header}"></header>
 
     <main th:fragment="blog-main" id="main-content">
-        <hr>
-        <h2>Filter By Category:</h2>
         <section id="categories">
-            <article class="category-selection"
-                     th:each="category : ${categories}"
-                     th:hx-get="@{/blog/blogComponent/posts(category=${category.categoryName})}"
-                     hx-target="#posts"
-                     hx-swap="outerHTML swap:200ms">
-                <header>
-                    <h5 th:text="${category.categoryName}"></h5>
-                </header>
-                <small th:text="${category.description}"></small>
-            </article>
+            <header>
+                <h3>Filter Posts By Category:</h3>
+            </header>
+            <div id="categories-container">
+                <button class="category-selection"
+                         th:each="category : ${categories}"
+                         th:hx-get="@{/blog/blogComponent/posts(category=${category.categoryName})}"
+                         hx-target="#posts"
+                         hx-swap="outerHTML swap:200ms"
+                         th:text="${category.categoryName}">
+                </button>
+            </div>
         </section>
-        <hr>
         <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
     </main>
 

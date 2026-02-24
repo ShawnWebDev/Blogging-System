@@ -14,9 +14,9 @@
     </header>
 
     <section id="post-container">
-        <article th:each="post : ${posts}" class="post">
+        <article th:each="post : ${posts}" class="post-card" th:hx-get="@{/blog/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">
             <header>
-                <h5><a th:text="${post.title}" th:hx-get="@{/blog/{id}(id = ${post.id})}" hx-target="#main-content"></a></h5>
+                <h5 th:text="${post.title}"></h5>
                 <small>@ <time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
             </header>
             <section class="post-description">
@@ -27,7 +27,7 @@
                 <nav>
                     <ul>
                         <li th:each="category : ${post.categories}">
-                            <small><a th:hx-get="@{/blog/blogComponent/posts(category=${category})}" hx-target="#posts" hx-swap="outerHTML swap:200ms" th:text="${category}"/></small>
+                            <small th:text="${category}"></small>
                         </li>
                     </ul>
                 </nav>
@@ -35,10 +35,6 @@
         </article>
     </section>
 </section>
-
-<!--single post components-->
-
-
 
 </body>
 </html>

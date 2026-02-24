@@ -2,24 +2,21 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <body>
-
-  <h1 th:text="${heading}" th:fragment="simple-header" hx-swap-oob="true" id="header"></h1>
-
   <header th:fragment="full-header" id="main-header">
-    <h1 th:text="${heading}" id="header"></h1>
+    <h1 id="header">Shawn Osborne</h1>
     <nav>
       <ul>
         <li>
-          <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML">About Me</a>
+          <button hx-get="/" hx-target="#main-content" hx-swap="outerHTML">About Me</button>
         </li>
         <li>
-          <a hx-get="/" hx-target="#main-content">Portfolio</a>
+          <button hx-get="/" hx-target="#main-content">Portfolio</button>
         </li>
         <li>
-          <a hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML">Blog</a>
+          <button hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML">Blog</button>
         </li>
         <li>
-          <a hx-get="/" hx-target="#main-content">Contact</a>
+          <button hx-get="/" hx-target="#main-content">Contact</button>
         </li>
         <li>
           <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components :: login-form}"></div>
