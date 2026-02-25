@@ -9,8 +9,9 @@
 <!--blog dashboard components-->
 <section th:fragment="all-posts" id="posts">
     <header>
-        <h3 th:text="${postsHeading}"></h3>
-        <a th:if="${postsHeading != 'All Posts'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms">Back to all posts</a>
+        <h3 th:text="${categoryName + ' Posts'}"></h3>
+        <small th:if="${categoryDesc != null}" th:text="${categoryDesc}"></small>
+        <a th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms">Back to all posts</a>
     </header>
 
     <section id="post-container">

@@ -20,7 +20,7 @@
             <div id="categories-container">
                 <button class="category-selection"
                          th:each="category : ${categories}"
-                         th:hx-get="@{/blog/blogComponent/posts(category=${category.categoryName})}"
+                         th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.categoryName}, categoryDesc=${category.description})}"
                          hx-target="#posts"
                          hx-swap="outerHTML swap:200ms"
                          th:text="${category.categoryName}">
