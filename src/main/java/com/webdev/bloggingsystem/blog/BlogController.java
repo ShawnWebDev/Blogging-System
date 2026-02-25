@@ -39,7 +39,7 @@ public class BlogController {
 
     private void populateBlogDashboardModel(Model model, int pageNumber) {
         model.addAttribute("posts", blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE));
-        model.addAttribute("postsHeading", "All Posts");    // used for dynamic heading of 'all-posts' fragment with category filter
+        model.addAttribute("categoryName", "All");    // used for dynamic heading of 'all-posts' fragment with category filter
         model.addAttribute("categories", categoryDao.findAll()); // Full Category with description
     }
 
@@ -140,7 +140,8 @@ public class BlogController {
     @HxRequest
     @GetMapping("/blogComponent/posts")
     public FragmentsRendering posts(Model model,
-                        @RequestParam(value = "category", defaultValue = "All", required = false) String categoryName,
+                        @RequestParam(value = "categoryName", defaultValue = "All", required = false) String categoryName,
+                        @RequestParam(value = "categoryDesc", required = false) String categoryDesc,
                         @RequestParam(value = "pageNumber", defaultValue = "1", required = false) Integer pageNumber) {
 
         List<SimpleBlogEntryDto> sortedBlogEntries;
@@ -150,7 +151,8 @@ public class BlogController {
             sortedBlogEntries = blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, PAGE_SIZE);
         }
         model.addAttribute("posts", sortedBlogEntries);
-        model.addAttribute("postsHeading", categoryName + " Posts");
+        model.addAttribute("categoryName", categoryName);
+        model.addAttribute("categoryDesc", categoryDesc);
 
         return FragmentsRendering
                 .fragment("components/blog-components::all-posts")
