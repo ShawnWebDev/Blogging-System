@@ -13,16 +13,16 @@
     <nav>
       <ul>
         <li>
-          <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML">About Me</a>
+          <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML" class="nav-item">About Me</a>
         </li>
         <li>
-          <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML">Portfolio</a>
+          <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML" class="nav-item">Portfolio</a>
         </li>
         <li>
-          <a hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML">Blog</a>
+          <a hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML" class="nav-item">Blog</a>
         </li>
         <li>
-          <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML">Contact</a>
+          <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML" class="nav-item">Contact</a>
         </li>
       </ul>
     </nav>
@@ -33,6 +33,16 @@
       <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components :: login-form}"></div>
       <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components :: logout-form}"></div>
     </section>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          const navItems = document.querySelectorAll('.nav-item');
+          navItems.forEach(item => {
+            item.addEventListener('click',
+              function () {
+                navItems.forEach(navItem =>
+                        navItem.classList.remove('active'));
+                this.classList.add('active');});});});
+    </script>
   </header>
 
 </body>
