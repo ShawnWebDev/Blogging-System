@@ -25,13 +25,11 @@
                 <p th:text="${post.description}"></p>
             </section>
             <footer>
-                <nav>
-                    <ul>
-                        <li th:each="category : ${post.categories}">
-                            <small th:text="${category}"></small>
-                        </li>
-                    </ul>
-                </nav>
+                <ul class="group">
+                    <li th:each="category : ${post.categories}">
+                        <small th:text="${category}"></small>
+                    </li>
+                </ul>
             </footer>
         </article>
     </section>
