@@ -2,6 +2,7 @@ package com.webdev.bloggingsystem;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,11 +25,12 @@ public class SecurityConfig {
                         .maximumSessions(1).maxSessionsPreventsLogin(false).expiredUrl("/blog?logout")
                 )
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/blog/blogComponent/createPost").hasAuthority("ADMIN")
-                        .requestMatchers(
-                                "/", "/blog/**", "/loginError",
-                                "/removeCommentForm", "/favicon.ico", "/**.css", "/**.js"
-                        ).permitAll()
+                        .requestMatchers("/", "/loginError","/favicon.ico", "/**.css", "/**.js").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/blog/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/blog/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/blog/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/blog/createPost").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/blog/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
