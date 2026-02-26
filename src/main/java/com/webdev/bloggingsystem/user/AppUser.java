@@ -24,7 +24,6 @@ public class AppUser {
         AppUser appUser = new AppUser(username, password);
         appUser.isActive(true);
         appUser.setDateCreated(LocalDate.now());
-        appUser.setRole(RoleType.USER);
         return appUser;
     }
 
@@ -64,7 +63,6 @@ public class AppUser {
     public void setRole(RoleType role) {
         this.role = role;
     }
-
 
     @Override
     public String toString() {
