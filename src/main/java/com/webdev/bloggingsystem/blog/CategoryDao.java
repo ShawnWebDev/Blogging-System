@@ -68,4 +68,13 @@ public class CategoryDao {
                     .param("description", category.getDescription())
                     .update();
     }
+
+    public int deleteJoinedByBlogId(int blogId) {
+        return jdbc.sql(
+                "DELETE FROM posts_categories " +
+                "WHERE post_id = :blogid")
+                    .param("blogid", blogId)
+                    .update();
+    }
+
 }
