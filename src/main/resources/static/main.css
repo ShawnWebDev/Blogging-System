@@ -37,9 +37,9 @@ body {
     display: none;
 }
 
-nav ul {
+nav ul, ul.group {
     display: flex;
-    gap: 0.75rem;
+    gap: 1rem;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -47,20 +47,29 @@ nav ul {
 
 .nav-item {
     cursor: pointer;
-    color: var(--main-accent-color);
+    color: var(--main-text-color);
     background-color: var(--main-bg-color);
     padding: 0.5rem 0;
     font-size: 1rem;
     transition: all 400ms ease-in-out;
-    display: block;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.nav-item svg {
+    width: 0.9rem;
+    fill: var(--main-text-color);
+    transition: all 400ms ease-in-out;
 }
 
 .nav-item:hover, .active {
     background-color: var(--secondary-accent-color);
-    color: var(--main-text-color);
     border-radius: 0.25rem;
-    padding: 0.5rem 0.25rem;
-    margin: 0 -0.25rem;
+    padding: 0.5rem 0.3rem;
+    margin: 0 -0.3rem;
+    fill: #fff;
+    color: #fff;
 }
 
 button, a, input[type = submit] {
@@ -69,19 +78,19 @@ button, a, input[type = submit] {
     border-radius: 0.25rem;
 }
 
-/* FORM STYLES */
+.group {
+    display: flex;
+}
 
+/* FORM STYLES */
 .close-btn {
     width: 1.5rem;
     height: 1.5rem;
-
 }
-
 dialog article header {
     display: flex;
     justify-content: space-between;
 }
-
 dialog article form {
     margin: 1rem auto;
 }
@@ -145,14 +154,11 @@ dialog article form {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
+        padding: 1rem 0;
     }
     nav ul {
         padding: 0;
     }
-    .nav-item:hover, .active {
-         border-radius: 0;
-     }
-
 }
 
 /* 1024 - 1359 */
@@ -163,22 +169,18 @@ dialog article form {
     }
     #main-content {
         max-width: 60rem;
-        padding: 1.5rem 0;
     }
     #main-header {
         display: block;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: flex-start;
-        align-content: flex-start;
         border-right: 2px solid var(--secondary-accent-color-muted);
         border-bottom: none;
         height: 100vh;
         position: sticky;
         top: 0;
         padding: 0 1rem 0 calc(2rem + 2vw);
-        overflow-y: scroll;
+        margin: 0;
         max-width: 15rem;
+        overflow-y: scroll;
     }
     #main-header section {
         display: block;
@@ -198,9 +200,26 @@ dialog article form {
         width: 100%;
         text-align: left;
     }
-   .nav-item:hover, .active {
+    .nav-item {
+        border-bottom: 2px solid var(--main-bg-color);
+        border-left: 1px solid var(--main-bg-color);
+    }
+    .nav-item:hover, .active {
         border-radius: 1rem 0 0 1rem;
         padding-left: 1rem;
+        margin: 0 calc(-0.3rem - 1px);
+    }
+    .active {
+        border-bottom: 2px solid var(--main-accent-color);
+        border-left: 1px solid var(--main-accent-color);
+    }
+    .nav-item svg {
+        width: 0;
+        opacity: 0;
+    }
+    .active svg {
+        width: 1.25rem;
+        opacity: 1;
     }
 }
 
