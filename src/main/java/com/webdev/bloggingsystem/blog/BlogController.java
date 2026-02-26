@@ -54,6 +54,7 @@ public class BlogController {
 
         if (!htmxRequest.isHtmxRequest()) {
             // for refresh or direct to /blog, contains heading fragment with nav, css/js, and blog-main fragment with all-posts
+            model.addAttribute("fromBlog", true);
             return FragmentsRendering
                     .fragment("blog")
                     .build();
@@ -75,7 +76,6 @@ public class BlogController {
     public FragmentsRendering blogViewFromId(Model model, @PathVariable Integer id) {
         FullBlogEntryDto entryDto = blogEntryService.readPostById(id);
         model.addAttribute("entry", entryDto);
-        model.addAttribute("test", "from id: " + id);
 
         return FragmentsRendering
                 .fragment("single-post::single-post")
@@ -88,7 +88,6 @@ public class BlogController {
     public FragmentsRendering blogViewFromSlug(Model model, @PathVariable String slug) {
         FullBlogEntryDto entryDto = blogEntryService.readPostBySlug(slug);
         model.addAttribute("entry", entryDto);
-        model.addAttribute("test", "from slug: " + slug);
 
         return FragmentsRendering
                 .fragment("single-post")
@@ -144,13 +143,13 @@ public class BlogController {
                         @RequestParam(value = "categoryDesc", required = false) String categoryDesc,
                         @RequestParam(value = "pageNumber", defaultValue = "1", required = false) Integer pageNumber) {
 
-        List<SimpleBlogEntryDto> sortedBlogEntries;
+        List<SimpleBlogEntryDto> filteredBlogEntries;
         if (categoryName.equals("All")) {
-            sortedBlogEntries = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
+            filteredBlogEntries = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
         } else {
-            sortedBlogEntries = blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, PAGE_SIZE);
+            filteredBlogEntries = blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, PAGE_SIZE);
         }
-        model.addAttribute("posts", sortedBlogEntries);
+        model.addAttribute("posts", filteredBlogEntries);
         model.addAttribute("categoryName", categoryName);
         model.addAttribute("categoryDesc", categoryDesc);
 

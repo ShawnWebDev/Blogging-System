@@ -16,6 +16,7 @@ public class HomeController {
     @GetMapping("/")
     public FragmentsRendering home(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
         if (!htmxRequest.isHtmxRequest()) {
+            model.addAttribute("fromAbout", true);
             return FragmentsRendering.fragment("index").build();
         }
         if (htmxRequest.getCurrentUrl() == null || !htmxRequest.getCurrentUrl().endsWith("/")) {
