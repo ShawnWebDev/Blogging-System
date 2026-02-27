@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/htmx.min.js" defer></script>
+    <link rel="stylesheet" href="/main.css">
+    <title>Blog</title>
+</head>
+
+<body>
+
+    <header th:replace="~{components/header-components :: full-header}"></header>
+
+    <main th:fragment="blog-main" id="main-content">
+        <section id="categories">
+            <header>
+                <h3>Filter Posts By Category:</h3>
+            </header>
+            <div id="categories-container">
+                <button class="category-selection"
+                         th:each="category : ${categories}"
+                         th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.categoryName}, categoryDesc=${category.description})}"
+                         hx-target="#posts"
+                         hx-swap="outerHTML swap:200ms"
+                         th:text="${category.categoryName}">
+                </button>
+            </div>
+        </section>
+        <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
+    </main>
+
+</body>
+</html>

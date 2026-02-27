@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+    <article th:fragment="content-block(index, block)" class="content-block" th:attr="data-type=${block.type ?: 'HEADING'}">
+        <label>Block Type:
+            <select th:name="|contentBlocks[${index}].type|" onchange="this.closest('.content-block').dataset.type = this.value;">
+                <option th:each="bt : ${blockTypes}" th:value="${bt.name}" th:text="${bt.name}" th:selected="${block.type?.name() == bt.name}"></option>
+            </select>
+        </label>
+
+        <label class="text-field">Text:
+            <textarea th:name="|contentBlocks[${index}].text|" th:text="${block.text}"></textarea>
+        </label>
+
+        <fieldset class="image-fields">
+            <label>Image URL:
+                <input type="url" th:name="|contentBlocks[${index}].url|" th:value="${block.url}"/>
+            </label>
+            <label>Image Alt:
+                <input type="text" th:name="|contentBlocks[${index}].alt|" th:value="${block.alt}"/>
+            </label>
+            <label>Image caption:
+                <input type="text" th:name="|contentBlocks[${index}].caption|" th:value="${block.caption}"/>
+            </label>
+        </fieldset>
+        <button type="button"
+                onclick="if (confirm('Are you sure?')) {
+                    this.closest('.content-block').remove();
+                    htmx.trigger('#byte-validator', 'block-removed');
+                }"
+        >- Remove Block</button>
+    </article>
+
+    <div th:fragment="byte-count" id="byte-count" hx-swap-oob="true">
+        <span th:text="${byteCount}">Bytes</span><span> bytes used.</span>
+    </div>
+
+</body>
+</html>

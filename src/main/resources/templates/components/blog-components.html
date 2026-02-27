@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Components</title>
+</head>
+<body>
+
+<!--blog dashboard components-->
+<section th:fragment="all-posts" id="posts">
+    <header>
+        <h3 th:text="${categoryName + ' Posts'}"></h3>
+        <small th:if="${categoryDesc != null}" th:text="${categoryDesc}"></small>
+        <a th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms">Back to all posts</a>
+    </header>
+
+    <section id="post-container">
+        <article th:each="post : ${posts}" class="post-card" th:hx-get="@{/blog/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">
+            <header>
+                <h5 th:text="${post.title}"></h5>
+                <small>@ <time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
+            </header>
+            <section class="post-description">
+                <img th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}"/>
+                <p th:text="${post.description}"></p>
+            </section>
+            <footer>
+                <ul class="group">
+                    <li th:each="category : ${post.categories}">
+                        <small th:text="${category}"></small>
+                    </li>
+                </ul>
+            </footer>
+        </article>
+    </section>
+</section>
+
+</body>
+</html>

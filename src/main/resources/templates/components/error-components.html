@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Errors</title>
+</head>
+<body>
+
+
+<div th:fragment="blog-error-message(errorMsg)" id="blog-error" hx-swap-oob="true">
+    <span th:text="${errorMsg}" class="error">Error!</span>
+</div>
+
+
+
+</body>
+</html>
