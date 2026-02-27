@@ -16,7 +16,7 @@ A modern blogging platform that feels like a highly interactive single-page appl
 
 ## Requirements
 1. Tech Stack:
-   * *Backend:* Java 21+, Spring Boot 4, Spring MVC, Spring Security, Spring JDBC.
+   * *Backend:* Java 21+, Spring Boot 4, Spring MVC, Spring Security, Spring JDBC Client.
    * *Templating:* SSR with Thymeleaf.
    * *Interactivity:* HTMX & Vanilla CSS.
    * *Database:* MariaDB.
@@ -30,8 +30,8 @@ A modern blogging platform that feels like a highly interactive single-page appl
    * *Security*
      * Role-Based Access to differentiate between users and admin.
      * Session based auth with CSRF.
-   * *Markdown-To-HTML*
-     * CommonMark library for parsing MD files to HTML
+   * *Serialize Content into JSON blocks for storage and display in template*
+     * Jackson serialization (Java Object to JSON and back)
 3. Cache frequently accessed posts.
 
 ## Architecture
@@ -39,7 +39,7 @@ Will follow a multi-tier architecture of:
 1. View Layer (Thymeleaf, HTMX, CSS): Utilizes fully rendered HTML with Thymeleaf, HTMX intercepts user interactions and requests the needed Thymeleaf fragments for partial page updates.
 2. Controller Layer (Spring MVC): Returns full HTML views or Thymeleaf fragments as requested by Browser/HTMX.
 3. Service Layer (Java, Spring Boot): Handles logic and coordinates between persistence and controller layers.
-4. Persistence Layer (Spring JDBC / MariaDb): Manages data flow to and from MariaDB.
+4. Persistence Layer (Spring JDBC Client / MariaDb): Manages data flow to and from MariaDB.
 
 ### Future Scaling Considerations
 * Migrating MariaDB to its own EC2 instance.
