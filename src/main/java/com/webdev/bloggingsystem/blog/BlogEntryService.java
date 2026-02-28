@@ -36,8 +36,8 @@ public class BlogEntryService {
             logger.error("Content block exceeds maximum allowed bytes!!!");
             throw new BlogEntryException("Content block exceeds maximum allowed bytes!!!");
         }
-
-        String jsonContentString = mapper.writeValueAsString(dto.getContentBlocks());
+        String jsonContentString = mapper.writeValueAsString(sanitizeContentBlocks(dto.getContentBlocks()));
+        logger.info("Create post json content string: {}", jsonContentString);
 
         //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set, int)
         logger.info("Content block is being saved...");
@@ -104,20 +104,21 @@ public class BlogEntryService {
     // they have to have heading, paragraph, or code text or a url (for image) to be valid. - to be used in create and update
     static List<BlogEntryContentBlockDto> sanitizeContentBlocks(List<BlogEntryContentBlockDto> contentBlocks) {
         return contentBlocks.stream()
-                .filter(Objects::nonNull)
+                .filter(Objects::nonNull) // remove null index / blocks due to deleting blocks in html form
                 .filter(block ->
-                        (block.getType() != null) && (
+                        (block.getType() != null) && ( // every block needs a type
                         (block.getText() != null && !block.getText().isBlank()) ||
-                        (block.getUrl() != null && !block.getUrl().isBlank()))
+                        (block.getUrl() != null && !block.getUrl().isBlank())) // every block must have either text or url
                 ).map(block -> {
-                    // need to also check for null and blank in text and url because one could still be null or blank, the filter would only remove one.
+                    // trim edge white space,
+                    // need to also check for null and blank in text and url because one could still be null or blank, the filter would only remove either/or.
                         if (block.getText() != null && !block.getText().isBlank()) block.setText(block.getText().trim());
-                        if (block.getText() != null && !block.getUrl().isBlank()) block.setUrl(block.getUrl().trim());
+                        if (block.getUrl() != null && !block.getUrl().isBlank()) block.setUrl(block.getUrl().trim());
                         if (block.getAlt() != null && !block.getAlt().isBlank()) block.setAlt(block.getAlt().trim());
                         if (block.getCaption() != null && !block.getCaption().isBlank()) block.setCaption(block.getCaption().trim());
                         return block;
                 }
-                ).toList();
+                ).toList(); // unmodifiable list, it will not be changed after this, only persisted
     }
 
 }
