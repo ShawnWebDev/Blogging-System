@@ -49,10 +49,10 @@ public class CreateBlogEntryDto {
     public void setThumbnailAlt(String thumbnailAlt) {
         this.thumbnailAlt = thumbnailAlt;
     }
-    public int[] getCategories() {
+    public int[] getCategoryIds() {
         return categoryIds;
     }
-    public void setCategories(int[] categories) {
+    public void setCategoryIds(int[] categories) {
         this.categoryIds = categories;
     }
     public List<BlogEntryContentBlockDto> getContentBlocks() {
