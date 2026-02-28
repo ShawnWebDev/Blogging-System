@@ -1,7 +1,7 @@
 :root {
     --main-bg-color: rgb(19, 23, 31);
     --main-accent-color: rgb(127, 166, 36);
-    --main-accent-color-muted: rgba(127, 166, 36, 0.90);
+    --main-accent-color-muted: rgba(127, 166, 36, 0.65);
     --secondary-accent-color: rgb(40, 48, 64);
     --secondary-accent-color-muted: rgba(40, 48, 64, 0.65);
     --main-text-color: rgb(227, 230, 233);
@@ -25,11 +25,12 @@ body {
 #main-header h2 {
     margin: 0;
 }
+
 #main-header {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    border-bottom: 2px solid var(--main-accent-color);
+    border-bottom: 2px solid var(--main-accent-color-muted);
     margin-bottom: 2rem;
 }
 
@@ -64,12 +65,16 @@ nav ul, ul.group {
 }
 
 .nav-item:hover, .active {
-    background-color: var(--secondary-accent-color);
+    background-color: var(--secondary-accent-color-muted);
     border-radius: 0.25rem;
     padding: 0.5rem 0.3rem;
     margin: 0 -0.3rem;
     fill: #fff;
     color: #fff;
+}
+
+.active:hover {
+    background-color: var(--secondary-accent-color);
 }
 
 button, a, input[type = submit] {
@@ -172,7 +177,7 @@ dialog article form {
     }
     #main-header {
         display: block;
-        border-right: 2px solid var(--secondary-accent-color-muted);
+        border-right: 2px solid var(--main-accent-color-muted);
         border-bottom: none;
         height: 100vh;
         position: sticky;
@@ -210,8 +215,8 @@ dialog article form {
         margin: 0 calc(-0.3rem - 1px);
     }
     .active {
-        border-bottom: 2px solid var(--main-accent-color);
-        border-left: 1px solid var(--main-accent-color);
+        border-bottom: 2px solid var(--main-accent-color-muted);
+        border-left: 1px solid var(--main-accent-color-muted);
     }
     .nav-item svg {
         width: 0;
