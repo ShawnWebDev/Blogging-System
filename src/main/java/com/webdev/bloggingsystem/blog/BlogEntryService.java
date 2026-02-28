@@ -10,8 +10,10 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class BlogEntryService {
@@ -28,19 +30,36 @@ public class BlogEntryService {
         this.mapper = objectMapper;
     }
 
-    public void createPost(CreateBlogEntryDto dto) {
+    public String createPost(CreateBlogEntryDto dto) {
         int bytes = this.getCurrentByteCount(dto.getContentBlocks());
         if (bytes > MAX_BYTES) {
             logger.error("Content block exceeds maximum allowed bytes!!!");
             throw new BlogEntryException("Content block exceeds maximum allowed bytes!!!");
-            // send error to ui
         }
-        String jsonString = mapper.writeValueAsString(dto.getContentBlocks());
-        logger.info("JSON String: {} ", jsonString);
-        logger.info("Blocks List: {} ", mapper.readValue(jsonString, new TypeReference<List<BlogEntryContentBlockDto>>() {}));
 
-        //save to db, get id, save to category join table with batchInsertJoins(Set, int)
+        String jsonContentString = mapper.writeValueAsString(dto.getContentBlocks());
+
+        //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set, int)
         logger.info("Content block is being saved...");
+        BlogEntry blogEntry = BlogEntry.createBlogEntry(
+                dto.getTitle(),
+                dto.getDescription(),
+                jsonContentString,
+                dto.getThumbnailUrl(),
+                dto.getThumbnailAlt()
+        );
+        int blogId = blogEntryDao.insert(blogEntry);
+        //remove 0 values from categoryIds array.
+        Set<Integer> cleanedCategoryIds = new HashSet<>();
+        for (int catId : dto.getCategoryIds()) {
+            if (catId != 0) {
+                cleanedCategoryIds.add(catId);
+            }
+        }
+        int updatedJoinAmt = categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
+        logger.info("Updated join amt has been saved. Rows created: {}", updatedJoinAmt);
+        // return slug for location to direct after submit.
+        return blogEntry.getSlug();
     }
 
     public FullBlogEntryDto readPostById(int id) {
