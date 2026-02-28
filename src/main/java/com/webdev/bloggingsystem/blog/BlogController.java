@@ -38,6 +38,7 @@ public class BlogController {
     }
 
     private void populateBlogDashboardModel(Model model, int pageNumber) {
+        logger.info("populate blog dashboard model...");
         model.addAttribute("posts", blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE));
         model.addAttribute("categoryName", "All");    // used for dynamic heading of 'all-posts' fragment with category filter
         model.addAttribute("categories", categoryDao.findAll()); // Full Category with description
@@ -48,6 +49,7 @@ public class BlogController {
     public FragmentsRendering blog(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest,
                          @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
 
+        logger.info("get blog dashboard....");
         // will need count to show how many pages are available when I implement that part.
         // int count = blogEntryDao.count();
         this.populateBlogDashboardModel(model, pageNumber);
@@ -76,19 +78,19 @@ public class BlogController {
     public FragmentsRendering blogViewFromId(Model model, @PathVariable Integer id) {
         FullBlogEntryDto entryDto = blogEntryService.readPostById(id);
         model.addAttribute("entry", entryDto);
-
+        model.addAttribute("fromBlog", true);
         return FragmentsRendering
                 .fragment("single-post::single-post")
-                .header("HX-Push-Url", "/blog/"+entryDto.slug())
+                .header("HX-Push-Url", "/blog/post/"+entryDto.slug())
                 .build();
     }
 
     // "/blog/{slug}" to be used by external links, direct url, refresh
-    @GetMapping("/{slug}")
+    @GetMapping("/post/{slug}")
     public FragmentsRendering blogViewFromSlug(Model model, @PathVariable String slug) {
         FullBlogEntryDto entryDto = blogEntryService.readPostBySlug(slug);
         model.addAttribute("entry", entryDto);
-
+        model.addAttribute("fromBlog", true);
         return FragmentsRendering
                 .fragment("single-post")
                 .build();
@@ -125,12 +127,12 @@ public class BlogController {
                     .build();
         }
 
-        blogEntryService.createPost(createBlogEntryDto);
+        String blogSlug = blogEntryService.createPost(createBlogEntryDto);
 
         this.populateBlogDashboardModel(model, 1);
         return FragmentsRendering
-                .fragment("blog::blog-main")
-                .header("HX-Push-Url", "/blog")
+                .fragment("/components/post-components::empty-fragment")
+                .header("HX-Location", "/blog/post/"+blogSlug)
                 .build();
     }
 
