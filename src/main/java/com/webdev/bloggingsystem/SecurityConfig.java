@@ -25,12 +25,12 @@ public class SecurityConfig {
                         .maximumSessions(1).maxSessionsPreventsLogin(false).expiredUrl("/blog?logout")
                 )
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/", "/loginError","/favicon.ico", "/**.css", "/**.js").permitAll()
+                        .requestMatchers("/", "/loginError","/favicon.ico", "/*.css", "/*.js").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/blog/createPost").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/blog","/blog/**", "/blog/post/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/blog/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PUT,"/blog/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.DELETE,"/blog/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.GET,"/blog/createPost").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.GET,"/blog/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
