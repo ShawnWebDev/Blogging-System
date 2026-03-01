@@ -11,12 +11,13 @@
 
   <header th:replace="~{components/header-components :: full-header}"></header>
 
-  <main id="main-content">
+  <main id="main-content" th:fragment="create-post">
 
-    <section th:fragment="create-post" id="create-post-form" th:attr="data-next-index=${post.contentBlocks.size()}">
+    <section id="create-post-form-container" th:attr="data-next-index=${post.contentBlocks.size()}">
 
-      <form action="#" hx-post="/blog/createPost" hx-target="#create-post-form" hx-swap="outerHTML">
+      <form action="#" th:hx-post="@{${isEditing != null ? '/blog/editPost' : '/blog/createPost'}}" id="create-post-form" hx-target="#create-post-form" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input type="hidden" th:if="${isEditing}" name="id" th:value="${post.id}"/>
         <label>Title:
           <input type="text" name="title" th:value="${post.title}" required/>
           <small th:errors="${post.title}" th:text="${#fields.errors('post.title')}" class="error"></small>
@@ -39,26 +40,26 @@
         <fieldset class="form-group">
           <legend>Categories:</legend>
           <label>Category 1:
-            <select name="categories[0]">
-              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
+            <select name="categoryIds[0]">
+              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[0] == category.id}"></option>
             </select>
           </label>
           <label>Category 2:
-            <select name="categories[1]">
-              <option value="0">None</option>
-              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
+            <select name="categoryIds[1]">
+              <option value="0" th:selected="${post.categoryIds[1] == 0}">None</option>
+              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[1] == category.id}"></option>
             </select>
           </label>
           <label>Category 3:
-            <select name="categories[2]">
-              <option value="0">None</option>
-              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
+            <select name="categoryIds[2]">
+              <option value="0" th:selected="${post.categoryIds[2] == 0}">None</option>
+              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[2] == category.id}"></option>
             </select>
           </label>
           <label>Category 4:
-            <select name="categories[3]">
-              <option value="0">None</option>
-              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}"></option>
+            <select name="categoryIds[3]">
+              <option value="0" th:selected="${post.categoryIds[3] == 0}">None</option>
+              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[3] == category.id}"></option>
             </select>
           </label>
         </fieldset>
@@ -74,7 +75,7 @@
           <div id="byte-count"></div>
           <button type="button" id="add-block-btn"
                   hx-get="/blog/postComponent/addBlock"
-                  hx-vals='js:{index: document.getElementById("create-post-form").dataset.nextIndex++}'
+                  hx-vals='js:{index: document.getElementById("create-post-form-container").dataset.nextIndex++}'
                   hx-target="#blocks-container"
                   hx-swap="beforeend">
             + Add Content Block</button>
@@ -86,7 +87,8 @@
                hx-include="closest form"></div>
           <div id="blog-error"></div>
         </div>
-        <input type="submit" value="Create Post">
+        <input th:if="${isEditing}" type="submit" value="Update">
+        <input th:if="${isEditing == null}" type="submit" value="Create">
       </form>
     </section>
 
