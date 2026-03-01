@@ -119,26 +119,41 @@ public class DaoTests {
     }
 
     @Test
+    public void testFindCategoryIdsInNames() {
+        List<String> categoryNames = List.of("Test Category 1", "Test Category 2");
+        List<Integer> categoryIds = categoryDao.findAllIdsInNames(categoryNames);
+        Assertions.assertEquals(categoryIds.size(), categoryNames.size());
+        Assertions.assertEquals(List.of(1, 2), categoryIds);
+
+        System.out.println("result: " + categoryIds);
+    }
+
+
+    @Test
     @Transactional
     public void insertBlogEntryWithCategories() {
         BlogEntry blogEntry = BlogEntry.createBlogEntry(
             "Test title",
             "Test Description",
             "Test Content",
-                "",
-                ""
+                "url",
+                "alt"
         );
 
         int postId = blogEntryDao.insert(blogEntry);
+        System.out.println("postId: " + postId);
+        int insertedCategories = categoryDao.batchInsertJoins(Set.of(1, 2, 3), postId);
+        Assertions.assertEquals(3, insertedCategories);
+
         BlogEntry blog = blogEntryDao.findById(postId).orElse(null);
         Assertions.assertNotNull(blog);
         Assertions.assertEquals("Test title", blog.getTitle());
         System.out.println("result: " + blog);
 
-        int insertedCategories = categoryDao.batchInsertJoins(Set.of(1, 2, 3), postId);
-        Assertions.assertEquals(3, insertedCategories);
+
     }
 
+    // todo : implement error handling for this exception
     @Test
     @Transactional
     public void insertBlogEntryWithNonExistentCategories() {
@@ -146,8 +161,8 @@ public class DaoTests {
                 "Test title",
                 "Test Description",
                 "Test Content",
-                "",
-                ""
+                "url",
+                "alt"
         );
         Set<Integer> set = Set.of(10, 20, 30);
 
@@ -161,6 +176,7 @@ public class DaoTests {
     @Transactional
     public void testUpdateBlogEntry() {
         BlogEntry blogEntry = blogEntryDao.findById(1).orElse(null);
+        System.out.println("result: " + blogEntry);
         Assertions.assertNotNull(blogEntry);
         System.out.println("slug before title update: " + blogEntry.getSlug());
 
@@ -168,7 +184,7 @@ public class DaoTests {
         blogEntry.setTitle("Updated Title");
 
         Assertions.assertEquals("updated-title", blogEntry.getSlug());
-
+        // 1 record updated..
         Assertions.assertEquals(1, blogEntryDao.update(blogEntry));
 
         BlogEntry updatedBlogEntry = blogEntryDao.findById(1).orElse(null);
@@ -182,8 +198,8 @@ public class DaoTests {
                 "Fake title",
                 "Fake Description",
                 "Fake Content",
-                "",
-                ""
+                "url",
+                "alt"
         );
         blogEntry.setId(99);
         Assertions.assertEquals(0, blogEntryDao.update(blogEntry));
@@ -205,6 +221,28 @@ public class DaoTests {
         blogEntry = blogEntryDao.findById(1).orElse(null);
         Assertions.assertNull(blogEntry);
     }
+
+    @Test
+    public void testExistsByTitleAndNotIdUpdate() {
+        // update case : id passed in.
+        boolean exists = blogEntryDao.existsByTitleAndNotId("Test Post 1", 1);
+        Assertions.assertFalse(exists);
+    }
+
+    @Test
+    public void testExistsByTitleAndNotIdTrue() {
+        // create case : duplicate title, id is null.
+        boolean exists = blogEntryDao.existsByTitleAndNotId("Test Post 1", null);
+        Assertions.assertTrue(exists);
+    }
+
+    @Test
+    public void testExistsByTitleAndNotIdFalse() {
+        // create case : unique title, id is null.
+        boolean exists = blogEntryDao.existsByTitleAndNotId("Test Post 99", null);
+        Assertions.assertFalse(exists);
+    }
+
 
 
 

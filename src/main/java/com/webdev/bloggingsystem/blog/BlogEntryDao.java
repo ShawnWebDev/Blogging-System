@@ -6,8 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -23,14 +24,12 @@ public class BlogEntryDao {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbc.sql(
-                "INSERT INTO blog_entries (content, title, description, created_at, updated_at, slug, thumbnail_url, thumbnail_alt) " +
-                "VALUES (:content, :title, :description, :created_at, :updated_at, :slug, :thumbnail_url, :thumbnail_alt)")
+                "INSERT INTO blog_entries (content, title, description, slug, thumbnail_url, thumbnail_alt) " +
+                "VALUES (:content, :title, :description, :slug, :thumbnail_url, :thumbnail_alt)")
                     .param("content", blogEntry.getContent())
                     .param("title", blogEntry.getTitle())
                     .param("slug", blogEntry.getSlug())
                     .param("description", blogEntry.getDescription())
-                    .param("created_at", blogEntry.getCreatedAt())
-                    .param("updated_at", blogEntry.getUpdatedAt())
                     .param("thumbnail_url", blogEntry.getThumbnailUrl())
                     .param("thumbnail_alt", blogEntry.getThumbnailAlt())
                     .update(keyHolder);
@@ -39,24 +38,26 @@ public class BlogEntryDao {
     }
 
     public Optional<BlogEntry> findById(int id) {
-        return jdbc.sql("SELECT b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, " +
+        return jdbc.sql("SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt, " +
                         "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                                 "FROM blog_entries b " +
-                                "JOIN posts_categories pc ON pc.post_id = b.id " +
-                                "JOIN categories c ON c.id = pc.category_id " +
-                                "WHERE b.id = :id")
+                                "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
+                                "LEFT JOIN categories c ON c.id = pc.category_id " +
+                                "WHERE b.id = :id " +
+                                "GROUP BY b.id")
                     .param("id", id)
                     .query((rs, _) -> singleBlogEntryExtractor(rs))
                     .optional();
     }
 
     public Optional<BlogEntry> findBySlug(String slug) {
-        return jdbc.sql("SELECT b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, " +
+        return jdbc.sql("SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt," +
                         "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                         "FROM blog_entries b " +
-                        "JOIN posts_categories pc ON pc.post_id = b.id " +
-                        "JOIN categories c ON c.id = pc.category_id " +
-                        "WHERE b.slug = :slug")
+                        "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
+                        "LEFT JOIN categories c ON c.id = pc.category_id " +
+                        "WHERE b.slug = :slug " +
+                        "GROUP BY b.id")
                 .param("slug", slug)
                 .query((rs, _) -> singleBlogEntryExtractor(rs))
                 .optional();
@@ -68,9 +69,19 @@ public class BlogEntryDao {
                 .single();
     }
 
-    public boolean existsByTitle(String title) {
-        return jdbc.sql("SELECT 1 FROM blog_entries WHERE title = :title LIMIT 1")
-                .param("title", title).query(Integer.class).optional().isPresent();
+    public boolean existsByTitleAndNotId(String title, Integer id) {
+        String sql = "SELECT 1 FROM blog_entries b WHERE b.title = :title";
+        Map<String, Object> params = new HashMap<>();
+        params.put("title", title);
+        if (id != null) {
+            sql = sql + " AND NOT b.id = :id ";
+            params.put("id", id);
+        }
+        sql = sql + " LIMIT 1";
+        return jdbc.sql(sql)
+                .params(params)
+                .query(Integer.class)
+                .optional().isPresent();
     }
 
     public List<SimpleBlogEntryDto> findAllSimple(int pageNumber, int pageSize) {
@@ -79,8 +90,8 @@ public class BlogEntryDao {
                 "SELECT b.id, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt, " +
                     "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                 "FROM blog_entries b " +
-                "JOIN posts_categories pc ON pc.post_id = b.id " +
-                "JOIN categories c ON c.id = pc.category_id " +
+                "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
+                "LEFT JOIN categories c ON c.id = pc.category_id " +
                 "GROUP BY b.id " +
                 "ORDER BY b.id " +
                 "LIMIT :pageSize OFFSET :offset")
@@ -117,13 +128,12 @@ public class BlogEntryDao {
     public int update(BlogEntry blogEntry) {
         return jdbc.sql(
                 "UPDATE blog_entries " +
-                "SET title = :title, description = :description, content = :content, updated_at = :updatedAt, slug = :slug, thumbnail_url = :thumbnailUrl, thumbnail_alt = :thumbnailAlt " +
+                "SET title = :title, description = :description, content = :content, slug = :slug, thumbnail_url = :thumbnailUrl, thumbnail_alt = :thumbnailAlt " +
                 "WHERE id = :id")
                     .param("id", blogEntry.getId())
                     .param("title", blogEntry.getTitle())
                     .param("description", blogEntry.getDescription())
                     .param("content", blogEntry.getContent())
-                    .param("updatedAt", Instant.now())
                     .param("slug", blogEntry.getSlug())
                     .param("thumbnailUrl", blogEntry.getThumbnailUrl())
                     .param("thumbnailAlt", blogEntry.getThumbnailAlt())
@@ -150,14 +160,19 @@ public class BlogEntryDao {
     }
 
     private static BlogEntry singleBlogEntryExtractor(ResultSet rs) throws SQLException {
+        if (rs.wasNull()) return null;
+
         return new BlogEntry(
+                rs.getInt("id"),
                 rs.getString("title"),
                 rs.getString("description"),
                 rs.getString("content"),
                 rs.getTimestamp("created_at").toInstant(),
-                rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toInstant() : null,
+                rs.getTimestamp("updated_at").toInstant(),
                 rs.getString("slug"),
-                List.of(rs.getString("category_list").split(","))
+                List.of(rs.getString("category_list").split(",")),
+                rs.getString("thumbnail_url"),
+                rs.getString("thumbnail_alt")
         );
     }
 }
