@@ -34,7 +34,9 @@ public class BlogEntry {
         this.thumbnailAlt = thumbnailAlt;
     }
 
-    public BlogEntry(String title, String description, String content, Instant createdAt, Instant updatedAt, String slug, List<String> categoryNames) {
+    public BlogEntry(int id, String title, String description, String content, Instant createdAt, Instant updatedAt,
+                     String slug, List<String> categoryNames, String thumbnailUrl, String thumbnailAlt) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.content = content;
@@ -42,11 +44,12 @@ public class BlogEntry {
         this.updatedAt = updatedAt;
         this.slug = slug;
         this.categoryNames = categoryNames;
+        this.thumbnailUrl = thumbnailUrl;
+        this.thumbnailAlt = thumbnailAlt;
     }
 
     public static BlogEntry createBlogEntry(String title, String description, String content, String thumbnailUrl, String thumbnailAlt) {
         BlogEntry blogEntry = new BlogEntry(title, description, content, thumbnailUrl, thumbnailAlt);
-        blogEntry.setCreatedAt(Instant.now());
         blogEntry.setSlug(generateSlugFromTitle(title));
         return blogEntry;
     }
