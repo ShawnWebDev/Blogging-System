@@ -136,6 +136,45 @@ public class BlogController {
                 .build();
     }
 
+    // load input form fragment for edits
+    @GetMapping("/editPost/{id}")
+    public FragmentsRendering editPost(Model model, @PathVariable Integer id,
+                                       HtmxRequest htmxRequest) {
+        CreateBlogEntryDto dto = blogEntryService.buildCreateDto(id);
+
+        this.populateCreatePostModel(model, dto);
+        model.addAttribute("isEditing", true);
+
+        if (!htmxRequest.isHtmxRequest()) {
+            return FragmentsRendering
+                    .fragment("create-post")
+                    .build();
+        }
+
+        return FragmentsRendering
+                .fragment("create-post::create-post")
+                .header("HX-Push-Url", "/blog/editPost/"+id)
+                .build();
+    }
+
+    @PostMapping("/editPost")
+    public FragmentsRendering editPost(@Valid @ModelAttribute("post") CreateBlogEntryDto createBlogEntryDto,
+                                       BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            this.populateCreatePostModel(model, createBlogEntryDto);
+            return FragmentsRendering
+                    .fragment("create-post::create-post")
+                    .build();
+        }
+        String blogSlug = blogEntryService.updatePost(createBlogEntryDto);
+
+        this.populateBlogDashboardModel(model, 1);
+        return FragmentsRendering
+                .fragment("/components/post-components::empty-fragment")
+                .header("HX-Location", "/blog/post/"+blogSlug)
+                .build();
+    }
+
 
     // called when filtering posts by category
     @HxRequest
@@ -184,23 +223,6 @@ public class BlogController {
                 .build();
     }
 
-
-    // ** move to comment controller **
-    @HxRequest
-    @GetMapping("/blogComponent/commentForm")
-    public FragmentsRendering commentForm() {
-        return FragmentsRendering
-                .fragment("components/comment-components::comment-form-enabled")
-                .build();
-    }
-
-    @HxRequest
-    @GetMapping("/blogComponent/removeCommentForm")
-    public FragmentsRendering removeCommentForm() {
-        return FragmentsRendering
-                .fragment("components/comment-components::comment-form-disabled")
-                .build();
-    }
 
 
 }

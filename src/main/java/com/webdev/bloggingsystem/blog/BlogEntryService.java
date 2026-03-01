@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
@@ -32,10 +33,8 @@ public class BlogEntryService {
 
     public String createPost(CreateBlogEntryDto dto) {
         int bytes = this.getCurrentByteCount(dto.getContentBlocks());
-        if (bytes > MAX_BYTES) {
-            logger.error("Content block exceeds maximum allowed bytes!!!");
-            throw new BlogEntryException("Content block exceeds maximum allowed bytes!!!");
-        }
+        checkCurrentByteCount(bytes);
+
         String jsonContentString = mapper.writeValueAsString(sanitizeContentBlocks(dto.getContentBlocks()));
         logger.info("Create post json content string: {}", jsonContentString);
 
@@ -65,40 +64,84 @@ public class BlogEntryService {
     public FullBlogEntryDto readPostById(int id) {
         BlogEntry entry = blogEntryDao.findById(id)
                 .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
-
+        logger.info("Read post entry: {}", entry);
         List<BlogEntryContentBlockDto> contentBlockList = mapper.readValue(entry.getContent(), new TypeReference<>() {});
-        // get all values from converted content & category list
-        return new FullBlogEntryDto(
-                entry.getTitle(), entry.getSlug(), entry.getDescription(), entry.getCreatedAt(), entry.getUpdatedAt(),
-                entry.getCategoryNames(), contentBlockList);
+        return FullBlogEntryDto.create(entry, contentBlockList);
     }
 
     public FullBlogEntryDto readPostBySlug(String slug) {
         BlogEntry entry = blogEntryDao.findBySlug(slug)
                 .orElseThrow(() -> new BlogEntryException("Entry not found: " + slug));
-
         List<BlogEntryContentBlockDto> contentBlockList = mapper.readValue(entry.getContent(), new TypeReference<>() {});
-        // get all values from converted content & category list
-        return new FullBlogEntryDto(
-                entry.getTitle(), entry.getSlug(), entry.getDescription(), entry.getCreatedAt(), entry.getUpdatedAt(),
-                entry.getCategoryNames(), contentBlockList);
+        return FullBlogEntryDto.create(entry, contentBlockList);
     }
 
-    public String updatePost(int id) {
-        return "";
+    @Transactional
+    public String updatePost(CreateBlogEntryDto dto) {
+        int bytes = this.getCurrentByteCount(dto.getContentBlocks());
+        checkCurrentByteCount(bytes);
+
+        String jsonContentString = mapper.writeValueAsString(sanitizeContentBlocks(dto.getContentBlocks()));
+        logger.info("Update post json content string: {}", jsonContentString);
+
+        logger.info("Content block is being updated...");
+        int blogId = dto.getId();
+        BlogEntry blogEntry = BlogEntry.createBlogEntry(
+                dto.getTitle(),
+                dto.getDescription(),
+                jsonContentString,
+                dto.getThumbnailUrl(),
+                dto.getThumbnailAlt()
+        );
+        blogEntry.setId(blogId);
+
+        int isUpdated = blogEntryDao.update(blogEntry);
+        if (isUpdated == 0) {
+            throw new BlogEntryException("Entry not updated!");
+        }
+        categoryDao.deleteJoinedByBlogId(blogId);
+        //remove 0 values from categoryIds array.
+        Set<Integer> cleanedCategoryIds = new HashSet<>();
+        for (int catId : dto.getCategoryIds()) {
+            if (catId != 0) {
+                cleanedCategoryIds.add(catId);
+            }
+        }
+        logger.info("Saving category relations... ");
+        categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
+        return blogEntry.getSlug();
     }
 
+    @Transactional
     public String deletePost(int id) {
         return "";
     }
 
+    public CreateBlogEntryDto buildCreateDto(int id) {
+        BlogEntry post = blogEntryDao.findById(id)
+                .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
+        List<Integer> categoryIdList = categoryDao.findAllIdsInNames(post.getCategoryNames());
+        int[] categoryIds = new int[4];
+        for (int i = 0; i < categoryIdList.size(); i++) {
+            categoryIds[i] = categoryIdList.get(i);
+        }
+        List<BlogEntryContentBlockDto> contentBlockList = mapper.readValue(post.getContent(), new TypeReference<>() {});
+
+        return CreateBlogEntryDto.create(post, categoryIds, contentBlockList);
+    }
+
+    static void checkCurrentByteCount(int bytes) {
+        if (bytes > MAX_BYTES) {
+            logger.error("Content block exceeds maximum allowed bytes!!!");
+            throw new BlogEntryException("Content block exceeds maximum allowed bytes!!!");
+        }
+    }
 
     public int getCurrentByteCount(List<BlogEntryContentBlockDto> contentBlocks) {
         return mapper.writeValueAsString(sanitizeContentBlocks(contentBlocks))
                 .getBytes(StandardCharsets.UTF_8)
                 .length;
     }
-
 
     // removes 'content blocks' that are null, have a null type or have null or blank text or url field
     // they have to have heading, paragraph, or code text or a url (for image) to be valid. - to be used in create and update
@@ -120,5 +163,4 @@ public class BlogEntryService {
                 }
                 ).toList(); // unmodifiable list, it will not be changed after this, only persisted
     }
-
 }
