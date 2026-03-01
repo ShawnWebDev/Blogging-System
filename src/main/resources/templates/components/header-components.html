@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <body>
   <header th:fragment="full-header" id="main-header">
@@ -10,7 +10,7 @@
         I'm Shawn, a software engineer among many other things. Welcome to my little corner of the web.
       </sub>
     </section>
-    <nav>
+    <nav id="nav-container">
       <ul>
         <li>
           <a hx-get="/" hx-target="#main-content" hx-swap="outerHTML" th:class="nav-item + ${fromAbout != null ? ' active' : ''}">
@@ -48,15 +48,17 @@
     </nav>
     <section>
       <h4>Contact</h4>
+      <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-form}"></div>
+      <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-form}"></div>
     </section>
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-          const navItems = document.querySelectorAll('.nav-item');
-          navItems.forEach(item => {
-            item.addEventListener('click', function() {
-                navItems.forEach(navItem => navItem.classList.remove('active'));
-                this.classList.add('active');
-            });});});
+      document.getElementById('nav-container').addEventListener('click', function (e) {
+        const target = e.target.closest('.nav-item');
+        if (target) {
+          document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+          target.classList.add('active');
+        }
+      });
     </script>
   </header>
 
