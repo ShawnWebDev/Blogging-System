@@ -3,19 +3,25 @@ package com.webdev.bloggingsystem.blog;
 
 import com.webdev.bloggingsystem.errorHandling.MaxBytes;
 import com.webdev.bloggingsystem.errorHandling.UniqueTitle;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@UniqueTitle
 public class CreateBlogEntryDto {
-    @UniqueTitle
+    private Integer id;
+    @NotBlank
     @MaxBytes(value = 255)
     private String title;
+    @NotBlank
     @MaxBytes(value = 500)
     private String description;
+    @NotBlank
     @MaxBytes(value = 255)
     private String thumbnailUrl;
+    @NotBlank
     @MaxBytes(value = 255)
     private String thumbnailAlt;
 
@@ -25,6 +31,24 @@ public class CreateBlogEntryDto {
 
     public CreateBlogEntryDto() {}
 
+    public static CreateBlogEntryDto create(BlogEntry blogEntry, int[] categoryIds,  List<BlogEntryContentBlockDto> contentBlocks) {
+        CreateBlogEntryDto dto = new CreateBlogEntryDto();
+        dto.id = blogEntry.getId() != null ? blogEntry.getId() : null;
+        dto.title = blogEntry.getTitle();
+        dto.description = blogEntry.getDescription();
+        dto.thumbnailUrl = blogEntry.getThumbnailUrl();
+        dto.thumbnailAlt = blogEntry.getThumbnailAlt();
+        dto.categoryIds = categoryIds;
+        dto.contentBlocks = contentBlocks;
+        return dto;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+    public void setId(Integer id) {
+        this.id = id;
+    }
     public String getTitle() {
         return title;
     }
