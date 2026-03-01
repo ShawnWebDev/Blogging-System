@@ -58,6 +58,15 @@ public class CategoryDao {
                     .list();
     }
 
+    public List<Integer> findAllIdsInNames(List<String> categoryNames) {
+        return jdbc.sql(
+               "SELECT c.id FROM categories c " +
+               "WHERE category_name IN (:names)")
+                    .param("names", categoryNames)
+                    .query(Integer.class)
+                    .list();
+    }
+
     public int update(Category category) {
         return jdbc.sql(
                 "UPDATE categories " +
@@ -69,11 +78,11 @@ public class CategoryDao {
                     .update();
     }
 
-    public int deleteJoinedByBlogId(int blogId) {
-        return jdbc.sql(
+    public void deleteJoinedByBlogId(int blogId) {
+        jdbc.sql(
                 "DELETE FROM posts_categories " +
-                "WHERE post_id = :blogid")
-                    .param("blogid", blogId)
+                "WHERE post_id = :blogId")
+                    .param("blogId", blogId)
                     .update();
     }
 
