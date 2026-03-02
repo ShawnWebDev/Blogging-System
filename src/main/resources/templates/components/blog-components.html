@@ -20,11 +20,11 @@
                 <h5 th:text="${post.title}"></h5>
                 <small>@ <time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
             </header>
-            <section class="post-description">
+            <section class="post-description" th:if="${post.thumbnailUrl && post.thumbnailAlt}">
                 <img th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}"/>
-                <p th:text="${post.description}"></p>
             </section>
             <footer>
+                <p th:text="${post.description}"></p>
                 <ul class="group">
                     <li th:each="category : ${post.categories}">
                         <small th:text="${category}"></small>
