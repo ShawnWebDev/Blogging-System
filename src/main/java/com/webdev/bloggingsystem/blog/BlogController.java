@@ -68,6 +68,7 @@ public class BlogController {
         }
         // for htmx request, only needs heading h1 and blog-main with all-posts
         return FragmentsRendering
+                .fragment("blog::blog-title")
                 .fragment("blog::blog-main")
                 .build();
     }
@@ -80,6 +81,7 @@ public class BlogController {
         model.addAttribute("entry", entryDto);
         model.addAttribute("fromBlog", true);
         return FragmentsRendering
+                .fragment("blog::blog-title")
                 .fragment("single-post::single-post")
                 .header("HX-Push-Url", "/blog/post/"+entryDto.slug())
                 .build();
