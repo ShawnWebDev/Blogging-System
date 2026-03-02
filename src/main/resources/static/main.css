@@ -159,7 +159,10 @@ dialog article form {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem 0;
+        padding: 1rem calc(1rem + 2vw);
+    }
+    #main-content {
+        padding: 0 calc(1rem + 2vw);
     }
     nav ul {
         padding: 0;
