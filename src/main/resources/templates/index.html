@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="htmx-config" content='{"historyCacheSize": 0, "refreshOnHistoryMiss": true}'>
     <script src="/htmx.min.js" defer></script>
     <link rel="stylesheet" href="/main.css">
-    <title>Welcome</title>
+    <title th:fragment="welcome-title">Welcome</title>
 </head>
 
 <body>
@@ -13,10 +14,13 @@
     <header th:replace="~{components/header-components :: full-header}"></header>
 
     <main th:fragment="about-main" id="main-content">
-        <h3>
-          Welcome to my website,
-        </h3>
-        <section></section>
+        <h1>Welcome to my website</h1>
+        <section id="greeting">
+            <h3>Hello World!</h3>
+            <p>
+                I'm Shawn, a software engineer among many other things. Welcome to my little corner of the web.
+            </p>
+        </section>
     </main>
 
 </body>
