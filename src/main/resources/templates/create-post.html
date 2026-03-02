@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="htmx-config" content='{"historyCacheSize": 0, "refreshOnHistoryMiss": true}'>
   <script src="/htmx.min.js" defer></script>
   <link rel="stylesheet" href="/main.css">
   <title>Create Post</title>
@@ -11,8 +12,8 @@
 
   <header th:replace="~{components/header-components :: full-header}"></header>
 
-  <main id="main-content" th:fragment="create-post">
-
+  <main id="main-content" th:fragment="create-post(post)">
+    <h1>Create Post</h1>
     <section id="create-post-form-container" th:attr="data-next-index=${post.contentBlocks.size()}">
 
       <form action="#" th:hx-post="@{${isEditing != null ? '/blog/editPost' : '/blog/createPost'}}" id="create-post-form" hx-target="#create-post-form" hx-swap="outerHTML">
@@ -87,8 +88,7 @@
                hx-include="closest form"></div>
           <div id="blog-error"></div>
         </div>
-        <input th:if="${isEditing}" type="submit" value="Update">
-        <input th:if="${isEditing == null}" type="submit" value="Create">
+        <input type="submit" value="Save">
       </form>
     </section>
 
