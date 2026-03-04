@@ -6,10 +6,10 @@ import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxTrigger;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.FragmentsRendering;
 
 
@@ -77,11 +77,9 @@ public class HomeController {
 
     @HxTrigger("logoutSuccess")
     @GetMapping("/logoutSuccess")
-    public FragmentsRendering logout(RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("logout", "You have been logged out.");
-        return FragmentsRendering
-                .fragment("components/auth-components::login-button")
-                .header("HX-Refresh", "true")
+    public ResponseEntity<Void> logout() {
+        return ResponseEntity.ok()
+                .header("HX-Redirect", "/blog?logout=true")
                 .build();
     }
 

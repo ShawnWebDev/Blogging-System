@@ -20,9 +20,10 @@
 
     <div th:fragment="login-button" class="login-container">
         <button onclick="getElementById('login-modal').showModal()" class="btn-primary">Login</button>
+        <small th:if="${param.logout != null}" th:text="${logout}"></small>
     </div>
 
-    <dialog th:fragment="login-dialog" id="login-modal" th:open="${loginError ?: false or logout != null}" >
+    <dialog th:fragment="login-dialog" id="login-modal" th:open="${loginError ?: false}">
         <article>
             <header>
                 <strong>Please sign in to comment.</strong>
@@ -39,7 +40,6 @@
                     <input type="password" name="password" placeholder="Password" required th:aria-invalid="${loginError}"/>
                 </label>
                 <small th:if="${loginError}" class="error">Invalid username or password.</small>
-                <small th:if="${logout}">You have logged out.</small>
                 <input type="submit" value="Sign In" onclick="closeLoginForm()" />
             </form>
         </article>
