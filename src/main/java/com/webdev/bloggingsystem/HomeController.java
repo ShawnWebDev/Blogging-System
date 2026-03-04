@@ -71,6 +71,7 @@ public class HomeController {
     public FragmentsRendering loginSuccess() {
         return FragmentsRendering
                 .fragment("components/auth-components::logout-button")
+                .header("HX-Trigger", "loginSuccess")
                 .build();
     }
 
