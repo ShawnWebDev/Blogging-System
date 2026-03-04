@@ -15,7 +15,7 @@
   <main id="main-content" th:fragment="create-post(post)">
     <h1>Create Post</h1>
     <section id="create-post-form-container" th:attr="data-next-index=${post.contentBlocks.size()}">
-      <button th:if="${isEditing}" th:hx-get="@{/blog/post/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">Back To Post</button>
+      <button th:if="${isEditing}" th:hx-get="@{/blog/post/id/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">Back To Post</button>
       <form action="#" th:hx-post="@{${isEditing != null ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#create-post-form" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" th:if="${isEditing}" name="id" th:value="${post.id}"/>

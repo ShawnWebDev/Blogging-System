@@ -7,6 +7,7 @@ import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -38,7 +39,6 @@ public class BlogController {
     }
 
     private void populateBlogDashboardModel(Model model, int pageNumber) {
-        logger.info("populate blog dashboard model...");
         model.addAttribute("posts", blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE));
         model.addAttribute("categoryName", "All");    // used for dynamic heading of 'all-posts' fragment with category filter
         model.addAttribute("categories", categoryDao.findAll()); // Full Category with description
@@ -47,12 +47,16 @@ public class BlogController {
     // called when requesting main blog template
     @GetMapping
     public FragmentsRendering blog(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest,
-                         @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
+                        @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
+                        @RequestParam(required = false) String logout) {
 
         logger.info("get blog dashboard....");
         // will need count to show how many pages are available when I implement that part.
         // int count = blogEntryDao.count();
         this.populateBlogDashboardModel(model, pageNumber);
+        if (logout != null) {
+            model.addAttribute("logout", "You have logged out.");
+        }
 
         if (!htmxRequest.isHtmxRequest()) {
             // for refresh or direct to /blog, contains heading fragment with nav, css/js, and blog-main fragment with all-posts
@@ -75,7 +79,7 @@ public class BlogController {
 
     // "/blog/{id}" only to be used by HTMX internal navigation
     @HxRequest
-    @GetMapping("/{id}")
+    @GetMapping("/post/id/{id}")
     public FragmentsRendering blogViewFromId(Model model, @PathVariable Integer id) {
         FullBlogEntryDto entryDto = blogEntryService.readPostById(id);
         model.addAttribute("entry", entryDto);
@@ -87,7 +91,7 @@ public class BlogController {
                 .build();
     }
 
-    // "/blog/{slug}" to be used by external links, direct url, refresh
+    // "/blog/post/{slug}" to be used by external links, direct url, refresh
     @GetMapping("/post/{slug}")
     public FragmentsRendering blogViewFromSlug(Model model, @PathVariable String slug) {
         FullBlogEntryDto entryDto = blogEntryService.readPostBySlug(slug);
@@ -99,7 +103,7 @@ public class BlogController {
     }
 
     // called when requesting blog entry input form template
-    @GetMapping("/createPost")
+    @GetMapping("/post/createPost")
     public FragmentsRendering createPostView(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
         this.populateCreatePostModel(model, new CreateBlogEntryDto());
         if (!htmxRequest.isHtmxRequest()) {
@@ -109,7 +113,7 @@ public class BlogController {
                     .build();
         }
         if (htmxRequest.getCurrentUrl() == null || !htmxRequest.getCurrentUrl().endsWith("/createPost")) {
-            htmxResponse.setPushUrl("/blog/createPost");
+            htmxResponse.setPushUrl("/blog/post/createPost");
         }
 
         return FragmentsRendering
@@ -118,9 +122,9 @@ public class BlogController {
     }
 
     // called when submitting a new blog entry
-    @PostMapping("/createPost")
-    public FragmentsRendering createPost(@Valid @ModelAttribute("post") CreateBlogEntryDto createBlogEntryDto,
-                                         BindingResult result, Model model) {
+    @PostMapping("/post/createPost")
+    public Object createPost(@Valid @ModelAttribute("post") CreateBlogEntryDto createBlogEntryDto,
+                              BindingResult result, Model model) {
 
         if (result.hasErrors()) {
             this.populateCreatePostModel(model, createBlogEntryDto);
@@ -131,15 +135,13 @@ public class BlogController {
 
         String blogSlug = blogEntryService.createPost(createBlogEntryDto);
 
-        this.populateBlogDashboardModel(model, 1);
-        return FragmentsRendering
-                .fragment("/components/post-components::empty-fragment")
+        return ResponseEntity.ok()
                 .header("HX-Location", "/blog/post/"+blogSlug)
                 .build();
     }
 
     // load input form fragment for edits
-    @GetMapping("/editPost/{id}")
+    @GetMapping("/post/editPost/{id}")
     public FragmentsRendering editPost(Model model, @PathVariable Integer id,
                                        HtmxRequest htmxRequest) {
         CreateBlogEntryDto dto = blogEntryService.buildCreateDto(id);
@@ -155,13 +157,14 @@ public class BlogController {
 
         return FragmentsRendering
                 .fragment("create-post::create-post")
-                .header("HX-Push-Url", "/blog/editPost/"+id)
+                .header("HX-Push-Url", "/blog/post/editPost/"+id)
                 .build();
     }
 
-    @PostMapping("/editPost")
-    public FragmentsRendering editPost(@Valid @ModelAttribute("post") CreateBlogEntryDto createBlogEntryDto,
+    @PostMapping("/post/editPost")
+    public Object editPost(@Valid @ModelAttribute("post") CreateBlogEntryDto createBlogEntryDto,
                                        BindingResult result, Model model) {
+        logger.info("edit post");
         if (result.hasErrors()) {
             this.populateCreatePostModel(model, createBlogEntryDto);
             return FragmentsRendering
@@ -170,11 +173,16 @@ public class BlogController {
         }
         String blogSlug = blogEntryService.updatePost(createBlogEntryDto);
 
-        this.populateBlogDashboardModel(model, 1);
-        return FragmentsRendering
-                .fragment("/components/post-components::empty-fragment")
+        return ResponseEntity.ok()
                 .header("HX-Location", "/blog/post/"+blogSlug)
                 .build();
+    }
+
+    @HxRequest
+    @DeleteMapping("/post/deletePost/{id}")
+    public String deletePost(Model model, @PathVariable Integer id) {
+        logger.info("Deleting post with id: {}", id);
+        return "redirect:/blog";
     }
 
 
@@ -183,21 +191,31 @@ public class BlogController {
     @GetMapping("/blogComponent/posts")
     public FragmentsRendering posts(Model model,
                         @RequestParam(value = "categoryName", defaultValue = "All", required = false) String categoryName,
-                        @RequestParam(value = "categoryDesc", required = false) String categoryDesc,
                         @RequestParam(value = "pageNumber", defaultValue = "1", required = false) Integer pageNumber) {
 
         List<SimpleBlogEntryDto> filteredBlogEntries;
+        String categoryDescription = null;
         if (categoryName.equals("All")) {
             filteredBlogEntries = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
         } else {
             filteredBlogEntries = blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, PAGE_SIZE);
+            categoryDescription = categoryDao.findCategoryDescriptionByName(categoryName);
         }
         model.addAttribute("posts", filteredBlogEntries);
         model.addAttribute("categoryName", categoryName);
-        model.addAttribute("categoryDesc", categoryDesc);
+        model.addAttribute("categoryDesc", categoryDescription);
 
         return FragmentsRendering
                 .fragment("components/blog-components::all-posts")
+                .build();
+    }
+
+    @HxRequest
+    @GetMapping("/postComponent/adminButtons")
+    public FragmentsRendering adminButtons(Model model, @RequestParam(value = "id") Integer id) {
+        model.addAttribute("id", id);
+        return FragmentsRendering
+                .fragment("components/post-components::admin-buttons")
                 .build();
     }
 
