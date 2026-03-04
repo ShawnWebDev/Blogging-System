@@ -9,16 +9,13 @@
     <title th:replace="~{blog::blog-title}"></title>
 </head>
 <body>
-
+<div id="template">
     <header th:replace="~{components/header-components :: full-header}"></header>
 
     <main th:fragment="single-post" id="main-content">
 
-        <section>
-            <button sec:authorize="hasAuthority('ADMIN')" th:hx-get="@{/blog/editPost/{id}(id=${entry.id})}" hx-target="#main-content" hx-swap="outerHTML">Edit</button>
-            <p>Single Post Page..</p>
-        </section>
-
+        <h1>Single Post Page..</h1>
+        <section th:replace="~{components/blog-components::admin-buttons(${entry.id})}"></section>
 
         <!-- todo: needs comments section component-->
         <section>
@@ -28,7 +25,7 @@
         </section>
     </main>
 
-
+</div>
 
 </body>
 </html>

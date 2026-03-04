@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Blog Components</title>
@@ -15,16 +15,18 @@
     </header>
 
     <section id="post-container">
-        <article th:each="post : ${posts}" class="post-card" th:hx-get="@{/blog/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">
+        <article th:each="post : ${posts}" class="post-card">
             <header>
-                <h5 th:text="${post.title}"></h5>
+                <h4>
+                    <a th:text="${post.title}" th:hx-get="@{/blog/post/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" class="post-selection"></a>
+                </h4>
                 <small>@ <time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
             </header>
-            <section class="post-description" th:if="${post.thumbnailUrl && post.thumbnailAlt}">
+            <section class="post-description" th:if="${post.thumbnailUrl != null && post.thumbnailAlt != null}">
                 <img th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}"/>
+                <p th:text="${post.description}"></p>
             </section>
             <footer>
-                <p th:text="${post.description}"></p>
                 <ul class="group">
                     <li th:each="category : ${post.categories}">
                         <small th:text="${category}"></small>
@@ -33,6 +35,13 @@
             </footer>
         </article>
     </section>
+</section>
+
+<section th:fragment="admin-buttons(id)" id="admin-edit-post-btns" hx-trigger="loginSuccess from:body" th:hx-get="@{/blog/blogComponent/adminButtons/{id}(id=${id})}" hx-target="this" hx-swap="outerHTML">
+    <div sec:authorize="hasAuthority('ADMIN')">
+        <button th:hx-get="@{/blog/post/editPost/{id}(id=${id})}" hx-target="#main-content" hx-swap="outerHTML">Edit</button>
+        <button th:hx-get="@{/blog/post/deletePost/{id}(id=${id})}" hx-target="#main-content" hx-swap="outerHTML">Delete</button>
+    </div>
 </section>
 
 </body>

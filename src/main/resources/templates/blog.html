@@ -10,34 +10,34 @@
 </head>
 
 <body>
+    <div id="template">
+        <header th:replace="~{components/header-components :: full-header}"></header>
 
-    <header th:replace="~{components/header-components :: full-header}"></header>
+        <main th:fragment="blog-main" id="main-content">
+            <h1>Blog</h1>
+            <section id="categories">
+                <header>
+                    <h2>Filter Posts By Category:</h2>
+                </header>
+                <div id="categories-container">
+                    <button class="category-selection"
+                             th:each="category : ${categories}"
+                             th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.categoryName})}"
+                             hx-target="#posts"
+                             hx-swap="outerHTML swap:200ms"
+                             th:text="${category.categoryName}">
+                    </button>
+                </div>
+            </section>
 
-    <main th:fragment="blog-main" id="main-content">
-        <h1>Blog</h1>
-        <section id="categories">
-            <header>
-                <h3>Filter Posts By Category:</h3>
-            </header>
-            <div id="categories-container">
-                <button class="category-selection"
-                         th:each="category : ${categories}"
-                         th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.categoryName}, categoryDesc=${category.description})}"
-                         hx-target="#posts"
-                         hx-swap="outerHTML swap:200ms"
-                         th:text="${category.categoryName}">
-                </button>
-            </div>
-        </section>
+            <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
 
-        <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
-
-        <section>
-            <h4>Figure out where to put this later...</h4>
-            <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button}"></div>
-            <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
-        </section>
-    </main>
-
+            <section>
+                <h4>Figure out where to put this later...</h4>
+                <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button}"></div>
+                <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>
