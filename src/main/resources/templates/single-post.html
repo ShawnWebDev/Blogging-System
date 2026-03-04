@@ -14,8 +14,10 @@
 
     <main th:fragment="single-post" id="main-content">
 
-        <h1>Single Post Page..</h1>
-        <section th:replace="~{components/blog-components::admin-buttons(${entry.id})}"></section>
+        <h1 th:text="${entry.title}"></h1>
+        <p th:text="${entry.description}"></p>
+
+        <section th:replace="~{components/post-components::admin-buttons(${entry.id})}"></section>
 
         <!-- todo: needs comments section component-->
         <section>
