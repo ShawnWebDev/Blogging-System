@@ -20,7 +20,7 @@
                     <h2>Filter Posts By Category:</h2>
                 </header>
                 <div id="categories-container">
-                    <button class="category-selection"
+                    <button class="category-selection btn-primary"
                              th:each="category : ${categories}"
                              th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.categoryName})}"
                              hx-target="#posts"
@@ -28,6 +28,15 @@
                              th:text="${category.categoryName}">
                     </button>
                 </div>
+                <script>
+                    document.getElementById('categories-container').addEventListener('click', function (e) {
+                        const target = e.target.closest('.category-selection');
+                        if (target) {
+                            document.querySelectorAll('.category-selection').forEach(el => el.classList.remove('activeCategory'));
+                            target.classList.add('activeCategory');
+                        }
+                    });
+                </script>
             </section>
 
             <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
@@ -37,7 +46,10 @@
                 <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button}"></div>
                 <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
             </section>
+
+
         </main>
     </div>
+
 </body>
 </html>

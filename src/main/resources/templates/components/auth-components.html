@@ -12,7 +12,7 @@
         <form id="logout-form">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         </form>
-        <button hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML" hx-include="#logout-form input">Logout</button>
+        <button hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML" hx-include="#logout-form input" class="btn-primary">Logout</button>
         <button sec:authorize="hasAuthority('ADMIN')" hx-get="/blog/post/createPost" hx-target="#main-content" hx-swap="innerHTML" class="btn-primary">
             Create Post
         </button>
