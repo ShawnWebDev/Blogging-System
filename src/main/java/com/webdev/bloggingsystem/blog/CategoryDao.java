@@ -67,6 +67,15 @@ public class CategoryDao {
                     .list();
     }
 
+    public String findCategoryDescriptionByName(String categoryName) {
+        return jdbc.sql(
+                "SELECT c.description FROM categories c " +
+                "WHERE category_name = :categoryName")
+                    .param("categoryName", categoryName)
+                    .query(String.class)
+                    .single();
+    }
+
     public int update(Category category) {
         return jdbc.sql(
                 "UPDATE categories " +
