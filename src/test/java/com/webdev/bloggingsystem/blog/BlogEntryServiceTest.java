@@ -31,19 +31,6 @@ public class BlogEntryServiceTest {
 
     //todo : create unit tests for BlogEntryService methods.
 
-
-    @Test
-    void testGetByteCount() {
-        List<BlogEntryContentBlockDto> contentBlockDtoList = getCreateBlogEntryDto().getContentBlocks();
-
-        int expectedByteCount = mockedJson.getBytes(StandardCharsets.UTF_8).length;
-        when(mapper.writeValueAsString(any())).thenReturn(mockedJson);
-        int actualByteCount = blogEntryService.getCurrentByteCount(contentBlockDtoList);
-
-        Assertions.assertEquals(expectedByteCount, actualByteCount);
-        verify(mapper, times(1)).writeValueAsString(any(List.class));
-    }
-
     @Test
     void testCreatePost() {
         CreateBlogEntryDto createBlogEntryDto = getCreateBlogEntryDto();
@@ -67,6 +54,30 @@ public class BlogEntryServiceTest {
                 blogEntryService.createPost(createBlogEntryDto));
         Assertions.assertEquals("Content block exceeds maximum allowed bytes!!!", ex.getMessage());
         verify(blogEntryDao, times(0)).insert(any(BlogEntry.class));
+    }
+
+    // todo : test these service methods.
+    @Test
+    void testEditPost() {
+        CreateBlogEntryDto createBlogEntryDto = getCreateBlogEntryDto();
+    }
+
+    @Test
+    void testDeletePost() {
+        CreateBlogEntryDto createBlogEntryDto = getCreateBlogEntryDto();
+    }
+
+    // Helper method unit tests...
+    @Test
+    void testGetByteCount() {
+        List<BlogEntryContentBlockDto> contentBlockDtoList = getCreateBlogEntryDto().getContentBlocks();
+
+        int expectedByteCount = mockedJson.getBytes(StandardCharsets.UTF_8).length;
+        when(mapper.writeValueAsString(any())).thenReturn(mockedJson);
+        int actualByteCount = blogEntryService.getCurrentByteCount(contentBlockDtoList);
+
+        Assertions.assertEquals(expectedByteCount, actualByteCount);
+        verify(mapper, times(1)).writeValueAsString(any(List.class));
     }
 
     @Test
