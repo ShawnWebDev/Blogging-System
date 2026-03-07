@@ -39,11 +39,12 @@ public class BlogController {
         model.addAttribute("isEditing", isEditing);
     }
 
-    private static void populateBlogDashboardModel(Model model, List<SimpleBlogEntryDto> posts, List<Category> categories) {
+    private static void populateBlogDashboardModel(Model model, List<SimpleBlogEntryDto> posts, List<Category> categories, String categoryName, String categoryDescription) {
         model.addAttribute("title", "Blog | Shawn Osborne");
         model.addAttribute("posts", posts);
-        model.addAttribute("categoryName", "All");    // used for dynamic heading of 'all-posts' fragment with category filter
-        model.addAttribute("categories", categories); // Full Category with description
+        model.addAttribute("categoryName", categoryName);    // used for dynamic heading of 'all-posts' fragment with category filter
+        if (categories != null) model.addAttribute("categories", categories); // Full Category with description
+        model.addAttribute("categoryDesc", categoryDescription);
     }
 
     private static void populateSinglePostModel(Model model, FullBlogEntryDto entryDto) {
@@ -62,7 +63,7 @@ public class BlogController {
         // int count = blogEntryDao.count();
         List<SimpleBlogEntryDto> posts = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
         List<Category> categories = categoryDao.findAll();
-        populateBlogDashboardModel(model, posts, categories);
+        populateBlogDashboardModel(model, posts, categories, "All", "Select a category to filter.");
 
         if (logout != null) {
             model.addAttribute("logout", "You have logged out.");
@@ -217,16 +218,17 @@ public class BlogController {
                         @RequestParam(value = "pageNumber", defaultValue = "1", required = false) Integer pageNumber) {
 
         List<SimpleBlogEntryDto> filteredBlogEntries;
-        String categoryDescription = null;
+        String categoryDescription;
+
         if (categoryName.equals("All")) {
             filteredBlogEntries = blogEntryDao.findAllSimple(pageNumber, PAGE_SIZE);
+            categoryDescription = "Select a category to filter.";
         } else {
             filteredBlogEntries = blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, PAGE_SIZE);
             categoryDescription = categoryDao.findCategoryDescriptionByName(categoryName);
         }
-        model.addAttribute("posts", filteredBlogEntries);
-        model.addAttribute("categoryName", categoryName);
-        model.addAttribute("categoryDesc", categoryDescription);
+
+        populateBlogDashboardModel(model, filteredBlogEntries, null, categoryName, categoryDescription);
 
         return FragmentsRendering
                 .fragment("components/blog-components::all-posts")
