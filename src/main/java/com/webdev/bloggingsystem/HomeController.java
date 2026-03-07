@@ -24,6 +24,7 @@ public class HomeController {
 
     @GetMapping("/")
     public FragmentsRendering home(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
+        model.addAttribute("title", "Shawn Osborne's Website");
         if (!htmxRequest.isHtmxRequest()) {
             model.addAttribute("fromAbout", true);
             return FragmentsRendering.fragment("index").build();
@@ -32,13 +33,15 @@ public class HomeController {
             htmxResponse.setPushUrl("/");
         }
         return FragmentsRendering
-                .fragment("index::welcome-title")
+                .fragment("components/shared-head::head-title")
                 .fragment("index::about-main")
                 .build();
     }
 
+    // todo : get posts with 'portfolio' category and render/send view, should i inject BlogEntryDao here or in constructor?
     @GetMapping("/portfolio")
     public FragmentsRendering portfolio(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
+        model.addAttribute("title", "Portfolio | Shawn Osborne");
         if (!htmxRequest.isHtmxRequest()) {
             model.addAttribute("fromPortfolio", true);
             return FragmentsRendering.fragment("portfolio").build();
@@ -48,13 +51,14 @@ public class HomeController {
         }
 
         return FragmentsRendering
-                .fragment("portfolio::portfolio-title")
+                .fragment("components/shared-head::head-title")
                 .fragment("portfolio::portfolio-main")
                 .build();
     }
 
     @GetMapping("/contact")
     public FragmentsRendering contact(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
+        model.addAttribute("title", "Contact | Shawn Osborne");
         if (!htmxRequest.isHtmxRequest()) {
             model.addAttribute("fromContact", true);
             return FragmentsRendering.fragment("contact").build();
@@ -63,7 +67,10 @@ public class HomeController {
             htmxResponse.setPushUrl("/contact");
         }
 
-        return FragmentsRendering.fragment("contact::contact-main").build();
+        return FragmentsRendering
+                .fragment("components/shared-head::head-title")
+                .fragment("contact::contact-main")
+                .build();
     }
 
     @HxTrigger("loginSuccess")
@@ -71,15 +78,14 @@ public class HomeController {
     public FragmentsRendering loginSuccess() {
         return FragmentsRendering
                 .fragment("components/auth-components::logout-button")
-                .header("HX-Trigger", "loginSuccess")
+                .fragment("components/auth-components::csrf-token-oob") // to refresh the csrf token with an out-of-band swap
                 .build();
     }
 
-    @HxTrigger("logoutSuccess")
     @GetMapping("/logoutSuccess")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.ok()
-                .header("HX-Redirect", "/blog?logout=true")
+                .header("HX-Refresh", "true")
                 .build();
     }
 
@@ -88,6 +94,7 @@ public class HomeController {
         model.addAttribute("loginError", true);
         return FragmentsRendering
                 .fragment("components/auth-components::login-dialog")
+                .header("HX-Retarget", "#login-modal")
                 .build();
     }
 
