@@ -32,14 +32,18 @@ public class BlogEntryService {
     }
 
     public String createPost(CreateBlogEntryDto dto) {
-        int bytes = this.getCurrentByteCount(dto.getContentBlocks());
+        List<BlogEntryContentBlockDto> contentBlocks = dto.getContentBlocks();
+        if (contentBlocks.isEmpty()) {
+            throw new BlogEntryException("Content blocks are empty!");
+        }
+        int bytes = this.getCurrentByteCount(contentBlocks);
         checkCurrentByteCount(bytes);
 
-        String jsonContentString = mapper.writeValueAsString(sanitizeContentBlocks(dto.getContentBlocks()));
+        String jsonContentString = mapper.writeValueAsString(sanitizeContentBlocks(contentBlocks));
         logger.info("Create post json content string: {}", jsonContentString);
 
         //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set, int)
-        logger.info("Content block is being saved...");
+        logger.info("Content is being saved...");
         BlogEntry blogEntry = BlogEntry.createBlogEntry(
                 dto.getTitle(),
                 dto.getDescription(),
