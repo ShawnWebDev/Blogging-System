@@ -135,14 +135,14 @@ button, a, input[type = submit] {
     background-color: var(--secondary-accent-color-muted);
 }
 
-.post-selection {
+.post-selection, .anchor-link {
     font-size: 1.25rem;
     text-decoration: underline 2px solid var(--main-text-color);
     color: var(--main-text-color);
     transition: all 250ms ease-in-out;
 }
 
-.post-selection:hover {
+.post-selection:hover, .anchor-link:hover  {
     text-decoration: underline 2px solid var(--main-accent-color);
     color: #fff;
 }
@@ -160,6 +160,15 @@ button, a, input[type = submit] {
     background-color: var(--secondary-accent-color-muted);
     border: 2px double var(--main-accent-color-muted);
     color: var(--main-text-color);
+}
+
+#error-section {
+    margin: 1rem auto;
+}
+
+#error-field {
+    margin: 1rem auto;
+    font-size: 1.25rem;
 }
 
 /* FORM STYLES */

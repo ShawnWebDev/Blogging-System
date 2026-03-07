@@ -11,7 +11,7 @@
     <header>
         <h3 th:text="${categoryName + ' Posts'}"></h3>
         <small th:if="${categoryDesc != null}" th:text="${categoryDesc}"></small>
-        <a th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="">Back to all posts</a>
+        <a th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="anchor-link">Back to all posts</a>
     </header>
 
     <section id="post-container">
