@@ -42,8 +42,8 @@
 
     <section th:fragment="admin-buttons(id)" id="admin-edit-post-btns" hx-trigger="loginSuccess from:body" th:hx-get="@{/blog/postComponent/adminButtons(id=${id})}" hx-target="this" hx-swap="outerHTML">
         <div sec:authorize="hasAuthority('ADMIN')">
-            <button th:hx-get="@{/blog/post/editPost/{id}(id=${id})}" hx-target="#main-content" hx-swap="outerHTML">Edit</button>
-            <button th:hx-delete="@{/blog/post/deletePost/{id}(id=${id})}" hx-confirm="Are you sure you want to delete this post?" hx-target="#main-content" hx-swap="outerHTML">Delete</button>
+            <button th:hx-get="@{/blog/post/editPost/{id}(id=${id})}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Edit</button>
+            <button th:hx-delete="@{/blog/post/deletePost/{id}(id=${id})}" hx-confirm="Are you sure you want to delete this post?" class="btn-primary">Delete</button>
         </div>
     </section>
 
