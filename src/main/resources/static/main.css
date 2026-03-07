@@ -1,7 +1,7 @@
 :root {
     --main-bg-color: rgb(19, 23, 31);
-    --main-accent-color: rgb(127, 166, 36);
-    --main-accent-color-muted: rgba(127, 166, 36, 0.65);
+    --main-accent-color: rgb(146, 197, 25);
+    --main-accent-color-muted: rgba(146, 197, 25, 0.65);
     --secondary-accent-color: rgb(40, 48, 64);
     --secondary-accent-color-muted: rgba(40, 48, 64, 0.65);
     --main-text-color: rgb(227, 230, 233);
@@ -12,22 +12,34 @@
 
 /* Layout Styles */
 body {
-    background-color: var(--main-bg-color);
-    color: var(--main-text-color);
-    padding: 0;
+    background-color: var(--secondary-accent-color);
     margin: 0;
 }
 
-#main-header, #main-content {
-    padding: 0 0.5rem;
+#template {
+    background-color: var(--main-bg-color);
+    color: var(--main-text-color);
+    min-height: 100vh;
+}
+#main-header {
+    padding: 0.5rem 0.5rem 0 0.5rem;
+}
+
+#main-content {
+    padding: 0 0.5rem 2rem 0.5rem;
 }
 
 #main-header h2 {
     margin: 0;
 }
 
-#main-header {
+#main-header, nav ul, ul.group, #categories-container, .group,
+#post-container, #post-container header, .post-card footer, dialog article header,
+#login-modal[open], #login-modal[open] form, .content-block:is([data-type="IMAGE"]) .image-fields  {
     display: flex;
+}
+
+#main-header {
     flex-direction: column;
     align-items: flex-start;
     border-bottom: 2px solid var(--main-accent-color-muted);
@@ -39,8 +51,7 @@ body {
 }
 
 nav ul, ul.group {
-    display: flex;
-    gap: 1rem;
+    gap: 1.15rem;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -65,8 +76,8 @@ nav ul, ul.group {
 .nav-item:hover, .active {
     background-color: var(--secondary-accent-color-muted);
     border-radius: 0.25rem;
-    padding: 0.5rem 0.3rem;
-    margin: 0 -0.3rem;
+    padding: 0.5rem 0.5rem;
+    margin: 0 -0.5rem;
     fill: #fff;
     color: #fff;
 }
@@ -81,27 +92,21 @@ button, a, input[type = submit] {
     border-radius: 0.25rem;
 }
 
-.group {
-    display: flex;
+#categories-container, .group {
+    flex-wrap: wrap;
 }
 
 #categories-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
     gap: 0.5rem;
 }
 
 #post-container {
-    display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
 #post-container header {
-    display: flex;
     justify-content: space-between;
-    align-items: center;
     margin-bottom: 1rem;
     background-color: var(--secondary-accent-color-muted);
     border-radius: 0.25rem 0.25rem 0 0;
@@ -110,6 +115,10 @@ button, a, input[type = submit] {
 
 #post-container header h4 {
     margin: 0;
+}
+
+#post-container header, .post-card footer {
+    align-content: center;
 }
 
 .post-card {
@@ -122,26 +131,25 @@ button, a, input[type = submit] {
 }
 
 .post-card footer {
-    display: flex;
-    align-content: center;
     padding: 0 1rem 0.25rem 1rem;
     background-color: var(--secondary-accent-color-muted);
 }
 
 .post-selection {
     font-size: 1.25rem;
-    text-decoration: underline 1px solid var(--main-accent-color-muted);
-    transition: all 200ms ease-in-out;
+    text-decoration: underline 2px solid var(--main-text-color);
+    color: var(--main-text-color);
+    transition: all 400ms ease-in-out;
 }
 
 .post-selection:hover {
-    color: var(--main-accent-color-muted);
-    text-decoration: underline 1px solid var(--main-text-color);
+    text-decoration: underline 2px solid var(--main-accent-color);
+    color: #fff;
 }
 
 .btn-primary {
     background-color: var(--main-text-color);
-    border: 2px double var(--secondary-accent-color-muted);
+    border: 2px double var(--secondary-accent-color);
     color: var(--main-bg-color);
     box-shadow: none;
     cursor: pointer;
@@ -161,7 +169,6 @@ button, a, input[type = submit] {
     height: 1.5rem;
 }
 dialog article header {
-    display: flex;
     justify-content: space-between;
 }
 dialog article form {
@@ -169,7 +176,6 @@ dialog article form {
 }
 
 #login-modal[open] {
-    display: flex;
     justify-content: center;
     align-items: center;
     position: fixed;
@@ -188,7 +194,6 @@ dialog article form {
 }
 
 #login-modal[open] form {
-    display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 0.5rem;
@@ -202,9 +207,6 @@ dialog article form {
     display: block;
 }
 
-.content-block:is([data-type="IMAGE"]) .image-fields {
-    display: flex;
-}
 #byte-validator {
     display: none;
 }
@@ -221,14 +223,12 @@ dialog article form {
         fill: var(--main-text-color);
         transition: all 400ms ease-in-out;
     }
-
 }
 
 /* 768-1023 */
 @media (min-width: 768px) {
     #main-header {
         flex-direction: row;
-        justify-content: space-between;
         align-items: center;
         padding: 1rem 2rem;
     }
@@ -236,9 +236,9 @@ dialog article form {
         padding: 0;
     }
     #main-content {
-        padding: 0 2rem;
+        padding: 0 2rem 2rem 2rem;
     }
-    #categories-container {
+    #main-header, #categories-container {
         justify-content: space-between;
     }
 }
@@ -247,24 +247,22 @@ dialog article form {
 @media (min-width: 1024px) {
     #template {
         display: flex;
-        gap: 2rem;
+        gap: calc(2rem + 2vw);
     }
     #main-header {
-        display: block;
         border-right: 2px solid var(--main-accent-color-muted);
         border-bottom: none;
         height: 100vh;
         position: sticky;
         top: 0;
         padding: 0 1rem 0 1rem;
-        margin: 0;
         max-width: 15rem;
         overflow-y: scroll;
     }
-    #main-header section {
+    #main-header, #main-header section {
         display: block;
     }
-    #main-header h2, #main-header h3, #main-header h4 {
+    #main-header, #main-header h2, #main-header h3, #main-header h4 {
         margin: 0;
     }
     #main-header h2, #main-header nav, #main-header section {
@@ -273,14 +271,14 @@ dialog article form {
     }
     #main-header nav ul {
         flex-direction: column;
-        align-items: flex-end;
+        gap: 0.5rem;
     }
     #main-header nav ul li, .nav-item {
         width: 100%;
         text-align: left;
     }
     #main-content {
-        padding: 0 2rem 0 0;
+        padding: 0 2rem 2rem 0;
         width: 100%;
     }
     .nav-item {
@@ -290,7 +288,7 @@ dialog article form {
     .nav-item:hover, .active {
         border-radius: 1rem 0 0 1rem;
         padding-left: 1rem;
-        margin: 0 calc(-0.3rem - 1px);
+        margin: 0 calc(-0.45rem - 1px);
     }
     .active {
         border-bottom: 2px solid var(--main-accent-color-muted);
@@ -316,7 +314,4 @@ dialog article form {
     #main-header {
         padding: 0 1rem 0 2rem;
     }
-
 }
-
-
