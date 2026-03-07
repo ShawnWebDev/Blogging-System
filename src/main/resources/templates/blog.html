@@ -1,13 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="htmx-config" content='{"historyCacheSize": 0, "refreshOnHistoryMiss": true}'>
-    <script src="/htmx.min.js" defer></script>
-    <link rel="stylesheet" href="/main.css">
-    <title th:fragment="blog-title">Shawn's Blog</title>
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/shared-head}"></head>
 
 <body>
     <div id="template">
@@ -40,13 +33,6 @@
             </section>
 
             <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
-
-            <section>
-                <h4>Figure out where to put this later...</h4>
-                <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button}"></div>
-                <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
-            </section>
-
 
         </main>
     </div>

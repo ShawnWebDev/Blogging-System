@@ -1,13 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="htmx-config" content='{"historyCacheSize": 0, "refreshOnHistoryMiss": true}'>
-  <script src="/htmx.min.js" defer></script>
-  <link rel="stylesheet" href="/main.css">
-  <title>Create Post</title>
-</head>
+<head th:replace="~{components/shared-head}"></head>
+
 <body>
 <div id="template">
   <header th:replace="~{components/header-components :: full-header}"></header>
@@ -17,7 +11,6 @@
     <section id="create-post-form-container" th:attr="data-next-index=${post.contentBlocks.size()}">
       <button th:if="${isEditing}" th:hx-get="@{/blog/post/id/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">Back To Post</button>
       <form action="#" th:hx-post="@{${isEditing != null ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#create-post-form" hx-swap="outerHTML">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" th:if="${isEditing}" name="id" th:value="${post.id}"/>
         <label>Title:
           <input type="text" name="title" th:value="${post.title}" required/>
@@ -92,7 +85,10 @@
       </form>
     </section>
 
+    <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
   </main>
+
+
 </div>
 </body>
 </html>
