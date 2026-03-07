@@ -33,13 +33,8 @@ body {
     margin: 0;
 }
 
-#main-header, nav ul, ul.group, #categories-container, .group,
-#post-container, #post-container header, .post-card footer, dialog article header,
-#login-modal[open], #login-modal[open] form, .content-block:is([data-type="IMAGE"]) .image-fields  {
-    display: flex;
-}
-
 #main-header {
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
     border-bottom: 2px solid var(--main-accent-color-muted);
@@ -51,6 +46,7 @@ body {
 }
 
 nav ul, ul.group {
+    display: flex;
     gap: 1.15rem;
     list-style: none;
     padding: 0;
@@ -63,7 +59,7 @@ nav ul, ul.group {
     background-color: var(--main-bg-color);
     padding: 0.5rem 0;
     font-size: 1rem;
-    transition: all 400ms ease-in-out;
+    transition: all 250ms ease-in-out;
     display: flex;
     justify-content: space-between;
     gap: 0.75rem;
@@ -93,6 +89,7 @@ button, a, input[type = submit] {
 }
 
 #categories-container, .group {
+    display: flex;
     flex-wrap: wrap;
 }
 
@@ -101,11 +98,13 @@ button, a, input[type = submit] {
 }
 
 #post-container {
+    display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
 #post-container header {
+    display: flex;
     justify-content: space-between;
     margin-bottom: 1rem;
     background-color: var(--secondary-accent-color-muted);
@@ -131,6 +130,7 @@ button, a, input[type = submit] {
 }
 
 .post-card footer {
+    display: flex;
     padding: 0 1rem 0.25rem 1rem;
     background-color: var(--secondary-accent-color-muted);
 }
@@ -139,7 +139,7 @@ button, a, input[type = submit] {
     font-size: 1.25rem;
     text-decoration: underline 2px solid var(--main-text-color);
     color: var(--main-text-color);
-    transition: all 400ms ease-in-out;
+    transition: all 250ms ease-in-out;
 }
 
 .post-selection:hover {
@@ -151,15 +151,14 @@ button, a, input[type = submit] {
     background-color: var(--main-text-color);
     border: 2px double var(--secondary-accent-color);
     color: var(--main-bg-color);
-    box-shadow: none;
     cursor: pointer;
-    transition: all 400ms ease-in-out;
+    transition: all 250ms ease-in-out;
     padding: 0.25rem 0.5rem;
 }
 
 .btn-primary:hover, .activeCategory {
     background-color: var(--secondary-accent-color-muted);
-    border: 2px solid var(--main-accent-color-muted);
+    border: 2px double var(--main-accent-color-muted);
     color: var(--main-text-color);
 }
 
@@ -167,15 +166,14 @@ button, a, input[type = submit] {
 .close-btn {
     width: 1.5rem;
     height: 1.5rem;
-}
-dialog article header {
-    justify-content: space-between;
-}
-dialog article form {
-    margin: 1rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
 }
 
-#login-modal[open] {
+dialog[open] {
+    display: flex;
     justify-content: center;
     align-items: center;
     position: fixed;
@@ -186,17 +184,45 @@ dialog article form {
     background-color: var(--transparent-color);
 }
 
-#login-modal[open] article {
-    background-color: var(--secondary-accent-color);
-    padding: 1rem;
-    border-radius: 0.25rem;
-    color: var(--main-text-color);
+dialog article header {
+    display: flex;
+    justify-content: right;
+    margin: 0 0 0.5rem 0;
+    padding: 0.25rem;
+    background-color: var(--main-bg-color);
+    border-radius: 0.25rem 0.25rem 0 0;
 }
 
-#login-modal[open] form {
+dialog article strong {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+dialog article {
+    background-color: var(--secondary-accent-color);
+    border-radius: 0.25rem;
+    color: var(--main-text-color);
+    opacity: 1;
+    transition: opacity 250ms ease-in-out;
+}
+
+@starting-style {
+    dialog[open] article {
+        opacity: 0;
+    }
+}
+
+dialog form {
+    display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 0.5rem;
+    padding: 0.5rem 1rem 1rem 1rem;
+}
+
+dialog article form input[type="submit"] {
+    margin-top: 1rem;
 }
 
 .image-fields, .text-field {
@@ -205,6 +231,10 @@ dialog article form {
 
 .content-block:is([data-type="HEADING"], [data-type="PARAGRAPH"], [data-type="BLOCKQUOTE"], [data-type="CODE"]) .text-field {
     display: block;
+}
+
+.content-block:is([data-type="IMAGE"]) .image-fields  {
+    display: flex;
 }
 
 #byte-validator {
@@ -247,7 +277,7 @@ dialog article form {
 @media (min-width: 1024px) {
     #template {
         display: flex;
-        gap: calc(2rem + 2vw);
+        gap: 5vw;
     }
     #main-header {
         border-right: 2px solid var(--main-accent-color-muted);
@@ -310,6 +340,7 @@ dialog article form {
         gap: calc(2rem + 5vw);
         margin: auto;
         max-width: calc(75rem + 10vw);
+        padding: 0 2rem;
     }
     #main-header {
         padding: 0 1rem 0 2rem;
