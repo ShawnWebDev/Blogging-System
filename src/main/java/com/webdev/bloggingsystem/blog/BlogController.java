@@ -36,7 +36,7 @@ public class BlogController {
         model.addAttribute("categoryList", categoryList); // SimpleCategoryDto
         model.addAttribute("blockTypes", BlockType.values());
         model.addAttribute("post", post);
-        if (isEditing) model.addAttribute("isEditing", true);
+        model.addAttribute("isEditing", isEditing);
     }
 
     private static void populateBlogDashboardModel(Model model, List<SimpleBlogEntryDto> posts, List<Category> categories) {
@@ -142,7 +142,7 @@ public class BlogController {
         if (result.hasErrors()) {
             List<SimpleCategoryDto> categoryDtos = categoryDao.findAllNames();
             boolean isEditing = false;
-            populateCreatePostModel(model, new CreateBlogEntryDto(), categoryDtos, isEditing);
+            populateCreatePostModel(model, createBlogEntryDto, categoryDtos, isEditing);
 
             return FragmentsRendering
                     .fragment("create-post::create-post")
