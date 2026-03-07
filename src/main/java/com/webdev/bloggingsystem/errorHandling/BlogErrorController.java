@@ -19,9 +19,14 @@ public class BlogErrorController implements ErrorController {
 
     @RequestMapping("/error")
     public String handleError(Model model, HttpServletRequest request) {
-        Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+        Integer status = (Integer) request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
         model.addAttribute("title", "Error!");
 
+        if (status == HttpStatus.NOT_FOUND.value()) {
+            model.addAttribute("errorMsg", "Page Not Found! ");
+        } else if (status == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+            model.addAttribute("errorMsg", "Server Error, Please Try Again Later! ");
+        }
         //model.addAttribute("errorMsg", "message description"); for status codes...
 
         logger.info(status.toString());
