@@ -12,7 +12,7 @@
       <button th:if="${isEditing}" th:hx-get="@{/blog/post/id/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Post</button>
       <button th:if="${!isEditing}" th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Blog</button>
 
-      <form action="#" th:hx-post="@{${isEditing != null ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#create-post-form" hx-swap="outerHTML">
+      <form action="#" th:hx-post="@{${isEditing ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#create-post-form" hx-swap="outerHTML">
         <input type="hidden" th:if="${isEditing}" name="id" th:value="${post.id}"/>
         <label>Title:
           <input type="text" name="title" th:value="${post.title}" required/>
