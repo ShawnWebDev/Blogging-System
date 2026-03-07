@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <body>
   <header th:fragment="full-header" id="main-header">
@@ -59,8 +59,14 @@
           target.classList.add('active');
         }
       });
-      function closeLoginForm() {
-        document.getElementById('login-modal').close()
+      document.addEventListener("htmx:configRequest", function(e) {
+        const el = document.getElementById("csrf-token");
+        if (el) {
+          e.detail.headers[el.dataset.header] = el.dataset.token;
+        }
+      });
+      function closeDialog() {
+        document.getElementById('login-modal').close();
       }
     </script>
 
