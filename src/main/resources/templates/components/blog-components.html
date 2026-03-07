@@ -11,7 +11,7 @@
     <header>
         <h3 th:text="${categoryName + ' Posts'}"></h3>
         <small th:if="${categoryDesc != null}" th:text="${categoryDesc}"></small>
-        <a th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms">Back to all posts</a>
+        <a th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="">Back to all posts</a>
     </header>
 
     <section id="post-container">
@@ -35,6 +35,21 @@
             </footer>
         </article>
     </section>
+</section>
+
+<section th:fragment="categories" id="categories">
+    <header>
+        <h2>Filter By Category</h2>
+    </header>
+    <div id="categories-container">
+        <button class="category-selection btn-primary"
+                th:each="category : ${categories}"
+                th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.categoryName})}"
+                hx-target="#posts"
+                hx-swap="outerHTML swap:200ms"
+                th:text="${category.categoryName}">
+        </button>
+    </div>
 </section>
 
 </body>
