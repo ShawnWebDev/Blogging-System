@@ -10,7 +10,7 @@
 <section th:fragment="all-posts" id="posts">
     <header>
         <h3 th:text="${categoryName + ' Posts'}"></h3>
-        <small th:if="${categoryDesc != null}" th:text="${categoryDesc}"></small>
+        <p th:text="${categoryDesc}"></p>
         <a th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="anchor-link">Back to all posts</a>
     </header>
 
@@ -39,7 +39,7 @@
 
 <section th:fragment="categories" id="categories">
     <header>
-        <h2>Filter By Category</h2>
+        <h2>Categories</h2>
     </header>
     <div id="categories-container">
         <button class="category-selection btn-primary"
@@ -50,6 +50,15 @@
                 th:text="${category.categoryName}">
         </button>
     </div>
+    <script>
+        document.getElementById('categories-container').addEventListener('click', function (e) {
+            const target = e.target.closest('.category-selection');
+            if (target) {
+                document.querySelectorAll('.category-selection').forEach(el => el.classList.remove('active-category'));
+                target.classList.add('active-category');
+            }
+        });
+    </script>
 </section>
 
 </body>

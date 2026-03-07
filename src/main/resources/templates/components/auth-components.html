@@ -17,7 +17,7 @@
     </div>
 
     <div th:fragment="login-button" class="login-container">
-        <h4>Please log in to comment.</h4>
+        <p>Please log in to comment.</p>
         <button onclick="getElementById('login-modal').showModal()" class="btn-primary">Login</button>
         <small th:if="${param.logout != null}" th:text="${logout}"></small>
     </div>
@@ -25,10 +25,11 @@
     <dialog th:fragment="login-dialog" id="login-modal" th:open="${loginError}">
         <article>
             <header>
+                <span>Login</span>
                 <button aria-label="Close" onclick="closeDialog()" class="close-btn btn-primary">X</button>
             </header>
             <form hx-post="/login" hx-target=".login-container" hx-swap="outerHTML" method="post" hx-on::after-request="if(event.detail.successful) closeDialog()">
-                <strong>Please sign in to comment.</strong>
+
                 <label>
                     Username:
                     <input type="text" name="username" placeholder="Username" required th:aria-invalid="${loginError}"/>
