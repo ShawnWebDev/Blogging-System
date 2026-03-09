@@ -132,14 +132,14 @@ public class DaoTests {
     @Test
     @Transactional
     public void insertBlogEntryWithCategories() {
-        BlogEntry blogEntry = BlogEntry.createBlogEntry(
+        BlogEntry blogEntry = new BlogEntry(
             "Test title",
             "Test Description",
             "Test Content",
                 "url",
                 "alt"
         );
-
+        blogEntry.setSlug(blogEntry.getTitle());
         int postId = blogEntryDao.insert(blogEntry);
         System.out.println("postId: " + postId);
         int insertedCategories = categoryDao.batchInsertJoins(Set.of(1, 2, 3), postId);
@@ -157,13 +157,14 @@ public class DaoTests {
     @Test
     @Transactional
     public void insertBlogEntryWithNonExistentCategories() {
-        BlogEntry blogEntry = BlogEntry.createBlogEntry(
+        BlogEntry blogEntry = new BlogEntry(
                 "Test title",
                 "Test Description",
                 "Test Content",
                 "url",
                 "alt"
         );
+        blogEntry.setSlug(blogEntry.getTitle());
         Set<Integer> set = Set.of(10, 20, 30);
 
         int postId = blogEntryDao.insert(blogEntry);
@@ -194,7 +195,7 @@ public class DaoTests {
     @Test
     @Transactional
     public void testUpdateNonExistentBlogEntry() {
-        BlogEntry blogEntry = BlogEntry.createBlogEntry(
+        BlogEntry blogEntry = new BlogEntry(
                 "Fake title",
                 "Fake Description",
                 "Fake Content",
@@ -202,6 +203,7 @@ public class DaoTests {
                 "alt"
         );
         blogEntry.setId(99);
+        blogEntry.setSlug(blogEntry.getTitle());
         Assertions.assertEquals(0, blogEntryDao.update(blogEntry));
 
         BlogEntry updatedBlogEntry = blogEntryDao.findById(99).orElse(null);
