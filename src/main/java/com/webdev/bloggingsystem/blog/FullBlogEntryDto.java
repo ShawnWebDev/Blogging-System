@@ -11,10 +11,4 @@ public record FullBlogEntryDto(int id,
                                 Instant updatedAt,
                                 List<String> categories,
                                 List<BlogEntryContentBlockDto> blocks) {
-
-    public static FullBlogEntryDto create(BlogEntry entry, List<BlogEntryContentBlockDto> blocks) {
-        return new FullBlogEntryDto(
-                entry.getId(), entry.getTitle(), entry.getSlug(), entry.getDescription(), entry.getCreatedAt(), entry.getUpdatedAt(),
-                entry.getCategoryNames(), blocks);
-    }
 }
