@@ -7,7 +7,7 @@
   <header th:replace="~{components/header-components :: full-header}"></header>
 
   <main id="main-content" th:fragment="create-post(post)">
-    <h1>Create Post</h1>
+    <h1 th:text="${isEditing ? 'Edit Post' : 'Create Post'}"></h1>
     <section id="create-post-form-container" th:attr="data-next-index=${post.contentBlocks.size()}">
       <button th:if="${isEditing}" th:hx-get="@{/blog/post/id/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Post</button>
       <button th:if="${!isEditing}" th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Blog</button>
