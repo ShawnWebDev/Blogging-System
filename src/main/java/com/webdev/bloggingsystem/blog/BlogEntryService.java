@@ -11,10 +11,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class BlogEntryService {
@@ -31,34 +28,51 @@ public class BlogEntryService {
         this.mapper = objectMapper;
     }
 
+    public List<SimpleBlogEntryDto> findAllSimpleBlogEntries(int pageNumber, int pageSize) {
+        return blogEntryDao.findAllSimple(pageNumber, pageSize);
+    }
+
+    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesFiltered(String categoryName, int pageNumber, int pageSize) {
+        return blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, pageSize);
+    }
+
+    public List<Category> findAllCategories() {
+        return categoryDao.findAll();
+    }
+
+    public List<SimpleCategoryDto> findAllSimpleCategories() {
+        return categoryDao.findAllNames();
+    }
+
+    public String findCategoryDescriptionByName(String categoryName) {
+        return categoryDao.findCategoryDescriptionByName(categoryName);
+    }
+
+    @Transactional
     public String createPost(CreateBlogEntryDto dto) {
         List<BlogEntryContentBlockDto> contentBlocks = dto.getContentBlocks();
         if (contentBlocks.isEmpty()) {
             throw new BlogEntryException("Content blocks are empty!");
         }
-        int bytes = this.getCurrentByteCount(contentBlocks);
-        checkCurrentByteCount(bytes);
 
-        String jsonContentString = mapper.writeValueAsString(sanitizeContentBlocks(contentBlocks));
+        String jsonContentString = mapper.writeValueAsString(sanitizeContentBlocks(dto.getContentBlocks()));
+        checkCurrentByteCount(jsonContentString.getBytes().length);
         logger.info("Create post json content string: {}", jsonContentString);
 
         //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set, int)
         logger.info("Content is being saved...");
-        BlogEntry blogEntry = BlogEntry.createBlogEntry(
+        BlogEntry blogEntry = new BlogEntry(
                 dto.getTitle(),
                 dto.getDescription(),
                 jsonContentString,
                 dto.getThumbnailUrl(),
                 dto.getThumbnailAlt()
         );
+        blogEntry.setSlug(dto.getTitle());
         int blogId = blogEntryDao.insert(blogEntry);
         //remove 0 values from categoryIds array.
-        Set<Integer> cleanedCategoryIds = new HashSet<>();
-        for (int catId : dto.getCategoryIds()) {
-            if (catId != 0) {
-                cleanedCategoryIds.add(catId);
-            }
-        }
+        Set<Integer> cleanedCategoryIds = cleanCategoryIds(dto.getCategoryIds());
+
         int updatedJoinAmt = categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
         logger.info("Updated join amt has been saved. Rows created: {}", updatedJoinAmt);
         // return slug for location to direct after submit.
@@ -68,29 +82,24 @@ public class BlogEntryService {
     public FullBlogEntryDto readPostById(int id) {
         BlogEntry entry = blogEntryDao.findById(id)
                 .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
-        logger.info("Read post entry: {}", entry);
-        List<BlogEntryContentBlockDto> contentBlockList = mapper.readValue(entry.getContent(), new TypeReference<>() {});
-        return FullBlogEntryDto.create(entry, contentBlockList);
+        return this.buildFullBlogEntryDto(entry);
     }
 
     public FullBlogEntryDto readPostBySlug(String slug) {
         BlogEntry entry = blogEntryDao.findBySlug(slug)
                 .orElseThrow(() -> new BlogEntryException("Entry not found: " + slug));
-        List<BlogEntryContentBlockDto> contentBlockList = mapper.readValue(entry.getContent(), new TypeReference<>() {});
-        return FullBlogEntryDto.create(entry, contentBlockList);
+        return this.buildFullBlogEntryDto(entry);
     }
 
     @Transactional
     public String updatePost(CreateBlogEntryDto dto) {
-        int bytes = this.getCurrentByteCount(dto.getContentBlocks());
-        checkCurrentByteCount(bytes);
-
         String jsonContentString = mapper.writeValueAsString(sanitizeContentBlocks(dto.getContentBlocks()));
+        checkCurrentByteCount(jsonContentString.getBytes().length);
         logger.info("Update post json content string: {}", jsonContentString);
 
         logger.info("Content block is being updated...");
         int blogId = dto.getId();
-        BlogEntry blogEntry = BlogEntry.createBlogEntry(
+        BlogEntry blogEntry = new BlogEntry(
                 dto.getTitle(),
                 dto.getDescription(),
                 jsonContentString,
@@ -98,19 +107,15 @@ public class BlogEntryService {
                 dto.getThumbnailAlt()
         );
         blogEntry.setId(blogId);
-
+        blogEntry.setSlug(dto.getTitle());
         int isUpdated = blogEntryDao.update(blogEntry);
         if (isUpdated == 0) {
             throw new BlogEntryException("Entry not updated!");
         }
         categoryDao.deleteJoinedByBlogId(blogId);
         //remove 0 values from categoryIds array.
-        Set<Integer> cleanedCategoryIds = new HashSet<>();
-        for (int catId : dto.getCategoryIds()) {
-            if (catId != 0) {
-                cleanedCategoryIds.add(catId);
-            }
-        }
+        Set<Integer> cleanedCategoryIds = cleanCategoryIds(dto.getCategoryIds());
+
         logger.info("Saving category relations... ");
         categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
         return blogEntry.getSlug();
@@ -118,7 +123,14 @@ public class BlogEntryService {
 
     @Transactional
     public String deletePost(int id) {
+        // todo
         return "";
+    }
+
+    private FullBlogEntryDto buildFullBlogEntryDto(BlogEntry entry) {
+        List<BlogEntryContentBlockDto> contentBlockList = mapper.readValue(entry.getContent(), new TypeReference<>() {});
+        return new FullBlogEntryDto(entry.getId(), entry.getTitle(), entry.getSlug(), entry.getDescription(),
+                entry.getCreatedAt(), entry.getUpdatedAt(), entry.getCategoryNames(), contentBlockList);
     }
 
     public CreateBlogEntryDto buildCreateDto(int id) {
@@ -131,10 +143,22 @@ public class BlogEntryService {
         }
         List<BlogEntryContentBlockDto> contentBlockList = mapper.readValue(post.getContent(), new TypeReference<>() {});
 
-        return CreateBlogEntryDto.create(post, categoryIds, contentBlockList);
+        return new CreateBlogEntryDto(post.getId(), post.getTitle(), post.getDescription(),
+                post.getThumbnailUrl(), post.getThumbnailAlt(), categoryIds, contentBlockList);
     }
 
-    static void checkCurrentByteCount(int bytes) {
+    private static Set<Integer> cleanCategoryIds(int[] categoryIds) {
+        //remove 0 values from categoryIds array.
+        Set<Integer> cleanedCategoryIds = new HashSet<>();
+        for (int catId : categoryIds) {
+            if (catId != 0) {
+                cleanedCategoryIds.add(catId);
+            }
+        }
+        return cleanedCategoryIds;
+    }
+
+    private static void checkCurrentByteCount(int bytes) {
         if (bytes > MAX_BYTES) {
             logger.error("Content block exceeds maximum allowed bytes!!!");
             throw new BlogEntryException("Content block exceeds maximum allowed bytes!!!");
