@@ -1,6 +1,5 @@
 package com.webdev.bloggingsystem.blog;
 
-
 import com.webdev.bloggingsystem.errorHandling.MaxBytes;
 import com.webdev.bloggingsystem.errorHandling.UniqueTitle;
 import jakarta.validation.constraints.NotBlank;
@@ -31,16 +30,14 @@ public class CreateBlogEntryDto {
 
     public CreateBlogEntryDto() {}
 
-    public static CreateBlogEntryDto create(BlogEntry blogEntry, int[] categoryIds,  List<BlogEntryContentBlockDto> contentBlocks) {
-        CreateBlogEntryDto dto = new CreateBlogEntryDto();
-        dto.id = blogEntry.getId() != null ? blogEntry.getId() : null;
-        dto.title = blogEntry.getTitle();
-        dto.description = blogEntry.getDescription();
-        dto.thumbnailUrl = blogEntry.getThumbnailUrl();
-        dto.thumbnailAlt = blogEntry.getThumbnailAlt();
-        dto.categoryIds = categoryIds;
-        dto.contentBlocks = contentBlocks;
-        return dto;
+    public CreateBlogEntryDto(Integer id, String title, String description, String thumbnailUrl, String thumbnailAlt, int[] categoryIds, List<BlogEntryContentBlockDto> contentBlocks) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.thumbnailUrl = thumbnailUrl;
+        this.thumbnailAlt = thumbnailAlt;
+        this.categoryIds = categoryIds;
+        this.contentBlocks = contentBlocks;
     }
 
     public Integer getId() {
