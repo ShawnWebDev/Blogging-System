@@ -33,7 +33,7 @@ public class BlogEntry {
         this.thumbnailUrl = thumbnailUrl;
         this.thumbnailAlt = thumbnailAlt;
     }
-
+    // used in DAO for result set extraction
     public BlogEntry(int id, String title, String description, String content, Instant createdAt, Instant updatedAt,
                      String slug, List<String> categoryNames, String thumbnailUrl, String thumbnailAlt) {
         this.id = id;
@@ -46,12 +46,6 @@ public class BlogEntry {
         this.categoryNames = categoryNames;
         this.thumbnailUrl = thumbnailUrl;
         this.thumbnailAlt = thumbnailAlt;
-    }
-
-    public static BlogEntry createBlogEntry(String title, String description, String content, String thumbnailUrl, String thumbnailAlt) {
-        BlogEntry blogEntry = new BlogEntry(title, description, content, thumbnailUrl, thumbnailAlt);
-        blogEntry.setSlug(generateSlugFromTitle(title));
-        return blogEntry;
     }
 
     private static String generateSlugFromTitle(String title) {
@@ -72,7 +66,6 @@ public class BlogEntry {
     }
     public void setTitle(String title) {
         this.title = title;
-        this.setSlug(generateSlugFromTitle(title)); // <-- for updating
     }
     public String getDescription() {
         return description;
@@ -101,8 +94,8 @@ public class BlogEntry {
     public String getSlug() {
         return slug;
     }
-    public void setSlug(String slug) {
-        this.slug = slug;
+    public void setSlug(String title) {
+        this.slug = generateSlugFromTitle(title);
     }
     public String getThumbnailUrl() {
         return thumbnailUrl;
