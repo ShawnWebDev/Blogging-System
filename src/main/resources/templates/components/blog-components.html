@@ -11,7 +11,7 @@
     <header>
         <h3 th:text="${categoryName + ' Posts'}"></h3>
         <p th:text="${categoryDesc}"></p>
-        <a th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="anchor-link">Back to all posts</a>
+        <a th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="anchor-link" hx-on:click="removeActiveCategories()">Back to all posts</a>
     </header>
 
     <section id="post-container">
@@ -51,10 +51,13 @@
         </button>
     </div>
     <script>
+        function removeActiveCategories() {
+            document.querySelectorAll('.category-selection').forEach(el => el.classList.remove('active-category'));
+        }
         document.getElementById('categories-container').addEventListener('click', function (e) {
             const target = e.target.closest('.category-selection');
             if (target) {
-                document.querySelectorAll('.category-selection').forEach(el => el.classList.remove('active-category'));
+                removeActiveCategories();
                 target.classList.add('active-category');
             }
         });
