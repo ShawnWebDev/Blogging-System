@@ -167,10 +167,10 @@ public class BlogController {
                     .build();
         }
 
-        String blogSlug = blogEntryService.createPost(createBlogEntryDto);
+        int blogId = blogEntryService.createPost(createBlogEntryDto);
 
         return ResponseEntity.ok()
-                .header("HX-Location", "/blog/post/"+blogSlug)
+                .header("HX-Location", "{\"path\":\"/blog/post/id/"+blogId+"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
                 .build();
     }
 
@@ -203,21 +203,21 @@ public class BlogController {
                     .fragment("create-post::create-post")
                     .build();
         }
-        String blogSlug = blogEntryService.updatePost(createBlogEntryDto);
+        int blogId = blogEntryService.updatePost(createBlogEntryDto);
 
         return ResponseEntity.ok()
-                .header("HX-Location", "/blog/post/"+blogSlug)
+                .header("HX-Location", "{\"path\":\"/blog/post/id/"+blogId+"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
                 .build();
     }
 
-    // todo : finish this endpoint and finish delete service method.
     @HxRequest
     @DeleteMapping("/post/deletePost/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Integer id) {
         logger.info("Deleting post with id: {}", id);
+        blogEntryService.deletePost(id);
 
         return ResponseEntity.ok()
-                .header("HX-Redirect", "/blog")
+                .header("HX-Location", "{\"path\":\"/blog\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
                 .build();
     }
 

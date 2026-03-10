@@ -38,8 +38,8 @@ public class BlogEntryServiceTest {
                 .thenReturn(mockedJson);
         when(blogEntryDao.insert(any(BlogEntry.class))).thenReturn(1);
         when(categoryDao.batchInsertJoins(anySet(), eq(1))).thenReturn(3);
-        String result = blogEntryService.createPost(createBlogEntryDto);
-        Assertions.assertEquals("test-post-title", result);
+        int result = blogEntryService.createPost(createBlogEntryDto);
+        Assertions.assertEquals(6, result);
         verify(blogEntryDao, times(1)).insert(any(BlogEntry.class));
         // verify the empty values '0' are filtered out
         verify(categoryDao).batchInsertJoins(argThat(set -> set.size() == 3), eq(1));

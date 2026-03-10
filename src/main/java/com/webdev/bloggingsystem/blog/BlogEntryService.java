@@ -5,11 +5,9 @@ import com.webdev.bloggingsystem.errorHandling.BlogEntryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -49,7 +47,7 @@ public class BlogEntryService {
     }
 
     @Transactional
-    public String createPost(CreateBlogEntryDto dto) {
+    public int createPost(CreateBlogEntryDto dto) {
         List<BlogEntryContentBlockDto> contentBlocks = dto.getContentBlocks();
         if (contentBlocks.isEmpty()) {
             throw new BlogEntryException("Content blocks are empty!");
@@ -76,7 +74,7 @@ public class BlogEntryService {
         int updatedJoinAmt = categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
         logger.info("Updated join amt has been saved. Rows created: {}", updatedJoinAmt);
         // return slug for location to direct after submit.
-        return blogEntry.getSlug();
+        return blogId;
     }
 
     public FullBlogEntryDto readPostById(int id) {
@@ -92,7 +90,7 @@ public class BlogEntryService {
     }
 
     @Transactional
-    public String updatePost(CreateBlogEntryDto dto) {
+    public int updatePost(CreateBlogEntryDto dto) {
         String jsonContentString = mapper.writeValueAsString(sanitizeContentBlocks(dto.getContentBlocks()));
         checkCurrentByteCount(jsonContentString.getBytes().length);
         logger.info("Update post json content string: {}", jsonContentString);
@@ -110,7 +108,7 @@ public class BlogEntryService {
         blogEntry.setSlug(dto.getTitle());
         int isUpdated = blogEntryDao.update(blogEntry);
         if (isUpdated == 0) {
-            throw new BlogEntryException("Entry not updated!");
+            throw new BlogEntryException("Entry NOT updated with id: " + blogId);
         }
         categoryDao.deleteJoinedByBlogId(blogId);
         //remove 0 values from categoryIds array.
@@ -118,13 +116,15 @@ public class BlogEntryService {
 
         logger.info("Saving category relations... ");
         categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
-        return blogEntry.getSlug();
+        return blogEntry.getId();
     }
 
     @Transactional
-    public String deletePost(int id) {
-        // todo
-        return "";
+    public void deletePost(int id) {
+        int deleted = blogEntryDao.deleteById(id);
+        if (deleted == 0) {
+            throw new BlogEntryException("Entry NOT deleted with id: " + id);
+        }
     }
 
     private FullBlogEntryDto buildFullBlogEntryDto(BlogEntry entry) {
@@ -148,7 +148,7 @@ public class BlogEntryService {
     }
 
     private static Set<Integer> cleanCategoryIds(int[] categoryIds) {
-        //remove 0 values from categoryIds array.
+        //remove 0 and possible duplicate values from categoryIds array.
         Set<Integer> cleanedCategoryIds = new HashSet<>();
         for (int catId : categoryIds) {
             if (catId != 0) {

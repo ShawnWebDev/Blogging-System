@@ -1,12 +1,9 @@
 package com.webdev.bloggingsystem.integration.repositories;
 
+import com.webdev.bloggingsystem.blog.*;
 import com.webdev.bloggingsystem.user.AppUser;
-import com.webdev.bloggingsystem.blog.BlogEntry;
 import com.webdev.bloggingsystem.user.AuthorDto;
-import com.webdev.bloggingsystem.blog.SimpleBlogEntryDto;
 import com.webdev.bloggingsystem.user.AppUserDao;
-import com.webdev.bloggingsystem.blog.BlogEntryDao;
-import com.webdev.bloggingsystem.blog.CategoryDao;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,6 +12,7 @@ import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.junit.jupiter.Container;
@@ -37,6 +35,8 @@ public class DaoTests {
     private BlogEntryDao blogEntryDao;
     @Autowired
     private CategoryDao categoryDao;
+    @Autowired
+    private JdbcClient jdbc;
 
     @Container
     @ServiceConnection
@@ -153,7 +153,6 @@ public class DaoTests {
 
     }
 
-    // todo : implement error handling for this exception
     @Test
     @Transactional
     public void insertBlogEntryWithNonExistentCategories() {
@@ -222,6 +221,24 @@ public class DaoTests {
 
         blogEntry = blogEntryDao.findById(1).orElse(null);
         Assertions.assertNull(blogEntry);
+
+        //Ensure category joins are cascade deleted..
+        List<Category> categoriesWIthId = jdbc.sql("SELECT * FROM posts_categories WHERE post_id = 1").query(Category.class).list();
+        Assertions.assertEquals(0, categoriesWIthId.size());
+    }
+
+    @Test
+    @Transactional
+    public void testDeleteNonExistentBlogEntry() {
+        int deleted = blogEntryDao.deleteById(99);
+        Assertions.assertEquals(0, deleted);
+
+        BlogEntry blogEntry = blogEntryDao.findById(99).orElse(null);
+        Assertions.assertNull(blogEntry);
+
+        //Ensure category joins are cascade deleted..
+        List<Category> categoriesWIthId = jdbc.sql("SELECT * FROM posts_categories WHERE post_id = 99").query(Category.class).list();
+        Assertions.assertEquals(0, categoriesWIthId.size());
     }
 
     @Test
