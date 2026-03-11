@@ -93,8 +93,8 @@ public class HomeController {
     public FragmentsRendering loginError(Model model) {
         model.addAttribute("loginError", true);
         return FragmentsRendering
-                .fragment("components/auth-components::login-dialog")
-                .header("HX-Retarget", "#login-modal")
+                .fragment("components/auth-components::login-article")
+                .header("HX-Retarget", "#login-article")
                 .build();
     }
 
