@@ -11,7 +11,8 @@
     <header>
         <h3 th:text="${categoryName + ' Posts'}"></h3>
         <p th:text="${categoryDesc}"></p>
-        <a th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="anchor-link" hx-on:click="removeActiveCategories()">Back to all posts</a>
+        <button onclick="openDialog('categories-modal')" class="btn-primary">Filter by category</button>
+        <button th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="btn-primary" hx-on:click="removeActiveCategories()">Back to all posts</button>
     </header>
 
     <section id="post-container">
@@ -38,18 +39,24 @@
 </section>
 
 <section th:fragment="categories" id="categories">
-    <details>
-        <summary><h2>Categories</h2></summary>
+    <dialog id="categories-modal">
+        <article>
+            <header>
+                <span>Filter by a category:</span>
+                <button aria-label="Close" onclick="closeDialog('categories-modal')" class="close-btn btn-primary">X</button>
+            </header>
         <div id="categories-container">
             <button class="category-selection btn-primary"
                     th:each="category : ${categories}"
                     th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.categoryName})}"
                     hx-target="#posts"
                     hx-swap="outerHTML swap:200ms"
+                    onclick="closeDialog('categories-modal')"
                     th:text="${category.categoryName}">
             </button>
         </div>
-    </details>
+        </article>
+    </dialog>
     <script>
         function removeActiveCategories() {
             document.querySelectorAll('.category-selection').forEach(el => el.classList.remove('active-category'));

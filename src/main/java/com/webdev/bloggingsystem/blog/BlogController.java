@@ -56,7 +56,7 @@ public class BlogController {
 
         // will need count to show how many pages are available when I implement that part.
         // int count = blogEntryDao.count();
-        populateBlogDashboardModel(model, "All", "Select a category to filter.");
+        populateBlogDashboardModel(model, "All", "");
         model.addAttribute("posts", blogEntryService.findAllSimpleBlogEntries(pageNumber, PAGE_SIZE));
         model.addAttribute("categories", blogEntryService.findAllCategories());
 
@@ -95,7 +95,7 @@ public class BlogController {
 
         if (categoryName.equals("All")) {
             filteredBlogEntries = blogEntryService.findAllSimpleBlogEntries(pageNumber, PAGE_SIZE);
-            categoryDescription = "Select a category to filter.";
+            categoryDescription = "";
         } else {
             filteredBlogEntries = blogEntryService.findAllSimpleBlogEntriesFiltered(categoryName, pageNumber, PAGE_SIZE);
             categoryDescription = blogEntryService.findCategoryDescriptionByName(categoryName);
