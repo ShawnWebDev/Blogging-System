@@ -65,8 +65,11 @@
           e.detail.headers[el.dataset.header] = el.dataset.token;
         }
       });
-      function closeDialog() {
-        document.getElementById('login-modal').close();
+      function closeDialog(elementId) {
+        document.getElementById(elementId).close();
+      }
+      function openDialog(elementId) {
+        document.getElementById(elementId).showModal();
       }
     </script>
 
