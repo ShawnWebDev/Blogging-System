@@ -56,17 +56,6 @@ public class BlogEntryServiceTest {
         verify(blogEntryDao, times(0)).insert(any(BlogEntry.class));
     }
 
-    // todo : test these service methods.
-    @Test
-    void testEditPost() {
-        CreateBlogEntryDto createBlogEntryDto = getCreateBlogEntryDto();
-    }
-
-    @Test
-    void testDeletePost() {
-        CreateBlogEntryDto createBlogEntryDto = getCreateBlogEntryDto();
-    }
-
     // Helper method unit tests...
     @Test
     void testGetByteCount() {
