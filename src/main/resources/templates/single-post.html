@@ -3,24 +3,25 @@
 <head th:replace="~{components/shared-head}"></head>
 
 <body>
-<div id="template">
-    <header th:replace="~{components/header-components :: full-header}"></header>
+    <div id="template">
+        <header th:replace="~{components/header-components :: full-header}"></header>
 
-    <main th:fragment="single-post" id="main-content">
+        <main th:fragment="single-post" id="main-content">
 
-        <h1 th:text="${entry.title}"></h1>
-        <p th:text="${entry.description}"></p>
+            <h1 th:text="${entry.title}"></h1>
+            <p th:text="${entry.description}"></p>
 
-        <section th:replace="~{components/post-components::admin-buttons(${entry.id})}"></section>
+            <section th:replace="~{components/post-components::admin-buttons(${entry.id})}"></section>
 
-        <!-- todo: needs comments section component-->
-        <section>
-            <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button}"></div>
-            <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
-            <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
-        </section>
+            <!-- todo: needs comments section component-->
+            <section>
+                <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button}"></div>
+                <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
+                <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
+            </section>
 
-    </main>
+            <div id="error-field"></div>
+        </main>
 
 
 
