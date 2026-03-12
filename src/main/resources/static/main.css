@@ -5,10 +5,11 @@
     --secondary-accent-color: rgb(40, 48, 64);
     --secondary-accent-color-muted: rgba(40, 48, 64, 0.65);
     --main-text-color: rgb(227, 230, 233);
-    --transparent-color: rgba(0, 0, 0, 0.25);
+    --transparent-color-dark: rgba(40, 48, 64, 0.25);
+    --transparent-color-light: rgba(140, 148, 164, 0.25);
     --error-color: rgb(217, 30, 30);
 }
-/* todo : combine like styles to reduce size, get a css minify extension for maven */
+/* todo : get a css minify extension for maven */
 
 /* Layout Styles */
 body {
@@ -25,12 +26,25 @@ body {
     padding: 0.5rem 0.5rem 0 0.5rem;
 }
 
+#posts, #main-content {
+    opacity: 1;
+    scale: 1;
+    transition: all 200ms ease-in;
+}
+
+#posts.htmx-added, #posts.htmx-swapping,
+#main-content.htmx-added {
+    opacity: 0;
+    scale: 0.95;
+}
+
 #main-content {
     padding: 0 0.5rem 2rem 0.5rem;
 }
 
 #main-header h2 {
     margin: 0;
+    padding: 0;
 }
 
 #main-header {
@@ -65,7 +79,7 @@ nav ul, ul.group {
     gap: 0.75rem;
 }
 
-.nav-item svg {
+.nav-item > svg {
     display: none;
 }
 
@@ -86,51 +100,28 @@ button, a, input[type = submit] {
     font-size: 0.9rem;
     cursor: pointer;
     border-radius: 0.25rem;
+}
 
+#categories-modal > article {
+    max-width: 40rem;
+    max-height: calc(100vh - 5rem);
+    min-height: 8rem;
+    overflow-y: scroll;
+}
+#categories-modal > article > header {
+    position: sticky;
+    top: 0;
 }
 
 #categories-container, .group {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-evenly;
 }
 
 #categories-container {
     gap: 0.5rem;
     padding: 1rem;
-    opacity: 0;
-}
-
-summary {
-
-}
-
-summary > h2 {
-    background-color: var(--secondary-accent-color-muted);
-    border-bottom: 1px solid var(--secondary-accent-color-muted);
-    cursor: pointer;
-    user-select: none;
-    padding: 1rem;
-    transition: all 250ms ease-in-out;
-}
-
-summary > h2:hover, details[open] > summary > h2  {
-    background-color: var(--secondary-accent-color);
-
-}
-
-details[open] > summary > h2 {
-    border-bottom: 1px solid var(--main-accent-color-muted);
-}
-
-
-details {
-    background-color: var(--secondary-accent-color-muted);
-    border-radius: 0.25rem;
-}
-
-details[open] > #categories-container {
-    transition: all 250ms ease-in-out;
-    opacity: 1;
 }
 
 #posts header .anchor-link {
@@ -195,9 +186,9 @@ details[open] > #categories-container {
 }
 
 .btn-primary {
-    background-color: var(--main-text-color);
-    border: 2px double var(--secondary-accent-color);
-    color: var(--main-bg-color);
+    background-color: var(--transparent-color-light);
+    border: 2px solid var(--transparent-color-light);
+    color: var(--main-text-color);
     cursor: pointer;
     transition: all 250ms ease-in-out;
     padding: 0.25rem 0.5rem;
@@ -205,8 +196,8 @@ details[open] > #categories-container {
 
 .btn-primary:hover, .active-category {
     background-color: var(--secondary-accent-color-muted);
-    border: 2px double var(--main-accent-color-muted);
-    color: var(--main-text-color);
+    border: 2px solid var(--main-accent-color-muted);
+    color: #ffffff;
 }
 
 #error-section {
@@ -237,7 +228,20 @@ dialog[open] {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: var(--transparent-color);
+    background-color: var(--transparent-color-dark);
+}
+
+dialog[open] > article {
+    position: absolute;
+    top: 15vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--secondary-accent-color);
+    border: 2px solid var(--transparent-color-light);
+    border-radius: 0.25rem;
+    color: var(--main-text-color);
+    opacity: 1;
+    transition: opacity 250ms ease-in-out;
 }
 
 dialog article header {
@@ -247,21 +251,7 @@ dialog article header {
     padding: 0.25rem;
     background-color: var(--main-bg-color);
     border-radius: 0.25rem 0.25rem 0 0;
-}
-
-dialog article strong {
-    width: 100%;
-    text-align: left;
-    margin-bottom: 1rem;
-}
-
-dialog article {
-    background-color: var(--secondary-accent-color);
-    border: 2px solid var(--secondary-accent-color-muted);
-    border-radius: 0.25rem;
-    color: var(--main-text-color);
-    opacity: 1;
-    transition: opacity 250ms ease-in-out;
+    border-bottom: 2px solid var(--main-accent-color-muted);
 }
 
 @starting-style {
@@ -274,24 +264,35 @@ dialog form {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.5rem;
+    gap: 1rem;
     padding: 0.5rem 1rem 1rem 1rem;
 }
 
-dialog article form input[type="submit"] {
-    margin-top: 1rem;
+dialog article .error {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    background-color: var(--main-bg-color);
 }
 
-.image-fields, .text-field {
+.image-fields, .text-field, .span-field, .span-url-field, .add-span-btn {
     display: none;
 }
 
-.content-block:is([data-type="HEADING"], [data-type="PARAGRAPH"], [data-type="BLOCKQUOTE"], [data-type="CODE"]) .text-field {
+.content-block:is([data-type="HEADING"], [data-type="BLOCKQUOTE"], [data-type="CODE"]) .text-field {
+    display: block;
+}
+
+.content-block:is([data-type="PARAGRAPH"]) .span-field, .content-block:is([data-type="PARAGRAPH"]) .add-span-btn {
     display: block;
 }
 
 .content-block:is([data-type="IMAGE"]) .image-fields  {
     display: flex;
+}
+
+.span-block:is([data-type="ANCHOR"]) .span-url-field {
+    display: block;
 }
 
 #byte-validator {
@@ -322,10 +323,14 @@ dialog article form input[type="submit"] {
     nav ul {
         padding: 0;
     }
+    .nav-item {
+        margin-bottom: -1rem;
+        padding-bottom: 1.5rem;
+    }
     #main-content {
         padding: 0 2rem 2rem 2rem;
     }
-    #main-header, #categories-container {
+    #main-header {
         justify-content: space-between;
     }
 }
@@ -371,6 +376,8 @@ dialog article form input[type="submit"] {
     .nav-item {
         border-bottom: 2px solid var(--main-bg-color);
         border-left: 1px solid var(--main-bg-color);
+        margin-bottom: 0;
+        padding-bottom: 0.5rem;
     }
     .nav-item:hover, .active {
         border-radius: 1rem 0 0 1rem;
