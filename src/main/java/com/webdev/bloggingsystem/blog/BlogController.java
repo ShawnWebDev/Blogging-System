@@ -31,6 +31,7 @@ public class BlogController {
     private void populateCreatePostModel(Model model, CreateBlogEntryDto post, boolean isEditing) {
         model.addAttribute("categoryList", blogEntryService.findAllSimpleCategories());
         model.addAttribute("blockTypes", BlockType.values());
+        model.addAttribute("spanTypes", SpanType.values());
         model.addAttribute("post", post);
         model.addAttribute("isEditing", isEditing);
         model.addAttribute("title", isEditing ? "Edit Post | Shawn Osborne" : "Create Post | Shawn Osborne");
@@ -232,14 +233,28 @@ public class BlogController {
 
     // called when adding "content block" to blog entry input form
     @HxRequest
-    @GetMapping("/postComponent/addBlock")
-    public FragmentsRendering addBlock(Model model,
+    @GetMapping("/postComponent/addContentBlock")
+    public FragmentsRendering addContentBlock(Model model,
                                        @RequestParam Integer index) {
         model.addAttribute("index", index);
         model.addAttribute("blockTypes", BlockType.values());
+        model.addAttribute("spanTypes", SpanType.values());
         model.addAttribute("block", new BlogEntryContentBlockDto());
         return FragmentsRendering
                 .fragment("components/post-components::content-block")
+                .build();
+    }
+
+    @HxRequest
+    @GetMapping("/postComponent/addSpanBlock")
+    public FragmentsRendering addSpanBlock(Model model,
+                                       @RequestParam Integer blockIndex, @RequestParam Integer spanIndex) {
+        model.addAttribute("blockIndex", blockIndex);
+        model.addAttribute("spanIndex", spanIndex);
+        model.addAttribute("spanTypes", SpanType.values());
+        model.addAttribute("span", new InlineSpanDto());
+        return FragmentsRendering
+                .fragment("components/post-components::span-block")
                 .build();
     }
 

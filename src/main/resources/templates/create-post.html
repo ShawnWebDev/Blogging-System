@@ -9,7 +9,7 @@
   <main id="main-content" th:fragment="create-post(post)">
     <h1 th:text="${isEditing ? 'Edit Post' : 'Create Post'}"></h1>
     <section id="create-post-form-container" th:attr="data-next-index=${post.contentBlocks.size()}">
-      <button th:if="${isEditing}" th:hx-get="@{/blog/post/id/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Post</button>
+      <button th:if="${isEditing}" th:hx-get="@{/blog/post/id/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Changes will be lost!" class="btn-primary">Back To Post</button>
       <button th:if="${!isEditing}" th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Blog</button>
 
       <form action="#" th:hx-post="@{${isEditing ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#create-post-form" hx-swap="outerHTML">
@@ -69,8 +69,8 @@
 
         <div>
           <div id="byte-count"></div>
-          <button type="button" id="add-block-btn"
-                  hx-get="/blog/postComponent/addBlock"
+          <button type="button" id="add-block-btn" class="btn-primary"
+                  hx-get="/blog/postComponent/addContentBlock"
                   hx-vals='js:{index: document.getElementById("create-post-form-container").dataset.nextIndex++}'
                   hx-target="#blocks-container"
                   hx-swap="beforeend">
@@ -78,12 +78,12 @@
           <!--hidden, used to trigger update of byte-count-->
           <div id="byte-validator"
                hx-post="/blog/postComponent/validateSize"
-               hx-trigger="block-removed, load, keyup from:#blocks-container changed delay:400ms"
+               hx-trigger="block-removed, load, keyup from:#blocks-container changed delay:1500ms"
                hx-target="#byte-count"
                hx-include="closest form"></div>
           <div id="error-field"></div>
         </div>
-        <input type="submit" value="Save">
+        <input type="submit" value="Save" class="btn-primary">
       </form>
     </section>
 

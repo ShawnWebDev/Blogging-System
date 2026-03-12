@@ -166,7 +166,11 @@ public class BlogEntryService {
     }
 
     public int getCurrentByteCount(List<BlogEntryContentBlockDto> contentBlocks) {
-        return mapper.writeValueAsString(sanitizeContentBlocks(contentBlocks))
+        List<BlogEntryContentBlockDto> sanitizedContentBlocks = sanitizeContentBlocks(contentBlocks);
+        logger.info("Sanitized blocks: {}",  sanitizedContentBlocks);
+        String jsonContentString = mapper.writeValueAsString(sanitizedContentBlocks);
+        logger.info("Sanitized json: {}", jsonContentString);
+        return jsonContentString
                 .getBytes(StandardCharsets.UTF_8)
                 .length;
     }
@@ -174,21 +178,57 @@ public class BlogEntryService {
     // removes 'content blocks' that are null, have a null type or have null or blank text or url field
     // they have to have heading, paragraph, or code text or a url (for image) to be valid. - to be used in create and update
     static List<BlogEntryContentBlockDto> sanitizeContentBlocks(List<BlogEntryContentBlockDto> contentBlocks) {
+        logger.info("Content blocks being sanitized: {}", contentBlocks);
         return contentBlocks.stream()
                 .filter(Objects::nonNull) // remove null index / blocks due to deleting blocks in html form
+                .peek(block -> {
+                    if (block.getType() == BlockType.PARAGRAPH) {
+                        block.setParagraphSpans(sanitizeSpans(block.getParagraphSpans()));
+                    }
+                })
                 .filter(block ->
                         (block.getType() != null) && ( // every block needs a type
                         (block.getText() != null && !block.getText().isBlank()) ||
-                        (block.getUrl() != null && !block.getUrl().isBlank())) // every block must have either text or url
+                        (!block.getParagraphSpans().isEmpty()) ||
+                        (block.getUrl() != null && !block.getUrl().isBlank())) // every block must have text, spans, or url
                 ).map(block -> {
                     // trim edge white space,
                     // need to also check for null and blank in text and url because one could still be null or blank, the filter would only remove either/or.
-                        if (block.getText() != null && !block.getText().isBlank()) block.setText(block.getText().trim());
-                        if (block.getUrl() != null && !block.getUrl().isBlank()) block.setUrl(block.getUrl().trim());
-                        if (block.getAlt() != null && !block.getAlt().isBlank()) block.setAlt(block.getAlt().trim());
-                        if (block.getCaption() != null && !block.getCaption().isBlank()) block.setCaption(block.getCaption().trim());
+                        switch (block.getType()) {
+                            case BlockType.HEADING:
+                            case BlockType.BLOCKQUOTE:
+                            case BlockType.CODE:
+                                if (block.getText() != null && !block.getText().isBlank()) block.setText(block.getText().trim());
+                                block.setParagraphSpans(null);
+                                break;
+                            case BlockType.IMAGE:
+                                if (block.getUrl() != null && !block.getUrl().isBlank()) block.setUrl(block.getUrl().trim());
+                                if (block.getAlt() != null && !block.getAlt().isBlank()) block.setAlt(block.getAlt().trim());
+                                if (block.getCaption() != null && !block.getCaption().isBlank()) block.setCaption(block.getCaption().trim());
+                                block.setParagraphSpans(null);
+                                break;
+                            case BlockType.PARAGRAPH:
+                                if (!block.getParagraphSpans().isEmpty()) {
+                                    block.getParagraphSpans().forEach(paragraphSpan -> {
+                                        if (paragraphSpan.getSpanType() == SpanType.ANCHOR && paragraphSpan.getSpanUrl() != null) {
+                                            paragraphSpan.setSpanUrl(paragraphSpan.getSpanUrl().trim());
+                                        }
+                                        if (paragraphSpan.getSpanText() != null) paragraphSpan.setSpanText(paragraphSpan.getSpanText().trim());
+                                    });
+                                }
+                        }
+
                         return block;
                 }
                 ).toList(); // unmodifiable list, it will not be changed after this, only persisted
+    }
+
+    private static List<InlineSpanDto> sanitizeSpans(List<InlineSpanDto> inlineSpans) {
+        return inlineSpans.stream()
+                .filter(Objects::nonNull)
+                .filter(span ->
+                        (span.getSpanText() != null && !span.getSpanText().isBlank()) ||
+                        (span.getSpanUrl() != null && !span.getSpanUrl().isBlank()))
+                .toList();
     }
 }

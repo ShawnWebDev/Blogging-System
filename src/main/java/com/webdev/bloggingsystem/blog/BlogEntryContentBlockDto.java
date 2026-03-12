@@ -2,10 +2,14 @@ package com.webdev.bloggingsystem.blog;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class BlogEntryContentBlockDto {
     private BlockType type;
     private String text;
+    private List<InlineSpanDto> paragraphSpans = new ArrayList<>();
     private String url;
     private String alt;
     private String caption;
@@ -23,6 +27,12 @@ public class BlogEntryContentBlockDto {
     }
     public void setText(String text) {
         this.text = text;
+    }
+    public List<InlineSpanDto> getParagraphSpans() {
+        return paragraphSpans;
+    }
+    public void setParagraphSpans(List<InlineSpanDto> paragraphSpans) {
+        this.paragraphSpans = paragraphSpans;
     }
     public String getUrl() {
         return url;
@@ -47,10 +57,11 @@ public class BlogEntryContentBlockDto {
     public String toString() {
         return "BlogEntryContentBlockDto{" +
                 "type=" + type +
-                ", text= " + text +
-                ", url= " + url +
-                ", alt= " + alt +
-                ", caption= " + caption +
+                ", text=" + text +
+                ", paragraphSpans=" + paragraphSpans +
+                ", url=" + url +
+                ", alt=" + alt +
+                ", caption=" + caption +
                 '}';
     }
 }
