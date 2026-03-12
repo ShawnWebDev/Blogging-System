@@ -128,6 +128,15 @@ public class DaoTests {
         System.out.println("result: " + categoryIds);
     }
 
+    @Test
+    public void testFindSimpleCategories() {
+        List<SimpleCategoryDto> result = categoryDao.findAllNames();
+        Assertions.assertNotNull(result);
+        SimpleCategoryDto simpleCategoryDto_1 = new SimpleCategoryDto(1, "Test Category 1");
+        SimpleCategoryDto simpleCategoryDto_2 = new SimpleCategoryDto(2, "Test Category 2");
+        SimpleCategoryDto simpleCategoryDto_3 = new SimpleCategoryDto(3, "Test Category 3");
+        Assertions.assertEquals(List.of(simpleCategoryDto_1, simpleCategoryDto_2, simpleCategoryDto_3), result);
+    }
 
     @Test
     @Transactional
@@ -149,8 +158,6 @@ public class DaoTests {
         Assertions.assertNotNull(blog);
         Assertions.assertEquals("Test title", blog.getTitle());
         System.out.println("result: " + blog);
-
-
     }
 
     @Test
@@ -182,10 +189,15 @@ public class DaoTests {
 
         blogEntry.setContent("Updated Content Here...");
         blogEntry.setTitle("Updated Title");
-
+        blogEntry.setSlug(blogEntry.getTitle());
+        int isUpdated = blogEntryDao.update(blogEntry);
+        blogEntry = blogEntryDao.findById(1).orElse(null);
+        System.out.println("result after update: " + blogEntry);
+        Assertions.assertNotNull(blogEntry);
+        // 1 == record updated
+        Assertions.assertEquals(1, isUpdated);
+        Assertions.assertEquals("Updated Title", blogEntry.getTitle());
         Assertions.assertEquals("updated-title", blogEntry.getSlug());
-        // 1 record updated..
-        Assertions.assertEquals(1, blogEntryDao.update(blogEntry));
 
         BlogEntry updatedBlogEntry = blogEntryDao.findById(1).orElse(null);
         System.out.println("result: " + updatedBlogEntry);
@@ -207,7 +219,6 @@ public class DaoTests {
 
         BlogEntry updatedBlogEntry = blogEntryDao.findById(99).orElse(null);
         Assertions.assertNull(updatedBlogEntry);
-        System.out.println("result: " + updatedBlogEntry);
     }
 
     @Test
