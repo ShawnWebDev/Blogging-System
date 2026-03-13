@@ -8,7 +8,7 @@
 
   <main id="main-content" th:fragment="create-post(post)">
     <h1 th:text="${isEditing ? 'Edit Post' : 'Create Post'}"></h1>
-    <section id="create-post-form-container" th:attr="data-next-index=${post.contentBlocks.size()}">
+    <section id="create-post-form-container">
       <button th:if="${isEditing}" th:hx-get="@{/blog/post/id/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Changes will be lost!" class="btn-primary">Back To Post</button>
       <button th:if="${!isEditing}" th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Blog</button>
 
@@ -24,11 +24,11 @@
         </label>
         <div class="form-group">
           <label>Thumbnail URL:
-            <input type="text" name="thumbnailUrl" th:value="${post.thumbnailUrl}" required/>
+            <input type="text" name="thumbnailUrl" th:value="${post.thumbnailUrl}"/>
             <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
           </label>
           <label>Thumbnail Alt:
-            <input type="text" name="thumbnailAlt" th:value="${post.thumbnailAlt}" required/>
+            <input type="text" name="thumbnailAlt" th:value="${post.thumbnailAlt}"/>
             <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
           </label>
         </div>
@@ -60,27 +60,18 @@
           </label>
         </fieldset>
 
-        <fieldset id="blocks-container">
-          <legend>Content Blocks:</legend>
-          <th:block th:each="block, iter : ${post.contentBlocks}">
-            <div th:replace="~{components/post-components::content-block(${iter.index}, ${block})}"></div>
-          </th:block>
-        </fieldset>
+        <label>Content:
+          <textarea name="content" id="post-content" th:text="${post.content}" required></textarea>
+        </label>
 
         <div>
           <div id="byte-count"></div>
-          <button type="button" id="add-block-btn" class="btn-primary"
-                  hx-get="/blog/postComponent/addContentBlock"
-                  hx-vals='js:{index: document.getElementById("create-post-form-container").dataset.nextIndex++}'
-                  hx-target="#blocks-container"
-                  hx-swap="beforeend">
-            + Add Content Block</button>
           <!--hidden, used to trigger update of byte-count-->
           <div id="byte-validator"
                hx-post="/blog/postComponent/validateSize"
-               hx-trigger="block-removed, load, keyup from:#blocks-container changed delay:1500ms"
+               hx-trigger="load, keyup from:#post-content changed delay:1500ms"
                hx-target="#byte-count"
-               hx-include="closest form"></div>
+               hx-include="#post-content"></div>
           <div id="error-field"></div>
         </div>
         <input type="submit" value="Save" class="btn-primary">
