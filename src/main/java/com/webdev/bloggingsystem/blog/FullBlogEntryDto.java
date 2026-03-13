@@ -10,5 +10,5 @@ public record FullBlogEntryDto(int id,
                                 Instant createdAt,
                                 Instant updatedAt,
                                 List<String> categories,
-                                List<BlogEntryContentBlockDto> blocks) {
+                                String contentHtml) {
 }

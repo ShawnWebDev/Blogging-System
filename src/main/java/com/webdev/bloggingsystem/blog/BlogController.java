@@ -14,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.FragmentsRendering;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Controller
@@ -30,8 +31,6 @@ public class BlogController {
 
     private void populateCreatePostModel(Model model, CreateBlogEntryDto post, boolean isEditing) {
         model.addAttribute("categoryList", blogEntryService.findAllSimpleCategories());
-        model.addAttribute("blockTypes", BlockType.values());
-        model.addAttribute("spanTypes", SpanType.values());
         model.addAttribute("post", post);
         model.addAttribute("isEditing", isEditing);
         model.addAttribute("title", isEditing ? "Edit Post | Shawn Osborne" : "Create Post | Shawn Osborne");
@@ -231,37 +230,10 @@ public class BlogController {
                 .build();
     }
 
-    // called when adding "content block" to blog entry input form
-    @HxRequest
-    @GetMapping("/postComponent/addContentBlock")
-    public FragmentsRendering addContentBlock(Model model,
-                                       @RequestParam Integer index) {
-        model.addAttribute("index", index);
-        model.addAttribute("blockTypes", BlockType.values());
-        model.addAttribute("spanTypes", SpanType.values());
-        model.addAttribute("block", new BlogEntryContentBlockDto());
-        return FragmentsRendering
-                .fragment("components/post-components::content-block")
-                .build();
-    }
-
-    @HxRequest
-    @GetMapping("/postComponent/addSpanBlock")
-    public FragmentsRendering addSpanBlock(Model model,
-                                       @RequestParam Integer blockIndex, @RequestParam Integer spanIndex) {
-        model.addAttribute("blockIndex", blockIndex);
-        model.addAttribute("spanIndex", spanIndex);
-        model.addAttribute("spanTypes", SpanType.values());
-        model.addAttribute("span", new InlineSpanDto());
-        return FragmentsRendering
-                .fragment("components/post-components::span-block")
-                .build();
-    }
-
     @HxRequest
     @PostMapping("/postComponent/validateSize")
-    public FragmentsRendering validateSize(Model model, @ModelAttribute("post") CreateBlogEntryDto post) {
-        int count = blogEntryService.getCurrentByteCount(post.getContentBlocks());
+    public FragmentsRendering validateSize(Model model, @RequestParam("content") String content) {
+        int count = content.getBytes(StandardCharsets.UTF_8).length;
         model.addAttribute("byteCount", count + " / " + BlogEntryService.MAX_BYTES);
 
         return FragmentsRendering

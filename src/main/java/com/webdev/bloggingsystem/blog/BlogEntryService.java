@@ -2,13 +2,13 @@ package com.webdev.bloggingsystem.blog;
 
 import com.webdev.bloggingsystem.errorHandling.BlogEntryException;
 
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
-import java.nio.charset.StandardCharsets;
+
 import java.util.*;
 
 @Service
@@ -18,12 +18,14 @@ public class BlogEntryService {
 
     private final BlogEntryDao blogEntryDao;
     private final CategoryDao categoryDao;
-    private final ObjectMapper mapper;
+    private final Parser markdownParser;
+    private final HtmlRenderer htmlRenderer;
 
-    public BlogEntryService(BlogEntryDao blogEntryDao, CategoryDao categoryDao, ObjectMapper objectMapper) {
+    public BlogEntryService(BlogEntryDao blogEntryDao, CategoryDao categoryDao, Parser markdownParser, HtmlRenderer htmlRenderer) {
         this.blogEntryDao = blogEntryDao;
         this.categoryDao = categoryDao;
-        this.mapper = objectMapper;
+        this.markdownParser = markdownParser;
+        this.htmlRenderer = htmlRenderer;
     }
 
     public List<SimpleBlogEntryDto> findAllSimpleBlogEntries(int pageNumber, int pageSize) {
@@ -48,21 +50,19 @@ public class BlogEntryService {
 
     @Transactional
     public int createPost(CreateBlogEntryDto dto) {
-        List<BlogEntryContentBlockDto> contentBlocks = dto.getContentBlocks();
-        if (contentBlocks.isEmpty()) {
-            throw new BlogEntryException("Content blocks are empty!");
+        String content = dto.getContent();
+        if (dto.getContent().isBlank()) {
+            throw new BlogEntryException("Content is empty!");
         }
 
-        String jsonContentString = mapper.writeValueAsString(sanitizeContentBlocks(dto.getContentBlocks()));
-        checkCurrentByteCount(jsonContentString.getBytes().length);
-        logger.info("Create post json content string: {}", jsonContentString);
+        logger.info("Create post content string: {}", content);
 
         //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set, int)
         logger.info("Content is being saved...");
         BlogEntry blogEntry = new BlogEntry(
                 dto.getTitle(),
                 dto.getDescription(),
-                jsonContentString,
+                content,
                 dto.getThumbnailUrl(),
                 dto.getThumbnailAlt()
         );
@@ -91,16 +91,15 @@ public class BlogEntryService {
 
     @Transactional
     public int updatePost(CreateBlogEntryDto dto) {
-        String jsonContentString = mapper.writeValueAsString(sanitizeContentBlocks(dto.getContentBlocks()));
-        checkCurrentByteCount(jsonContentString.getBytes().length);
-        logger.info("Update post json content string: {}", jsonContentString);
+        String content = dto.getContent();
+        logger.info("Update post content string: {}", content);
 
         logger.info("Content block is being updated...");
         int blogId = dto.getId();
         BlogEntry blogEntry = new BlogEntry(
                 dto.getTitle(),
                 dto.getDescription(),
-                jsonContentString,
+                content,
                 dto.getThumbnailUrl(),
                 dto.getThumbnailAlt()
         );
@@ -127,10 +126,13 @@ public class BlogEntryService {
         }
     }
 
+    private String renderMarkdown(String content) {
+        return htmlRenderer.render(markdownParser.parse(content));
+    }
+
     private FullBlogEntryDto buildFullBlogEntryDto(BlogEntry entry) {
-        List<BlogEntryContentBlockDto> contentBlockList = mapper.readValue(entry.getContent(), new TypeReference<>() {});
         return new FullBlogEntryDto(entry.getId(), entry.getTitle(), entry.getSlug(), entry.getDescription(),
-                entry.getCreatedAt(), entry.getUpdatedAt(), entry.getCategoryNames(), contentBlockList);
+                entry.getCreatedAt(), entry.getUpdatedAt(), entry.getCategoryNames(), this.renderMarkdown(entry.getContent()));
     }
 
     public CreateBlogEntryDto buildCreateDto(int id) {
@@ -141,10 +143,9 @@ public class BlogEntryService {
         for (int i = 0; i < categoryIdList.size(); i++) {
             categoryIds[i] = categoryIdList.get(i);
         }
-        List<BlogEntryContentBlockDto> contentBlockList = mapper.readValue(post.getContent(), new TypeReference<>() {});
 
         return new CreateBlogEntryDto(post.getId(), post.getTitle(), post.getDescription(),
-                post.getThumbnailUrl(), post.getThumbnailAlt(), categoryIds, contentBlockList);
+                post.getThumbnailUrl(), post.getThumbnailAlt(), categoryIds, post.getContent());
     }
 
     private static Set<Integer> cleanCategoryIds(int[] categoryIds) {
@@ -156,79 +157,5 @@ public class BlogEntryService {
             }
         }
         return cleanedCategoryIds;
-    }
-
-    private static void checkCurrentByteCount(int bytes) {
-        if (bytes > MAX_BYTES) {
-            logger.error("Content block exceeds maximum allowed bytes!!!");
-            throw new BlogEntryException("Content block exceeds maximum allowed bytes!!!");
-        }
-    }
-
-    public int getCurrentByteCount(List<BlogEntryContentBlockDto> contentBlocks) {
-        List<BlogEntryContentBlockDto> sanitizedContentBlocks = sanitizeContentBlocks(contentBlocks);
-        logger.info("Sanitized blocks: {}",  sanitizedContentBlocks);
-        String jsonContentString = mapper.writeValueAsString(sanitizedContentBlocks);
-        logger.info("Sanitized json: {}", jsonContentString);
-        return jsonContentString
-                .getBytes(StandardCharsets.UTF_8)
-                .length;
-    }
-
-    // removes 'content blocks' that are null, have a null type or have null or blank text or url field
-    // they have to have heading, paragraph, or code text or a url (for image) to be valid. - to be used in create and update
-    static List<BlogEntryContentBlockDto> sanitizeContentBlocks(List<BlogEntryContentBlockDto> contentBlocks) {
-        logger.info("Content blocks being sanitized: {}", contentBlocks);
-        return contentBlocks.stream()
-                .filter(Objects::nonNull) // remove null index / blocks due to deleting blocks in html form
-                .peek(block -> {
-                    if (block.getType() == BlockType.PARAGRAPH) {
-                        block.setParagraphSpans(sanitizeSpans(block.getParagraphSpans()));
-                    }
-                })
-                .filter(block ->
-                        (block.getType() != null) && ( // every block needs a type
-                        (block.getText() != null && !block.getText().isBlank()) ||
-                        (!block.getParagraphSpans().isEmpty()) ||
-                        (block.getUrl() != null && !block.getUrl().isBlank())) // every block must have text, spans, or url
-                ).map(block -> {
-                    // trim edge white space,
-                    // need to also check for null and blank in text and url because one could still be null or blank, the filter would only remove either/or.
-                        switch (block.getType()) {
-                            case BlockType.HEADING:
-                            case BlockType.BLOCKQUOTE:
-                            case BlockType.CODE:
-                                if (block.getText() != null && !block.getText().isBlank()) block.setText(block.getText().trim());
-                                block.setParagraphSpans(null);
-                                break;
-                            case BlockType.IMAGE:
-                                if (block.getUrl() != null && !block.getUrl().isBlank()) block.setUrl(block.getUrl().trim());
-                                if (block.getAlt() != null && !block.getAlt().isBlank()) block.setAlt(block.getAlt().trim());
-                                if (block.getCaption() != null && !block.getCaption().isBlank()) block.setCaption(block.getCaption().trim());
-                                block.setParagraphSpans(null);
-                                break;
-                            case BlockType.PARAGRAPH:
-                                if (!block.getParagraphSpans().isEmpty()) {
-                                    block.getParagraphSpans().forEach(paragraphSpan -> {
-                                        if (paragraphSpan.getSpanType() == SpanType.ANCHOR && paragraphSpan.getSpanUrl() != null) {
-                                            paragraphSpan.setSpanUrl(paragraphSpan.getSpanUrl().trim());
-                                        }
-                                        if (paragraphSpan.getSpanText() != null) paragraphSpan.setSpanText(paragraphSpan.getSpanText().trim());
-                                    });
-                                }
-                        }
-
-                        return block;
-                }
-                ).toList(); // unmodifiable list, it will not be changed after this, only persisted
-    }
-
-    private static List<InlineSpanDto> sanitizeSpans(List<InlineSpanDto> inlineSpans) {
-        return inlineSpans.stream()
-                .filter(Objects::nonNull)
-                .filter(span ->
-                        (span.getSpanText() != null && !span.getSpanText().isBlank()) ||
-                        (span.getSpanUrl() != null && !span.getSpanUrl().isBlank()))
-                .toList();
     }
 }
