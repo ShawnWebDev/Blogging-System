@@ -5,34 +5,35 @@ A modern blogging platform that feels like a highly interactive single-page appl
 
 ## Goals
 1. To gain more experience and deeper understanding of Hypermedia-Driven Development best practices and conventions.
-   * Utilize HTMX to swap HTML fragments dynamically to reduce latency and complexity.
+    * Utilize HTMX to swap HTML fragments dynamically to reduce latency and complexity.
 2. Optimize for Performance & SEO
-   * Eliminate the need for separate frontend build, large JavaScript bundles, and frontend state management.
-   * Better SEO with fully rendered HTML for better indexability.
-   * No CORS issues.
+    * Eliminate the need for separate frontend build, large JavaScript bundles, and frontend state management.
+    * Better SEO with fully rendered HTML for better indexability.
+    * No CORS issues.
 3. Deepen Spring Boot and Relational Data Expertise
-   * System planning, modularity, and testing strategies.
-   * Design schema with focus on normalization and performance.
+    * System planning, modularity, and testing strategies.
+    * Design schema with focus on normalization and performance.
 
 ## Requirements
 1. Tech Stack:
-   * *Backend:* Java 21+, Spring Boot 4, Spring MVC, Spring Security, Spring JDBC Client.
-   * *Templating:* SSR with Thymeleaf.
-   * *Interactivity:* HTMX & Vanilla CSS.
-   * *Database:* MariaDB.
-   * *Deployment:* AWS EC2 + S3(for DB backups in private bucket and css/image files in public bucket), Nginx(for reverse proxy & SSL with Certbot).
+    * *Backend:* Java 21+, Spring Boot 4, Spring MVC, Spring Security, Spring JDBC Client.
+    * *Templating:* SSR with Thymeleaf.
+    * *Interactivity:* HTMX & Vanilla CSS.
+    * *Database:* MariaDB.
+    * *Deployment:* AWS EC2 + S3(for DB backups in private bucket and css/image files in public bucket), Nginx(for reverse proxy & SSL with Certbot).
 2. Core Features:
-   * *CRUD operations* on Blog Posts, Post Comments, and Categories -
-     * Text Editor for Creation & Update of Blog Post & Comment content JSONs.
-     * Filter Blog posts by category.
-   * Single Page App *Feel* -
-     * Reduced full browser refreshes to get new content.
-   * *Security*
-     * Role-Based Access to differentiate between users and admin.
-     * Session based auth with CSRF.
-   * *Serialize Content into JSON blocks for storage and display in template*
-     * Jackson serialization (Java Object to JSON and back)
-3. Cache frequently accessed posts.
+    * *CRUD operations* on Blog Posts, Post Comments, and Categories -
+        * Filter Blog posts by category.
+    * Single Page App *Feel* -
+        * Reduced full browser refreshes to get new content.
+    * *Security*
+        * Role-Based Access to differentiate between users and admin.
+        * Session based auth with CSRF token required when changing state.
+    * *Content*
+        * Written in Markdown,
+        * Stored as a TEXT field in DB,
+        * Rendered to HTML with CommonMark and sent to template
+3. Caching may be handled with innodb_buffer_pool with as much memory as I can give. (Not much as the EC2 instance has 1gb) *Need to profile.
 
 ## Architecture
 Will follow a multi-tier architecture of:
@@ -43,5 +44,5 @@ Will follow a multi-tier architecture of:
 
 ### Future Scaling Considerations
 * Migrating MariaDB to its own EC2 instance.
-* AWS load balancing multiple EC2 instances for application. 
+* AWS load balancing multiple EC2 instances for application.
 * Pagination on BlogEntry/Comment lists.
