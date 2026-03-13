@@ -17,10 +17,8 @@
 
     <section id="post-container">
         <article th:each="post : ${posts}" class="post-card">
-            <header>
-                <h4>
-                    <a th:text="${post.title}" th:hx-get="@{/blog/post/id/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" class="post-selection"></a>
-                </h4>
+            <header th:hx-get="@{/blog/post/id/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">
+                <h4 th:text="${post.title}"></h4>
                 <small>@ <time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
             </header>
             <section class="post-description" th:if="${post.thumbnailUrl != null && post.thumbnailAlt != null}">
