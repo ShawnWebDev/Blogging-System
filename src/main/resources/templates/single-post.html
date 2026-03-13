@@ -8,8 +8,9 @@
 
         <main th:fragment="single-post" id="main-content">
 
-            <h1 th:text="${entry.title}"></h1>
-            <p th:text="${entry.description}"></p>
+            <h1 th:text="${entry.title}" id="entry-title"></h1>
+
+            <section th:utext="${entry.contentHtml}" id="post-content"></section>
 
             <section th:replace="~{components/post-components::admin-buttons(${entry.id})}"></section>
 
