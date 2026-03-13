@@ -1,45 +1,41 @@
 :root {
-    --main-bg-color: rgb(19, 23, 31);
-    --main-accent-color: rgb(146, 197, 25);
-    --main-accent-color-muted: rgba(146, 197, 25, 0.65);
-    --secondary-accent-color: rgb(40, 48, 64);
-    --secondary-accent-color-muted: rgba(40, 48, 64, 0.65);
+    --main-bg-color: rgb(47, 50, 51);
+    --secondary-bg-color: rgb(51, 50, 47);
+    --secondary-bg-color-muted: rgba(51, 50, 47, 0.65);
+
+    --main-accent-color: rgb(179, 144, 68);
+    --main-accent-color-muted: rgba(179, 144, 68, 0.65);
+    --secondary-accent-color: rgb(68, 142, 179);
+    --secondary-accent-color-muted: rgba(68, 142, 179, 0.65);
     --main-text-color: rgb(227, 230, 233);
-    --transparent-color-dark: rgba(40, 48, 64, 0.25);
-    --transparent-color-light: rgba(140, 148, 164, 0.25);
+
+    --transparent-color-dark: rgba(33, 33, 33, 0.5);
+    --transparent-color-light: rgba(140, 140, 140, 0.5);
     --error-color: rgb(217, 30, 30);
 }
+
 /* todo : get a css minify extension for maven */
 
 /* Layout Styles */
+
 body {
-    background-color: var(--secondary-accent-color);
+    background-color: var(--main-bg-color);
     margin: 0;
 }
 
 #template {
-    background-color: var(--main-bg-color);
     color: var(--main-text-color);
-    min-height: 100vh;
 }
+
 #main-header {
+    background-color: var(--main-bg-color);
     padding: 0.5rem 0.5rem 0 0.5rem;
 }
 
-#posts, #main-content {
-    opacity: 1;
-    scale: 1;
-    transition: all 200ms ease-in;
-}
-
-#posts.htmx-added, #posts.htmx-swapping,
-#main-content.htmx-added {
-    opacity: 0;
-    scale: 0.95;
-}
-
 #main-content {
-    padding: 0 0.5rem 2rem 0.5rem;
+    background-color: var(--secondary-bg-color);
+    padding: 0 0.5rem 0.5rem 0.5rem;
+    min-height: calc(100vh - 6rem);
 }
 
 #main-header h2 {
@@ -47,12 +43,18 @@ body {
     padding: 0;
 }
 
+#main-content h1 {
+    margin: 0;
+    padding: 2rem 0 1rem 0;
+    font-size: 1.75rem;
+}
+
 #main-header {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    border-bottom: 2px solid var(--main-accent-color-muted);
-    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--main-accent-color);
+    margin: 0;
 }
 
 #main-header section {
@@ -73,10 +75,13 @@ nav ul, ul.group {
     background-color: var(--main-bg-color);
     padding: 0.5rem 0;
     font-size: 1rem;
-    transition: all 250ms ease-in-out;
     display: flex;
     justify-content: space-between;
     gap: 0.75rem;
+    border-top: 2px solid var(--main-bg-color);
+    border-left: 1px solid var(--main-bg-color);
+    border-right: 1px solid var(--main-bg-color);
+    transition: all 250ms ease-in-out;
 }
 
 .nav-item > svg {
@@ -85,8 +90,11 @@ nav ul, ul.group {
 
 .nav-item:hover, .active {
     background-color: var(--secondary-accent-color-muted);
-    border-radius: 0.25rem;
-    padding: 0.5rem 0.5rem;
+    border-radius: 0.25rem 0.25rem 0 0;
+    border-top: 2px solid var(--main-accent-color);
+    border-left: 1px solid var(--main-accent-color-muted);
+    border-right: 1px solid var(--main-accent-color-muted);
+    padding: 0.5rem;
     margin: 0 -0.5rem;
     fill: #fff;
     color: #fff;
@@ -100,6 +108,18 @@ button, a, input[type = submit] {
     font-size: 0.9rem;
     cursor: pointer;
     border-radius: 0.25rem;
+}
+
+#posts, #main-content {
+    opacity: 1;
+    scale: 1;
+    transition: all 200ms ease-in;
+}
+
+#posts.htmx-added, #posts.htmx-swapping,
+#main-content.htmx-added {
+    opacity: 0;
+    scale: 0.95;
 }
 
 #categories-modal > article {
@@ -124,11 +144,6 @@ button, a, input[type = submit] {
     padding: 1rem;
 }
 
-#posts header .anchor-link {
-    width: 100%;
-    text-align: right;
-}
-
 #post-container {
     display: flex;
     flex-direction: column;
@@ -136,13 +151,23 @@ button, a, input[type = submit] {
     margin-top: 1rem;
 }
 
-#post-container header {
+#post-container > .post-card header {
     display: flex;
+    flex-wrap: wrap;
+    column-gap: 1rem;
     justify-content: space-between;
     margin-bottom: 1rem;
-    background-color: var(--secondary-accent-color-muted);
+    background-color: var(--transparent-color-dark);
     border-radius: 0.25rem 0.25rem 0 0;
     padding: 0.5rem 1rem;
+    border-bottom: 2px solid var(--main-bg-color);
+    user-select: none;
+    cursor: pointer;
+    transition: border 250ms ease-in-out;
+}
+
+#post-container > .post-card header:hover {
+    border-bottom: 2px solid var(--secondary-accent-color);
 }
 
 #post-container header h4 {
@@ -154,7 +179,7 @@ button, a, input[type = submit] {
 }
 
 .post-card {
-    background-color: var(--secondary-accent-color-muted);
+    background-color: var(--main-bg-color);
     border-radius: 0.25rem;
 }
 
@@ -165,39 +190,28 @@ button, a, input[type = submit] {
 .post-card footer {
     display: flex;
     padding: 0 1rem 0.25rem 1rem;
-    background-color: var(--secondary-accent-color-muted);
-}
-
-.post-selection, .anchor-link {
-    text-decoration: underline 2px solid var(--main-text-color);
-    color: var(--main-text-color);
-    transition: all 250ms ease-in-out;
-}
-
-.post-selection:hover, .anchor-link:hover  {
-    text-decoration: underline 2px solid var(--main-accent-color);
-    color: #fff;
-}
-.post-selection {
-    font-size: 1.25rem;
-}
-.anchor-link {
-    font-size: 1rem;
+    background-color: var(--transparent-color-dark);
+    border-radius: 0 0 0.25rem 0.25rem;
 }
 
 .btn-primary {
-    background-color: var(--transparent-color-light);
-    border: 2px solid var(--transparent-color-light);
+    background-color: var(--transparent-color-dark);
+    border: 1px solid var(--main-accent-color-muted);
     color: var(--main-text-color);
     cursor: pointer;
     transition: all 250ms ease-in-out;
-    padding: 0.25rem 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
 }
 
 .btn-primary:hover, .active-category {
-    background-color: var(--secondary-accent-color-muted);
-    border: 2px solid var(--main-accent-color-muted);
-    color: #ffffff;
+    background-color: var(--transparent-color-light);
+    border: 1px solid var(--main-accent-color);
+    color: #fff;
+}
+
+#post-content a {
+    color: var(--main-text-color);
 }
 
 #error-section {
@@ -210,6 +224,14 @@ button, a, input[type = submit] {
 }
 
 /* FORM STYLES */
+#post-content-input {
+    width: 100%;
+    max-width: 100%;
+    height: 40vh;
+    box-sizing: border-box;
+    background-color: var(--transparent-color-dark);
+    color: var(--main-text-color);
+}
 .close-btn {
     width: 1.5rem;
     height: 1.5rem;
@@ -217,6 +239,10 @@ button, a, input[type = submit] {
     align-items: center;
     justify-content: center;
     font-weight: 700;
+}
+
+dialog {
+    transition: opacity 250ms ease-in-out;
 }
 
 dialog[open] {
@@ -236,12 +262,12 @@ dialog[open] > article {
     top: 15vh;
     display: flex;
     flex-direction: column;
-    background-color: var(--secondary-accent-color);
-    border: 2px solid var(--transparent-color-light);
+    background-color: var(--main-bg-color);
     border-radius: 0.25rem;
     color: var(--main-text-color);
     opacity: 1;
     transition: opacity 250ms ease-in-out;
+    border: 1px solid var(--transparent-color-light);
 }
 
 dialog article header {
@@ -251,11 +277,11 @@ dialog article header {
     padding: 0.25rem;
     background-color: var(--main-bg-color);
     border-radius: 0.25rem 0.25rem 0 0;
-    border-bottom: 2px solid var(--main-accent-color-muted);
+    border-bottom: 1px solid var(--transparent-color-light);
 }
 
 @starting-style {
-    dialog[open] article {
+    dialog, dialog[open] article {
         opacity: 0;
     }
 }
@@ -273,26 +299,6 @@ dialog article .error {
     box-sizing: border-box;
     text-align: center;
     background-color: var(--main-bg-color);
-}
-
-.image-fields, .text-field, .span-field, .span-url-field, .add-span-btn {
-    display: none;
-}
-
-.content-block:is([data-type="HEADING"], [data-type="BLOCKQUOTE"], [data-type="CODE"]) .text-field {
-    display: block;
-}
-
-.content-block:is([data-type="PARAGRAPH"]) .span-field, .content-block:is([data-type="PARAGRAPH"]) .add-span-btn {
-    display: block;
-}
-
-.content-block:is([data-type="IMAGE"]) .image-fields  {
-    display: flex;
-}
-
-.span-block:is([data-type="ANCHOR"]) .span-url-field {
-    display: block;
 }
 
 #byte-validator {
@@ -318,20 +324,24 @@ dialog article .error {
     #main-header {
         flex-direction: row;
         align-items: center;
-        padding: 1rem 2rem;
+        justify-content: space-between;
+        padding: 1rem 2rem 0 2rem;
+    }
+    #main-header h2 {
+        width: fit-content; !important;
     }
     nav ul {
         padding: 0;
+        margin-bottom: 0;
     }
     .nav-item {
-        margin-bottom: -1rem;
-        padding-bottom: 1.5rem;
+        margin-bottom: 0;
     }
     #main-content {
         padding: 0 2rem 2rem 2rem;
     }
-    #main-header {
-        justify-content: space-between;
+    .post-card header h4 {
+        font-size: 1.15rem;
     }
 }
 
@@ -339,20 +349,25 @@ dialog article .error {
 @media (min-width: 1024px) {
     #template {
         display: flex;
-        gap: 5vw;
     }
     #main-header {
-        border-right: 2px solid var(--main-accent-color-muted);
+        border-right: 2px solid var(--main-accent-color);
         border-bottom: none;
         height: 100vh;
         position: sticky;
         top: 0;
-        padding: 0 1rem 0 1rem;
+        padding: 0 0 0 calc(0.5rem + 2vw);
         max-width: 15rem;
         overflow-y: scroll;
     }
     #main-header, #main-header section {
         display: block;
+    }
+    #main-content h1 {
+        font-size: 2rem;
+    }
+    #main-header h2 {
+        width: 100%;
     }
     #main-header, #main-header h2, #main-header h3, #main-header h4 {
         margin: 0;
@@ -366,28 +381,29 @@ dialog article .error {
         gap: 0.5rem;
     }
     #main-header nav ul li, .nav-item {
-        width: 100%;
         text-align: left;
     }
     #main-content {
-        padding: 0 2rem 2rem 0;
+        margin: 0 calc(0.5rem + 2vw) 0 0;
         width: 100%;
+        border-right: 2px solid var(--main-accent-color);
     }
     .nav-item {
         border-bottom: 2px solid var(--main-bg-color);
         border-left: 1px solid var(--main-bg-color);
+        border-top: 1px solid var(--main-bg-color);
         margin-bottom: 0;
         padding-bottom: 0.5rem;
     }
     .nav-item:hover, .active {
         border-radius: 1rem 0 0 1rem;
         padding-left: 1rem;
-        margin: 0 calc(-0.45rem - 1px);
+        margin: 0;
+        border-bottom: 2px solid var(--main-accent-color);
+        border-left: 1px solid var(--main-accent-color);
+        border-top: 1px solid var(--main-accent-color);
     }
-    .active {
-        border-bottom: 2px solid var(--main-accent-color-muted);
-        border-left: 1px solid var(--main-accent-color-muted);
-    }
+
     .nav-item svg {
         width: 0;
         opacity: 0;
@@ -398,15 +414,27 @@ dialog article .error {
     }
 }
 
-/* 1360 and up */
-@media (min-width: 1360px) {
-    #template {
-        gap: calc(2rem + 5vw);
-        margin: auto;
-        max-width: calc(75rem + 10vw);
-        padding: 0 2rem;
+/* 1360 - 1920 */
+@media (min-width: 1361px) {
+    #main-content {
+        padding: 0 5vw 2rem 5vw;
+        width: 100%;
+        margin-right: 10vw
     }
     #main-header {
-        padding: 0 1rem 0 2rem;
+        padding: 0 0 0 10vw;
+    }
+}
+@media (min-width: 1920px) {
+    #template {
+        gap: 0;
+        margin: auto;
+    }
+    #main-content {
+        padding: 0 5vw 2rem 5vw;
+        margin-right: 15vw
+    }
+    #main-header {
+        padding: 0 0 0 15vw;
     }
 }
