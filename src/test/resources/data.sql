@@ -15,11 +15,11 @@ VALUES
 
 INSERT INTO `blog_entries` (title, description, content, slug, thumbnail_url, thumbnail_alt)
 VALUES
-    ('Test Post 1', 'Test Description 1','[{"text":"Test Post 1 - TestAdmin content is here.", "type":"PARAGRAPH"}]', 'test-post-1', 'url', 'alt'),
-    ('Test Post 2', 'Test Description 2','[{"text":"Test Post 2 - TestAdmin content is here.", "type":"PARAGRAPH"}]', 'test-post-2', 'url', 'alt'),
-    ('Test Post 3', 'Test Description 3', '[{"text":"Test Post 3 - TestAdmin content is here.", "type":"PARAGRAPH"}]',  'test-post-3', 'url', 'alt'),
-    ('Test Post 4', 'Test Description 4', '[{"text":"Test Post 4 - TestAdmin content is here.", "type":"PARAGRAPH"}]',  'test-post-4', 'url', 'alt'),
-    ('Test Post 5', 'Test Description 5', '[{"text":"Test Post 5 - TestAdmin content is here.", "type":"PARAGRAPH"}]', 'test-post-5', 'url', 'alt');
+    ('Test Post 1', 'Test Description 1','##Test Post 1\n\nTestAdmin content is here.', 'test-post-1', 'url', 'alt'),
+    ('Test Post 2', 'Test Description 2','##Test Post 2\n\nTestAdmin content is here.', 'test-post-2', 'url', 'alt'),
+    ('Test Post 3', 'Test Description 3', '##Test Post 3\n\nTestAdmin content is here.',  'test-post-3', 'url', 'alt'),
+    ('Test Post 4', 'Test Description 4', '##Test Post 4\n\nTestAdmin content is here.',  'test-post-4', 'url', 'alt'),
+    ('Test Post 5', 'Test Description 5', '##Test Post 5\n\nTestAdmin content is here.', 'test-post-5', 'url', 'alt');
 
 INSERT INTO `posts_categories` (post_id, category_id)
 VALUES
