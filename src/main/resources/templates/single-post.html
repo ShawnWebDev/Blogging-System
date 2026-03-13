@@ -9,6 +9,7 @@
         <main th:fragment="single-post" id="main-content">
 
             <h1 th:text="${entry.title}" id="entry-title"></h1>
+            <button th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Blog</button>
 
             <section th:utext="${entry.contentHtml}" id="post-content"></section>
 
