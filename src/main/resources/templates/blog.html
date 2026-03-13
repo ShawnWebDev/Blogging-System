@@ -1,34 +1,27 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/htmx.min.js" defer></script>
-    <link rel="stylesheet" href="/main.css">
-    <title>Blog</title>
-</head>
+<head th:replace="~{components/shared-head}"></head>
 
 <body>
+    <div id="template">
+        <header th:replace="~{components/header-components :: full-header}"></header>
 
-    <header th:replace="~{components/header-components :: full-header}"></header>
+        <main th:fragment="blog-main" id="main-content">
+            <h1>Blog</h1>
 
-    <main th:fragment="blog-main" id="main-content">
-        <section id="categories">
-            <header>
-                <h3>Filter Posts By Category:</h3>
-            </header>
-            <div id="categories-container">
-                <button class="category-selection"
-                         th:each="category : ${categories}"
-                         th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.categoryName}, categoryDesc=${category.description})}"
-                         hx-target="#posts"
-                         hx-swap="outerHTML swap:200ms"
-                         th:text="${category.categoryName}">
-                </button>
-            </div>
-        </section>
-        <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
-    </main>
+            <section id="categories" th:replace="~{components/blog-components::categories}"></section>
+
+            <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
+
+            <section>
+                <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button}"></div>
+                <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
+                <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
+            </section>
+
+            <div id="error-field"></div>
+        </main>
+    </div>
 
 </body>
 </html>

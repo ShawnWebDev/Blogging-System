@@ -1,30 +1,50 @@
 package com.webdev.bloggingsystem.blog;
 
-
 import com.webdev.bloggingsystem.errorHandling.MaxBytes;
 import com.webdev.bloggingsystem.errorHandling.UniqueTitle;
+import jakarta.validation.constraints.NotBlank;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
+@UniqueTitle
 public class CreateBlogEntryDto {
-    @UniqueTitle
+    private Integer id;
+    @NotBlank
     @MaxBytes(value = 255)
     private String title;
+    @NotBlank
     @MaxBytes(value = 500)
     private String description;
+    @NotBlank
     @MaxBytes(value = 255)
     private String thumbnailUrl;
+    @NotBlank
     @MaxBytes(value = 255)
     private String thumbnailAlt;
+    @NotBlank
+    @MaxBytes(value = 65535)
+    private String content;
 
     private int[] categoryIds = new int[4];
 
-    private List<BlogEntryContentBlockDto> contentBlocks = new ArrayList<>();
-
     public CreateBlogEntryDto() {}
 
+    public CreateBlogEntryDto(Integer id, String title, String description, String thumbnailUrl, String thumbnailAlt, int[] categoryIds, String content) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.thumbnailUrl = thumbnailUrl;
+        this.thumbnailAlt = thumbnailAlt;
+        this.categoryIds = categoryIds;
+        this.content = content;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+    public void setId(Integer id) {
+        this.id = id;
+    }
     public String getTitle() {
         return title;
     }
@@ -55,11 +75,11 @@ public class CreateBlogEntryDto {
     public void setCategoryIds(int[] categories) {
         this.categoryIds = categories;
     }
-    public List<BlogEntryContentBlockDto> getContentBlocks() {
-        return contentBlocks;
+    public String getContent() {
+        return content;
     }
-    public void setContentBlocks(List<BlogEntryContentBlockDto> contentBlocks) {
-        this.contentBlocks = contentBlocks;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     @Override
@@ -70,7 +90,7 @@ public class CreateBlogEntryDto {
                 ", thumbnailUrl= " + thumbnailUrl +
                 ", thumbnailAlt= " + thumbnailAlt +
                 ", categories= " + Arrays.toString(categoryIds) +
-                ", contentBlocks= " + contentBlocks +
+                ", content " + content +
                 '}';
     }
 }

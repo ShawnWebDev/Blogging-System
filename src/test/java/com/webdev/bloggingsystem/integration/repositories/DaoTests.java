@@ -1,12 +1,9 @@
 package com.webdev.bloggingsystem.integration.repositories;
 
+import com.webdev.bloggingsystem.blog.*;
 import com.webdev.bloggingsystem.user.AppUser;
-import com.webdev.bloggingsystem.blog.BlogEntry;
 import com.webdev.bloggingsystem.user.AuthorDto;
-import com.webdev.bloggingsystem.blog.SimpleBlogEntryDto;
 import com.webdev.bloggingsystem.user.AppUserDao;
-import com.webdev.bloggingsystem.blog.BlogEntryDao;
-import com.webdev.bloggingsystem.blog.CategoryDao;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,6 +12,7 @@ import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.junit.jupiter.Container;
@@ -37,6 +35,8 @@ public class DaoTests {
     private BlogEntryDao blogEntryDao;
     @Autowired
     private CategoryDao categoryDao;
+    @Autowired
+    private JdbcClient jdbc;
 
     @Container
     @ServiceConnection
@@ -119,36 +119,58 @@ public class DaoTests {
     }
 
     @Test
+    public void testFindCategoryIdsInNames() {
+        List<String> categoryNames = List.of("Test Category 1", "Test Category 2");
+        List<Integer> categoryIds = categoryDao.findAllIdsInNames(categoryNames);
+        Assertions.assertEquals(categoryIds.size(), categoryNames.size());
+        Assertions.assertEquals(List.of(1, 2), categoryIds);
+
+        System.out.println("result: " + categoryIds);
+    }
+
+    @Test
+    public void testFindSimpleCategories() {
+        List<SimpleCategoryDto> result = categoryDao.findAllNames();
+        Assertions.assertNotNull(result);
+        SimpleCategoryDto simpleCategoryDto_1 = new SimpleCategoryDto(1, "Test Category 1");
+        SimpleCategoryDto simpleCategoryDto_2 = new SimpleCategoryDto(2, "Test Category 2");
+        SimpleCategoryDto simpleCategoryDto_3 = new SimpleCategoryDto(3, "Test Category 3");
+        Assertions.assertEquals(List.of(simpleCategoryDto_1, simpleCategoryDto_2, simpleCategoryDto_3), result);
+    }
+
+    @Test
     @Transactional
     public void insertBlogEntryWithCategories() {
-        BlogEntry blogEntry = BlogEntry.createBlogEntry(
+        BlogEntry blogEntry = new BlogEntry(
             "Test title",
             "Test Description",
             "Test Content",
-                "",
-                ""
+                "url",
+                "alt"
         );
-
+        blogEntry.setSlug(blogEntry.getTitle());
         int postId = blogEntryDao.insert(blogEntry);
+        System.out.println("postId: " + postId);
+        int insertedCategories = categoryDao.batchInsertJoins(Set.of(1, 2, 3), postId);
+        Assertions.assertEquals(3, insertedCategories);
+
         BlogEntry blog = blogEntryDao.findById(postId).orElse(null);
         Assertions.assertNotNull(blog);
         Assertions.assertEquals("Test title", blog.getTitle());
         System.out.println("result: " + blog);
-
-        int insertedCategories = categoryDao.batchInsertJoins(Set.of(1, 2, 3), postId);
-        Assertions.assertEquals(3, insertedCategories);
     }
 
     @Test
     @Transactional
     public void insertBlogEntryWithNonExistentCategories() {
-        BlogEntry blogEntry = BlogEntry.createBlogEntry(
+        BlogEntry blogEntry = new BlogEntry(
                 "Test title",
                 "Test Description",
                 "Test Content",
-                "",
-                ""
+                "url",
+                "alt"
         );
+        blogEntry.setSlug(blogEntry.getTitle());
         Set<Integer> set = Set.of(10, 20, 30);
 
         int postId = blogEntryDao.insert(blogEntry);
@@ -161,15 +183,21 @@ public class DaoTests {
     @Transactional
     public void testUpdateBlogEntry() {
         BlogEntry blogEntry = blogEntryDao.findById(1).orElse(null);
+        System.out.println("result: " + blogEntry);
         Assertions.assertNotNull(blogEntry);
         System.out.println("slug before title update: " + blogEntry.getSlug());
 
         blogEntry.setContent("Updated Content Here...");
         blogEntry.setTitle("Updated Title");
-
+        blogEntry.setSlug(blogEntry.getTitle());
+        int isUpdated = blogEntryDao.update(blogEntry);
+        blogEntry = blogEntryDao.findById(1).orElse(null);
+        System.out.println("result after update: " + blogEntry);
+        Assertions.assertNotNull(blogEntry);
+        // 1 == record updated
+        Assertions.assertEquals(1, isUpdated);
+        Assertions.assertEquals("Updated Title", blogEntry.getTitle());
         Assertions.assertEquals("updated-title", blogEntry.getSlug());
-
-        Assertions.assertEquals(1, blogEntryDao.update(blogEntry));
 
         BlogEntry updatedBlogEntry = blogEntryDao.findById(1).orElse(null);
         System.out.println("result: " + updatedBlogEntry);
@@ -178,19 +206,19 @@ public class DaoTests {
     @Test
     @Transactional
     public void testUpdateNonExistentBlogEntry() {
-        BlogEntry blogEntry = BlogEntry.createBlogEntry(
+        BlogEntry blogEntry = new BlogEntry(
                 "Fake title",
                 "Fake Description",
                 "Fake Content",
-                "",
-                ""
+                "url",
+                "alt"
         );
         blogEntry.setId(99);
+        blogEntry.setSlug(blogEntry.getTitle());
         Assertions.assertEquals(0, blogEntryDao.update(blogEntry));
 
         BlogEntry updatedBlogEntry = blogEntryDao.findById(99).orElse(null);
         Assertions.assertNull(updatedBlogEntry);
-        System.out.println("result: " + updatedBlogEntry);
     }
 
     @Test
@@ -204,7 +232,47 @@ public class DaoTests {
 
         blogEntry = blogEntryDao.findById(1).orElse(null);
         Assertions.assertNull(blogEntry);
+
+        //Ensure category joins are cascade deleted..
+        List<Category> categoriesWIthId = jdbc.sql("SELECT * FROM posts_categories WHERE post_id = 1").query(Category.class).list();
+        Assertions.assertEquals(0, categoriesWIthId.size());
     }
+
+    @Test
+    @Transactional
+    public void testDeleteNonExistentBlogEntry() {
+        int deleted = blogEntryDao.deleteById(99);
+        Assertions.assertEquals(0, deleted);
+
+        BlogEntry blogEntry = blogEntryDao.findById(99).orElse(null);
+        Assertions.assertNull(blogEntry);
+
+        //Ensure category joins are cascade deleted..
+        List<Category> categoriesWIthId = jdbc.sql("SELECT * FROM posts_categories WHERE post_id = 99").query(Category.class).list();
+        Assertions.assertEquals(0, categoriesWIthId.size());
+    }
+
+    @Test
+    public void testExistsByTitleAndNotIdUpdate() {
+        // update case : id passed in.
+        boolean exists = blogEntryDao.existsByTitleAndNotId("Test Post 1", 1);
+        Assertions.assertFalse(exists);
+    }
+
+    @Test
+    public void testExistsByTitleAndNotIdTrue() {
+        // create case : duplicate title, id is null.
+        boolean exists = blogEntryDao.existsByTitleAndNotId("Test Post 1", null);
+        Assertions.assertTrue(exists);
+    }
+
+    @Test
+    public void testExistsByTitleAndNotIdFalse() {
+        // create case : unique title, id is null.
+        boolean exists = blogEntryDao.existsByTitleAndNotId("Test Post 99", null);
+        Assertions.assertFalse(exists);
+    }
+
 
 
 

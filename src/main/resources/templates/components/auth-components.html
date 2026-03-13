@@ -8,41 +8,46 @@
 
 <body>
 
-<div th:fragment="logout-form" class="login-container">
-    <form id="logout-form">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-    </form>
-    <button hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML" hx-include="#logout-form input">Logout</button>
-    <button sec:authorize="hasAuthority('ADMIN')" hx-get="/blog/createPost" hx-target="#main-content" hx-swap="innerHTML" class="btn-primary">
-        Create Post
-    </button>
-</div>
+    <div th:fragment="logout-button" class="login-container">
+        <h4>Logged in as <span sec:authentication="name"></span>.</h4>
+        <button hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML" class="btn-primary">Logout</button>
+        <button sec:authorize="hasAuthority('ADMIN')" hx-get="/blog/post/createPost" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">
+            Create Post
+        </button>
+    </div>
 
-<div th:fragment="login-form" class="login-container">
-    <button onclick="getElementById('login-modal').showModal()" class="btn-primary">Login</button>
-    <dialog id="login-modal" th:open="${loginError}">
-        <article>
-            <header>
-                <strong>Please sign in to comment.</strong>
-                <button aria-label="Close" onclick="getElementById('login-modal').close()" class="close-btn">X</button>
-            </header>
-            <form hx-post="/login" hx-target=".login-container" hx-swap="outerHTML" method="post">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <label>
-                    Username:
-                    <input type="text" name="username" placeholder="Username" required th:aria-invalid="${loginError}"/>
-                </label>
-                <label>
-                    Password:
-                    <input type="password" name="password" placeholder="Password" required th:aria-invalid="${loginError}"/>
-                </label>
-                <small th:if="${loginError}" class="error">Invalid username or password.</small>
-                <small th:if="${logout}">You have logged out.</small>
-                <input type="submit" value="Sign In"/>
-            </form>
-        </article>
+    <div th:fragment="login-button" class="login-container">
+        <p>Please log in to comment.</p>
+        <button onclick="openDialog('login-modal')" class="btn-primary">Login</button>
+        <small th:if="${param.logout != null}" th:text="${logout}"></small>
+    </div>
+
+    <dialog th:fragment="login-dialog" id="login-modal" th:open="${loginError}">
+        <article th:replace="~{components/auth-components::login-article}"></article>
     </dialog>
-</div>
+
+    <article th:fragment="login-article" id="login-article">
+        <header>
+            <span>Login</span>
+            <button aria-label="Close" onclick="closeDialog('login-modal')" class="close-btn btn-primary">X</button>
+        </header>
+        <form hx-post="/login" hx-target=".login-container" hx-swap="outerHTML" method="post" hx-on::after-request="if(event.detail.successful) closeDialog('login-modal')">
+            <label>
+                Username:
+                <input type="text" name="username" placeholder="Username" required th:aria-invalid="${loginError}"/>
+            </label>
+            <label>
+                Password:
+                <input type="password" name="password" placeholder="Password" required th:aria-invalid="${loginError}"/>
+            </label>
+            <input type="submit" value="Sign In" class="btn-primary"/>
+        </form>
+        <small th:if="${loginError}" class="error">Invalid username or password.</small>
+    </article>
+
+    <span th:fragment="csrf-token" id="csrf-token" th:data-token="${_csrf.token}" th:data-header="${_csrf.headerName}"></span>
+
+    <span th:fragment="csrf-token-oob" id="csrf-token" th:data-token="${_csrf.token}" th:data-header="${_csrf.headerName}" hx-swap-oob="true"></span>
 
 </body>
 </html>

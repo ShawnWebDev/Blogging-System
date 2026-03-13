@@ -10,17 +10,18 @@
 <section th:fragment="all-posts" id="posts">
     <header>
         <h3 th:text="${categoryName + ' Posts'}"></h3>
-        <small th:if="${categoryDesc != null}" th:text="${categoryDesc}"></small>
-        <a th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms">Back to all posts</a>
+        <p th:text="${categoryDesc}"></p>
+        <button onclick="openDialog('categories-modal')" class="btn-primary">Filter by category</button>
+        <button th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="btn-primary" hx-on:click="removeActiveCategories()">Back to all posts</button>
     </header>
 
     <section id="post-container">
-        <article th:each="post : ${posts}" class="post-card" th:hx-get="@{/blog/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">
-            <header>
-                <h5 th:text="${post.title}"></h5>
+        <article th:each="post : ${posts}" class="post-card">
+            <header th:hx-get="@{/blog/post/id/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">
+                <h4 th:text="${post.title}"></h4>
                 <small>@ <time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
             </header>
-            <section class="post-description">
+            <section class="post-description" th:if="${post.thumbnailUrl != null && post.thumbnailAlt != null}">
                 <img th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}"/>
                 <p th:text="${post.description}"></p>
             </section>
@@ -33,6 +34,39 @@
             </footer>
         </article>
     </section>
+</section>
+
+<section th:fragment="categories" id="categories">
+    <dialog id="categories-modal">
+        <article>
+            <header>
+                <span>Filter by a category:</span>
+                <button aria-label="Close" onclick="closeDialog('categories-modal')" class="close-btn btn-primary">X</button>
+            </header>
+        <div id="categories-container">
+            <button class="category-selection btn-primary"
+                    th:each="category : ${categories}"
+                    th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.categoryName})}"
+                    hx-target="#posts"
+                    hx-swap="outerHTML swap:200ms"
+                    onclick="closeDialog('categories-modal')"
+                    th:text="${category.categoryName}">
+            </button>
+        </div>
+        </article>
+    </dialog>
+    <script>
+        function removeActiveCategories() {
+            document.querySelectorAll('.category-selection').forEach(el => el.classList.remove('active-category'));
+        }
+        document.getElementById('categories-container').addEventListener('click', function (e) {
+            const target = e.target.closest('.category-selection');
+            if (target) {
+                removeActiveCategories();
+                target.classList.add('active-category');
+            }
+        });
+    </script>
 </section>
 
 </body>

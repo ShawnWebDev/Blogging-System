@@ -1,10 +1,12 @@
 package com.webdev.bloggingsystem.errorHandling;
 
 import com.webdev.bloggingsystem.blog.BlogEntryDao;
+import com.webdev.bloggingsystem.blog.CreateBlogEntryDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class UniqueTitleValidator implements ConstraintValidator<UniqueTitle, String> {
+public class UniqueTitleValidator implements ConstraintValidator<UniqueTitle, CreateBlogEntryDto> {
+    private Integer id;
     private String message;
     private final BlogEntryDao blogEntryDao;
 
@@ -18,10 +20,11 @@ public class UniqueTitleValidator implements ConstraintValidator<UniqueTitle, St
     }
 
     @Override
-    public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        if (blogEntryDao.existsByTitle(s)) {
+    public boolean isValid(CreateBlogEntryDto dto, ConstraintValidatorContext constraintValidatorContext) {
+        if (blogEntryDao.existsByTitleAndNotId(dto.getTitle(), dto.getId())) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate(this.message)
+                    .addPropertyNode("title")
                     .addConstraintViolation();
             return false;
         }

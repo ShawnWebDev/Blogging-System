@@ -1,25 +1,34 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/htmx.min.js" defer></script>
-    <link rel="stylesheet" href="/main.css">
-    <title>Blog</title>
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{components/shared-head}"></head>
+
 <body>
+    <div id="template">
+        <header th:replace="~{components/header-components :: full-header}"></header>
 
-    <header th:replace="~{components/header-components :: full-header}"></header>
+        <main th:fragment="single-post" id="main-content">
 
-    <main th:fragment="single-post" id="main-content">
+            <h1 th:text="${entry.title}" id="entry-title"></h1>
+            <button th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Blog</button>
 
-        <section>
-            <p>Single Post Page..</p>
-        </section>
+            <section th:utext="${entry.contentHtml}" id="post-content"></section>
+
+            <section th:replace="~{components/post-components::admin-buttons(${entry.id})}"></section>
+
+            <!-- todo: needs comments section component-->
+            <section>
+                <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button}"></div>
+                <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
+                <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
+            </section>
+
+            <div id="error-field"></div>
+        </main>
 
 
-        <!-- todo: needs comments section component-->
-    </main>
+
+
+</div>
 
 </body>
 </html>
