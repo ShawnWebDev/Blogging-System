@@ -23,16 +23,17 @@ A modern blogging platform that feels like a highly interactive single-page appl
    * *Deployment:* AWS EC2 + S3(for DB backups in private bucket and css/image files in public bucket), Nginx(for reverse proxy & SSL with Certbot).
 2. Core Features:
    * *CRUD operations* on Blog Posts, Post Comments, and Categories -
-     * Text Editor for Creation & Update of Blog Post & Comment content JSONs.
      * Filter Blog posts by category.
    * Single Page App *Feel* -
      * Reduced full browser refreshes to get new content.
    * *Security*
      * Role-Based Access to differentiate between users and admin.
-     * Session based auth with CSRF.
-   * *Serialize Content into JSON blocks for storage and display in template*
-     * Jackson serialization (Java Object to JSON and back)
-3. Cache frequently accessed posts.
+     * Session based auth with CSRF token required when changing state.
+   * *Content*
+     * Written in Markdown, 
+     * Stored as a TEXT field in DB,
+     * Rendered to HTML with CommonMark and sent to template
+3. Caching may be handled with innodb_buffer_pool with as much memory as I can give. (Not much as the EC2 instance has 1gb) *Need to profile.
 
 ## Architecture
 Will follow a multi-tier architecture of:
