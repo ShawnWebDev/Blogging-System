@@ -11,7 +11,7 @@
     <div th:fragment="logout-button" class="login-container">
         <h4>Logged in as <span sec:authentication="name"></span>.</h4>
         <button hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML" class="btn-primary">Logout</button>
-        <button sec:authorize="hasAuthority('ADMIN')" hx-get="/blog/post/createPost" hx-target="#main-content" hx-swap="innerHTML" class="btn-primary">
+        <button sec:authorize="hasAuthority('ADMIN')" hx-get="/blog/post/createPost" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">
             Create Post
         </button>
     </div>
