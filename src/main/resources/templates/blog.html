@@ -3,25 +3,23 @@
 <head th:replace="~{components/shared-head}"></head>
 
 <body>
-    <div id="template">
-        <header th:replace="~{components/header-components :: full-header}"></header>
+    <header th:replace="~{components/header-components :: full-header}"></header>
 
-        <main th:fragment="blog-main" id="main-content">
-            <h1>Blog</h1>
+    <main th:fragment="blog-main" id="main-content">
+        <h1>Blog</h1>
 
-            <section id="categories" th:replace="~{components/blog-components::categories}"></section>
+        <section th:replace="~{components/blog-components::categories}" id="categories"></section>
 
-            <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
+        <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
 
-            <section>
-                <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button}"></div>
-                <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
-                <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
-            </section>
+        <section id="auth-section">
+            <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button}"></div>
+            <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
+            <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
+        </section>
 
-            <div id="error-field"></div>
-        </main>
-    </div>
+        <div id="error-field"></div>
+    </main>
 
 </body>
 </html>
