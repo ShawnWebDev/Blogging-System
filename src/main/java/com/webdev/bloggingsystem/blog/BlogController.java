@@ -51,18 +51,13 @@ public class BlogController {
     // called when requesting main blog dashboard
     @GetMapping
     public FragmentsRendering blog(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest,
-                        @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
-                        @RequestParam(required = false) String logout) {
+                        @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
 
         // will need count to show how many pages are available when I implement that part.
         // int count = blogEntryDao.count();
         populateBlogDashboardModel(model, "All", "");
         model.addAttribute("posts", blogEntryService.findAllSimpleBlogEntries(pageNumber, PAGE_SIZE));
         model.addAttribute("categories", blogEntryService.findAllCategories());
-
-        if (logout != null) {
-            model.addAttribute("logout", "You have logged out.");
-        }
 
         if (!htmxRequest.isHtmxRequest()) {
             // for refresh or direct to /blog, contains heading fragment with nav, css/js, and blog-main fragment with all-posts
@@ -83,6 +78,17 @@ public class BlogController {
                 .build();
     }
 
+    @HxRequest
+    @GetMapping("/blogComponent/posts/inProgress")
+    public FragmentsRendering inProgress(Model model) {
+        populateBlogDashboardModel(model, "In Progress", "");
+        model.addAttribute("posts", blogEntryService.findAllSimpleBlogEntriesInProgress());
+
+        return FragmentsRendering
+                .fragment("components/blog-components::all-posts")
+                .build();
+    }
+
     // called when filtering posts by category in main blog dashboard
     @HxRequest
     @GetMapping("/blogComponent/posts")
@@ -97,7 +103,7 @@ public class BlogController {
             filteredBlogEntries = blogEntryService.findAllSimpleBlogEntries(pageNumber, PAGE_SIZE);
             categoryDescription = "";
         } else {
-            filteredBlogEntries = blogEntryService.findAllSimpleBlogEntriesFiltered(categoryName, pageNumber, PAGE_SIZE);
+            filteredBlogEntries = blogEntryService.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, PAGE_SIZE);
             categoryDescription = blogEntryService.findCategoryDescriptionByName(categoryName);
         }
 

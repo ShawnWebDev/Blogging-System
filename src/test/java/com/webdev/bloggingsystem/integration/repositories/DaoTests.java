@@ -149,6 +149,7 @@ public class DaoTests {
                 "alt"
         );
         blogEntry.setSlug(blogEntry.getTitle());
+        blogEntry.setInProgress(false);
         int postId = blogEntryDao.insert(blogEntry);
         System.out.println("postId: " + postId);
         int insertedCategories = categoryDao.batchInsertJoins(Set.of(1, 2, 3), postId);
@@ -171,12 +172,17 @@ public class DaoTests {
                 "alt"
         );
         blogEntry.setSlug(blogEntry.getTitle());
+        blogEntry.setInProgress(false);
         Set<Integer> set = Set.of(10, 20, 30);
 
         int postId = blogEntryDao.insert(blogEntry);
-        Assertions.assertEquals(6, postId);
+        Assertions.assertEquals(7, postId);
 
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> categoryDao.batchInsertJoins(set, postId));
+
+        //check if transaction rolled back
+        blogEntry = blogEntryDao.findById(postId).orElse(null);
+        Assertions.assertNull(blogEntry);
     }
 
     @Test

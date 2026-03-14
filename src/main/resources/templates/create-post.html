@@ -3,7 +3,6 @@
 <head th:replace="~{components/shared-head}"></head>
 
 <body>
-<div id="template">
   <header th:replace="~{components/header-components :: full-header}"></header>
 
   <main id="main-content" th:fragment="create-post(post)">
@@ -14,51 +13,71 @@
 
       <form action="#" th:hx-post="@{${isEditing ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#create-post-form" hx-swap="outerHTML">
         <input type="hidden" th:if="${isEditing}" name="id" th:value="${post.id}"/>
-        <label>Title:
-          <input type="text" name="title" th:value="${post.title}" required/>
-          <small th:errors="${post.title}" th:text="${#fields.errors('post.title')}" class="error"></small>
-        </label>
-        <label>Description:
-          <textarea name="description" th:text="${post.description}" required></textarea>
-          <small th:errors="${post.description}" th:text="${#fields.errors('post.description')}" class="error"></small>
-        </label>
-        <div class="form-group">
-          <label>Thumbnail URL:
-            <input type="text" name="thumbnailUrl" th:value="${post.thumbnailUrl}" required/>
-            <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
+        <fieldset class="form-group">
+          <label>Title:
+            <input type="text" name="title" th:value="${post.title}" required/>
+            <small th:errors="${post.title}" th:text="${#fields.errors('post.title')}" class="error"></small>
           </label>
-          <label>Thumbnail Alt:
-            <input type="text" name="thumbnailAlt" th:value="${post.thumbnailAlt}" required/>
-            <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
+          <label>Description:
+            <textarea name="description" id="description-input" th:text="${post.description}" required></textarea>
+            <small th:errors="${post.description}" th:text="${#fields.errors('post.description')}" class="error"></small>
           </label>
-        </div>
+        </fieldset>
+
+        <fieldset class="form-group">
+          <legend>Thumbnail Details:</legend>
+          <div>
+            <label>Thumbnail URL:
+              <input type="text" name="thumbnailUrl" th:value="${post.thumbnailUrl}" required/>
+              <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
+            </label>
+          </div>
+          <div>
+            <label>Thumbnail Alt:
+              <input type="text" name="thumbnailAlt" th:value="${post.thumbnailAlt}" required/>
+              <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
+            </label>
+          </div>
+        </fieldset>
 
         <fieldset class="form-group">
           <legend>Categories:</legend>
-          <label>Category 1:
-            <select name="categoryIds[0]">
-              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[0] == category.id}"></option>
-            </select>
-          </label>
-          <label>Category 2:
-            <select name="categoryIds[1]">
-              <option value="0" th:selected="${post.categoryIds[1] == 0}">None</option>
-              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[1] == category.id}"></option>
-            </select>
-          </label>
-          <label>Category 3:
-            <select name="categoryIds[2]">
-              <option value="0" th:selected="${post.categoryIds[2] == 0}">None</option>
-              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[2] == category.id}"></option>
-            </select>
-          </label>
-          <label>Category 4:
-            <select name="categoryIds[3]">
-              <option value="0" th:selected="${post.categoryIds[3] == 0}">None</option>
-              <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[3] == category.id}"></option>
-            </select>
-          </label>
+          <div>
+            <label>Category 1:
+              <select name="categoryIds[0]">
+                <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[0] == category.id}"></option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>Category 2:
+              <select name="categoryIds[1]">
+                <option value="0" th:selected="${post.categoryIds[1] == 0}">None</option>
+                <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[1] == category.id}"></option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>Category 3:
+              <select name="categoryIds[2]">
+                <option value="0" th:selected="${post.categoryIds[2] == 0}">None</option>
+                <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[2] == category.id}"></option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>Category 4:
+              <select name="categoryIds[3]">
+                <option value="0" th:selected="${post.categoryIds[3] == 0}">None</option>
+                <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[3] == category.id}"></option>
+              </select>
+            </label>
+          </div>
         </fieldset>
+
+        <label>In Progress?:
+          <input type="checkbox" name="inProgress" th:checked="${post.inProgress}"/>
+        </label>
 
         <label>Content:
           <textarea name="content" id="post-content-input" th:text="${post.content}" required></textarea>
@@ -69,9 +88,10 @@
           <!--hidden, used to trigger update of byte-count-->
           <div id="byte-validator"
                hx-post="/blog/postComponent/validateSize"
-               hx-trigger="load, keyup from:#post-content changed delay:1500ms"
+               hx-trigger="load, keyup from:#post-content-input changed delay:1500ms"
                hx-target="#byte-count"
                hx-include="#post-content"></div>
+
           <div id="error-field"></div>
         </div>
         <input type="submit" value="Save" class="btn-primary">
@@ -81,7 +101,5 @@
     <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
   </main>
 
-
-</div>
 </body>
 </html>

@@ -13,13 +13,14 @@ VALUES
     ('Test Category 2', 'Just a test category 2.'),
     ('Test Category 3', 'Just a test category 3.');
 
-INSERT INTO `blog_entries` (title, description, content, slug, thumbnail_url, thumbnail_alt)
+INSERT INTO `blog_entries` (title, description, content, slug, thumbnail_url, thumbnail_alt, in_progress)
 VALUES
-    ('Test Post 1', 'Test Description 1','##Test Post 1\n\nTestAdmin content is here.', 'test-post-1', 'url', 'alt'),
-    ('Test Post 2', 'Test Description 2','##Test Post 2\n\nTestAdmin content is here.', 'test-post-2', 'url', 'alt'),
-    ('Test Post 3', 'Test Description 3', '##Test Post 3\n\nTestAdmin content is here.',  'test-post-3', 'url', 'alt'),
-    ('Test Post 4', 'Test Description 4', '##Test Post 4\n\nTestAdmin content is here.',  'test-post-4', 'url', 'alt'),
-    ('Test Post 5', 'Test Description 5', '##Test Post 5\n\nTestAdmin content is here.', 'test-post-5', 'url', 'alt');
+    ('Test Post 1', 'Test Description 1','##Test Post 1\n\nTestAdmin content is here.', 'test-post-1', 'url', 'alt', 0),
+    ('Test Post 2', 'Test Description 2','##Test Post 2\n\nTestAdmin content is here.', 'test-post-2', 'url', 'alt', 0),
+    ('Test Post 3', 'Test Description 3', '##Test Post 3\n\nTestAdmin content is here.',  'test-post-3', 'url', 'alt', 0),
+    ('Test Post 4', 'Test Description 4', '##Test Post 4\n\nTestAdmin content is here.',  'test-post-4', 'url', 'alt', 0),
+    ('Test Post 5', 'Test Description 5', '##Test Post 5\n\nTestAdmin content is here.', 'test-post-5', 'url', 'alt', 0),
+    ('Test Post 6', 'Test Description 6', '##Test Post 5\n\nTestAdmin content is here, unfinished...', 'test-post-6', 'url', 'alt', 1);
 
 INSERT INTO `posts_categories` (post_id, category_id)
 VALUES
@@ -31,7 +32,9 @@ VALUES
     (3,2),
     (3,3),
     (4,3),
-    (5,1);
+    (5,1),
+    (6, 1),
+    (6, 3);
 
 INSERT INTO `comments` (content, created_at, updated_at, parent_comment_id, author_id, post_id)
 VALUES

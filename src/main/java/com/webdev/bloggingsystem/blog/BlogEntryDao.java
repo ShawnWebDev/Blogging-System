@@ -24,21 +24,22 @@ public class BlogEntryDao {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbc.sql(
-                "INSERT INTO blog_entries (content, title, description, slug, thumbnail_url, thumbnail_alt) " +
-                "VALUES (:content, :title, :description, :slug, :thumbnail_url, :thumbnail_alt)")
+                "INSERT INTO blog_entries (content, title, description, slug, thumbnail_url, thumbnail_alt, in_progress) " +
+                "VALUES (:content, :title, :description, :slug, :thumbnail_url, :thumbnail_alt, :in_progress)")
                     .param("content", blogEntry.getContent())
                     .param("title", blogEntry.getTitle())
                     .param("slug", blogEntry.getSlug())
                     .param("description", blogEntry.getDescription())
                     .param("thumbnail_url", blogEntry.getThumbnailUrl())
                     .param("thumbnail_alt", blogEntry.getThumbnailAlt())
+                    .param("in_progress", blogEntry.getInProgress())
                     .update(keyHolder);
 
         return keyHolder.getKey().intValue();
     }
 
     public Optional<BlogEntry> findById(int id) {
-        return jdbc.sql("SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt, " +
+        return jdbc.sql("SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt, b.in_progress, " +
                         "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                                 "FROM blog_entries b " +
                                 "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
@@ -51,7 +52,7 @@ public class BlogEntryDao {
     }
 
     public Optional<BlogEntry> findBySlug(String slug) {
-        return jdbc.sql("SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt," +
+        return jdbc.sql("SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt, b.in_progress, " +
                         "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                         "FROM blog_entries b " +
                         "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
@@ -92,6 +93,7 @@ public class BlogEntryDao {
                 "FROM blog_entries b " +
                 "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
                 "LEFT JOIN categories c ON c.id = pc.category_id " +
+                "WHERE NOT b.in_progress " +
                 "GROUP BY b.id " +
                 "ORDER BY b.id " +
                 "LIMIT :pageSize OFFSET :offset")
@@ -114,7 +116,7 @@ public class BlogEntryDao {
                 "WHERE b.id IN (" +
                     "SELECT pc_sub.post_id FROM posts_categories pc_sub " +
                     "JOIN categories c_sub ON c_sub.id = pc_sub.category_id " +
-                    "WHERE c_sub.category_name = :categoryName) " +
+                    "WHERE c_sub.category_name = :categoryName) AND NOT b.in_progress " +
                 "GROUP BY b.id " +
                 "ORDER BY b.id " +
                 "LIMIT :pageSize OFFSET :offset")
@@ -125,10 +127,24 @@ public class BlogEntryDao {
                     .list();
     }
 
+    public List<SimpleBlogEntryDto> findAllSimpleInProgress () {
+        return jdbc.sql(
+                        "SELECT b.id, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt, " +
+                                "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
+                                "FROM blog_entries b " +
+                                "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
+                                "LEFT JOIN categories c ON c.id = pc.category_id " +
+                                "WHERE b.in_progress " +
+                                "GROUP BY b.id " +
+                                "ORDER BY b.id")
+                .query((rs, _) -> simpleBlogEntryExtractor(rs))
+                .list();
+    }
+
     public int update(BlogEntry blogEntry) {
         return jdbc.sql(
                 "UPDATE blog_entries " +
-                "SET title = :title, description = :description, content = :content, slug = :slug, thumbnail_url = :thumbnailUrl, thumbnail_alt = :thumbnailAlt " +
+                "SET title = :title, description = :description, content = :content, slug = :slug, thumbnail_url = :thumbnailUrl, thumbnail_alt = :thumbnailAlt, in_progress = :in_progress " +
                 "WHERE id = :id")
                     .param("id", blogEntry.getId())
                     .param("title", blogEntry.getTitle())
@@ -137,6 +153,7 @@ public class BlogEntryDao {
                     .param("slug", blogEntry.getSlug())
                     .param("thumbnailUrl", blogEntry.getThumbnailUrl())
                     .param("thumbnailAlt", blogEntry.getThumbnailAlt())
+                    .param("in_progress", blogEntry.getInProgress())
                     .update();
     }
 
@@ -160,7 +177,7 @@ public class BlogEntryDao {
     }
 
     private static BlogEntry singleBlogEntryExtractor(ResultSet rs) throws SQLException {
-        if (rs.wasNull()) return null;
+        if (rs.wasNull() || rs.getString("category_list") == null) return null;
 
         return new BlogEntry(
                 rs.getInt("id"),
@@ -172,7 +189,8 @@ public class BlogEntryDao {
                 rs.getString("slug"),
                 List.of(rs.getString("category_list").split(",")),
                 rs.getString("thumbnail_url"),
-                rs.getString("thumbnail_alt")
+                rs.getString("thumbnail_alt"),
+                rs.getBoolean("in_progress")
         );
     }
 }

@@ -25,11 +25,12 @@ public class CreateBlogEntryDto {
     @MaxBytes(value = 65535)
     private String content;
 
+    private boolean inProgress;
     private int[] categoryIds = new int[4];
 
     public CreateBlogEntryDto() {}
 
-    public CreateBlogEntryDto(Integer id, String title, String description, String thumbnailUrl, String thumbnailAlt, int[] categoryIds, String content) {
+    public CreateBlogEntryDto(Integer id, String title, String description, String thumbnailUrl, String thumbnailAlt, int[] categoryIds, String content, boolean inProgress) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -37,6 +38,7 @@ public class CreateBlogEntryDto {
         this.thumbnailAlt = thumbnailAlt;
         this.categoryIds = categoryIds;
         this.content = content;
+        this.inProgress = inProgress;
     }
 
     public Integer getId() {
@@ -81,6 +83,12 @@ public class CreateBlogEntryDto {
     public void setContent(String content) {
         this.content = content;
     }
+    public boolean getInProgress() {
+        return inProgress;
+    }
+    public void setInProgress(boolean inProgress) {
+        this.inProgress = inProgress;
+    }
 
     @Override
     public String toString() {
@@ -91,6 +99,7 @@ public class CreateBlogEntryDto {
                 ", thumbnailAlt= " + thumbnailAlt +
                 ", categories= " + Arrays.toString(categoryIds) +
                 ", content " + content +
+                ", inProgress= " + inProgress +
                 '}';
     }
 }

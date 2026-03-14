@@ -6,6 +6,9 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +35,11 @@ public class BlogEntryService {
         return blogEntryDao.findAllSimple(pageNumber, pageSize);
     }
 
-    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesFiltered(String categoryName, int pageNumber, int pageSize) {
+    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesInProgress() {
+        return blogEntryDao.findAllSimpleInProgress();
+    }
+
+    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesToCategoryName(String categoryName, int pageNumber, int pageSize) {
         return blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, pageSize);
     }
 
@@ -50,61 +57,66 @@ public class BlogEntryService {
 
     @Transactional
     public int createPost(CreateBlogEntryDto dto) {
-        String content = dto.getContent();
-        if (dto.getContent().isBlank()) {
-            throw new BlogEntryException("Content is empty!");
-        }
-
-        logger.info("Create post content string: {}", content);
-
-        //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set, int)
+        //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set<ids>, id)
         logger.info("Content is being saved...");
         BlogEntry blogEntry = new BlogEntry(
                 dto.getTitle(),
                 dto.getDescription(),
-                content,
+                dto.getContent(),
                 dto.getThumbnailUrl(),
                 dto.getThumbnailAlt()
         );
         blogEntry.setSlug(dto.getTitle());
+        blogEntry.setInProgress(dto.getInProgress());
+
         int blogId = blogEntryDao.insert(blogEntry);
         //remove 0 values from categoryIds array.
         Set<Integer> cleanedCategoryIds = cleanCategoryIds(dto.getCategoryIds());
+        logger.info("Saving category relations... ");
+        categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
 
-        int updatedJoinAmt = categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
-        logger.info("Updated join amt has been saved. Rows created: {}", updatedJoinAmt);
-        // return slug for location to direct after submit.
+        // return id for location redirect after submit.
         return blogId;
     }
 
     public FullBlogEntryDto readPostById(int id) {
         BlogEntry entry = blogEntryDao.findById(id)
                 .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
+        if (entry.getInProgress() && isNotAdmin()) {
+            throw new BlogEntryException("Entry is in progress and cannot be read!");
+        }
         return this.buildFullBlogEntryDto(entry);
     }
 
     public FullBlogEntryDto readPostBySlug(String slug) {
         BlogEntry entry = blogEntryDao.findBySlug(slug)
                 .orElseThrow(() -> new BlogEntryException("Entry not found: " + slug));
+        if (entry.getInProgress() && isNotAdmin()) {
+            throw new BlogEntryException("Entry is in progress and cannot be read!");
+        }
         return this.buildFullBlogEntryDto(entry);
+    }
+
+    private static boolean isNotAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication == null ||
+                !authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"));
     }
 
     @Transactional
     public int updatePost(CreateBlogEntryDto dto) {
-        String content = dto.getContent();
-        logger.info("Update post content string: {}", content);
-
         logger.info("Content block is being updated...");
         int blogId = dto.getId();
         BlogEntry blogEntry = new BlogEntry(
                 dto.getTitle(),
                 dto.getDescription(),
-                content,
+                dto.getContent(),
                 dto.getThumbnailUrl(),
                 dto.getThumbnailAlt()
         );
         blogEntry.setId(blogId);
         blogEntry.setSlug(dto.getTitle());
+        blogEntry.setInProgress(dto.getInProgress());
         int isUpdated = blogEntryDao.update(blogEntry);
         if (isUpdated == 0) {
             throw new BlogEntryException("Entry NOT updated with id: " + blogId);
@@ -113,7 +125,7 @@ public class BlogEntryService {
         //remove 0 values from categoryIds array.
         Set<Integer> cleanedCategoryIds = cleanCategoryIds(dto.getCategoryIds());
 
-        logger.info("Saving category relations... ");
+        logger.info("Updating category relations... ");
         categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
         return blogEntry.getId();
     }
@@ -145,7 +157,7 @@ public class BlogEntryService {
         }
 
         return new CreateBlogEntryDto(post.getId(), post.getTitle(), post.getDescription(),
-                post.getThumbnailUrl(), post.getThumbnailAlt(), categoryIds, post.getContent());
+                post.getThumbnailUrl(), post.getThumbnailAlt(), categoryIds, post.getContent(), post.getInProgress());
     }
 
     private static Set<Integer> cleanCategoryIds(int[] categoryIds) {

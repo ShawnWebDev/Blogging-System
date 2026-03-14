@@ -10,10 +10,13 @@
 
     <div th:fragment="logout-button" class="login-container">
         <h4>Logged in as <span sec:authentication="name"></span>.</h4>
+        <div sec:authorize="hasAuthority('ADMIN')">
+            <button hx-get="/blog/post/createPost" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">
+                Create Post</button>
+            <button id="in-progress-btn" hx-get="/blog/blogComponent/posts/inProgress" hx-target="#posts" hx-swap="outerHTML" class="btn-primary">
+                Get In Progress</button>
+        </div>
         <button hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML" class="btn-primary">Logout</button>
-        <button sec:authorize="hasAuthority('ADMIN')" hx-get="/blog/post/createPost" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">
-            Create Post
-        </button>
     </div>
 
     <div th:fragment="login-button" class="login-container">
@@ -21,6 +24,7 @@
         <button onclick="openDialog('login-modal')" class="btn-primary">Login</button>
         <small th:if="${param.logout != null}" th:text="${logout}"></small>
     </div>
+
 
     <dialog th:fragment="login-dialog" id="login-modal" th:open="${loginError}">
         <article th:replace="~{components/auth-components::login-article}"></article>
