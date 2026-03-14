@@ -20,11 +20,8 @@
 
 body {
     background-color: var(--main-bg-color);
-    margin: 0;
-}
-
-#template {
     color: var(--main-text-color);
+    margin: 0;
 }
 
 #main-header {
@@ -110,14 +107,17 @@ button, a, input[type = submit] {
     border-radius: 0.25rem;
 }
 
-#posts, #main-content {
+#posts, #main-content > * {
     opacity: 1;
     scale: 1;
     transition: all 200ms ease-in;
 }
 
-#posts.htmx-added, #posts.htmx-swapping,
-#main-content.htmx-added {
+#main-content.htmx-added > * {
+    opacity: 0;
+}
+
+#posts.htmx-added, #posts.htmx-swapping {
     opacity: 0;
     scale: 0.95;
 }
@@ -206,7 +206,7 @@ button, a, input[type = submit] {
 
 .btn-primary:hover, .active-category {
     background-color: var(--transparent-color-light);
-    border: 1px solid var(--main-accent-color);
+    border: 1px solid var(--secondary-accent-color);
     color: #fff;
 }
 
@@ -224,13 +224,29 @@ button, a, input[type = submit] {
 }
 
 /* FORM STYLES */
+#create-post-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
 #post-content-input {
-    width: 100%;
-    max-width: 100%;
     height: 40vh;
-    box-sizing: border-box;
     background-color: var(--transparent-color-dark);
     color: var(--main-text-color);
+}
+input[type="text"],
+input[type="url"],
+textarea {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 10rem;
+    padding: 0.5rem;
+}
+.form-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 1rem;
 }
 .close-btn {
     width: 1.5rem;
@@ -347,7 +363,7 @@ dialog article .error {
 
 /* 1024 - 1359 */
 @media (min-width: 1024px) {
-    #template {
+    body {
         display: flex;
     }
     #main-header {
@@ -426,7 +442,7 @@ dialog article .error {
     }
 }
 @media (min-width: 1920px) {
-    #template {
+    body {
         gap: 0;
         margin: auto;
     }
