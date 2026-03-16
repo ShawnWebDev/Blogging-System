@@ -1,7 +1,7 @@
 # Full-Stack Blogging System (SSR + HTMX)
 
 ## Overview
-A modern blogging platform that feels like a highly interactive single-page application, using server-side rendering and Hypermedia without a heavy JavaScript front-end.
+A modern blogging platform that feels like a highly interactive single-page application, using server-side rendering and Hypermedia without the need for two separate code bases as HTMX is written in the template/HTML declaratively .
 
 ## Goals
 1. To gain more experience and deeper understanding of Hypermedia-Driven Development best practices and conventions.
@@ -45,4 +45,4 @@ Will follow a multi-tier architecture of:
 ### Future Scaling Considerations
 * Migrating MariaDB to its own EC2 instance.
 * AWS load balancing multiple EC2 instances for application.
-* Pagination on BlogEntry/Comment lists.
+* Pagination on BlogEntry/Comment lists. (Already configured, just need available in UI once I get enough posts/comments to use it.)
