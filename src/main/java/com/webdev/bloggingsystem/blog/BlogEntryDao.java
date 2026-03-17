@@ -88,7 +88,7 @@ public class BlogEntryDao {
     public List<SimpleBlogEntryDto> findAllSimple(int pageNumber, int pageSize) {
         int offset = (pageNumber - 1) * pageSize;
         return jdbc.sql(
-                "SELECT b.id, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt, " +
+                "SELECT b.id, b.slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt, " +
                     "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                 "FROM blog_entries b " +
                 "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
@@ -108,7 +108,7 @@ public class BlogEntryDao {
         // first, the subquery limits selection to only post_ids that have relation to specified category_name.
         // second, columns are selected and joined to a concatenated string of all grouped category_names related to those post_ids.
         return jdbc.sql(
-                "SELECT b.id, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt, " +
+                "SELECT b.id, b.slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt, " +
                     "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                 "FROM blog_entries b " +
                 "JOIN posts_categories pc ON pc.post_id = b.id " +
@@ -129,7 +129,7 @@ public class BlogEntryDao {
 
     public List<SimpleBlogEntryDto> findAllSimpleInProgress () {
         return jdbc.sql(
-                        "SELECT b.id, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt, " +
+                        "SELECT b.id,b. slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt, " +
                                 "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                                 "FROM blog_entries b " +
                                 "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
@@ -167,6 +167,7 @@ public class BlogEntryDao {
     private static SimpleBlogEntryDto simpleBlogEntryExtractor(ResultSet rs) throws SQLException {
         return new SimpleBlogEntryDto(
                 rs.getInt("id"),
+                rs.getString("slug"),
                 rs.getString("title"),
                 rs.getString("description"),
                 rs.getTimestamp("created_at").toInstant(),
