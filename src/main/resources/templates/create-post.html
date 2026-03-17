@@ -13,16 +13,19 @@
 
       <form action="#" th:hx-post="@{${isEditing ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#create-post-form" hx-swap="outerHTML">
         <input type="hidden" th:if="${isEditing}" name="id" th:value="${post.id}"/>
-        <fieldset class="form-group">
-          <label>Title:
-            <input type="text" name="title" th:value="${post.title}" required/>
-            <small th:errors="${post.title}" th:text="${#fields.errors('post.title')}" class="error"></small>
-          </label>
-          <label>Description:
-            <textarea name="description" id="description-input" th:text="${post.description}" required></textarea>
-            <small th:errors="${post.description}" th:text="${#fields.errors('post.description')}" class="error"></small>
-          </label>
-        </fieldset>
+
+        <label>In Progress?:
+          <input type="checkbox" name="inProgress" th:checked="${post.inProgress}"/>
+        </label>
+
+        <label>Title:
+          <input type="text" name="title" th:value="${post.title}" required/>
+          <small th:errors="${post.title}" th:text="${#fields.errors('post.title')}" class="error"></small>
+        </label>
+        <label>Description:
+          <textarea name="description" id="description-input" th:text="${post.description}" required></textarea>
+          <small th:errors="${post.description}" th:text="${#fields.errors('post.description')}" class="error"></small>
+        </label>
 
         <fieldset class="form-group">
           <legend>Thumbnail Details:</legend>
@@ -75,11 +78,7 @@
           </div>
         </fieldset>
 
-        <label>In Progress?:
-          <input type="checkbox" name="inProgress" th:checked="${post.inProgress}"/>
-        </label>
-
-        <label>Content:
+        <label>Content: <br><a href="https://commonmark.org/help/" target="_blank" rel="noopener noreferrer">Markdown Reference</a>
           <textarea name="content" id="post-content-input" th:text="${post.content}" required></textarea>
         </label>
 
