@@ -131,6 +131,10 @@ a:hover {
     color: var(--accent-color);
 }
 
+#main-greeting {
+    display: block;
+}
+
 #posts, #main-content {
     opacity: 1;
     scale: 1;
@@ -447,9 +451,21 @@ dialog article .error {
     #main-content {
         padding: 1.25rem calc(0.5rem + 2vw);
     }
-
+    #main-greeting {
+        display: none;
+    }
     #main-header, #main-header section {
         display: block;
+    }
+    #head-greeting {
+        display: flex !important;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    #head-greeting p {
+        margin: 0;
+        padding: 0 0.5rem 0 0;
+        font-size: 0.9rem;
     }
     #main-content h1 {
         font-size: 2rem;
