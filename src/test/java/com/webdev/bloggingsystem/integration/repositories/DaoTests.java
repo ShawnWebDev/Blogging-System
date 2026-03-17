@@ -113,7 +113,6 @@ public class DaoTests {
         Assertions.assertNotNull(result);
         Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals(3, result.getFirst().categories().size());
 
         System.out.println("result: " + result);
     }

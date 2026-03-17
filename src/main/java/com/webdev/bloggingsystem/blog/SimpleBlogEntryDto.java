@@ -9,7 +9,6 @@ public record SimpleBlogEntryDto(
         String title,
         String description,
         Instant createdAt,
-        List<String> categories,
         String thumbnailUrl,
         String thumbnailAlt) {
 }
