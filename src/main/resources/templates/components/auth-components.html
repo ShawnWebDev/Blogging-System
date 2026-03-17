@@ -26,16 +26,16 @@
     </div>
 
 
-    <dialog th:fragment="login-dialog" id="login-modal" th:open="${loginError}">
+    <dialog th:fragment="login-dialog" id="login-modal" th:open="${loginError}" aria-labelledby="login-dialog-title" tabindex="-1">
         <article th:replace="~{components/auth-components::login-article}"></article>
     </dialog>
 
     <article th:fragment="login-article" id="login-article">
         <header>
-            <span>Login</span>
+            <span id="login-dialog-title">Login</span>
             <button aria-label="Close" onclick="closeDialog('login-modal')" class="close-btn btn-primary">X</button>
         </header>
-        <form hx-post="/login" hx-target=".login-container" hx-swap="outerHTML" method="post" hx-on::after-request="if(event.detail.successful) closeDialog('login-modal')">
+        <form role="form" aria-label="Login form" hx-post="/login" hx-target=".login-container" hx-swap="outerHTML" method="post" hx-on::after-request="if(event.detail.successful) closeDialog('login-modal')">
             <label>
                 Username:
                 <input type="text" name="username" placeholder="Username" required th:aria-invalid="${loginError}"/>
