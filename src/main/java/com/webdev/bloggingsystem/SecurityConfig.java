@@ -33,10 +33,9 @@ public class SecurityConfig {
                                 "/blog/post/editPost/{id}",
                                 "/blog/post/deletePost/{id}",
                                 "/blog/postComponent/adminButtons",
-                                "/blog/postComponent/addBlock",
                                 "/blog/postComponent/validateSize")
                         .hasAuthority("ADMIN")
-                        .anyRequest().permitAll() // todo : create explicit matchers.
+                        .anyRequest().permitAll() // todo : create all explicit matchers.
                 )
                 .formLogin(form -> form
                         .loginPage("/blog")
