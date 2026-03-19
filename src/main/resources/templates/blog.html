@@ -14,7 +14,7 @@
             <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
 
             <section id="auth-section">
-                <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button}"></div>
+                <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button-blog}"></div>
                 <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
                 <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
             </section>

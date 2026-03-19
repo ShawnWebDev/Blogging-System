@@ -8,7 +8,7 @@
 
 <body>
 
-    <div th:fragment="logout-button" class="login-container">
+    <div th:fragment="logout-button-blog" id="login-container">
         <h4>Logged in as <span sec:authentication="name"></span>.</h4>
         <div sec:authorize="hasAuthority('ADMIN')" id="admin-btns">
             <button hx-get="/blog/post/createPost" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">
@@ -16,10 +16,15 @@
             <button id="in-progress-btn" hx-get="/blog/blogComponent/posts/inProgress" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="btn-primary">
                 Get In Progress</button>
         </div>
-        <button hx-post="/logout" hx-target=".login-container" hx-swap="outerHTML" class="btn-primary">Logout</button>
+        <button hx-post="/logout" hx-target="#login-container" hx-swap="outerHTML" class="btn-primary">Logout</button>
     </div>
 
-    <div th:fragment="login-button" class="login-container">
+    <div th:fragment="logout-button-post" id="login-container">
+        <h4>Logged in as <span sec:authentication="name"></span>.</h4>
+        <button hx-post="/logout" hx-target="#login-container" hx-swap="outerHTML" class="btn-primary">Logout</button>
+    </div>
+
+    <div th:fragment="login-button" id="login-container">
         <p>Please log in to comment.</p>
         <button onclick="openDialog('login-modal')" class="btn-primary">Login</button>
         <small th:if="${param.logout != null}" th:text="${logout}"></small>
@@ -35,7 +40,7 @@
             <span id="login-dialog-title">Login</span>
             <button aria-label="Close" onclick="closeDialog('login-modal')" class="close-btn btn-primary">X</button>
         </header>
-        <form role="form" aria-label="Login form" hx-post="/login" hx-target=".login-container" hx-swap="outerHTML" method="post" hx-on::after-request="if(event.detail.successful) closeDialog('login-modal')">
+        <form role="form" aria-label="Login form" hx-post="/login" hx-target="#login-container" hx-swap="outerHTML" method="post" hx-on::after-request="if(event.detail.successful) closeDialog('login-modal')">
             <label>
                 Username:
                 <input type="text" name="username" placeholder="Username" required th:aria-invalid="${loginError}"/>

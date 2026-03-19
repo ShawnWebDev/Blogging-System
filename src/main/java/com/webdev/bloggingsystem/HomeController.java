@@ -1,11 +1,12 @@
 package com.webdev.bloggingsystem;
 
-import com.webdev.bloggingsystem.blog.BlogEntryDao;
+import com.webdev.bloggingsystem.blog.BlogEntryService;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxTrigger;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,10 +17,10 @@ import org.springframework.web.servlet.view.FragmentsRendering;
 @Controller
 public class HomeController {
 
-    private final BlogEntryDao blogEntryDao;
+    private final BlogEntryService blogEntryService;
 
-    public HomeController(BlogEntryDao blogEntryDao) {
-        this.blogEntryDao = blogEntryDao;
+    public HomeController(BlogEntryService blogEntryService) {
+        this.blogEntryService = blogEntryService;
     }
 
     @GetMapping("/")
@@ -75,9 +76,17 @@ public class HomeController {
 
     @HxTrigger("loginSuccess")
     @GetMapping("/loginSuccess")
-    public FragmentsRendering loginSuccess() {
+    public FragmentsRendering loginSuccess(HttpServletRequest request) {
+        String referer = request.getHeader("Referer");
+        boolean isFromBlog = referer != null && referer.endsWith("/blog");
+        if (isFromBlog) {
+            return FragmentsRendering
+                    .fragment("components/auth-components::logout-button-blog")
+                    .fragment("components/auth-components::csrf-token-oob")
+                    .build();
+        }
         return FragmentsRendering
-                .fragment("components/auth-components::logout-button")
+                .fragment("components/auth-components::logout-button-post")
                 .fragment("components/auth-components::csrf-token-oob") // to refresh the csrf token with an out-of-band swap
                 .build();
     }
