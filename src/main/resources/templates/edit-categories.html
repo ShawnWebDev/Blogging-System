@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/shared-head}"></head>
+
+<body>
+
+    <header th:replace="~{components/header-components :: full-header}"></header>
+
+    <main>
+        <div th:fragment="edit-categories" id="main-content">
+            <h1>Create / Edit Categories</h1>
+            <div>
+                <button th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Blog</button>
+                <button hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Create Category</button>
+            </div>
+
+            <section id="edit-category-container">
+                <article th:each="category : ${categories}" class="category-card">
+                    <header>
+                        <h4 th:text="${category.categoryName}"></h4>
+                        <div>
+                            <button hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Edit</button>
+                            <button hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure you want to delete this Category?" class="btn-primary">Delete</button>
+                        </div>
+                    </header>
+                    <section class="description">
+                        <p th:text="${category.description}"></p>
+                    </section>
+                </article>
+            </section>
+        </div>
+    </main>
+
+
+</body>
+</html>

@@ -13,8 +13,10 @@
         <div sec:authorize="hasAuthority('ADMIN')" id="admin-btns">
             <button hx-get="/blog/post/createPost" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">
                 Create Post</button>
-            <button id="in-progress-btn" hx-get="/blog/blogComponent/posts/inProgress" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="btn-primary">
+            <button hx-get="/blog/blogComponent/posts/inProgress" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="btn-primary">
                 Get In Progress</button>
+            <button hx-get="/categories" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">
+                Edit Categories</button>
         </div>
         <button hx-post="/logout" hx-target="#login-container" hx-swap="outerHTML" class="btn-primary">Logout</button>
     </div>
