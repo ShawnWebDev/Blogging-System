@@ -329,6 +329,10 @@ dialog {
     padding: 0;
 }
 
+#categories-modal {
+    top: 7rem;
+    bottom: auto;
+}
 
 @starting-style {
     dialog {
