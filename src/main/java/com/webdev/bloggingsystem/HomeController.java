@@ -1,6 +1,6 @@
 package com.webdev.bloggingsystem;
 
-import com.webdev.bloggingsystem.blog.BlogEntryService;
+import com.webdev.bloggingsystem.blog.BlogService;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
@@ -17,9 +17,9 @@ import org.springframework.web.servlet.view.FragmentsRendering;
 @Controller
 public class HomeController {
 
-    private final BlogEntryService blogEntryService;
+    private final BlogService blogEntryService;
 
-    public HomeController(BlogEntryService blogEntryService) {
+    public HomeController(BlogService blogEntryService) {
         this.blogEntryService = blogEntryService;
     }
 

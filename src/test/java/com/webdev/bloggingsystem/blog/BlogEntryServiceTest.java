@@ -15,7 +15,7 @@ public class BlogEntryServiceTest {
 
 
     @InjectMocks
-    BlogEntryService blogEntryService;
+    BlogService blogEntryService;
 
     //todo : create unit tests for BlogEntryService methods.
 

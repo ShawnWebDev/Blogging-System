@@ -15,16 +15,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 @Service
-public class BlogEntryService {
+public class BlogService {
     public static final int MAX_BYTES = 65535; // for TEXT type in MariaDB Column 'blog_entries.content'
-    private static final Logger logger = LoggerFactory.getLogger(BlogEntryService.class);
+    private static final Logger logger = LoggerFactory.getLogger(BlogService.class);
 
     private final BlogEntryDao blogEntryDao;
     private final CategoryDao categoryDao;
     private final Parser markdownParser;
     private final HtmlRenderer htmlRenderer;
 
-    public BlogEntryService(BlogEntryDao blogEntryDao, CategoryDao categoryDao, Parser markdownParser, HtmlRenderer htmlRenderer) {
+    public BlogService(BlogEntryDao blogEntryDao, CategoryDao categoryDao, Parser markdownParser, HtmlRenderer htmlRenderer) {
         this.blogEntryDao = blogEntryDao;
         this.categoryDao = categoryDao;
         this.markdownParser = markdownParser;
@@ -130,6 +130,17 @@ public class BlogEntryService {
         return blogEntry.getId();
     }
 
+    private static Set<Integer> cleanCategoryIds(int[] categoryIds) {
+        //remove 0 and possible duplicate values from categoryIds array.
+        Set<Integer> cleanedCategoryIds = new HashSet<>();
+        for (int catId : categoryIds) {
+            if (catId != 0) {
+                cleanedCategoryIds.add(catId);
+            }
+        }
+        return cleanedCategoryIds;
+    }
+
     @Transactional
     public void deletePost(int id) {
         int deleted = blogEntryDao.deleteById(id);
@@ -158,16 +169,5 @@ public class BlogEntryService {
 
         return new CreateBlogEntryDto(post.getId(), post.getTitle(), post.getDescription(),
                 post.getThumbnailUrl(), post.getThumbnailAlt(), categoryIds, post.getContent(), post.getInProgress());
-    }
-
-    private static Set<Integer> cleanCategoryIds(int[] categoryIds) {
-        //remove 0 and possible duplicate values from categoryIds array.
-        Set<Integer> cleanedCategoryIds = new HashSet<>();
-        for (int catId : categoryIds) {
-            if (catId != 0) {
-                cleanedCategoryIds.add(catId);
-            }
-        }
-        return cleanedCategoryIds;
     }
 }
