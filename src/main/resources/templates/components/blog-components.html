@@ -18,7 +18,6 @@
     <section id="post-container">
         <article th:each="post : ${posts}" class="post-card">
             <header>
-                <div>
                     <h4>
                         <span th:text="${post.title}"></span>
                         <span>
@@ -30,11 +29,10 @@
                     <a th:href="@{/blog/post/{slug}(slug = ${post.slug})}" th:hx-get="@{/blog/post(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">
                         <span>View Post</span>
                     </a>
-                </div>
                 <small>@ <time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
             </header>
-            <section class="post-description" th:if="${post.thumbnailUrl != null && post.thumbnailAlt != null}">
-                <img th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}"/>
+            <section class="description">
+                <img th:if="${post.thumbnailUrl != null && post.thumbnailAlt != null}" th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}"/>
                 <p th:text="${post.description}"></p>
             </section>
         </article>
@@ -51,11 +49,11 @@
         <div id="categories-container">
             <button class="category-selection btn-primary"
                     th:each="category : ${categories}"
-                    th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.categoryName})}"
+                    th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.name})}"
                     hx-target="#posts"
                     hx-swap="outerHTML swap:150ms"
                     onclick="closeDialog('categories-modal')"
-                    th:text="${category.categoryName}">
+                    th:text="${category.name}">
             </button>
         </div>
         </article>

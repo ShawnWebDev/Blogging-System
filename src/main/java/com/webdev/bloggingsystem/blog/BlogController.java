@@ -23,14 +23,14 @@ public class BlogController {
     private static final Logger logger = LoggerFactory.getLogger(BlogController.class);
     private static final int PAGE_SIZE = 10;
 
-    private final BlogEntryService blogEntryService;
+    private final BlogService blogService;
 
-    public BlogController(BlogEntryService blogEntryService) {
-        this.blogEntryService = blogEntryService;
+    public BlogController(BlogService blogEntryService) {
+        this.blogService = blogEntryService;
     }
 
     private void populateCreatePostModel(Model model, CreateBlogEntryDto post, boolean isEditing) {
-        model.addAttribute("categoryList", blogEntryService.findAllSimpleCategories());
+        model.addAttribute("categoryList", blogService.findAllSimpleCategories());
         model.addAttribute("post", post);
         model.addAttribute("isEditing", isEditing);
         model.addAttribute("title", isEditing ? "Edit Post | Shawn Osborne" : "Create Post | Shawn Osborne");
@@ -56,8 +56,8 @@ public class BlogController {
         // will need count to show how many pages are available when I implement that part.
         // int count = blogEntryDao.count();
         populateBlogDashboardModel(model, "All", "");
-        model.addAttribute("posts", blogEntryService.findAllSimpleBlogEntries(pageNumber, PAGE_SIZE));
-        model.addAttribute("categories", blogEntryService.findAllCategories());
+        model.addAttribute("posts", blogService.findAllSimpleBlogEntries(pageNumber, PAGE_SIZE));
+        model.addAttribute("categories", blogService.findAllSimpleCategories());
 
         if (!htmxRequest.isHtmxRequest()) {
             // for refresh or direct to /blog, contains heading fragment with nav, css/js, and blog-main fragment with all-posts
@@ -82,7 +82,7 @@ public class BlogController {
     @GetMapping("/blogComponent/posts/inProgress")
     public FragmentsRendering inProgress(Model model) {
         populateBlogDashboardModel(model, "In Progress", "");
-        model.addAttribute("posts", blogEntryService.findAllSimpleBlogEntriesInProgress());
+        model.addAttribute("posts", blogService.findAllSimpleBlogEntriesInProgress());
 
         return FragmentsRendering
                 .fragment("components/blog-components::all-posts")
@@ -100,11 +100,11 @@ public class BlogController {
         String categoryDescription;
 
         if (categoryName.equals("All")) {
-            filteredBlogEntries = blogEntryService.findAllSimpleBlogEntries(pageNumber, PAGE_SIZE);
+            filteredBlogEntries = blogService.findAllSimpleBlogEntries(pageNumber, PAGE_SIZE);
             categoryDescription = "";
         } else {
-            filteredBlogEntries = blogEntryService.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, PAGE_SIZE);
-            categoryDescription = blogEntryService.findCategoryDescriptionByName(categoryName);
+            filteredBlogEntries = blogService.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, PAGE_SIZE);
+            categoryDescription = blogService.findCategoryDescriptionByName(categoryName);
         }
 
         populateBlogDashboardModel(model, categoryName, categoryDescription);
@@ -119,7 +119,7 @@ public class BlogController {
     @HxRequest
     @GetMapping("/post")
     public FragmentsRendering blogViewFromId(Model model, @RequestParam Integer id) {
-        FullBlogEntryDto entryDto = blogEntryService.readPostById(id);
+        FullBlogEntryDto entryDto = blogService.readPostById(id);
         populateSinglePostModel(model, entryDto);
 
         return FragmentsRendering
@@ -132,7 +132,7 @@ public class BlogController {
     // "/blog/post/{slug}" to be used by external links, direct url, refresh
     @GetMapping("/post/{slug}")
     public FragmentsRendering blogViewFromSlug(Model model, @PathVariable String slug) {
-        FullBlogEntryDto entryDto = blogEntryService.readPostBySlug(slug);
+        FullBlogEntryDto entryDto = blogService.readPostBySlug(slug);
         populateSinglePostModel(model, entryDto);
 
         return FragmentsRendering
@@ -173,7 +173,7 @@ public class BlogController {
                     .build();
         }
 
-        int blogId = blogEntryService.createPost(createBlogEntryDto);
+        int blogId = blogService.createPost(createBlogEntryDto);
 
         return ResponseEntity.ok()
                 .header("HX-Location", "{\"path\":\"/blog/post/id/"+blogId+"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
@@ -184,7 +184,7 @@ public class BlogController {
     @GetMapping("/post/editPost/{id}")
     public FragmentsRendering editPost(Model model, @PathVariable Integer id,
                                        HtmxRequest htmxRequest) {
-        CreateBlogEntryDto dto = blogEntryService.buildCreateDto(id);
+        CreateBlogEntryDto dto = blogService.buildCreateDto(id);
         populateCreatePostModel(model, dto, true);
 
         if (!htmxRequest.isHtmxRequest()) {
@@ -209,7 +209,7 @@ public class BlogController {
                     .fragment("create-post::create-post")
                     .build();
         }
-        int blogId = blogEntryService.updatePost(createBlogEntryDto);
+        int blogId = blogService.updatePost(createBlogEntryDto);
 
         return ResponseEntity.ok()
                 .header("HX-Location", "{\"path\":\"/blog/post/id/"+blogId+"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
@@ -220,7 +220,7 @@ public class BlogController {
     @DeleteMapping("/post/deletePost/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Integer id) {
         logger.info("Deleting post with id: {}", id);
-        blogEntryService.deletePost(id);
+        blogService.deletePost(id);
 
         return ResponseEntity.ok()
                 .header("HX-Location", "{\"path\":\"/blog\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
@@ -240,7 +240,7 @@ public class BlogController {
     @PostMapping("/postComponent/validateSize")
     public FragmentsRendering validateSize(Model model, @RequestParam("content") String content) {
         int count = content.getBytes(StandardCharsets.UTF_8).length;
-        model.addAttribute("byteCount", count + " / " + BlogEntryService.MAX_BYTES);
+        model.addAttribute("byteCount", count + " / " + BlogService.MAX_BYTES);
 
         return FragmentsRendering
                 .fragment("components/post-components::byte-count")
