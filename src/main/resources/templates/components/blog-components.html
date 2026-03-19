@@ -27,7 +27,7 @@
                             </svg>
                         </span>
                     </h4>
-                    <a th:href="@{/blog/post/{slug}(slug = ${post.slug})}" th:hx-get="@{/blog/post/id/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">
+                    <a th:href="@{/blog/post/{slug}(slug = ${post.slug})}" th:hx-get="@{/blog/post(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">
                         <span>View Post</span>
                     </a>
                 </div>

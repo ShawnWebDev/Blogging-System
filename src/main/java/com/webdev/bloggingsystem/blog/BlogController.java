@@ -117,8 +117,8 @@ public class BlogController {
 
     // "/blog/{id}" only to be used by HTMX internal navigation
     @HxRequest
-    @GetMapping("/post/id/{id}")
-    public FragmentsRendering blogViewFromId(Model model, @PathVariable Integer id) {
+    @GetMapping("/post")
+    public FragmentsRendering blogViewFromId(Model model, @RequestParam Integer id) {
         FullBlogEntryDto entryDto = blogEntryService.readPostById(id);
         populateSinglePostModel(model, entryDto);
 
