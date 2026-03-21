@@ -9,8 +9,8 @@
     <div id="main-content" th:fragment="create-post(post)">
       <h1 th:text="${isEditing ? 'Edit Post' : 'Create Post'}"></h1>
       <section id="create-post-form-container">
-        <button th:if="${isEditing}" th:hx-get="@{/blog/post/id/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Changes will be lost!" class="btn-primary">Back To Post</button>
-        <button th:if="${!isEditing}" th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Blog</button>
+        <button th:if="${isEditing}" th:hx-get="@{/blog/post(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Changes will be lost!" class="btn-primary">Back To Post</button>
+        <button th:if="${!isEditing}" th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Content will be lost!" class="btn-primary">Back To Blog</button>
 
         <form action="#" th:hx-post="@{${isEditing ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#create-post-form" hx-swap="outerHTML">
           <input type="hidden" th:if="${isEditing}" name="id" th:value="${post.id}"/>
@@ -23,13 +23,13 @@
             <input type="text" name="title" th:value="${post.title}" required/>
             <small th:errors="${post.title}" th:text="${#fields.errors('post.title')}" class="error"></small>
           </label>
+
           <label>Description:
             <textarea name="description" id="description-input" th:text="${post.description}" required></textarea>
             <small th:errors="${post.description}" th:text="${#fields.errors('post.description')}" class="error"></small>
           </label>
 
-          <fieldset class="form-group">
-            <legend>Thumbnail Details:</legend>
+          <div class="form-group">
             <div>
               <label>Thumbnail URL:
                 <input type="text" name="thumbnailUrl" th:value="${post.thumbnailUrl}" required/>
@@ -42,10 +42,9 @@
                 <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
               </label>
             </div>
-          </fieldset>
+          </div>
 
-          <fieldset class="form-group">
-            <legend>Categories:</legend>
+          <div class="form-group">
             <div>
               <label>Category 1:
                 <select name="categoryIds[0]">
@@ -77,7 +76,7 @@
                 </select>
               </label>
             </div>
-          </fieldset>
+          </div>
 
           <label>Content: <br><a href="https://commonmark.org/help/" target="_blank" rel="noopener noreferrer">Markdown Reference</a>
             <textarea name="content" id="post-content-input" th:text="${post.content}" required></textarea>
@@ -90,7 +89,7 @@
                  hx-post="/blog/postComponent/validateSize"
                  hx-trigger="load, keyup from:#post-content-input changed delay:1500ms"
                  hx-target="#byte-count"
-                 hx-include="#post-content"></div>
+                 hx-include="#post-content-input"></div>
 
             <div id="error-field"></div>
           </div>
