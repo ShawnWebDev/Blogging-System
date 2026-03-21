@@ -12,7 +12,7 @@
         <h3 th:text="${categoryName + ' Posts'}"></h3>
         <p th:text="${categoryDesc}"></p>
         <button onclick="openDialog('categories-modal')" class="btn-primary">Filter by category</button>
-        <button th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="btn-primary" hx-on:click="removeActiveCategories()">Back to all posts</button>
+        <button th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:150ms" class="btn-primary" hx-on:click="removeActiveCategories()">All Posts</button>
     </header>
 
     <section id="post-container">
@@ -26,7 +26,7 @@
                             </svg>
                         </span>
                     </h4>
-                    <a th:href="@{/blog/post/{slug}(slug = ${post.slug})}" th:hx-get="@{/blog/post(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML">
+                    <a th:href="@{/blog/post/{slug}(slug = ${post.slug})}" th:hx-get="@{/blog/post(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML swap:150ms">
                         <span>View Post</span>
                     </a>
                 <small>@ <time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
@@ -43,7 +43,7 @@
     <dialog id="categories-modal" aria-labelledby="categories-container-title" tabindex="-1">
         <article>
             <header>
-                <span id="categories-container-title">Filter by a category:</span>
+                <span id="categories-container-title">Filter By:</span>
                 <button aria-label="Close" onclick="closeDialog('categories-modal')" class="close-btn btn-primary">X</button>
             </header>
         <div id="categories-container">
@@ -51,7 +51,7 @@
                     th:each="category : ${categories}"
                     th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.name})}"
                     hx-target="#posts"
-                    hx-swap="outerHTML swap:150ms"
+                    hx-swap="outerHTML swap:200ms"
                     onclick="closeDialog('categories-modal')"
                     th:text="${category.name}">
             </button>
