@@ -7,17 +7,23 @@ import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxTrigger;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.view.FragmentsRendering;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 
 @Controller
 public class HomeController {
 
     private final BlogService blogEntryService;
+    private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
     public HomeController(BlogService blogEntryService) {
         this.blogEntryService = blogEntryService;
@@ -39,7 +45,7 @@ public class HomeController {
                 .build();
     }
 
-    // todo : get posts with 'portfolio' category and render/send view, should i inject BlogEntryDao here or in constructor?
+    // todo : get posts with 'portfolio' category and render/send view
     @GetMapping("/portfolio")
     public FragmentsRendering portfolio(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
         model.addAttribute("title", "Portfolio | Shawn Osborne");
@@ -76,10 +82,20 @@ public class HomeController {
 
     @HxTrigger("loginSuccess")
     @GetMapping("/loginSuccess")
-    public FragmentsRendering loginSuccess(HttpServletRequest request) {
+    public FragmentsRendering loginSuccess(HttpServletRequest request, HtmxResponse htmxResponse) {
+        // called from Spring Security redirect on successful log in
         String referer = request.getHeader("Referer");
-        boolean isFromBlog = referer != null && referer.endsWith("/blog");
+        boolean isFromBlog = false;
+        try {
+            // getPath() strips params to correctly send fragment if /blog, /blog?logout, or /blog?sessionExpired
+            isFromBlog = referer != null && new URI(referer).getPath().equals("/blog");
+        } catch (URISyntaxException e) {
+            logger.warn("Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", referer);
+        }
+
         if (isFromBlog) {
+            // clear ?logout and ?sessionExpired params after login success
+            htmxResponse.setPushUrl("/blog");
             return FragmentsRendering
                     .fragment("components/auth-components::logout-button-blog")
                     .fragment("components/auth-components::csrf-token-oob")
@@ -94,7 +110,7 @@ public class HomeController {
     @GetMapping("/logoutSuccess")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.ok()
-                .header("HX-Refresh", "true")
+                .header("HX-Redirect", "/blog?logout")
                 .build();
     }
 
