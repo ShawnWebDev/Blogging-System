@@ -1,18 +1,17 @@
 :root {
     --main-bg-color: rgb(50, 50, 50);
     --secondary-bg-color: rgb(33, 33, 33);
-    --secondary-bg-color-muted: rgba(33, 33, 33, 0.65);
 
-    --accent-color: rgb(105, 222, 102);
-    --accent-color-muted: rgba(105, 222, 102, 0.65);
-    --secondary-accent-color: rgb(93, 79, 94);
-    --secondary-accent-color-muted: rgba(93, 79, 94, 0.65);
+    --accent-color: rgba(56, 121, 75);
+    --accent-color-transparent: rgba(56, 121, 75, 0.5);
+    --color-dark: rgb(41, 41, 41);
+    --color-light: rgb(105, 105, 105);
+    --transparent-color-dark: rgba(41, 41, 41, 0.5);
+    --transparent-color-light: rgba(105, 105, 105, 0.5);
 
     --main-text-color: rgb(227, 230, 233);
 
-    --transparent-color-dark: rgba(33, 33, 33, 0.5);
-    --transparent-color-light: rgba(140, 140, 140, 0.5);
-    --error-color: rgb(217, 30, 30);
+    --error-color: rgb(255, 120, 120);
 }
 
 /* todo : get a css minify extension for maven */
@@ -23,6 +22,7 @@ body {
     color: var(--main-text-color);
     margin: 0;
 }
+
 main {
     width: 100%;
     min-height: calc(100vh - 6rem);
@@ -31,22 +31,27 @@ main {
 
 #main-content {
     padding: 2rem 0.5rem;
+    opacity: 1;
+    transition: opacity 150ms ease-in-out;
+}
+
+#main-content.htmx-swapping {
+    opacity: 0;
 }
 
 #main-header {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    border-bottom: 1px solid var(--accent-color);
+    border-bottom: 1px solid var(--color-light);
     margin: 0;
     background-color: var(--main-bg-color);
-    padding: 0.5rem 0.5rem 0 0.5rem;
+    padding: 0.5rem 0 0 0;
 }
 
 #main-header h2 {
-    text-align: center;
     margin: 0;
-    padding: 0;
+    padding: 0 0 0 0.5rem;
 }
 
 #main-content h1 {
@@ -59,30 +64,29 @@ main {
     display: none;
 }
 nav {
-    width: 100%;
+    width: fit-content;
 }
 
 nav ul, ul.group {
     display: flex;
-    justify-content: center;
-    gap: 1rem;
+    justify-content: space-between;
+    gap: 0.25rem;
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
 .nav-item {
-    position: relative;
     cursor: pointer;
     color: var(--main-text-color);
     background-color: var(--transparent-color-dark);
-    padding: 0.5rem 0.25rem;
-    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
     display: flex;
     gap: 0.75rem;
-    transition: box-shadow 200ms ease-in-out, background-color 200ms ease-in-out;
+    transition: background-color 200ms ease-in-out, clip-path 200ms ease-in-out, box-shadow 200ms ease-in-out;
+    clip-path: inset(-2px round 12px 12px 0 0);
     text-decoration: none;
-    border-radius: 0.25rem 0.25rem 0 0;
     align-items: center;
 }
 
@@ -98,33 +102,24 @@ nav ul, ul.group {
 }
 
 .nav-item:hover, .active {
+    box-shadow: 0 -2px 0 var(--accent-color);
     background-color: var(--secondary-bg-color);
     color: #fff;
-    box-shadow: -4px 0 0 var(--secondary-bg-color), 4px 0 0 var(--secondary-bg-color);
 }
 
 .nav-item.active {
-    box-shadow: -4px 0 0 var(--secondary-bg-color),
-    4px 0 0 var(--secondary-bg-color),
-    -4px 1px 0 var(--secondary-bg-color),
-    4px 1px 0 var(--secondary-bg-color),
-    0 1px 0 var(--secondary-bg-color),
-    5px 1px 0 var(--accent-color),
-    -5px 1px 0 var(--accent-color),
-    5px -1px 0 var(--accent-color),
-    -5px -1px 0 var(--accent-color);
-    transition: box-shadow 200ms ease-in-out;
+    clip-path: inset(-4px round 12px 12px 0 0);
+    box-shadow: 0 -2px 0 var(--accent-color), 0 -1px 0 var(--secondary-bg-color), 0 1px 0 var(--secondary-bg-color),
+    1px -2px 0 var(--color-light), -1px -2px 0 var(--color-light), 1px 1px 0 var(--color-light), -1px 1px 0 var(--color-light);
 }
 
 button, a, input[type = submit] {
     font-size: 0.9rem;
     cursor: pointer;
-    border-radius: 0.25rem;
 }
 
 a {
-    color: var(--accent-color-muted);
-    transition: color 200ms ease-in-out;
+    color: var(--accent-color);
 }
 
 a:hover {
@@ -135,19 +130,13 @@ a:hover {
     display: block;
 }
 
-#posts, #main-content {
+#posts {
     opacity: 1;
-    scale: 1;
-    transition: opacity 150ms ease-in-out, scale 150ms ease-in-out;
+    transition: opacity 150ms ease-in-out 50ms;
 }
 
-#main-content.htmx-added {
+#posts.htmx-swapping {
     opacity: 0;
-}
-
-#posts.htmx-added, #posts.htmx-swapping {
-    opacity: 0;
-    scale: 0.95;
 }
 
 #categories-modal > article {
@@ -169,33 +158,44 @@ a:hover {
     padding: 1.5rem;
 }
 
-#post-container {
+#post-container, #edit-category-container {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     margin: 1.5rem auto;
 }
 
-#post-container > .post-card header {
+article header {
     position: relative;
     display: flex;
     flex-wrap: wrap;
     column-gap: 1rem;
     justify-content: space-between;
-    background-color: var(--transparent-color-dark);
+    background-color: var(--color-dark);
     border-radius: 0.25rem 0.25rem 0 0;
     padding: 0.5rem;
-    border-bottom: 1px solid var(--secondary-bg-color-muted);
-    transition: border-color 200ms ease-in-out, color 200ms ease-in-out;
+    border-bottom: 2px solid var(--accent-color);
+    transition: border-color 200ms ease-in-out, color 200ms ease-in-out, background-color 200ms ease-in-out;
 }
 
-#post-container header h4 {
+.post-card header:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+.post-card header:hover svg {
+    opacity: 1;
+    transform: translateX(0.5rem);
+}
+
+article header h4 {
     margin: 0;
     display: flex;
     gap: 1rem;
 }
 
-#post-container header, .post-card footer, #post-container header h4 {
+#post-container header, .post-card footer, article header h4 {
     align-items: center;
 }
 
@@ -214,39 +214,57 @@ a:hover {
     inset: 0;
 }
 
-#post-container > .post-card header:hover {
-    border-bottom: 1px solid var(--accent-color);
-    color: #fff;
-}
-
-#post-container > .post-card header:hover svg {
-    opacity: 1;
-    transform: translateX(0.5rem);
-}
-
-.post-card {
+.post-card, .category-card {
     background-color: var(--main-bg-color);
     border-radius: 0.25rem;
 }
 
-.post-description {
-    padding: 1rem 0.5rem 0 0.5rem;
+.description {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem 0.5rem;
+}
+
+.description p {
+    margin: 0;
 }
 
 .btn-primary {
-    background-color: var(--main-bg-color);
-    border: 1px solid var(--accent-color-muted);
+    background-color: var(--accent-color-transparent);
+    border: 2px solid var(--accent-color);
+    border-radius: 0.25rem;
     color: var(--main-text-color);
     cursor: pointer;
-    transition: all 200ms ease-in-out;
+    transition: color 200ms ease-in-out, border-color 200ms ease-in-out, background-color 200ms ease-in-out;
     padding: 0.5rem 0.75rem;
     font-weight: 500;
 }
 
-.btn-primary:hover, .active-category {
-    background-color: var(--transparent-color-light);
-    border: 1px solid var(--accent-color);
+.btn-primary:hover {
+    background-color: var(--accent-color);
     color: #fff;
+    border-color: var(--secondary-bg-color);
+}
+
+.active-category {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
+.category-selection:hover, .category-selection.active-category, input[type=submit]:hover {
+    border-color: var(--main-bg-color);
+}
+
+.btn-anchor-look {
+    color: var(--accent-color);
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.btn-anchor-look:hover {
+    color: var(--accent-color);
 }
 
 #admin-btns {
@@ -281,20 +299,28 @@ a:hover {
 }
 input[type="text"],
 input[type="url"],
-input[type="password"] {
+input[type="password"],
+textarea, select {
     width: 100%;
     box-sizing: border-box;
     padding: 0.5rem;
+    background-color: var(--transparent-color-dark);
+    border: 1px solid var(--color-light);
+    color: var(--main-text-color);
+    font-size: 1rem;
+    font-weight: 500;
 }
+
+select:hover, option:hover {
+    cursor: pointer;
+    background-color: var(--secondary-bg-color);
+}
+
 #create-post-form label:has(input[type="checkbox"]), input[type="checkbox"] {
     width: fit-content;
     cursor: pointer;
 }
-textarea {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.5rem;
-}
+
 .form-group {
     display: flex;
     flex-wrap: wrap;
@@ -314,10 +340,11 @@ textarea {
     justify-content: center;
     font-weight: 700;
     background-color: var(--main-bg-color);
+    border: 1px solid var(--accent-color);
 }
 
 .close-btn:hover {
-    background-color: var(--accent-color-muted);
+    background-color: var(--accent-color);
 }
 
 dialog {
@@ -358,19 +385,17 @@ dialog form {
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
-    padding: 1.5rem 2rem 2rem 2rem;
+    padding: 1.5rem 2rem;
 }
 
 dialog form input[type="submit"] {
-    margin-top: 0.5rem;
+    margin-top: 1rem;
     background-color: var(--transparent-color-dark);
 }
 
-dialog article .error {
-    width: 100%;
-    box-sizing: border-box;
+dialog #login-message {
     text-align: center;
-    background-color: var(--main-bg-color);
+    padding-bottom: 0.5rem;
 }
 
 #byte-validator {
@@ -382,27 +407,30 @@ dialog article .error {
 }
 
 /* 480-767 */
-@media (min-width: 480px) {
+@media (min-width: 510px) {
     nav {
         width: fit-content;
+    }
+    nav ul {
+        gap: 1rem;
+    }
+    .nav-item {
+        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
     }
     .nav-item svg {
         display: block;
         width: 1rem;
         height: 1rem;
     }
-    #main-header h2 {
-        text-align: left;
-        width: fit-content;
+    #main-header {
+        padding: 0.5rem 0.5rem 0 0;
     }
     #post-container > .post-card header {
         padding: 0.5rem 1rem;
     }
-    .post-description {
-        padding: 1rem 1rem 0 1rem;
-    }
-    .post-card footer {
-        padding: 0.25rem 1rem;
+    .description {
+        padding: 1rem;
     }
 }
 
@@ -414,12 +442,12 @@ dialog article .error {
         justify-content: space-between;
         padding: 1rem 2rem 0 2rem;
     }
+    #main-header h2 {
+        padding: 0;
+        width: fit-content;
+    }
     #main-content {
         padding: 2rem;
-    }
-    #main-header h2 {
-        text-align: left;
-        width: fit-content;
     }
     nav ul {
         padding: 0;
@@ -441,7 +469,7 @@ dialog article .error {
         margin: auto;
     }
     #main-header {
-        border-right: 1px solid var(--accent-color-muted);
+        border-right: 1px solid var(--color-light);
         border-bottom: none;
         height: 100vh;
         position: sticky;
@@ -453,7 +481,7 @@ dialog article .error {
         width: 100%;
     }
     #main-content {
-        padding: 1.25rem calc(0.5rem + 2vw);
+        padding: 1.25rem calc(0.5rem + 2vw) 2rem 5vw;
     }
     #main-greeting {
         display: none;
@@ -492,33 +520,26 @@ dialog article .error {
         text-align: left;
     }
     .nav-item {
-        border-radius: 0.5rem 0 0 0.5rem;
         justify-content: space-between;
         padding-left: 0.25rem;
-        transition: background-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
+        transition: background-color 200ms ease-in-out, clip-path 200ms ease-in-out, box-shadow 200ms ease-in-out, transform 200ms ease-in-out;
+        clip-path: inset(-2px round 12px 0 0 12px);
     }
     .nav-item:hover {
-        box-shadow: -0.25rem 0 var(--secondary-bg-color),
-        -0.25rem -0.25rem 0 var(--secondary-bg-color),
-        -0.25rem 0.25rem 0 var(--secondary-bg-color),
-        0 -0.25rem 0 var(--secondary-bg-color),
-        0 0.25rem 0 var(--secondary-bg-color);
+        box-shadow: -2px 0 0 var(--accent-color);
     }
-    .nav-item.active  {
-        box-shadow: 2px 0 var(--secondary-bg-color),
-        2px -4px 0 var(--secondary-bg-color),
-        2px 4px 0 var(--secondary-bg-color),
-        -4px 0 var(--secondary-bg-color),
-        -4px -4px 0 var(--secondary-bg-color),
-        -4px 4px 0 var(--secondary-bg-color),
-        0 -4px 0 var(--secondary-bg-color),
-        0 4px 0 var(--secondary-bg-color),
-        0 5px 0 var(--accent-color),
-        0 -5px 0 var(--accent-color),
-        -5px 5px 0 var(--accent-color),
-        -5px -5px 0 var(--accent-color);
-        transition: box-shadow 200ms ease-in-out;
+    .nav-item.active {
+        clip-path: inset(-4px round 12px 0 0 12px);
+        box-shadow: 2px -1px 0 var(--secondary-bg-color), 2px 1px 0 var(--secondary-bg-color), -2px -1px 0 var(--accent-color), -2px 1px 0 var(--accent-color),
+        1px 2px 0 var(--color-light), 1px -2px 0 var(--color-light);
     }
+    .nav-item > span {
+        transition: transform 200ms ease-in-out;
+    }
+    .nav-item.active > span {
+        transform: translateX(0.5rem);
+    }
+
     .nav-item svg {
         width: 1.25rem;
         height: 1.25rem;
