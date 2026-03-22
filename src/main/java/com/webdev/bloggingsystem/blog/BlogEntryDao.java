@@ -174,7 +174,7 @@ public class BlogEntryDao {
     }
 
     private static BlogEntry singleBlogEntryExtractor(ResultSet rs) throws SQLException {
-        if (rs.wasNull() || rs.getString("category_list") == null) return null;
+        if (rs.wasNull()) return null;
 
         return new BlogEntry(
                 rs.getInt("id"),
@@ -184,7 +184,7 @@ public class BlogEntryDao {
                 rs.getTimestamp("created_at").toInstant(),
                 rs.getTimestamp("updated_at").toInstant(),
                 rs.getString("slug"),
-                List.of(rs.getString("category_list").split(",")),
+                rs.getString("category_list") != null ? List.of(rs.getString("category_list").split(",")) : List.of(),
                 rs.getString("thumbnail_url"),
                 rs.getString("thumbnail_alt"),
                 rs.getBoolean("in_progress")
