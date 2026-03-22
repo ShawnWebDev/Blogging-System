@@ -2,11 +2,12 @@ package com.webdev.bloggingsystem.blog;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.view.FragmentsRendering;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/categories")
@@ -19,20 +20,54 @@ public class CategoryController {
 
 
     @GetMapping
-    public FragmentsRendering editCategories(Model model, HtmxRequest htmxRequest, HtmxResponse htmxResponse) {
+    public String editCategoriesView(Model model, HtmxRequest htmxRequest, HtmxResponse htmxResponse) {
         model.addAttribute("categories", blogService.findAllCategories());
 
         if (!htmxRequest.isHtmxRequest()) {
             model.addAttribute("fromBlog", true);
-            return FragmentsRendering
-                    .fragment("edit-categories")
-                    .build();
+            return "edit-categories";
         }
         if (htmxRequest.getCurrentUrl() == null || !htmxRequest.getCurrentUrl().endsWith("/categories")) {
             htmxResponse.setPushUrl("/categories");
         }
-        return FragmentsRendering
-                .fragment("edit-categories::edit-categories")
-                .build();
+        return "edit-categories::edit-categories";
     }
+
+    @HxRequest
+    @GetMapping("/edit")
+    public String editCategoryFormView(Model model, @RequestParam Integer id) {
+        model.addAttribute("category", blogService.findCategoryById(id));
+        return "components/categories-components::edit-category-card";
+    }
+
+    @HxRequest
+    @GetMapping("/cancelEdit")
+    public String cancelEdit(Model model, @RequestParam Integer id) {
+        model.addAttribute("category", blogService.findCategoryById(id));
+        return "components/categories-components::category-card";
+    }
+
+    @HxRequest
+    @PostMapping("/update")
+    public String saveCategory(@Valid @ModelAttribute("category") Category category,
+                               BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("category", category);
+            return "components/categories-components::edit-category-card";
+        }
+
+        blogService.updateCategory(category);
+
+        model.addAttribute("category", blogService.findCategoryById(category.getId()));
+        return "components/categories-components::category-card";
+    }
+
+    @HxRequest
+    @DeleteMapping("/delete")
+    public String deleteCategory(Model model, @RequestParam Integer id) {
+        blogService.deleteCategoryById(id);
+        model.addAttribute("categories", blogService.findAllCategories());
+        return "edit-categories::edit-categories";
+    }
+
 }
