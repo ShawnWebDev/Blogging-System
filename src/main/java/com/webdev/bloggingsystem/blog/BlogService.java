@@ -16,7 +16,6 @@ import java.util.*;
 
 @Service
 public class BlogService {
-    public static final int MAX_BYTES = 65535; // for TEXT type in MariaDB Column 'blog_entries.content'
     private static final Logger logger = LoggerFactory.getLogger(BlogService.class);
 
     private final BlogEntryDao blogEntryDao;
@@ -47,6 +46,12 @@ public class BlogService {
         return categoryDao.findAll();
     }
 
+    public Category findCategoryById(Integer id) {
+        return categoryDao.findCategoryById(id)
+                .orElseThrow(() -> new BlogEntryException("Category with id " + id + " not found!")
+        );
+    }
+
     public List<SimpleCategoryDto> findAllSimpleCategories() {
         return categoryDao.findAllNames();
     }
@@ -55,10 +60,14 @@ public class BlogService {
         return categoryDao.findCategoryDescriptionByName(categoryName);
     }
 
+    public void deleteCategoryById(int id) {
+        categoryDao.deleteCategoryById(id);
+    }
+
     @Transactional
     public int createPost(CreateBlogEntryDto dto) {
         //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set<ids>, id)
-        logger.info("Content is being saved...");
+        logger.info("Post is being saved...");
         BlogEntry blogEntry = new BlogEntry(
                 dto.getTitle(),
                 dto.getDescription(),
@@ -104,8 +113,8 @@ public class BlogService {
     }
 
     @Transactional
-    public int updatePost(CreateBlogEntryDto dto) {
-        logger.info("Content block is being updated...");
+    public void updatePost(CreateBlogEntryDto dto) {
+        logger.info("Post is being updated...");
         int blogId = dto.getId();
         BlogEntry blogEntry = new BlogEntry(
                 dto.getTitle(),
@@ -127,7 +136,20 @@ public class BlogService {
 
         logger.info("Updating category relations... ");
         categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
-        return blogEntry.getId();
+    }
+
+    public void updateCategory(Category category) {
+        logger.info("Category is being updated...");
+        int categoryId = category.getId();
+        Category categoryToUpdate = new Category(
+                category.getCategoryName(),
+                category.getDescription()
+        );
+        categoryToUpdate.setId(categoryId);
+        int isUpdated = categoryDao.update(categoryToUpdate);
+        if (isUpdated == 0) {
+            throw new BlogEntryException("Category NOT updated with id: " + categoryId);
+        }
     }
 
     private static Set<Integer> cleanCategoryIds(int[] categoryIds) {
@@ -161,10 +183,13 @@ public class BlogService {
     public CreateBlogEntryDto buildCreateDto(int id) {
         BlogEntry post = blogEntryDao.findById(id)
                 .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
-        List<Integer> categoryIdList = categoryDao.findAllIdsInNames(post.getCategoryNames());
         int[] categoryIds = new int[4];
-        for (int i = 0; i < categoryIdList.size(); i++) {
-            categoryIds[i] = categoryIdList.get(i);
+
+        if (!post.getCategoryNames().isEmpty()) {
+            List<Integer> categoryIdList = categoryDao.findAllIdsInNames(post.getCategoryNames());
+            for (int i = 0; i < categoryIdList.size(); i++) {
+                categoryIds[i] = categoryIdList.get(i);
+            }
         }
 
         return new CreateBlogEntryDto(post.getId(), post.getTitle(), post.getDescription(),
