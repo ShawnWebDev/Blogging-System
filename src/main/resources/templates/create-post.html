@@ -87,7 +87,7 @@
             <!--hidden, used to trigger update of byte-count-->
             <div id="byte-validator"
                  hx-post="/blog/postComponent/validateSize"
-                 hx-trigger="load, keyup from:#post-content-input changed delay:1500ms"
+                 hx-trigger="load, keyup from:#post-content-input changed delay:5s"
                  hx-target="#byte-count"
                  hx-include="#post-content-input"></div>
 
