@@ -6,7 +6,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 public class UniqueTitleValidator implements ConstraintValidator<UniqueTitle, CreateBlogEntryDto> {
-    private Integer id;
     private String message;
     private final BlogEntryDao blogEntryDao;
 
