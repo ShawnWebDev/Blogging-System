@@ -1,11 +1,15 @@
 package com.webdev.bloggingsystem.blog;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class Category {
     private Integer id;
-
+    @NotBlank
+    @Size(min = 2, max = 100)
     private String categoryName;
-
+    @NotBlank
+    @Size(min = 2, max = 255)
     private String description;
 
     public Category() {}
