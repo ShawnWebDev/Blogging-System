@@ -1,8 +1,8 @@
 package com.webdev.bloggingsystem.blog;
 
-import com.webdev.bloggingsystem.errorHandling.MaxBytes;
 import com.webdev.bloggingsystem.errorHandling.UniqueTitle;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.Arrays;
 
@@ -10,19 +10,19 @@ import java.util.Arrays;
 public class CreateBlogEntryDto {
     private Integer id;
     @NotBlank
-    @MaxBytes(value = 255)
+    @Size(min = 2, max = 255)
     private String title;
     @NotBlank
-    @MaxBytes(value = 500)
+    @Size(min = 2, max = 500)
     private String description;
     @NotBlank
-    @MaxBytes(value = 255)
+    @Size(max = 255)
     private String thumbnailUrl;
     @NotBlank
-    @MaxBytes(value = 255)
+    @Size(min = 2, max = 255)
     private String thumbnailAlt;
     @NotBlank
-    @MaxBytes(value = 65535)
+    @Size(min = 2, max = 65535)
     private String content;
 
     private boolean inProgress;
