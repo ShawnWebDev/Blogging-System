@@ -7,6 +7,7 @@ import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxTrigger;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -30,32 +31,31 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public FragmentsRendering home(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
+    public Object home(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
         model.addAttribute("title", "Shawn Osborne's Website");
+
         if (!htmxRequest.isHtmxRequest()) {
             model.addAttribute("fromAbout", true);
-            return FragmentsRendering.fragment("index").build();
+            return "index";
         }
-        if (htmxRequest.getCurrentUrl() == null || !htmxRequest.getCurrentUrl().endsWith("/")) {
-            htmxResponse.setPushUrl("/");
-        }
+        pushUrlIfNeeded(htmxRequest, htmxResponse, "/");
+
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
                 .fragment("index::about-main")
                 .build();
     }
 
-    // todo : get posts with 'portfolio' category and render/send view
+    // todo : get posts with 'portfolio' category and send view
     @GetMapping("/portfolio")
-    public FragmentsRendering portfolio(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
+    public Object portfolio(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
         model.addAttribute("title", "Portfolio | Shawn Osborne");
+
         if (!htmxRequest.isHtmxRequest()) {
             model.addAttribute("fromPortfolio", true);
-            return FragmentsRendering.fragment("portfolio").build();
+            return "portfolio";
         }
-        if (htmxRequest.getCurrentUrl() == null || !htmxRequest.getCurrentUrl().endsWith("/portfolio")) {
-            htmxResponse.setPushUrl("/portfolio");
-        }
+        pushUrlIfNeeded(htmxRequest, htmxResponse, "/portfolio");
 
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
@@ -64,15 +64,14 @@ public class HomeController {
     }
 
     @GetMapping("/contact")
-    public FragmentsRendering contact(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
+    public Object contact(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
         model.addAttribute("title", "Contact | Shawn Osborne");
+
         if (!htmxRequest.isHtmxRequest()) {
             model.addAttribute("fromContact", true);
-            return FragmentsRendering.fragment("contact").build();
+            return "contact";
         }
-        if (htmxRequest.getCurrentUrl() == null || !htmxRequest.getCurrentUrl().endsWith("/contact")) {
-            htmxResponse.setPushUrl("/contact");
-        }
+        pushUrlIfNeeded(htmxRequest, htmxResponse, "/contact");
 
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
@@ -83,7 +82,7 @@ public class HomeController {
     @HxTrigger("loginSuccess")
     @GetMapping("/loginSuccess")
     public FragmentsRendering loginSuccess(HttpServletRequest request, HtmxResponse htmxResponse) {
-        // called from Spring Security redirect on successful log in
+        // called from Spring Security redirect on successful log in, does not use HtmxRequest because is from redirect by Security
         String referer = request.getHeader("Referer");
         boolean isFromBlog = false;
         try {
@@ -115,12 +114,17 @@ public class HomeController {
     }
 
     @GetMapping("/loginError")
-    public FragmentsRendering loginError(Model model) {
+    public String loginError(Model model, HttpServletResponse response) {
         model.addAttribute("loginError", true);
-        return FragmentsRendering
-                .fragment("components/auth-components::login-article")
-                .header("HX-Retarget", "#login-article")
-                .build();
+        response.addHeader("HX-Retarget", "#login-article");
+        return "components/auth-components::login-article";
     }
+
+    private static void pushUrlIfNeeded(HtmxRequest request, HtmxResponse response, String url) {
+        if (request.getCurrentUrl() == null || !request.getCurrentUrl().endsWith(url)) {
+            response.setPushUrl(url);
+        }
+    }
+
 
 }
