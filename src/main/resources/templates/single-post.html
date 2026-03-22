@@ -11,6 +11,7 @@
             <h1 th:text="${entry.title}" id="entry-title"></h1>
             <div id="single-post-categories-container">
                 <h2>Categories</h2>
+                <p th:if="${entry.categories.size() == 0}">No associated categories.</p>
                 <th:block th:each="category : ${entry.categories}">
                     <button th:hx-get="@{/blog/blogComponent/posts(categoryName=${category})}" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:text="${category} + ' →'"
                             th:title="'View all posts in ' + ${category}" th:aria-label="'View all posts in ' + ${category} + ' - navigates to blog'" class="btn-anchor-look"></button>
@@ -26,7 +27,10 @@
             <!-- todo: needs comments section component-->
             <section>
                 <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button-post}"></div>
-                <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
+                <div sec:authorize="isAnonymous()">
+                    <p>Please log in to comment.</p>
+                    <div th:replace="~{components/auth-components::login-button}"></div>
+                </div>
                 <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
             </section>
 

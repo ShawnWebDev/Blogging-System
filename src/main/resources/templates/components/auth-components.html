@@ -27,7 +27,6 @@
     </div>
 
     <div th:fragment="login-button" id="login-container">
-        <p>Please log in to comment.</p>
         <button onclick="openDialog('login-modal')" class="btn-primary">Login</button>
         <div th:replace="~{components/auth-components::login-message}"></div>
     </div>
