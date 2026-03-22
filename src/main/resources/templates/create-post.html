@@ -6,13 +6,13 @@
   <header th:replace="~{components/header-components :: full-header}"></header>
 
   <main>
-    <div id="main-content" th:fragment="create-post(post)">
+    <div id="main-content" th:fragment="create-post">
       <h1 th:text="${isEditing ? 'Edit Post' : 'Create Post'}"></h1>
       <section id="create-post-form-container">
         <button th:if="${isEditing}" th:hx-get="@{/blog/post(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Changes will be lost!" class="btn-primary">Back To Post</button>
         <button th:if="${!isEditing}" th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Content will be lost!" class="btn-primary">Back To Blog</button>
 
-        <form action="#" th:hx-post="@{${isEditing ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#create-post-form" hx-swap="outerHTML">
+        <form action="#" th:hx-post="@{${isEditing ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#main-content" hx-swap="outerHTML">
           <input type="hidden" th:if="${isEditing}" name="id" th:value="${post.id}"/>
 
           <label>In Progress?:
@@ -20,7 +20,7 @@
           </label>
 
           <label>Title:
-            <input type="text" name="title" th:value="${post.title}" required/>
+            <input type="text" name="title" th:value="${post.title}"/>
             <small th:errors="${post.title}" th:text="${#fields.errors('post.title')}" class="error"></small>
           </label>
 
@@ -48,6 +48,7 @@
             <div>
               <label>Category 1:
                 <select name="categoryIds[0]">
+                  <option value="0" th:selected="${post.categoryIds[0] == 0}">None</option>
                   <option th:each="category : ${categoryList}" th:value="${category.id}" th:text="${category.name}" th:selected="${post.categoryIds[0] == category.id}"></option>
                 </select>
               </label>
@@ -80,15 +81,16 @@
 
           <label>Content: <br><a href="https://commonmark.org/help/" target="_blank" rel="noopener noreferrer">Markdown Reference</a>
             <textarea name="content" id="post-content-input" th:text="${post.content}" required></textarea>
+            <small th:errors="${post.content}" th:text="${#fields.errors('post.content')}" class="error"></small>
           </label>
 
           <div>
-            <div id="byte-count"></div>
-            <!--hidden, used to trigger update of byte-count-->
+            <div id="size-count"></div>
+            <!--hidden, used to trigger update of size-count-->
             <div id="byte-validator"
                  hx-post="/blog/postComponent/validateSize"
                  hx-trigger="load, keyup from:#post-content-input changed delay:5s"
-                 hx-target="#byte-count"
+                 hx-target="#size-count"
                  hx-include="#post-content-input"></div>
 
             <div id="error-field"></div>
