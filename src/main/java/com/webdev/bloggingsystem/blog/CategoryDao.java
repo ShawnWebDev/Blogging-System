@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -42,6 +43,15 @@ public class CategoryDao {
                     "INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)", batchArgs).length;
         }
         return result;
+    }
+
+    public Optional<Category> findCategoryById(int id) {
+        return jdbc.sql(
+                "SELECT * FROM categories " +
+                "WHERE id = :id")
+                .param("id", id)
+                .query(Category.class)
+                .optional();
     }
 
     public List<Category> findAll() {
@@ -85,6 +95,14 @@ public class CategoryDao {
                     .param("categoryName", category.getCategoryName())
                     .param("description", category.getDescription())
                     .update();
+    }
+
+    public void deleteCategoryById(int id) {
+        jdbc.sql(
+                "DELETE FROM categories " +
+                "WHERE id = :id")
+                .param("id", id)
+                .update();
     }
 
     public void deleteJoinedByBlogId(int blogId) {
