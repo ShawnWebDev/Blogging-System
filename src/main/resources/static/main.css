@@ -78,39 +78,54 @@ nav ul, ul.group {
 
 .nav-item {
     cursor: pointer;
-    color: var(--main-text-color);
     background-color: var(--transparent-color-dark);
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
     display: flex;
     gap: 0.75rem;
-    transition: background-color 200ms ease-in-out, clip-path 200ms ease-in-out, box-shadow 200ms ease-in-out;
+    transition: background-color 200ms ease-in-out, clip-path 200ms ease-in-out 100ms, box-shadow 200ms ease-in-out;
     clip-path: inset(-2px round 12px 12px 0 0);
     text-decoration: none;
     align-items: center;
+    box-shadow: 0 -2px 0 var(--accent-color-transparent), inset 0 0 2px var(--transparent-color-light);
 }
 
-.nav-item > svg {
+.nav-item span {
+    color: var(--main-text-color);
+}
+
+.nav-item:hover span, .nav-item.active span {
+    color: #fff;
+}
+
+.nav-item svg {
     display: none;
     fill: #fff;
     opacity: 0.5;
-    transition: opacity 200ms ease-in-out;
 }
 
-.nav-item:hover > svg, .active > svg {
+.nav-item:hover svg, .nav-item.active svg {
     opacity: 1;
 }
 
 .nav-item:hover, .active {
-    box-shadow: 0 -2px 0 var(--accent-color);
+    box-shadow: 0 -2px 0 var(--accent-color), inset 0 0 2px var(--transparent-color-light);
     background-color: var(--secondary-bg-color);
     color: #fff;
 }
 
 .nav-item.active {
     clip-path: inset(-4px round 12px 12px 0 0);
-    box-shadow: 0 -2px 0 var(--accent-color), 0 -1px 0 var(--secondary-bg-color), 0 1px 0 var(--secondary-bg-color),
-    1px -2px 0 var(--color-light), -1px -2px 0 var(--color-light), 1px 1px 0 var(--color-light), -1px 1px 0 var(--color-light);
+    box-shadow: 0 -2px 0 var(--accent-color), 0 -2px 0 var(--secondary-bg-color), 0 2px 0 var(--secondary-bg-color),
+    1px -2px 0 var(--color-light), -1px -2px 0 var(--color-light), 1px 2px 0 var(--color-light), -1px 2px 0 var(--color-light);
+}
+
+.nav-item span, .nav-item svg {
+    transition: transform 200ms ease-in-out, opacity 200ms ease-in-out;
+    will-change: transform;
+}
+.nav-item.active span, .nav-item.active > svg {
+    transform: translateY(0.125rem);
 }
 
 button, a, input[type = submit] {
@@ -132,7 +147,7 @@ a:hover {
 
 #posts {
     opacity: 1;
-    transition: opacity 150ms ease-in-out 50ms;
+    transition: opacity 150ms ease-in-out;
 }
 
 #posts.htmx-swapping {
@@ -178,14 +193,18 @@ article header {
     transition: border-color 200ms ease-in-out, color 200ms ease-in-out, background-color 200ms ease-in-out;
 }
 
+.category-card header h4 {
+    padding: 0 0.5rem;
+}
+
 .post-card header:hover {
     background-color: var(--accent-color);
     border-color: var(--accent-color);
     color: #fff;
 }
 
-.post-card header:hover svg {
-    opacity: 1;
+.post-card header:hover .header-nav-arrow {
+    opacity: 0.85;
     transform: translateX(0.5rem);
 }
 
@@ -199,11 +218,7 @@ article header h4 {
     align-items: center;
 }
 
-.post-card header span svg {
-    width: 0.9rem;
-    height: 0.9rem;
-    display: block;
-    fill: #fff;
+.post-card header .header-nav-arrow {
     opacity: 0.5;
     transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
 }
@@ -293,7 +308,7 @@ article header h4 {
     background-color: var(--transparent-color-dark);
     color: var(--main-text-color);
 }
-#create-post-form label {
+label {
     width: 100%;
     display: block;
 }
@@ -521,23 +536,18 @@ dialog #login-message {
     }
     .nav-item {
         justify-content: space-between;
-        padding-left: 0.25rem;
-        transition: background-color 200ms ease-in-out, clip-path 200ms ease-in-out, box-shadow 200ms ease-in-out, transform 200ms ease-in-out;
+        padding-left: 1rem;
+        box-shadow: -4px 0 0 var(--accent-color-transparent), inset 0 0 2px var(--transparent-color-light);
         clip-path: inset(-2px round 12px 0 0 12px);
     }
     .nav-item:hover {
-        box-shadow: -2px 0 0 var(--accent-color);
+        clip-path: inset(-2px round 12px 0 0 12px);
+        box-shadow: -4px 0 0 var(--accent-color), inset 0 0 2px var(--color-light);
     }
     .nav-item.active {
         clip-path: inset(-4px round 12px 0 0 12px);
-        box-shadow: 2px -1px 0 var(--secondary-bg-color), 2px 1px 0 var(--secondary-bg-color), -2px -1px 0 var(--accent-color), -2px 1px 0 var(--accent-color),
-        1px 2px 0 var(--color-light), 1px -2px 0 var(--color-light);
-    }
-    .nav-item > span {
-        transition: transform 200ms ease-in-out;
-    }
-    .nav-item.active > span {
-        transform: translateX(0.5rem);
+        box-shadow: 2px 0 0 var(--secondary-bg-color), 0 1px 0 var(--color-light), 0 -1px 0 var(--color-light), -8px 0 0 var(--accent-color),
+        2px 1px 0 0 var(--color-light), 2px -1px 0 var(--color-light);
     }
 
     .nav-item svg {
@@ -545,6 +555,11 @@ dialog #login-message {
         height: 1.25rem;
         padding-right: 0.5rem;
     }
+
+    .nav-item.active > span, .nav-item.active > svg {
+        transform: translateX(0.25rem);
+    }
+
     .post-card header span svg {
         width: 1.15rem;
         height: 1.15rem;
