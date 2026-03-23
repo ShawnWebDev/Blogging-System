@@ -19,9 +19,9 @@
         </section>
     </article>
 
-    <article th:fragment="edit-category-card" class="category-card">
-        <form action="#" hx-post="/categories/update" hx-target="closest .category-card" hx-swap="outerHTML" class="edit-category-form">
-            <input type="hidden" name="id" th:value="${category.id}"/>
+    <article th:fragment="category-card-form" class="category-card">
+        <form action="#" th:hx-post="@{${isEditing ? '/categories/update' : '/categories/create'}} " hx-target="closest .category-card" hx-swap="outerHTML" class="edit-category-form">
+            <input th:if="${category.id != null}" type="hidden" name="id" th:value="${category.id}"/>
             <header>
                 <h4>
                     <label>Name:
@@ -31,7 +31,8 @@
                 <small th:errors="${category.categoryName}" th:text="${#fields.errors('category.categoryName')}" class="error"></small>
                 <div>
                     <input type="submit" class="btn-primary" value="Save">
-                    <button th:hx-get="@{/categories/cancelEdit(id=${category.id})}" hx-target="closest .category-card" hx-swap="outerHTML" hx-confirm="Revert changes?" class="btn-primary">Cancel</button>
+                    <button type="button" th:if="${category.id != null}" th:hx-get="@{/categories/cancelEdit(id=${category.id})}" hx-target="closest .category-card" hx-swap="outerHTML" hx-confirm="Revert changes?" class="btn-primary">Cancel</button>
+                    <button type="button" th:unless="${category.id != null}" hx-get="/categories/cancelCreate" hx-target="closest .category-card" hx-swap="delete" hx-confirm="Cancel?" class="btn-primary">Cancel</button>
                 </div>
             </header>
             <section class="description">

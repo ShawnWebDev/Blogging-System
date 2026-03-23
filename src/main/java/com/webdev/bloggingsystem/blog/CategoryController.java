@@ -4,6 +4,7 @@ import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -34,10 +35,40 @@ public class CategoryController {
     }
 
     @HxRequest
+    @GetMapping("/create")
+    public String createCategoryFormView(Model model) {
+        model.addAttribute("category", new Category());
+        model.addAttribute("isEditing", false);
+        return "components/categories-components::category-card-form";
+    }
+
+    @HxRequest
+    @PostMapping("/create")
+    public String createCategoryFormView(@Valid @ModelAttribute("category") Category category,
+                                         BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("category", category);
+            model.addAttribute("isEditing", false);
+            return "components/categories-components::category-card-form";
+        }
+
+        int id = blogService.createCategory(category);
+        model.addAttribute("category", blogService.findCategoryById(id));
+        return "components/categories-components::category-card";
+    }
+
+    @HxRequest
+    @GetMapping("/cancelCreate")
+    public ResponseEntity<Void> cancelCreate() {
+        return ResponseEntity.ok().build();
+    }
+
+    @HxRequest
     @GetMapping("/edit")
     public String editCategoryFormView(Model model, @RequestParam Integer id) {
         model.addAttribute("category", blogService.findCategoryById(id));
-        return "components/categories-components::edit-category-card";
+        model.addAttribute("isEditing", true);
+        return "components/categories-components::category-card-form";
     }
 
     @HxRequest
@@ -53,7 +84,8 @@ public class CategoryController {
                                BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("category", category);
-            return "components/categories-components::edit-category-card";
+            model.addAttribute("isEditing", true);
+            return "components/categories-components::category-card-form";
         }
 
         blogService.updateCategory(category);

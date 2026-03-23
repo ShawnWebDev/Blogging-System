@@ -60,6 +60,10 @@ public class BlogService {
         return categoryDao.findCategoryDescriptionByName(categoryName);
     }
 
+    public int createCategory(Category category) {
+        return categoryDao.insert(category);
+    }
+
     public void deleteCategoryById(int id) {
         categoryDao.deleteCategoryById(id);
     }

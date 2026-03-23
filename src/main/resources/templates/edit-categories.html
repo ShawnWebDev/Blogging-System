@@ -11,7 +11,7 @@
             <h1>Create / Edit Categories</h1>
             <div>
                 <button hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Blog</button>
-                <button hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Create Category</button>
+                <button hx-get="/categories/create" hx-target="#edit-category-container" hx-swap="afterbegin" class="btn-primary">Create Category</button>
                 <div id="error-field"></div>
             </div>
 
