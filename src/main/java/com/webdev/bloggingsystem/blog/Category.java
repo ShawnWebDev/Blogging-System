@@ -1,8 +1,10 @@
 package com.webdev.bloggingsystem.blog;
 
+import com.webdev.bloggingsystem.errorHandling.UniqueCategoryName;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+@UniqueCategoryName
 public class Category {
     private Integer id;
     @NotBlank
