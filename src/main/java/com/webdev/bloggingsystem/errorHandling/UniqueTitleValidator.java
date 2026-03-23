@@ -6,7 +6,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 public class UniqueTitleValidator implements ConstraintValidator<UniqueTitle, CreateBlogEntryDto> {
-    private String message;
     private final BlogEntryDao blogEntryDao;
 
     public UniqueTitleValidator(BlogEntryDao blogEntryDao) {
@@ -14,15 +13,10 @@ public class UniqueTitleValidator implements ConstraintValidator<UniqueTitle, Cr
     }
 
     @Override
-    public void initialize(UniqueTitle constraintAnnotation) {
-        this.message = constraintAnnotation.message();
-    }
-
-    @Override
-    public boolean isValid(CreateBlogEntryDto dto, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(CreateBlogEntryDto dto, ConstraintValidatorContext context) {
         if (blogEntryDao.existsByTitleAndNotId(dto.getTitle(), dto.getId())) {
-            constraintValidatorContext.disableDefaultConstraintViolation();
-            constraintValidatorContext.buildConstraintViolationWithTemplate(this.message)
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
                     .addPropertyNode("title")
                     .addConstraintViolation();
             return false;

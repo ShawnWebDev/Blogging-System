@@ -8,11 +8,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = UniqueTitleValidator.class)
+@Constraint(validatedBy = UniqueCategoryValidator.class)
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UniqueTitle {
-    String message() default "Title must be unique!";
+public @interface UniqueCategoryName {
+    String message() default "Category name must be unique!";
 
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
