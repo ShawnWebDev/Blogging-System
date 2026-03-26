@@ -8,17 +8,21 @@
 
     <main>
         <div th:fragment="single-post" id="main-content">
-            <h1 th:text="${entry.title}" id="entry-title"></h1>
-            <div id="single-post-categories-container">
-                <h2>Categories</h2>
-                <p th:if="${entry.categories.size() == 0}">No associated categories.</p>
-                <th:block th:each="category : ${entry.categories}">
-                    <button th:hx-get="@{/blog/blogComponent/posts(categoryName=${category})}" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:text="${category} + ' →'"
-                            th:title="'View all posts in ' + ${category}" th:aria-label="'View all posts in ' + ${category} + ' - navigates to blog'" class="btn-anchor-look"></button>
-                </th:block>
-            </div>
+            <header id="post-header">
+                <img th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt()}" class="post-header-image"/>
+                <div id="post-header-content">
+                    <h1 th:text="${entry.title}" id="entry-title"></h1>
+                    <button hx-get="/blog" hx-swap="outerHTML swap:150ms" hx-target="#main-content" class="btn-secondary">Blog Dashboard</button>
+                </div>
 
-            <button th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML swap:150ms" class="btn-primary">Back To Blog</button>
+                <div id="single-post-navigation-container">
+                    <th:block th:each="category : ${entry.categories}">
+                        <button th:hx-get="@{/blog/blogComponent/posts(categoryName=${category})}" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:text="${category}"
+                                th:title="'View all posts in ' + ${category}" th:aria-label="'View all posts in ' + ${category} + ' - navigates to blog'" class="btn-secondary"></button>
+                    </th:block>
+                    <p th:if="${entry.categories.size() == 0}">No associated categories.</p>
+                </div>
+            </header>
 
             <section th:utext="${entry.contentHtml}" id="post-content"></section>
 

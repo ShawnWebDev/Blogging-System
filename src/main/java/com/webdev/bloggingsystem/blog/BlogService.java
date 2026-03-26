@@ -180,7 +180,7 @@ public class BlogService {
     }
 
     private FullBlogEntryDto buildFullBlogEntryDto(BlogEntry entry) {
-        return new FullBlogEntryDto(entry.getId(), entry.getTitle(), entry.getSlug(), entry.getDescription(),
+        return new FullBlogEntryDto(entry.getId(), entry.getTitle(), entry.getSlug(), entry.getDescription(), entry.getThumbnailUrl(), entry.getThumbnailAlt(),
                 entry.getCreatedAt(), entry.getUpdatedAt(), entry.getCategoryNames(), this.renderMarkdown(entry.getContent()));
     }
 
