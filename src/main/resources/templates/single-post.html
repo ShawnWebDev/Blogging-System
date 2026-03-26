@@ -9,22 +9,22 @@
     <main>
         <div th:fragment="single-post" id="main-content">
             <header id="post-header">
-                <img th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt()}" class="post-header-image"/>
+                <img th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="post-header-image"/>
                 <div id="post-header-content">
                     <h1 th:text="${entry.title}" id="entry-title"></h1>
                     <button hx-get="/blog" hx-swap="outerHTML swap:150ms" hx-target="#main-content" class="btn-secondary">Blog Dashboard</button>
                 </div>
 
                 <div id="single-post-navigation-container">
-                    <th:block th:each="category : ${entry.categories}">
+                    <th:block th:each="category : ${entry.categoryNames}">
                         <button th:hx-get="@{/blog/blogComponent/posts(categoryName=${category})}" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:text="${category}"
                                 th:title="'View all posts in ' + ${category}" th:aria-label="'View all posts in ' + ${category} + ' - navigates to blog'" class="btn-secondary"></button>
                     </th:block>
-                    <p th:if="${entry.categories.size() == 0}">No associated categories.</p>
+                    <p th:if="${entry.categoryNames.size() == 0}">No associated categories.</p>
                 </div>
             </header>
 
-            <section th:utext="${entry.contentHtml}" id="post-content"></section>
+            <section th:utext="${entry.content}" id="post-content"></section>
 
             <section th:replace="~{components/post-components::admin-buttons(${entry.id})}"></section>
 

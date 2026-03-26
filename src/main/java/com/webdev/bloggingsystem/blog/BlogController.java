@@ -43,10 +43,10 @@ public class BlogController {
         model.addAttribute("categoryDesc", categoryDescription);
     }
 
-    private void populateSinglePostModel(Model model, FullBlogEntryDto entryDto) {
-        model.addAttribute("entry", entryDto);
+    private void populateSinglePostModel(Model model, BlogEntry entry) {
+        model.addAttribute("entry", entry);
         model.addAttribute("fromBlog", true);
-        model.addAttribute("title", entryDto.slug());
+        model.addAttribute("title", entry.getSlug());
     }
 
     // called when requesting main blog dashboard
@@ -133,21 +133,21 @@ public class BlogController {
     @HxRequest
     @GetMapping("/post")
     public FragmentsRendering singlePostViewFromId(Model model, @RequestParam Integer id) {
-        FullBlogEntryDto entryDto = blogService.readPostById(id);
-        populateSinglePostModel(model, entryDto);
+        BlogEntry entry = blogService.readPostById(id);
+        populateSinglePostModel(model, entry);
 
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
                 .fragment("single-post::single-post")
-                .header("HX-Push-Url", "/blog/post/"+entryDto.slug())
+                .header("HX-Push-Url", "/blog/post/"+entry.getSlug())
                 .build();
     }
 
     // "/blog/post/{slug}" to be used by external links, direct url, refresh
     @GetMapping("/post/{slug}")
     public String singlePostViewFromSlug(Model model, @PathVariable String slug) {
-        FullBlogEntryDto entryDto = blogService.readPostBySlug(slug);
-        populateSinglePostModel(model, entryDto);
+        BlogEntry entry = blogService.readPostBySlug(slug);
+        populateSinglePostModel(model, entry);
 
         return "single-post";
     }
