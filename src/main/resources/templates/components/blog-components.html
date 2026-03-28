@@ -30,7 +30,7 @@
                 <small>@ <time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
             </header>
             <section class="description">
-                <img th:if="${post.thumbnailUrl != null && post.thumbnailAlt != null}" th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}" class="post-thumbnail"/>
+                <img th:if="${!post.thumbnailUrl.isBlank()}" th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}" class="post-thumbnail"/>
                 <p th:text="${post.description}"></p>
             </section>
         </article>
