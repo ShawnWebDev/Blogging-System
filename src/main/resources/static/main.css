@@ -2,8 +2,10 @@
     --main-bg-color: rgb(50, 50, 50);
     --secondary-bg-color: rgb(33, 33, 33);
 
-    --accent-color: rgba(56, 121, 75);
-    --accent-color-transparent: rgba(56, 121, 75, 0.5);
+    --accent-color: rgb(130, 255, 165);
+    --accent-color-less-transparent: rgba(130, 255, 165, 0.85);
+    --accent-color-transparent: rgba(130, 255, 165, 0.25);
+
     --color-dark: rgb(41, 41, 41);
     --color-light: rgb(105, 105, 105);
     --transparent-color-dark: rgba(41, 41, 41, 0.5);
@@ -30,7 +32,7 @@ main {
 }
 
 #main-content {
-    padding: 2rem 0.5rem;
+    padding: 2.5rem 0.5rem;
     opacity: 1;
     transition: opacity 150ms ease-in-out;
 }
@@ -55,9 +57,21 @@ main {
 }
 
 #main-content h1 {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     margin: 0;
-    padding-bottom: 1rem;
+}
+
+#main-content h1 span {
+    margin: 0;
     font-size: 1.75rem;
+}
+
+#main-content h1 svg {
+    width: 2rem;
+    height: 2rem;
+    fill: var(--accent-color-less-transparent);
 }
 
 #main-header section {
@@ -81,13 +95,15 @@ nav ul, ul.group {
     background-color: var(--transparent-color-dark);
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
+    font-weight: 500;
     display: flex;
     gap: 0.75rem;
-    transition: background-color 200ms ease-in-out, clip-path 200ms ease-in-out 100ms, box-shadow 200ms ease-in-out;
-    clip-path: inset(-2px round 12px 12px 0 0);
+    transition: background-color 200ms ease-in-out, clip-path 200ms ease-in-out, box-shadow 200ms ease-in-out;
+    clip-path: inset(-4px round 12px 12px 0 0);
     text-decoration: none;
     align-items: center;
-    box-shadow: 0 -2px 0 var(--accent-color-transparent), inset 0 0 2px var(--transparent-color-light);
+    box-shadow: 0 -2px 0 var(--accent-color-transparent),
+    1px 0 0 var(--transparent-color-light), -1px 0 0 var(--transparent-color-light);
 }
 
 .nav-item span {
@@ -108,15 +124,17 @@ nav ul, ul.group {
     opacity: 1;
 }
 
-.nav-item:hover, .active {
-    box-shadow: 0 -2px 0 var(--accent-color), inset 0 0 2px var(--transparent-color-light);
+.nav-item:hover {
+    box-shadow: 0 -2px 0 var(--accent-color-less-transparent),
+    1px 0 0 var(--color-light), -1px 0 0 var(--color-light);
     background-color: var(--secondary-bg-color);
     color: #fff;
 }
 
 .nav-item.active {
-    clip-path: inset(-4px round 12px 12px 0 0);
-    box-shadow: 0 -2px 0 var(--accent-color), 0 -2px 0 var(--secondary-bg-color), 0 2px 0 var(--secondary-bg-color),
+    background-color: var(--secondary-bg-color);
+    color: #fff;
+    box-shadow: 0 -3px 0 var(--accent-color), 0 -2px 0 var(--secondary-bg-color), 0 2px 0 var(--secondary-bg-color),
     1px -2px 0 var(--color-light), -1px -2px 0 var(--color-light), 1px 2px 0 var(--color-light), -1px 2px 0 var(--color-light);
 }
 
@@ -128,16 +146,16 @@ nav ul, ul.group {
     transform: translateY(0.125rem);
 }
 
-button, a, input[type = submit] {
-    font-size: 0.9rem;
+button, input[type = submit] {
+    font-weight: 600;
     cursor: pointer;
 }
 
-a {
-    color: var(--accent-color);
+a, .btn-anchor-look {
+    color: var(--accent-color-less-transparent);
 }
 
-a:hover {
+a:hover, .btn-anchor-look:hover {
     color: var(--accent-color);
 }
 
@@ -189,7 +207,7 @@ article header {
     background-color: var(--color-dark);
     border-radius: 0.25rem 0.25rem 0 0;
     padding: 0.5rem;
-    border-bottom: 2px solid var(--accent-color);
+    border-bottom: 2px solid var(--accent-color-transparent);
     transition: border-color 200ms ease-in-out, color 200ms ease-in-out, background-color 200ms ease-in-out;
 }
 
@@ -198,13 +216,13 @@ article header {
 }
 
 .post-card header:hover {
-    background-color: var(--accent-color);
+    background-color: var(--accent-color-transparent);
     border-color: var(--accent-color);
     color: #fff;
 }
 
 .post-card header:hover .header-nav-arrow {
-    opacity: 0.85;
+    opacity: 1;
     transform: translateX(0.5rem);
 }
 
@@ -219,7 +237,7 @@ article header h4 {
 }
 
 .post-card header .header-nav-arrow {
-    opacity: 0.5;
+    opacity: 0.65;
     transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
 }
 
@@ -245,41 +263,43 @@ article header h4 {
 }
 
 .btn-primary {
+    font-size: 0.9rem;
     background-color: var(--accent-color-transparent);
-    border: 2px solid var(--accent-color);
+    border: 1px solid var(--accent-color-less-transparent);
     border-radius: 0.25rem;
-    color: var(--main-text-color);
-    cursor: pointer;
+    color: /*rgb(0, 50, 25)*/#fff;
     transition: color 200ms ease-in-out, border-color 200ms ease-in-out, background-color 200ms ease-in-out;
     padding: 0.5rem 0.75rem;
-    font-weight: 500;
 }
 
 .btn-primary:hover {
-    background-color: var(--accent-color);
-    color: #fff;
+    background-color: var(--accent-color-less-transparent);
+    color: #000;
     border-color: var(--secondary-bg-color);
 }
 
 .active-category {
     background-color: var(--accent-color);
-    color: #fff;
+    color: #000;
 }
 
 .category-selection:hover, .category-selection.active-category, input[type=submit]:hover {
     border-color: var(--main-bg-color);
 }
 
-.btn-anchor-look {
-    color: var(--accent-color);
-    border: none;
-    background: none;
-    cursor: pointer;
-    text-decoration: underline;
+.btn-secondary {
+    font-weight: 500;
+    background-color: var(--secondary-bg-color);
+    color: var(--main-text-color);
+    border: 1px solid var(--transparent-color-light);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    transition: color 200ms ease-in-out, border-color 200ms ease-in-out;
 }
 
-.btn-anchor-look:hover {
+.btn-secondary:hover {
     color: var(--accent-color);
+    border-color: var(--accent-color);
 }
 
 #admin-btns {
@@ -295,7 +315,31 @@ article header h4 {
     font-size: 1.25rem;
 }
 
+/* SINGLE POST STYLES */
+#post-header {
+    margin-bottom: 2rem;
+}
+
+#post-thumbnail {
+    display: inline;
+}
+
+#post-header-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+}
+
+#single-post-navigation-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 auto 0.5rem auto;
+}
+
 /* FORM STYLES */
+
 #create-post-form {
     display: flex;
     flex-direction: column;
@@ -462,7 +506,10 @@ dialog #login-message {
         width: fit-content;
     }
     #main-content {
-        padding: 2rem;
+        padding: 2.5rem 2rem;
+    }
+    .nav-item {
+        font-weight: 600;
     }
     nav ul {
         padding: 0;
@@ -537,29 +584,26 @@ dialog #login-message {
     .nav-item {
         justify-content: space-between;
         padding-left: 1rem;
-        box-shadow: -4px 0 0 var(--accent-color-transparent), inset 0 0 2px var(--transparent-color-light);
-        clip-path: inset(-2px round 12px 0 0 12px);
+        box-shadow: -1px 0 0 var(--accent-color-transparent), 0 0 2px var(--transparent-color-light);
+        clip-path: inset(-3px round 14px 0 0 14px);
     }
     .nav-item:hover {
-        clip-path: inset(-2px round 12px 0 0 12px);
-        box-shadow: -4px 0 0 var(--accent-color), inset 0 0 2px var(--color-light);
+        box-shadow: -2px 0 0 var(--accent-color);
     }
     .nav-item.active {
-        clip-path: inset(-4px round 12px 0 0 12px);
-        box-shadow: 2px 0 0 var(--secondary-bg-color), 0 1px 0 var(--color-light), 0 -1px 0 var(--color-light), -8px 0 0 var(--accent-color),
-        2px 1px 0 0 var(--color-light), 2px -1px 0 var(--color-light);
+        clip-path: inset(-5px round 16px 0 0 16px);
+        box-shadow: -3px 0 0 var(--accent-color),
+        3px 0 0 var(--secondary-bg-color),
+        -2px -1px 0 var(--color-light), -2px 1px 0 var(--color-light), 2px -1px 0 var(--color-light), 2px 1px 0 var(--color-light);
     }
-
     .nav-item svg {
         width: 1.25rem;
         height: 1.25rem;
         padding-right: 0.5rem;
     }
-
     .nav-item.active > span, .nav-item.active > svg {
         transform: translateX(0.25rem);
     }
-
     .post-card header span svg {
         width: 1.15rem;
         height: 1.15rem;
