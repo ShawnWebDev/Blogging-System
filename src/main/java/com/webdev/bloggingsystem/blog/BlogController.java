@@ -131,8 +131,8 @@ public class BlogController {
 
     // "/blog?id=#" only to be used by HTMX internal navigation
     @HxRequest
-    @GetMapping("/post")
-    public FragmentsRendering singlePostViewFromId(Model model, @RequestParam Integer id) {
+    @GetMapping("/post/{id}")
+    public FragmentsRendering singlePostViewFromId(Model model, @PathVariable Integer id) {
         BlogEntry entry = blogService.readPostById(id);
         populateSinglePostModel(model, entry);
 
@@ -182,7 +182,7 @@ public class BlogController {
         int blogId = blogService.createPost(createBlogEntryDto);
 
         return ResponseEntity.ok()
-                .header("HX-Location", "{\"path\":\"/blog/post?id="+blogId+"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
+                .header("HX-Location", "{\"path\":\"/blog/post/"+blogId+"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
                 .build();
     }
 
@@ -214,7 +214,7 @@ public class BlogController {
         blogService.updatePost(createBlogEntryDto);
 
         return ResponseEntity.ok()
-                .header("HX-Location", "{\"path\":\"/blog/post?id="+createBlogEntryDto.getId()+"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
+                .header("HX-Location", "{\"path\":\"/blog/post/"+createBlogEntryDto.getId()+"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
                 .build();
     }
 

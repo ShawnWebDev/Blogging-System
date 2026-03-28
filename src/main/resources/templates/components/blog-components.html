@@ -24,13 +24,13 @@
                             &#8594;
                         </span>
                     </h4>
-                    <a th:href="@{/blog/post/{slug}(slug = ${post.slug})}" th:hx-get="@{/blog/post(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML swap:150ms">
+                    <a th:href="@{/blog/post/{slug}(slug = ${post.slug})}" th:hx-get="@{/blog/post/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML swap:150ms">
                         <span>View Post</span>
                     </a>
                 <small>@ <time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
             </header>
             <section class="description">
-                <img th:if="${post.thumbnailUrl != null && post.thumbnailAlt != null}" th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}"/>
+                <img th:if="${post.thumbnailUrl != null && post.thumbnailAlt != null}" th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}" class="post-thumbnail"/>
                 <p th:text="${post.description}"></p>
             </section>
         </article>

@@ -9,7 +9,7 @@
     <div id="main-content" th:fragment="create-post">
       <h1 th:text="${isEditing ? 'Edit Post' : 'Create Post'}"></h1>
       <section id="create-post-form-container">
-        <button th:if="${isEditing}" th:hx-get="@{/blog/post(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Changes will be lost!" class="btn-primary">Back To Post</button>
+        <button th:if="${isEditing}" th:hx-get="@{/blog/post/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Changes will be lost!" class="btn-primary">Back To Post</button>
         <button th:if="${!isEditing}" th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Content will be lost!" class="btn-primary">Back To Blog</button>
 
         <form action="#" th:hx-post="@{${isEditing ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#main-content" hx-swap="outerHTML">
@@ -32,13 +32,13 @@
           <div class="form-group">
             <div>
               <label>Thumbnail URL:
-                <input type="text" name="thumbnailUrl" th:value="${post.thumbnailUrl}" required/>
+                <input type="text" name="thumbnailUrl" th:value="${post.thumbnailUrl}"/>
                 <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
               </label>
             </div>
             <div>
               <label>Thumbnail Alt:
-                <input type="text" name="thumbnailAlt" th:value="${post.thumbnailAlt}" required/>
+                <input type="text" name="thumbnailAlt" th:value="${post.thumbnailAlt}"/>
                 <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
               </label>
             </div>
