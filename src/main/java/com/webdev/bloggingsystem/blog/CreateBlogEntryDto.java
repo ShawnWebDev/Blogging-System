@@ -15,11 +15,9 @@ public class CreateBlogEntryDto {
     @NotBlank
     @Size(min = 2, max = 500)
     private String description;
-    @NotBlank
     @Size(max = 255)
     private String thumbnailUrl;
-    @NotBlank
-    @Size(min = 2, max = 255)
+    @Size(max = 255)
     private String thumbnailAlt;
     @NotBlank
     @Size(min = 2, max = 65535)
