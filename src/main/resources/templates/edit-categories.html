@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/shared-head}"></head>
+
+<body>
+
+    <header th:replace="~{components/header-components :: full-header}"></header>
+
+    <main>
+        <div th:fragment="edit-categories" id="main-content">
+            <h1>Create / Edit Categories</h1>
+            <div>
+                <button hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Blog</button>
+                <button hx-get="/categories/create" hx-target="#edit-category-container" hx-swap="afterbegin" class="btn-primary">Create Category</button>
+                <div id="error-field"></div>
+            </div>
+
+            <section id="edit-category-container">
+                <th:block th:each="category : ${categories}">
+                    <article th:replace="~{components/categories-components::category-card}"></article>
+                </th:block>
+            </section>
+
+            <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
+        </div>
+    </main>
+
+
+</body>
+</html>

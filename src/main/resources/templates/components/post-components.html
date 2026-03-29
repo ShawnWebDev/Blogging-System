@@ -6,8 +6,8 @@
 </head>
 <body>
 
-    <div th:fragment="byte-count" id="byte-count" hx-swap-oob="true">
-        <span th:text="${byteCount}">Bytes</span><span> bytes used.</span>
+    <div th:fragment="size-count" id="size-count" hx-swap-oob="true">
+        <span th:text="${size}"></span><span> characters used.</span>
     </div>
 
     <section th:fragment="admin-buttons(id)" id="admin-edit-post-btns" hx-trigger="loginSuccess from:body" th:hx-get="@{/blog/postComponent/adminButtons(id=${id})}" hx-target="this" hx-swap="outerHTML">

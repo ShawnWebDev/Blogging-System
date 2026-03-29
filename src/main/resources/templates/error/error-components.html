@@ -3,18 +3,18 @@
 <head th:replace="~{components/shared-head}"></head>
 
 <body>
-    <div id="template">
-        <header th:replace="~{components/header-components :: full-header}"></header>
+    <header th:replace="~{components/header-components :: full-header}"></header>
 
-        <main id="main-content">
+    <main>
+        <div id="main-content">
             <section id="error-section">
-                <span th:fragment="error-field" id="error-field" hx-swap-oob="true">
-                    <span th:if="${errorMsg == null}" class="error">Error!</span>
-                    <span th:if="${errorMsg != null}" th:text="${errorMsg}" class="error"></span>
-                </span>
-                <a th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" class="anchor-link">Back To Blog</a>
+            <span th:fragment="error-field" id="error-field" hx-swap-oob="true">
+                <span th:if="${errorMsg == null}" class="error">Error!</span>
+                <span th:if="${errorMsg != null}" th:text="${errorMsg}" class="error"></span>
+            </span>
+                <a href="/" hx-get="/" hx-target="#main-content" hx-swap="outerHTML">Home</a>
             </section>
-        </main>
-    </div>
+        </div>
+    </main>
 </body>
 </html>

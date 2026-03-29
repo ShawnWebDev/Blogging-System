@@ -1,14 +1,17 @@
 package com.webdev.bloggingsystem.blog;
 
+import com.webdev.bloggingsystem.errorHandling.UniqueCategoryName;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-import java.util.Objects;
-
-
+@UniqueCategoryName
 public class Category {
     private Integer id;
-
+    @NotBlank
+    @Size(min = 2, max = 100)
     private String categoryName;
-
+    @NotBlank
+    @Size(min = 2, max = 255)
     private String description;
 
     public Category() {}
@@ -49,19 +52,5 @@ public class Category {
                 ", categoryName='" + categoryName + '\'' +
                 ", description='" + description + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || this.getClass() != o.getClass() || this.getId() == null) return false;
-        Category category = (Category) o;
-        return Objects.equals(this.getId(), category.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        if (this.getId() == null) return 31;
-        return this.getId().hashCode();
     }
 }

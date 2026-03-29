@@ -1,8 +1,6 @@
 package com.webdev.bloggingsystem.errorHandling;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
-import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
-import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxReswap;
 
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,8 +12,7 @@ import org.springframework.web.servlet.view.FragmentsRendering;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BlogEntryException.class)
-    public FragmentsRendering handleError(BlogEntryException ex, Model model, HtmxResponse response, HtmxRequest request) {
-        response.setReswap(HtmxReswap.none());
+    public FragmentsRendering handleError(BlogEntryException ex, Model model, HtmxRequest request) {
         model.addAttribute("errorMsg", ex.getMessage());
         model.addAttribute("title", "Error!");
 

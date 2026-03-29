@@ -20,6 +20,7 @@ CREATE TABLE `blog_entries` (
         `slug` varchar(255) NOT NULL,
         `thumbnail_url` varchar(255) NOT NULL,
         `thumbnail_alt` varchar(255) NOT NULL,
+        `in_progress` tinyint(1) NOT NULL,
         PRIMARY KEY (`id`),
         UNIQUE KEY `title_UNIQUE` (`title`),
         UNIQUE KEY `slug_UNIQUE` (`slug`)

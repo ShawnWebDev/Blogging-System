@@ -8,13 +8,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = MaxBytesValidator.class)
-@Target(ElementType.FIELD)
+@Constraint(validatedBy = UniqueCategoryValidator.class)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MaxBytes {
-
-    int value();
-    String message() default "Input length exceeded!";
+public @interface UniqueCategoryName {
+    String message() default "Category name must be unique!";
 
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

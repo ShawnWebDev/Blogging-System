@@ -1,0 +1,199 @@
+package com.webdev.bloggingsystem.blog;
+
+import com.webdev.bloggingsystem.errorHandling.BlogEntryException;
+
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
+@Service
+public class BlogService {
+    private static final Logger logger = LoggerFactory.getLogger(BlogService.class);
+
+    private final BlogEntryDao blogEntryDao;
+    private final CategoryDao categoryDao;
+    private final Parser markdownParser;
+    private final HtmlRenderer htmlRenderer;
+
+    public BlogService(BlogEntryDao blogEntryDao, CategoryDao categoryDao, Parser markdownParser, HtmlRenderer htmlRenderer) {
+        this.blogEntryDao = blogEntryDao;
+        this.categoryDao = categoryDao;
+        this.markdownParser = markdownParser;
+        this.htmlRenderer = htmlRenderer;
+    }
+
+    public List<SimpleBlogEntryDto> findAllSimpleBlogEntries() {
+        return blogEntryDao.findAllSimple();
+    }
+
+    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesInProgress() {
+        return blogEntryDao.findAllSimpleInProgress();
+    }
+
+    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesToCategoryName(String categoryName) {
+        return blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName);
+    }
+
+    public List<Category> findAllCategories() {
+        return categoryDao.findAll();
+    }
+
+    public Category findCategoryById(Integer id) {
+        return categoryDao.findCategoryById(id)
+                .orElseThrow(() -> new BlogEntryException("Category with id " + id + " not found!")
+        );
+    }
+
+    public List<SimpleCategoryDto> findAllSimpleCategories() {
+        return categoryDao.findAllNames();
+    }
+
+    public String findCategoryDescriptionByName(String categoryName) {
+        return categoryDao.findCategoryDescriptionByName(categoryName);
+    }
+
+    public int createCategory(Category category) {
+        return categoryDao.insert(category);
+    }
+
+    public void deleteCategoryById(int id) {
+        categoryDao.deleteCategoryById(id);
+    }
+
+    @Transactional
+    public int createPost(CreateBlogEntryDto dto) {
+        //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set<ids>, id)
+        logger.info("Post is being saved...");
+        BlogEntry blogEntry = new BlogEntry(
+                dto.getTitle(),
+                dto.getDescription(),
+                dto.getContent(),
+                dto.getThumbnailUrl(),
+                dto.getThumbnailAlt()
+        );
+        blogEntry.setSlug(dto.getTitle());
+        blogEntry.setInProgress(dto.getInProgress());
+
+        int blogId = blogEntryDao.insert(blogEntry);
+        //remove 0 values from categoryIds array.
+        Set<Integer> cleanedCategoryIds = cleanCategoryIds(dto.getCategoryIds());
+        logger.info("Saving category relations... ");
+        categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
+
+        // return id for location redirect after submit.
+        return blogId;
+    }
+
+    public BlogEntry readPostById(int id) {
+        BlogEntry entry = blogEntryDao.findById(id)
+                .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
+        if (entry.getInProgress() && isNotAdmin()) {
+            throw new BlogEntryException("Entry is in progress and cannot be read!");
+        }
+        entry.setContent(this.renderMarkdown(entry.getContent()));
+        return entry;
+    }
+
+    public BlogEntry readPostBySlug(String slug) {
+        BlogEntry entry = blogEntryDao.findBySlug(slug)
+                .orElseThrow(() -> new BlogEntryException("Entry not found: " + slug));
+        if (entry.getInProgress() && isNotAdmin()) {
+            throw new BlogEntryException("Entry is in progress and cannot be read!");
+        }
+        entry.setContent(this.renderMarkdown(entry.getContent()));
+        return entry;
+    }
+
+    static boolean isNotAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication == null ||
+                !authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"));
+    }
+
+    @Transactional
+    public void updatePost(CreateBlogEntryDto dto) {
+        logger.info("Post is being updated...");
+        int blogId = dto.getId();
+        BlogEntry blogEntry = new BlogEntry(
+                dto.getTitle(),
+                dto.getDescription(),
+                dto.getContent(),
+                dto.getThumbnailUrl(),
+                dto.getThumbnailAlt()
+        );
+        blogEntry.setId(blogId);
+        blogEntry.setSlug(dto.getTitle());
+        blogEntry.setInProgress(dto.getInProgress());
+        int isUpdated = blogEntryDao.update(blogEntry);
+        if (isUpdated == 0) {
+            throw new BlogEntryException("Entry NOT updated with id: " + blogId);
+        }
+        categoryDao.deleteJoinedByBlogId(blogId);
+        //remove 0 values from categoryIds array.
+        Set<Integer> cleanedCategoryIds = cleanCategoryIds(dto.getCategoryIds());
+
+        logger.info("Updating category relations... ");
+        categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
+    }
+
+    // database handles cascade delete of category join table's relations
+    public void deletePost(int id) {
+        int deleted = blogEntryDao.deleteById(id);
+        if (deleted == 0) {
+            throw new BlogEntryException("Entry NOT deleted with id: " + id);
+        }
+    }
+
+    public void updateCategory(Category category) {
+        logger.info("Category is being updated...");
+        int categoryId = category.getId();
+        Category categoryToUpdate = new Category(
+                category.getCategoryName(),
+                category.getDescription()
+        );
+        categoryToUpdate.setId(categoryId);
+        int isUpdated = categoryDao.update(categoryToUpdate);
+        if (isUpdated == 0) {
+            throw new BlogEntryException("Category NOT updated with id: " + categoryId);
+        }
+    }
+
+    static Set<Integer> cleanCategoryIds(int[] categoryIds) {
+        //remove 0 and possible duplicate values from categoryIds array.
+        Set<Integer> cleanedCategoryIds = new HashSet<>();
+        for (int catId : categoryIds) {
+            if (catId != 0) {
+                cleanedCategoryIds.add(catId);
+            }
+        }
+        return cleanedCategoryIds;
+    }
+
+    private String renderMarkdown(String content) {
+        return htmlRenderer.render(markdownParser.parse(content));
+    }
+
+    public CreateBlogEntryDto buildCreateDto(int id) {
+        BlogEntry post = blogEntryDao.findById(id)
+                .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
+        int[] categoryIds = new int[4];
+
+        if (!post.getCategoryNames().isEmpty()) {
+            List<Integer> categoryIdList = categoryDao.findAllIdsInNames(post.getCategoryNames());
+            for (int i = 0; i < categoryIdList.size(); i++) {
+                categoryIds[i] = categoryIdList.get(i);
+            }
+        }
+
+        return new CreateBlogEntryDto(post.getId(), post.getTitle(), post.getDescription(),
+                post.getThumbnailUrl(), post.getThumbnailAlt(), categoryIds, post.getContent(), post.getInProgress());
+    }
+}

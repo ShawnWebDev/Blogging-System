@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UniqueTitle {
-    String message() default "Title is not unique!";
+    String message() default "Title must be unique!";
 
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

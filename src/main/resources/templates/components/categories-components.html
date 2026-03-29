@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Category Components</title>
+</head>
+<body>
+
+    <article th:fragment="category-card" class="category-card">
+        <header>
+            <h4 th:text="${category.categoryName}"></h4>
+            <div>
+                <button th:hx-get="@{/categories/edit(id=${category.id})}" hx-target="closest .category-card" hx-swap="outerHTML" class="btn-primary">Edit</button>
+                <button th:hx-delete="@{/categories/delete(id=${category.id})}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure you want to delete this Category?" class="btn-primary">Delete</button>
+            </div>
+        </header>
+        <section class="description">
+            <p th:text="${category.description}"></p>
+        </section>
+    </article>
+
+    <article th:fragment="category-card-form" class="category-card">
+        <form action="#" th:hx-post="@{${isEditing ? '/categories/update' : '/categories/create'}} " hx-target="closest .category-card" hx-swap="outerHTML" class="edit-category-form">
+            <input th:if="${category.id != null}" type="hidden" name="id" th:value="${category.id}"/>
+            <header>
+                <h4>
+                    <label>Name:
+                        <input type="text" name="categoryName" th:value="${category.categoryName}">
+                    </label>
+                </h4>
+                <small th:errors="${category.categoryName}" th:text="${#fields.errors('category.categoryName')}" class="error"></small>
+                <div>
+                    <input type="submit" class="btn-primary" value="Save">
+                    <button type="button" th:if="${category.id != null}" th:hx-get="@{/categories/cancelEdit(id=${category.id})}" hx-target="closest .category-card" hx-swap="outerHTML" hx-confirm="Revert changes?" class="btn-primary">Cancel</button>
+                    <button type="button" th:unless="${category.id != null}" hx-get="/categories/cancelCreate" hx-target="closest .category-card" hx-swap="delete" hx-confirm="Cancel?" class="btn-primary">Cancel</button>
+                </div>
+            </header>
+            <section class="description">
+                <label>Description:
+                    <textarea name="description" th:text="${category.description}"></textarea>
+                    <small th:errors="${category.description}" th:text="${#fields.errors('category.description')}" class="error"></small>
+                </label>
+            </section>
+        </form>
+    </article>
+
+</body>
+</html>

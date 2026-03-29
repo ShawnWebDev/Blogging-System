@@ -1,8 +1,8 @@
 package com.webdev.bloggingsystem.blog;
 
-import com.webdev.bloggingsystem.errorHandling.MaxBytes;
 import com.webdev.bloggingsystem.errorHandling.UniqueTitle;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.Arrays;
 
@@ -10,26 +10,25 @@ import java.util.Arrays;
 public class CreateBlogEntryDto {
     private Integer id;
     @NotBlank
-    @MaxBytes(value = 255)
+    @Size(min = 2, max = 255)
     private String title;
     @NotBlank
-    @MaxBytes(value = 500)
+    @Size(min = 2, max = 500)
     private String description;
-    @NotBlank
-    @MaxBytes(value = 255)
+    @Size(max = 255)
     private String thumbnailUrl;
-    @NotBlank
-    @MaxBytes(value = 255)
+    @Size(max = 255)
     private String thumbnailAlt;
     @NotBlank
-    @MaxBytes(value = 65535)
+    @Size(min = 2, max = 65535)
     private String content;
 
+    private boolean inProgress;
     private int[] categoryIds = new int[4];
 
     public CreateBlogEntryDto() {}
 
-    public CreateBlogEntryDto(Integer id, String title, String description, String thumbnailUrl, String thumbnailAlt, int[] categoryIds, String content) {
+    public CreateBlogEntryDto(Integer id, String title, String description, String thumbnailUrl, String thumbnailAlt, int[] categoryIds, String content, boolean inProgress) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -37,6 +36,7 @@ public class CreateBlogEntryDto {
         this.thumbnailAlt = thumbnailAlt;
         this.categoryIds = categoryIds;
         this.content = content;
+        this.inProgress = inProgress;
     }
 
     public Integer getId() {
@@ -81,6 +81,12 @@ public class CreateBlogEntryDto {
     public void setContent(String content) {
         this.content = content;
     }
+    public boolean getInProgress() {
+        return inProgress;
+    }
+    public void setInProgress(boolean inProgress) {
+        this.inProgress = inProgress;
+    }
 
     @Override
     public String toString() {
@@ -91,6 +97,7 @@ public class CreateBlogEntryDto {
                 ", thumbnailAlt= " + thumbnailAlt +
                 ", categories= " + Arrays.toString(categoryIds) +
                 ", content " + content +
+                ", inProgress= " + inProgress +
                 '}';
     }
 }

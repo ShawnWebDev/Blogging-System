@@ -3,32 +3,47 @@
 <head th:replace="~{components/shared-head}"></head>
 
 <body>
-    <div id="template">
-        <header th:replace="~{components/header-components :: full-header}"></header>
 
-        <main th:fragment="single-post" id="main-content">
+    <header th:replace="~{components/header-components :: full-header}"></header>
 
-            <h1 th:text="${entry.title}" id="entry-title"></h1>
-            <button th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">Back To Blog</button>
+    <main>
+        <div th:fragment="single-post" id="main-content">
+            <header id="post-header">
+                <div id="post-header-content">
+                    <img th:if="${!entry.thumbnailUrl.isBlank()}" th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="post-thumbnail"/>
+                    <h1 th:text="${entry.title}" id="entry-title"></h1>
+                </div>
+                <div id="single-post-navigation-container">
+                    <div>
+                        <th:block th:each="category : ${entry.categoryNames}">
+                            <button th:hx-get="@{/blog/blogComponent/posts(categoryName=${category})}" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:text="${category}"
+                                    th:title="'View all posts in ' + ${category} + '.'" th:aria-label="'View all posts in ' + ${category} + ', navigates to blog dashboard.'" class="btn-secondary"></button>
+                        </th:block>
+                    </div>
+                    <p th:if="${entry.categoryNames.size() == 0}">No associated categories.</p>
+                    <button hx-get="/blog" hx-swap="outerHTML swap:150ms" hx-target="#main-content" class="btn-secondary"
+                            title="Back to blog dashboard." aria-label="Navigates to blog dashboard.">Back To Blog</button>
+                </div>
 
-            <section th:utext="${entry.contentHtml}" id="post-content"></section>
+            </header>
+
+            <section th:utext="${entry.content}" id="post-content"></section>
 
             <section th:replace="~{components/post-components::admin-buttons(${entry.id})}"></section>
 
             <!-- todo: needs comments section component-->
             <section>
-                <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button}"></div>
-                <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
+                <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button-post}"></div>
+                <div sec:authorize="isAnonymous()">
+                    <p>Please log in to comment.</p>
+                    <div th:replace="~{components/auth-components::login-button}"></div>
+                </div>
                 <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
             </section>
 
             <div id="error-field"></div>
-        </main>
-
-
-
-
-</div>
+        </div>
+    </main>
 
 </body>
 </html>

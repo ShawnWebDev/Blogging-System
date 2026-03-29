@@ -24,6 +24,8 @@ public class BlogEntry {
 
     private List<String> categoryNames;
 
+    private boolean inProgress;
+
     public BlogEntry() {}
 
     public BlogEntry(String title, String description, String content, String thumbnailUrl, String thumbnailAlt) {
@@ -35,7 +37,7 @@ public class BlogEntry {
     }
     // used in DAO for result set extraction
     public BlogEntry(int id, String title, String description, String content, Instant createdAt, Instant updatedAt,
-                     String slug, List<String> categoryNames, String thumbnailUrl, String thumbnailAlt) {
+                     String slug, List<String> categoryNames, String thumbnailUrl, String thumbnailAlt, boolean inProgress) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -46,6 +48,7 @@ public class BlogEntry {
         this.categoryNames = categoryNames;
         this.thumbnailUrl = thumbnailUrl;
         this.thumbnailAlt = thumbnailAlt;
+        this.inProgress = inProgress;
     }
 
     private static String generateSlugFromTitle(String title) {
@@ -115,6 +118,12 @@ public class BlogEntry {
     public void setCategoryNames(List<String> categoryNames) {
         this.categoryNames = categoryNames;
     }
+    public boolean getInProgress() {
+        return inProgress;
+    }
+    public void setInProgress(boolean inProgress) {
+        this.inProgress = inProgress;
+    }
 
     @Override
     public String toString() {
@@ -129,6 +138,7 @@ public class BlogEntry {
                 ", createdAt= " + createdAt +
                 ", updatedAt= " + updatedAt +
                 ", categoryNames= " + categoryNames +
+                ", inProgress= " + inProgress +
                 '}';
     }
 }
