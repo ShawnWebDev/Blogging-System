@@ -64,12 +64,6 @@ public class BlogEntryDao {
                 .optional();
     }
 
-    public int count() {
-        return jdbc.sql("SELECT count(b.id) FROM blog_entries b")
-                .query(Integer.class)
-                .single();
-    }
-
     public boolean existsByTitleAndNotId(String title, Integer id) {
         String sql = "SELECT 1 FROM blog_entries b WHERE b.title = :title";
         Map<String, Object> params = new HashMap<>();
@@ -85,8 +79,7 @@ public class BlogEntryDao {
                 .optional().isPresent();
     }
 
-    public List<SimpleBlogEntryDto> findAllSimple(int pageNumber, int pageSize) {
-        int offset = (pageNumber - 1) * pageSize;
+    public List<SimpleBlogEntryDto> findAllSimple() {
         return jdbc.sql(
                 "SELECT b.id, b.slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt " +
                 "FROM blog_entries b " +
@@ -94,16 +87,12 @@ public class BlogEntryDao {
                 "LEFT JOIN categories c ON c.id = pc.category_id " +
                 "WHERE NOT b.in_progress " +
                 "GROUP BY b.id " +
-                "ORDER BY b.id " +
-                "LIMIT :pageSize OFFSET :offset")
-                    .param("pageSize", pageSize)
-                    .param("offset", offset)
+                "ORDER BY b.id")
                     .query((rs, _) -> simpleBlogEntryExtractor(rs))
                     .list();
     }
 
-    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesToCategoryName(String categoryName, int pageNumber, int pageSize) {
-        int offset = (pageNumber - 1) * pageSize;
+    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesToCategoryName(String categoryName) {
         // first, the subquery limits selection to only post_ids that have relation to specified category_name.
         // second, columns are selected and joined to a concatenated string of all grouped category_names related to those post_ids.
         return jdbc.sql(
@@ -116,11 +105,8 @@ public class BlogEntryDao {
                     "JOIN categories c_sub ON c_sub.id = pc_sub.category_id " +
                     "WHERE c_sub.category_name = :categoryName) AND NOT b.in_progress " +
                 "GROUP BY b.id " +
-                "ORDER BY b.id " +
-                "LIMIT :pageSize OFFSET :offset")
+                "ORDER BY b.id")
                     .param("categoryName", categoryName)
-                    .param("pageSize", pageSize)
-                    .param("offset", offset)
                     .query((rs, _) -> simpleBlogEntryExtractor(rs))
                     .list();
     }
@@ -174,8 +160,6 @@ public class BlogEntryDao {
     }
 
     private static BlogEntry singleBlogEntryExtractor(ResultSet rs) throws SQLException {
-        if (rs.wasNull()) return null;
-
         return new BlogEntry(
                 rs.getInt("id"),
                 rs.getString("title"),

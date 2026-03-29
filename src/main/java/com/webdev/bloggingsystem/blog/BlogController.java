@@ -22,7 +22,6 @@ import java.util.List;
 @RequestMapping("/blog")
 public class BlogController {
     private static final Logger logger = LoggerFactory.getLogger(BlogController.class);
-    private static final int PAGE_SIZE = 10;
 
     private final BlogService blogService;
 
@@ -51,12 +50,10 @@ public class BlogController {
 
     // called when requesting main blog dashboard
     @GetMapping
-    public Object blogDashboardView(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest,
-                        @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber) {
+    public Object blogDashboardView(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
         // will need count to show how many pages are available when I implement that part.
-        // int count = blogEntryDao.count();
         populateBlogDashboardModel(model, "All", "");
-        model.addAttribute("posts", blogService.findAllSimpleBlogEntries(pageNumber, PAGE_SIZE));
+        model.addAttribute("posts", blogService.findAllSimpleBlogEntries());
         model.addAttribute("categories", blogService.findAllSimpleCategories());
 
         if (!htmxRequest.isHtmxRequest()) {
@@ -90,17 +87,16 @@ public class BlogController {
     @HxRequest
     @GetMapping("/blogComponent/posts")
     public Object filteredPostsView(Model model, HtmxRequest htmxRequest, HtmxResponse htmxResponse,
-                                    @RequestParam(value = "categoryName", defaultValue = "All", required = false) String categoryName,
-                                    @RequestParam(value = "pageNumber", defaultValue = "1", required = false) Integer pageNumber) {
+                                    @RequestParam(value = "categoryName", defaultValue = "All", required = false) String categoryName) {
 
         List<SimpleBlogEntryDto> filteredBlogEntries;
         String categoryDescription;
 
         if (categoryName.equals("All")) {
-            filteredBlogEntries = blogService.findAllSimpleBlogEntries(pageNumber, PAGE_SIZE);
+            filteredBlogEntries = blogService.findAllSimpleBlogEntries();
             categoryDescription = "";
         } else {
-            filteredBlogEntries = blogService.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, PAGE_SIZE);
+            filteredBlogEntries = blogService.findAllSimpleBlogEntriesToCategoryName(categoryName);
             categoryDescription = blogService.findCategoryDescriptionByName(categoryName);
         }
 
@@ -146,6 +142,7 @@ public class BlogController {
     // "/blog/post/{slug}" to be used by external links, direct url, refresh
     @GetMapping("/post/{slug}")
     public String singlePostViewFromSlug(Model model, @PathVariable String slug) {
+        logger.info("(controller) Reading post by slug: {}", slug);
         BlogEntry entry = blogService.readPostBySlug(slug);
         populateSinglePostModel(model, entry);
 

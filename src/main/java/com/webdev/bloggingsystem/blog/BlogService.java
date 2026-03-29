@@ -30,16 +30,16 @@ public class BlogService {
         this.htmlRenderer = htmlRenderer;
     }
 
-    public List<SimpleBlogEntryDto> findAllSimpleBlogEntries(int pageNumber, int pageSize) {
-        return blogEntryDao.findAllSimple(pageNumber, pageSize);
+    public List<SimpleBlogEntryDto> findAllSimpleBlogEntries() {
+        return blogEntryDao.findAllSimple();
     }
 
     public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesInProgress() {
         return blogEntryDao.findAllSimpleInProgress();
     }
 
-    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesToCategoryName(String categoryName, int pageNumber, int pageSize) {
-        return blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName, pageNumber, pageSize);
+    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesToCategoryName(String categoryName) {
+        return blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName);
     }
 
     public List<Category> findAllCategories() {

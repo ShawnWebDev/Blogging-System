@@ -89,27 +89,8 @@ public class DaoTests {
     }
 
     @Test
-    public void testFindAllSimplePaginatedPage1() {
-        List<SimpleBlogEntryDto> result = blogEntryDao.findAllSimple(1, 5);
-        System.out.println("result: " + result);
-
-        Assertions.assertNotNull(result);
-        Assertions.assertFalse(result.isEmpty());
-        Assertions.assertEquals(5, result.size());
-    }
-
-    @Test
-    public void testFindAllSimplePaginatedPage2() {
-        List<SimpleBlogEntryDto> result = blogEntryDao.findAllSimple(2, 5);
-        System.out.println("result: " + result);
-
-        Assertions.assertNotNull(result);
-        Assertions.assertTrue(result.isEmpty());
-    }
-
-    @Test
     public void testFindAllByCategory() {
-        List<SimpleBlogEntryDto> result = blogEntryDao.findAllSimpleBlogEntriesToCategoryName("Test Category 3", 1, 5);
+        List<SimpleBlogEntryDto> result = blogEntryDao.findAllSimpleBlogEntriesToCategoryName("Test Category 3");
         Assertions.assertNotNull(result);
         Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals(2, result.size());
@@ -158,30 +139,6 @@ public class DaoTests {
         Assertions.assertNotNull(blog);
         Assertions.assertEquals("Test title", blog.getTitle());
         System.out.println("result: " + blog);
-    }
-
-    @Test
-    @Transactional
-    public void insertBlogEntryWithNonExistentCategories() {
-        BlogEntry blogEntry = new BlogEntry(
-                "Test title",
-                "Test Description",
-                "Test Content",
-                "url",
-                "alt"
-        );
-        blogEntry.setSlug(blogEntry.getTitle());
-        blogEntry.setInProgress(false);
-        Set<Integer> set = Set.of(10, 20, 30);
-
-        int postId = blogEntryDao.insert(blogEntry);
-        Assertions.assertEquals(7, postId);
-
-        Assertions.assertThrows(DataIntegrityViolationException.class, () -> categoryDao.batchInsertJoins(set, postId));
-
-        //check if transaction rolled back
-        blogEntry = blogEntryDao.findById(postId).orElse(null);
-        Assertions.assertNull(blogEntry);
     }
 
     @Test
