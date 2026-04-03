@@ -24,24 +24,24 @@
                     <button hx-get="/blog" hx-swap="outerHTML swap:150ms" hx-target="#main-content" class="btn-secondary"
                             title="Back to blog dashboard." aria-label="Navigates to blog dashboard.">Back To Blog</button>
                 </div>
-
             </header>
 
             <section th:utext="${entry.content}" id="post-content"></section>
 
             <section th:replace="~{components/post-components::admin-buttons(${entry.id})}"></section>
 
-            <!-- todo: needs comments section component-->
-            <section>
+            <div id="error-field"></div>
+            <section id="auth-section">
                 <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button-post}"></div>
                 <div sec:authorize="isAnonymous()">
-                    <p>Please log in to comment.</p>
                     <div th:replace="~{components/auth-components::login-button}"></div>
                 </div>
                 <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
             </section>
 
-            <div id="error-field"></div>
+            <!-- todo: comments section component and endpoint, 'loginSuccess' trigger GET comment form -->
+            <section th:replace="~{components/comment-components::comment-section}" id="comments-section"></section>
+
         </div>
     </main>
 

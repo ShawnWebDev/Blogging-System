@@ -1,29 +1,49 @@
 <!DOCTYPE html>
+<!--suppress XmlDuplicatedId -->
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <body>
 
   <div th:fragment="comment-form-enabled">
-    <p>enabled comment form will be here....</p>
+    <form id="comment-form" action="/comment" method="POST">
+      <label>Comment:
+        <textarea rows="3"></textarea>
+      </label>
+      <input type="submit" value="Post" class="btn-primary">
+    </form>
   </div>
-
 
   <div th:fragment="comment-form-disabled">
-    <p>disabled comment form will be here....</p>
+    <p>Please log in to comment.</p>
   </div>
+
+  <article th:fragment="comment-container" id="comment-container">
+    <h3>Comments</h3>
+    <div th:each="comment : ${comments}">
+      <header>
+        <div>
+          <strong><small th:text="${comment.author.username}"></small></strong>
+          <small>commented</small>
+          <small>on <time th:text="${#temporals.format(comment.createdAt, 'MMMM dd, yyyy')}"></time></small>
+        </div>
+      </header>
+      <section>
+        <p th:text="${comment.content}"></p>
+      </section>
+    </div>
+  </article>
 
 
   <section th:fragment="comment-section" id="comments">
-    <h3>Comments...</h3>
-    <p>This will be within each blog post (Will be own component)</p>
-
-    <div hx-trigger="logoutSuccess from:body" hx-get="/blog/blogComponent/removeCommentForm" hx-swap="innerHTML" hx-target="#comment-form-container"></div>
-    <div hx-trigger="loginSuccess from:body" hx-get="/blog/blogComponent/commentForm" hx-swap="innerHTML" hx-target="#comment-form-container"></div>
-
-    <div id="comment-form-container">
+    <article id="comment-form-container" hx-trigger="loginSuccess from:body" hx-get="/comment/commentComponent/commentForm" hx-swap="innerHTML" hx-target="this">
       <div sec:authorize="isAuthenticated()" th:replace="~{components/comment-components :: comment-form-enabled}"></div>
       <div sec:authorize="isAnonymous()" th:replace="~{components/comment-components :: comment-form-disabled}"></div>
-    </div>
+    </article>
+
+    <article id="comment-container">
+      <button sec:authorize="isAnonymous()" class="btn-secondary" th:hx-get="@{/comment/all/{entryId}(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms">View Comments</button>
+    </article>
+
   </section>
 
 
