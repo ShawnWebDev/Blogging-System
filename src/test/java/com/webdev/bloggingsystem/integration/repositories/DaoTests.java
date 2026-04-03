@@ -1,6 +1,8 @@
 package com.webdev.bloggingsystem.integration.repositories;
 
 import com.webdev.bloggingsystem.blog.*;
+import com.webdev.bloggingsystem.comment.Comment;
+import com.webdev.bloggingsystem.comment.CommentDao;
 import com.webdev.bloggingsystem.user.AppUser;
 import com.webdev.bloggingsystem.user.AuthorDto;
 import com.webdev.bloggingsystem.user.AppUserDao;
@@ -26,7 +28,7 @@ import java.util.Set;
 @JdbcTest
 @ActiveProfiles("test")
 @Testcontainers
-@Import({AppUserDao.class, BlogEntryDao.class, CategoryDao.class})
+@Import({AppUserDao.class, BlogEntryDao.class, CategoryDao.class, CommentDao.class})
 public class DaoTests {
 
     @Autowired
@@ -36,11 +38,15 @@ public class DaoTests {
     @Autowired
     private CategoryDao categoryDao;
     @Autowired
+    private CommentDao commentDao;
+    @Autowired
     private JdbcClient jdbc;
 
     @Container
     @ServiceConnection
     static MariaDBContainer mariadbContainer = new MariaDBContainer("mariadb:lts-ubi9");
+
+    // ** AppUser **
 
     @Test
     void getUserByUsername() {
@@ -59,6 +65,8 @@ public class DaoTests {
         Assertions.assertTrue(author.isPresent());
         Assertions.assertEquals("TestAdmin", author.get().username());
     }
+
+    // ** BlogEntry **
 
     @Test
     public void testFindById() {
@@ -97,34 +105,13 @@ public class DaoTests {
 
         System.out.println("result: " + result);
     }
-
-    @Test
-    public void testFindCategoryIdsInNames() {
-        List<String> categoryNames = List.of("Test Category 1", "Test Category 2");
-        List<Integer> categoryIds = categoryDao.findAllIdsInNames(categoryNames);
-        Assertions.assertEquals(categoryIds.size(), categoryNames.size());
-        Assertions.assertEquals(List.of(1, 2), categoryIds);
-
-        System.out.println("result: " + categoryIds);
-    }
-
-    @Test
-    public void testFindSimpleCategories() {
-        List<SimpleCategoryDto> result = categoryDao.findAllNames();
-        Assertions.assertNotNull(result);
-        SimpleCategoryDto simpleCategoryDto_1 = new SimpleCategoryDto(1, "Test Category 1");
-        SimpleCategoryDto simpleCategoryDto_2 = new SimpleCategoryDto(2, "Test Category 2");
-        SimpleCategoryDto simpleCategoryDto_3 = new SimpleCategoryDto(3, "Test Category 3");
-        Assertions.assertEquals(List.of(simpleCategoryDto_1, simpleCategoryDto_2, simpleCategoryDto_3), result);
-    }
-
     @Test
     @Transactional
     public void insertBlogEntryWithCategories() {
         BlogEntry blogEntry = new BlogEntry(
-            "Test title",
-            "Test Description",
-            "Test Content",
+                "Test title",
+                "Test Description",
+                "Test Content",
                 "url",
                 "alt"
         );
@@ -234,6 +221,44 @@ public class DaoTests {
         boolean exists = blogEntryDao.existsByTitleAndNotId("Test Post 99", null);
         Assertions.assertFalse(exists);
     }
+
+    // ** Category **
+
+    @Test
+    public void testFindCategoryIdsInNames() {
+        List<String> categoryNames = List.of("Test Category 1", "Test Category 2");
+        List<Integer> categoryIds = categoryDao.findAllIdsInNames(categoryNames);
+        Assertions.assertEquals(categoryIds.size(), categoryNames.size());
+        Assertions.assertEquals(List.of(1, 2), categoryIds);
+
+        System.out.println("result: " + categoryIds);
+    }
+
+    @Test
+    public void testFindSimpleCategories() {
+        List<SimpleCategoryDto> result = categoryDao.findAllNames();
+        Assertions.assertNotNull(result);
+        SimpleCategoryDto simpleCategoryDto_1 = new SimpleCategoryDto(1, "Test Category 1");
+        SimpleCategoryDto simpleCategoryDto_2 = new SimpleCategoryDto(2, "Test Category 2");
+        SimpleCategoryDto simpleCategoryDto_3 = new SimpleCategoryDto(3, "Test Category 3");
+        Assertions.assertEquals(List.of(simpleCategoryDto_1, simpleCategoryDto_2, simpleCategoryDto_3), result);
+    }
+
+    // ** Comment **
+
+    @Test
+    public void testFindAllParentCommentsById() {
+        List<Comment> result = commentDao.getParentCommentsByPostId(1);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertFalse(result.isEmpty());
+        Assertions.assertEquals(3, result.size());
+        Assertions.assertEquals("Test Comment on Test Post 1", result.getFirst().getContent());
+
+        System.out.println("result: " + result);
+    }
+
+
 
 
 
