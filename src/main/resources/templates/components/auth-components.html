@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!--suppress XmlDuplicatedId -->
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
@@ -10,27 +11,31 @@
 
     <div th:fragment="logout-button-blog" id="login-container">
         <h4>Logged in as <span sec:authentication="name"></span>.</h4>
+        <button hx-post="/logout" hx-target="#login-container" hx-swap="outerHTML" class="btn-secondary">Logout</button>
         <div sec:authorize="hasAuthority('ADMIN')" id="admin-btns">
-            <button hx-get="/blog/post/createPost" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">
+            <button hx-get="/blog/post/createPost" hx-target="#main-content" hx-swap="outerHTML" class="btn-secondary">
                 Create Post</button>
-            <button hx-get="/blog/blogComponent/posts/inProgress" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="btn-primary">
+            <button hx-get="/blog/blogComponent/posts/inProgress" hx-target="#posts" hx-swap="outerHTML swap:200ms" class="btn-secondary">
                 Get In Progress</button>
-            <button hx-get="/categories" hx-target="#main-content" hx-swap="outerHTML" class="btn-primary">
+            <button hx-get="/categories" hx-target="#main-content" hx-swap="outerHTML" class="btn-secondary">
                 Edit Categories</button>
         </div>
-        <button hx-post="/logout" hx-target="#login-container" hx-swap="outerHTML" class="btn-primary">Logout</button>
     </div>
 
     <div th:fragment="logout-button-post" id="login-container">
         <h4>Logged in as <span sec:authentication="name"></span>.</h4>
-        <button hx-post="/logout" hx-target="#login-container" hx-swap="outerHTML" class="btn-primary">Logout</button>
+        <button hx-post="/logout" hx-target="#login-container" hx-swap="outerHTML" class="btn-secondary">Logout</button>
     </div>
 
-    <div th:fragment="login-button" id="login-container">
-        <button onclick="openDialog('login-modal')" class="btn-primary">Login</button>
+    <div th:fragment="login-button-blog" id="login-container">
+        <button onclick="openDialog('login-modal')" class="btn-secondary">Login</button>
         <div th:replace="~{components/auth-components::login-message}"></div>
     </div>
 
+    <div th:fragment="login-button-post" id="login-container">
+        <p>Please <button onclick="openDialog('login-modal')" class="btn-secondary">Login</button> to post a comment.</p>
+        <div th:replace="~{components/auth-components::login-message}"></div>
+    </div>
 
     <dialog th:fragment="login-dialog" id="login-modal" aria-labelledby="login-dialog-title" tabindex="-1">
         <article th:replace="~{components/auth-components::login-article}"></article>
@@ -61,6 +66,7 @@
         <small th:if="${param.sessionExpired}" class="error">Your session has expired. Please log in again.</small>
     </div>
 
+    <!-- for initial load, oob swap requires there be an element with the ID before swapping otherwise it is discarded by HTMX -->
     <span th:fragment="csrf-token" id="csrf-token" th:data-token="${_csrf.token}" th:data-header="${_csrf.headerName}"></span>
 
     <span th:fragment="csrf-token-oob" id="csrf-token" th:data-token="${_csrf.token}" th:data-header="${_csrf.headerName}" hx-swap-oob="true"></span>
