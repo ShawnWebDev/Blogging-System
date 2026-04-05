@@ -6,19 +6,16 @@
 
   <div th:fragment="comment-form-enabled">
     <form id="comment-form" action="/comment" method="POST">
-      <label>Comment:
+      <label>Write Comment:
         <textarea rows="3"></textarea>
       </label>
       <input type="submit" value="Post" class="btn-primary">
     </form>
   </div>
 
-  <div th:fragment="comment-form-disabled">
-    <p>Please log in to comment.</p>
-  </div>
-
   <article th:fragment="comment-container" id="comment-container">
     <h3>Comments</h3>
+    <p th:if="${comments.size() == 0}">No comments...</p>
     <div th:each="comment : ${comments}">
       <header>
         <div>
@@ -33,19 +30,15 @@
     </div>
   </article>
 
-
-  <section th:fragment="comment-section" id="comments">
+  <section th:fragment="comment-section" id="comments-section">
     <article id="comment-form-container" hx-trigger="loginSuccess from:body" hx-get="/comment/commentComponent/commentForm" hx-swap="innerHTML" hx-target="this">
       <div sec:authorize="isAuthenticated()" th:replace="~{components/comment-components :: comment-form-enabled}"></div>
-      <div sec:authorize="isAnonymous()" th:replace="~{components/comment-components :: comment-form-disabled}"></div>
     </article>
 
     <article id="comment-container">
-      <button sec:authorize="isAnonymous()" class="btn-secondary" th:hx-get="@{/comment/all/{entryId}(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms">View Comments</button>
+      <button class="btn-secondary" th:hx-get="@{/comment/all/{entryId}(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms">View Comments</button>
     </article>
-
   </section>
-
 
 </body>
 </html>
