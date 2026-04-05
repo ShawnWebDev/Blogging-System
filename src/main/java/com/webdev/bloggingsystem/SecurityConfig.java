@@ -16,7 +16,7 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    // todo : enable caching for static resources, figure out session timeout refresh prompt and csrf token refresh
+    // todo : enable caching for static resources, figure out session timeout refresh prompt
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                        .maximumSessions(1).maxSessionsPreventsLogin(false).expiredUrl("/blog?logout=true")
+                        .maximumSessions(1).maxSessionsPreventsLogin(false).expiredUrl("/blog?sessionExpired")
                 )
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(
@@ -32,10 +32,11 @@ public class SecurityConfig {
                                 "/blog/post/editPost",
                                 "/blog/post/editPost/{id}",
                                 "/blog/post/deletePost/{id}",
-                                "/blog/postComponent/adminButtons",
                                 "/blog/postComponent/validateSize",
+                                "/blog/blogComponent/posts/inProgress",
+                                "/categories",
                                 "/categories/**")
-                        .hasAuthority("ADMIN")
+                            .hasAuthority("ADMIN")
                         .anyRequest().permitAll() // todo : add all endpoints that require ADMIN.
                 )
                 .formLogin(form -> form
