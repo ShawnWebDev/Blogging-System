@@ -30,6 +30,7 @@
     <div th:fragment="login-button-blog" id="login-container">
         <button onclick="openDialog('login-modal')" class="btn-secondary">Login</button>
         <div th:replace="~{components/auth-components::login-message}"></div>
+        <p class="spacer"></p>
     </div>
 
     <div th:fragment="login-button-post" id="login-container">
