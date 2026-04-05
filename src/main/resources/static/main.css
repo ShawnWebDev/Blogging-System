@@ -312,10 +312,6 @@ article header h4 {
     color: #000;
 }
 
-.category-selection:hover, .category-selection.active-category, input[type=submit]:hover {
-    border-color: var(--main-bg-color);
-}
-
 .btn-secondary {
     font-weight: 500;
     background-color: var(--secondary-bg-color);
@@ -332,13 +328,18 @@ article header h4 {
 }
 
 #auth-section {
-    margin: 3rem 0 0 0;
+    margin: 4rem 0 0 0;
 }
 
 #login-container {
     display: flex;
     align-items: center;
     gap: 1rem;
+    border-top: 1px solid var(--transparent-color-light);
+}
+
+.spacer {
+    padding: 0.5rem 0;
 }
 
 #error-section {
@@ -346,7 +347,7 @@ article header h4 {
 }
 
 #error-field {
-    margin: 1rem auto;
+    margin: auto;
     font-size: 1.25rem;
 }
 
@@ -354,6 +355,7 @@ article header h4 {
 #post-header {
     margin-bottom: 2rem;
     flex-wrap: wrap;
+    border-bottom: 1px solid var(--transparent-color-light);
 }
 
 .post-thumbnail {
@@ -383,12 +385,44 @@ article header h4 {
 #comments-section {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+}
+
+#comments-section h3, #comment-form {
+    margin: 0;
+    padding-bottom: 1rem;
+}
+
+#comments-section h3 {
+    padding-top: 1rem;
+    border-top: 1px solid var(--transparent-color-light);
+}
+
+#comment-form-container,
+#comment-container {
+    opacity: 1;
+    transition: opacity 150ms ease-in-out;
+}
+
+#comment-container.htmx-swapping,
+#comment-form-container.htmx-swapping  {
+    opacity: 0;
 }
 
 #comment-container > .btn-secondary {
     width: 100%;
 }
+
+.comment {
+    background-color: var(--main-bg-color);
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.comment-content {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
 
 /* FORM STYLES */
 
