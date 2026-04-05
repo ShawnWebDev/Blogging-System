@@ -4,19 +4,17 @@
 
 <body>
 
-  <div th:fragment="comment-form-enabled">
-    <form id="comment-form" action="/comment" method="POST">
+    <form th:fragment="comment-form-enabled" id="comment-form" action="/comment" method="POST">
       <label>Write Comment:
         <textarea rows="3"></textarea>
       </label>
       <input type="submit" value="Post" class="btn-primary">
     </form>
-  </div>
 
   <article th:fragment="comment-container" id="comment-container">
     <h3>Comments</h3>
     <p th:if="${comments.size() == 0}">No comments...</p>
-    <div th:each="comment : ${comments}">
+    <article th:each="comment : ${comments}" class="comment">
       <header>
         <div>
           <strong><small th:text="${comment.author.username}"></small></strong>
@@ -24,20 +22,20 @@
           <small>on <time th:text="${#temporals.format(comment.createdAt, 'MMMM dd, yyyy')}"></time></small>
         </div>
       </header>
-      <section>
+      <section class="comment-content">
         <p th:text="${comment.content}"></p>
       </section>
-    </div>
+    </article>
   </article>
 
   <section th:fragment="comment-section" id="comments-section">
-    <article id="comment-form-container" hx-trigger="loginSuccess from:body" hx-get="/comment/commentComponent/commentForm" hx-swap="innerHTML" hx-target="this">
+    <section id="comment-form-container" hx-trigger="loginSuccess from:body" hx-get="/comment/commentComponent/commentForm" hx-swap="innerHTML swap:150ms" hx-target="this">
       <div sec:authorize="isAuthenticated()" th:replace="~{components/comment-components :: comment-form-enabled}"></div>
-    </article>
+    </section>
 
-    <article id="comment-container">
+    <section id="comment-container">
       <button class="btn-secondary" th:hx-get="@{/comment/all/{entryId}(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms">View Comments</button>
-    </article>
+    </section>
   </section>
 
 </body>
