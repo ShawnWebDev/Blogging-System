@@ -1,16 +1,23 @@
 package com.webdev.bloggingsystem.comment;
 
-import com.webdev.bloggingsystem.blog.BlogEntryDao;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CommentService {
     private final CommentDao commentDao;
-    private final BlogEntryDao blogEntryDao;
 
-    public CommentService(CommentDao commentDao, BlogEntryDao blogEntryDao) {
+    public CommentService(CommentDao commentDao) {
         this.commentDao = commentDao;
-        this.blogEntryDao = blogEntryDao;
+    }
+
+    public List<Comment> getParentCommentsByPostId(Integer entryId) {
+        return commentDao.getParentCommentsByPostId(entryId);
+    }
+
+    public List<Comment> getReplyCommentsByParentId(Integer parentId) {
+        return commentDao.getReplyCommentsByParentId(parentId);
     }
 
 

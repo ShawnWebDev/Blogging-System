@@ -19,6 +19,8 @@ public class Comment {
 
     private Integer parentCommentId;
 
+    private Integer replyCount;
+
 
     public Comment() {}
 
@@ -28,12 +30,13 @@ public class Comment {
         this.blogEntryId = blogEntryId;
     }
 
-    public Comment(int id, String content, Instant createdAt, Instant updatedAt, AuthorDto author) {
+    public Comment(int id, String content, Instant createdAt, Instant updatedAt, AuthorDto author, Integer replyCount) {
         this.id = id;
         this.content = content;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.author = author;
+        this.replyCount = replyCount;
     }
 
 
@@ -76,6 +79,12 @@ public class Comment {
     public void setParentCommentId(Integer parentCommentId) {
         this.parentCommentId = parentCommentId;
     }
+    public Integer getReplyCount() {
+        return replyCount;
+    }
+    public void setReplyCount(Integer replyCount) {
+        this.replyCount = replyCount;
+    }
 
     @Override
     public String toString() {
@@ -83,6 +92,7 @@ public class Comment {
                 "id= " + id +
                 ", content= " + content +
                 ", createdAt= " + createdAt +
+                ", replyCount=" + replyCount +
                 '}';
     }
 }

@@ -254,13 +254,22 @@ public class DaoTests {
         Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals(3, result.size());
         Assertions.assertEquals("Test Comment on Test Post 1", result.getFirst().getContent());
+        Assertions.assertEquals(2, result.getFirst().getReplyCount());
 
         System.out.println("result: " + result);
     }
 
+    @Test
+    public void testFindAllRepliesByParentId() {
+        List<Comment> result = commentDao.getReplyCommentsByParentId(1);
 
+        Assertions.assertNotNull(result);
+        Assertions.assertFalse(result.isEmpty());
+        Assertions.assertEquals(2, result.size());
+        Assertions.assertEquals("Test Reply 1 to Comment 1 on Test Post 1", result.getFirst().getContent());
+        Assertions.assertEquals(1, result.getFirst().getReplyCount());
 
-
-
+        System.out.println("result: " + result);
+    }
 
 }
