@@ -39,7 +39,7 @@ CREATE TABLE `comments` (
         KEY `Comments_Users_FK` (`author_id`),
         KEY `Comments_Blog_Entries_FK` (`post_id`),
         CONSTRAINT `Comments_Blog_Entries_FK` FOREIGN KEY (`post_id`) REFERENCES `blog_entries` (`id`) ON DELETE CASCADE,
-        CONSTRAINT `Comments_Comments_FK` FOREIGN KEY (`parent_comment_id`) REFERENCES `comments` (`id`) ON DELETE CASCADE,
+        CONSTRAINT `Comments_Comments_FK` FOREIGN KEY (`parent_comment_id`) REFERENCES `comments` (`id`),
         CONSTRAINT `Comments_Users_FK` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`)
 );
 
