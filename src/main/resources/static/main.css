@@ -14,6 +14,7 @@
     --main-text-color: rgb(227, 230, 233);
 
     --error-color: rgb(255, 120, 120);
+    --code-color: rgb(239, 223, 190);
 
 }
 /* todo : get a css minify extension for maven */
@@ -227,7 +228,7 @@ a:hover, .btn-anchor-look:hover {
     margin: 1.5rem auto;
 }
 
-article header {
+article header, .comment header {
     position: relative;
     display: flex;
     flex-wrap: wrap;
@@ -327,10 +328,6 @@ article header h4 {
     border-color: var(--accent-color);
 }
 
-#auth-section {
-    margin: 4rem 0 0 0;
-}
-
 #login-container {
     display: flex;
     align-items: center;
@@ -353,9 +350,27 @@ article header h4 {
 
 /* SINGLE POST STYLES */
 #post-header {
-    margin-bottom: 2rem;
     flex-wrap: wrap;
     border-bottom: 1px solid var(--transparent-color-light);
+}
+
+#post-content {
+    margin: 3rem auto;
+}
+
+#post-content h2, #post-content h3, #post-content h4 {
+    margin: 2rem auto 1.5rem auto;
+}
+
+#post-content p, #post-content li {
+    padding-left: 0.5rem;
+}
+
+#post-content pre {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: var(--transparent-color-dark);
+    color: var(--code-color);
 }
 
 .post-thumbnail {
@@ -397,14 +412,12 @@ article header h4 {
     border-top: 1px solid var(--transparent-color-light);
 }
 
-#comment-form-container,
 #comment-container {
     opacity: 1;
     transition: opacity 150ms ease-in-out;
 }
 
-#comment-container.htmx-swapping,
-#comment-form-container.htmx-swapping  {
+#comment-container.htmx-swapping {
     opacity: 0;
 }
 
@@ -413,14 +426,25 @@ article header h4 {
 }
 
 .comment {
-    background-color: var(--main-bg-color);
+    background-color: var(--transparent-color-dark);
     border-radius: 0.25rem;
     margin-bottom: 1rem;
+    border-top: 1px solid var(--main-bg-color);
+    border-bottom: 1px solid var(--main-bg-color);
 }
 
 .comment-content {
     padding: 0.5rem;
     font-size: 0.9rem;
+}
+
+.comment-replies {
+    border-radius: 0.25rem;
+    margin: 0.5rem 0 0.5rem 0.5rem;
+}
+
+.active-replies {
+    border-left: 1px solid var(--accent-color-transparent);
 }
 
 
