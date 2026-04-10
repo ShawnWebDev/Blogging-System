@@ -4,58 +4,57 @@
 
 <body>
 
-    <form th:fragment="comment-form-enabled" id="comment-form" action="/comment" method="POST">
-      <label>Write Comment:
-        <textarea rows="3"></textarea>
-      </label>
-      <input type="submit" value="Post" class="btn-primary">
-    </form>
+  <form th:fragment="comment-form-enabled(entryId, parentCommentId)" id="comment-form" hx-post="/comment/createComment" hx-target="this" hx-swap="outerHTML" method="POST">
+    <input type="hidden" name="entryId" th:value="${entry == null ? entryId : entry.id}"/>
+    <label>Write Comment:
+      <textarea name="content" rows="3" th:text="${commentDto.content}"></textarea>
+    </label>
+    <input type="submit" value="Post" class="btn-primary">
+  </form>
+
+  <section th:fragment="single-comment(commentItem, isReply)" class="comment">
+    <div th:if="${isReply}" class="denote-reply"><strong>&#187;</strong></div>
+    <header>
+      <div>
+        <strong><span th:if="${!isReply}" class="denote-parent-comment">&#187; </span><small th:text="${commentItem.author.username}"></small></strong>
+        <small th:if="${!isReply}">commented</small>
+        <small th:if="${isReply}">replied</small>
+        <small>on <time th:text="${#temporals.format(commentItem.createdAt, 'MMMM dd, yyyy')}"></time></small>
+      </div>
+    </header>
+    <section class="comment-content">
+      <p th:text="${commentItem.content}"></p>
+      <button class="btn-secondary">Reply</button>
+    </section>
+    <section class="comment-replies" th:id="'replies-' + ${commentItem.id}">
+      <button th:if="${commentItem.replyCount > 0}" th:text="'Show ' + ${commentItem.replyCount} + ' replies'"
+              th:hx-get="@{/comment/replies/{parentId}(parentId = ${commentItem.id})}" hx-target="closest .comment-replies" hx-swap="outerHTML" class="btn-secondary"></button>
+    </section>
+  </section>
 
   <section th:fragment="comment-container" id="comment-container">
     <h3>Comments</h3>
     <p th:if="${comments.size() == 0}">No comments...</p>
-    <section th:each="comment : ${comments}" class="comment">
-      <header>
-        <div>
-          <strong><small th:text="${comment.author.username}"></small></strong>
-          <small>commented</small>
-          <small>on <time th:text="${#temporals.format(comment.createdAt, 'MMMM dd, yyyy')}"></time></small>
-        </div>
-      </header>
-      <section class="comment-content">
-        <p th:text="${comment.content}"></p>
-      </section>
-      <section class="comment-replies" th:if="${comment.replyCount > 0}">
-        <button th:text="'View ' + ${comment.replyCount} + ' replies'" th:hx-get="@{/comment/replies/{parentId}(parentId = ${comment.id})}" hx-target="closest .comment-replies" hx-swap="outerHTML swap:150ms" class="btn-secondary"></button>
-      </section>
-    </section>
+    <div id="comment-list">
+      <th:block th:each="commentObj : ${comments}">
+        <section th:replace="~{components/comment-components::single-comment(${commentObj}, false)}"></section>
+      </th:block>
+    </div>
   </section>
 
-  <section th:fragment="comment-replies" class="comment-replies active-replies">
-    <section th:each="reply : ${replyComments}" class="comment">
-      <header>
-        <div>
-          <strong><small th:text="${reply.author.username}"></small></strong>
-          <small>replied</small>
-          <small>on <time th:text="${#temporals.format(reply.createdAt, 'MMMM dd, yyyy')}"></time></small>
-        </div>
-      </header>
-      <section class="comment-content">
-        <p th:text="${reply.content}"></p>
-      </section>
-      <article class="comment-replies" th:if="${reply.replyCount > 0}">
-        <button th:text="'View ' + ${reply.replyCount} + ' replies'" th:hx-get="@{/comment/replies/{parentId}(parentId = ${reply.id})}" hx-target="closest .comment-replies" hx-swap="outerHTML swap:150ms" class="btn-secondary"></button>
-      </article>
-    </section>
+  <section th:fragment="comment-replies" class="comment-replies active-replies" th:id="'replies-' + ${parentId}">
+    <th:block th:each="replyComment : ${replyComments}">
+      <section th:replace="~{components/comment-components::single-comment(${replyComment}, true)}"></section>
+    </th:block>
   </section>
 
-  <section th:fragment="comment-section" id="comments-section">
-    <section id="comment-form-container" hx-trigger="loginSuccess from:body" hx-get="/comment/commentComponent/commentForm" hx-swap="innerHTML" hx-target="this">
-      <div sec:authorize="isAuthenticated()" th:replace="~{components/comment-components :: comment-form-enabled}"></div>
+  <section th:fragment="comment-section(entryId)" id="comments-section">
+    <section id="comment-form-container" hx-trigger="loginSuccess from:body" th:hx-get="@{/comment/commentComponent/commentForm(entryId = ${entryId})}" hx-swap="innerHTML show:#comment-form:top" hx-target="this">
+      <div sec:authorize="isAuthenticated()" th:replace="~{components/comment-components :: comment-form-enabled(entryId, null)}"></div>
     </section>
 
     <section id="comment-container">
-      <button class="btn-secondary" th:hx-get="@{/comment/all/{entryId}(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms scroll:top">View Comments</button>
+      <button class="btn-secondary" th:hx-get="@{/comment/all/{entryId}(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms show:#comment-container:top">View Comments</button>
     </section>
   </section>
 
