@@ -8,6 +8,7 @@
     <input type="hidden" name="entryId" th:value="${entry == null ? entryId : entry.id}"/>
     <label>Write Comment:
       <textarea name="content" rows="3" th:text="${commentDto.content}"></textarea>
+      <small th:errors="${commentDto.content}" th:text="${#fields.errors('commentDto.content')}" class="error"></small>
     </label>
     <input type="submit" value="Post" class="btn-primary">
   </form>
@@ -55,6 +56,7 @@
 
     <section id="comment-container">
       <button class="btn-secondary" th:hx-get="@{/comment/all/{entryId}(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms show:#comment-container:top">View Comments</button>
+      <div id="comment-list"></div>
     </section>
   </section>
 
