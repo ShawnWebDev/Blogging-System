@@ -47,7 +47,7 @@ public class BlogEntryDao {
                                 "WHERE b.id = :id " +
                                 "GROUP BY b.id")
                     .param("id", id)
-                    .query((rs, _) -> singleBlogEntryExtractor(rs))
+                    .query((rs, _) -> fullBlogEntryExtractor(rs))
                     .optional();
     }
 
@@ -60,7 +60,7 @@ public class BlogEntryDao {
                         "WHERE b.slug = :slug " +
                         "GROUP BY b.id")
                 .param("slug", slug)
-                .query((rs, _) -> singleBlogEntryExtractor(rs))
+                .query((rs, _) -> fullBlogEntryExtractor(rs))
                 .optional();
     }
 
@@ -147,6 +147,7 @@ public class BlogEntryDao {
                     .update();
     }
 
+
     private static SimpleBlogEntryDto simpleBlogEntryExtractor(ResultSet rs) throws SQLException {
         return new SimpleBlogEntryDto(
                 rs.getInt("id"),
@@ -159,7 +160,7 @@ public class BlogEntryDao {
         );
     }
 
-    private static BlogEntry singleBlogEntryExtractor(ResultSet rs) throws SQLException {
+    private static BlogEntry fullBlogEntryExtractor(ResultSet rs) throws SQLException {
         return new BlogEntry(
                 rs.getInt("id"),
                 rs.getString("title"),
