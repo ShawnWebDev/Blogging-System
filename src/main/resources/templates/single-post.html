@@ -26,7 +26,7 @@
                 </div>
             </header>
 
-            <section th:utext="${entry.content}" id="post-content"></section>
+            <article th:utext="${entry.content}" id="post-content"></article>
 
             <section th:replace="~{components/post-components::admin-buttons(${entry.id})}"></section>
 
@@ -38,9 +38,7 @@
                 <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
             </section>
 
-            <!-- todo: comments section component and endpoint, 'loginSuccess' trigger GET comment form -->
-            <section th:replace="~{components/comment-components::comment-section}" id="comments-section"></section>
-
+            <section th:replace="~{components/comment-components::comment-section(${entry.id})}" id="comments-section"></section>
         </div>
     </main>
 
