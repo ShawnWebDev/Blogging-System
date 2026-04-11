@@ -2,10 +2,12 @@ package com.webdev.bloggingsystem.comment;
 
 import com.webdev.bloggingsystem.user.AuthorDto;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
@@ -55,17 +57,41 @@ public class CommentDao {
                     .list();
     }
 
+    public Comment getCommentById(int commentId) {
+        return jdbc.sql(
+                "SELECT c.id, c.content, c.created_at, c.updated_at, c.author_id, u.username " +
+                "FROM comments c " +
+                "JOIN users u ON c.author_id = u.id " +
+                "WHERE c.id = :commentId")
+                    .param("commentId", commentId)
+                    .query((rs, _) -> commentExtractor(rs))
+                    .single();
+    }
+
+    public int insert(Comment comment) {
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbc.sql(
+                "INSERT INTO comments (content, parent_comment_id, author_id, post_id) " +
+                "VALUES (:content, :parentCommentId, :authorId, :postId)")
+                    .param("content", comment.getContent())
+                    .param("parentCommentId", comment.getParentCommentId())
+                    .param("author_id", comment.getAuthor().id())
+                    .param("post_id", comment.getBlogEntryId())
+                    .update(keyHolder);
+    }
+
 
 
     private static Comment commentExtractor(ResultSet rs) throws SQLException {
         AuthorDto authorDto = new AuthorDto(
                 rs.getInt("author_id"), rs.getString("username")
         );
+        Timestamp updatedAt = rs.getTimestamp("updated_at");
         return new Comment(
                 rs.getInt("id"),
                 rs.getString("content"),
                 rs.getTimestamp("created_at").toInstant(),
-                rs.getTimestamp("updated_at").toInstant(),
+                updatedAt != null ? updatedAt.toInstant() : null,
                 authorDto,
                 rs.getInt("reply_count")
         );
