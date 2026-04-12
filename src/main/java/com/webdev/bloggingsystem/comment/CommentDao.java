@@ -33,7 +33,7 @@ public class CommentDao {
                     "GROUP BY parent_comment_id) r " +
                     "ON r.parent_comment_id = c.id " +
                 "WHERE c.post_id = :postId AND c.parent_comment_id IS NULL " +
-                "ORDER BY c.created_at")
+                "ORDER BY c.created_at desc")
                     .param("postId", postId)
                     .query((rs, _) -> commentExtractor(rs))
                     .list();
@@ -51,7 +51,7 @@ public class CommentDao {
                     "GROUP BY parent_comment_id) r " +
                     "ON r.parent_comment_id = c.id " +
                 "WHERE c.parent_comment_id = :parentCommentId " +
-                "ORDER BY c.created_at")
+                "ORDER BY c.created_at desc")
                     .param("parentCommentId", parentCommentId)
                     .query((rs, _) -> commentExtractor(rs))
                     .list();
@@ -59,7 +59,7 @@ public class CommentDao {
 
     public Comment getCommentById(int commentId) {
         return jdbc.sql(
-                "SELECT c.id, c.content, c.created_at, c.updated_at, c.author_id, u.username " +
+                "SELECT c.id, c.content, c.created_at, c.updated_at, c.author_id, u.username, 0 AS reply_count " +
                 "FROM comments c " +
                 "JOIN users u ON c.author_id = u.id " +
                 "WHERE c.id = :commentId")
@@ -71,15 +71,16 @@ public class CommentDao {
     public int insert(Comment comment) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.sql(
-                "INSERT INTO comments (content, parent_comment_id, author_id, post_id) " +
-                "VALUES (:content, :parentCommentId, :authorId, :postId)")
-                    .param("content", comment.getContent())
-                    .param("parentCommentId", comment.getParentCommentId())
-                    .param("author_id", comment.getAuthor().id())
-                    .param("post_id", comment.getBlogEntryId())
-                    .update(keyHolder);
-    }
+            "INSERT INTO comments (content, parent_comment_id, author_id, post_id) " +
+            "VALUES (:content, :parentCommentId, :authorId, :postId)")
+                .param("content", comment.getContent())
+                .param("parentCommentId", comment.getParentCommentId())
+                .param("authorId", comment.getAuthor().id())
+                .param("postId", comment.getBlogEntryId())
+                .update(keyHolder);
 
+        return keyHolder.getKey().intValue();
+    }
 
 
     private static Comment commentExtractor(ResultSet rs) throws SQLException {
