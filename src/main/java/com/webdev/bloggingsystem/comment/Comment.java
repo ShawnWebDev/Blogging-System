@@ -25,7 +25,7 @@ public class Comment {
     public Comment() {}
 
     public Comment(String content, AuthorDto author, Integer blogEntryId) {
-        this.content = content;
+        this.content = content.trim();
         this.author = author;
         this.blogEntryId = blogEntryId;
     }
