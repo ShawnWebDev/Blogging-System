@@ -21,12 +21,12 @@ public class AppUserDao {
         ).param("username", username).query(AppUser.class).optional();
     }
 
-    public Optional<AuthorDto> findAuthorById(int id) {
+    public Optional<AuthorDto> findAuthorByUsername(String username) {
         return jdbc.sql(
                 "SELECT u.id, u.username " +
                         "FROM users u " +
-                        "WHERE u.id = :id"
-        ).param("id", id).query(AuthorDto.class).optional();
+                        "WHERE u.username = :username"
+        ).param("username", username).query(AuthorDto.class).optional();
     }
 
 
