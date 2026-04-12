@@ -62,10 +62,6 @@ public class CommentController {
         logger.info("createComment called.. dto = {}", createCommentDto);
 
         model.addAttribute("entryId", createCommentDto.getEntryId());
-        // target id: reply-(parent id)..
-        if (createCommentDto.getParentCommentId() != null) {
-            model.addAttribute("parentCommentId", createCommentDto.getParentCommentId());
-        }
 
         if (result.hasErrors()) {
             model.addAttribute("commentDto", createCommentDto);
@@ -73,14 +69,21 @@ public class CommentController {
                     .fragment("components/comment-components::comment-form-enabled")
                     .build();
         }
+        // for replies, target id: reply-(parent id)..
+        /*
+        if (createCommentDto.getParentCommentId() != null) {
+            model.addAttribute("parentCommentId", createCommentDto.getParentCommentId());
+            model.addAttribute("isReply", true);
+        }*/
+
         // for top-level, target id: comment-list
-        model.addAttribute("commentItem", null);
+        model.addAttribute("commentItem", commentService.saveComment(createCommentDto));
         model.addAttribute("isReply", false);
+        model.addAttribute("commentDto", new CreateCommentDto());
 
         return FragmentsRendering
-                .fragment("components/comment-components::single-comment")
-                .header("HX-Reswap", "afterbegin")
-                .header("HX-Retarget", "#comment-list")
+                .fragment("components/comment-components::comment-form-enabled")
+                .fragment("components/comment-components::single-comment-oob")
                 .build();
     }
 
