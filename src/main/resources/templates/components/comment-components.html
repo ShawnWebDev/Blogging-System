@@ -18,9 +18,8 @@
     <header>
       <div>
         <strong><span th:if="${!isReply}" class="denote-parent-comment">&#187; </span><small th:text="${commentItem.author.username}"></small></strong>
-        <small th:if="${!isReply}">commented</small>
-        <small th:if="${isReply}">replied</small>
-        <small>on <time th:text="${#temporals.format(commentItem.createdAt, 'MMMM dd, yyyy')}"></time></small>
+        <small th:text="${isReply ? 'replied' : 'commented'}"></small>
+        <small>on <time th:text="${#temporals.format(commentItem.createdAt, 'MMMM dd, yyyy @ h:mm a')}"></time></small>
       </div>
     </header>
     <section class="comment-content">
@@ -32,6 +31,10 @@
               th:hx-get="@{/comment/replies/{parentId}(parentId = ${commentItem.id})}" hx-target="closest .comment-replies" hx-swap="outerHTML" class="btn-secondary"></button>
     </section>
   </section>
+
+  <div th:fragment="single-comment-oob" hx-swap-oob="afterbegin:#comment-list">
+    <section th:replace="~{components/comment-components::single-comment(${commentItem}, ${isReply})}"></section>
+  </div>
 
   <section th:fragment="comment-container" id="comment-container">
     <h3>Comments</h3>
@@ -55,7 +58,8 @@
     </section>
 
     <section id="comment-container">
-      <button class="btn-secondary" th:hx-get="@{/comment/all/{entryId}(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms show:#comment-container:top">View Comments</button>
+      <h3>Comments</h3>
+      <button class="btn-secondary margin-bottom" th:hx-get="@{/comment/all/{entryId}(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms show:#comment-container:top">View Comments</button>
       <div id="comment-list"></div>
     </section>
   </section>
