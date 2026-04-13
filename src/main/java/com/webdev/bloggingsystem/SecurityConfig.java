@@ -16,7 +16,8 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    // todo : enable caching for static resources, figure out session timeout refresh prompt
+    // todo : enable caching for static resources, figure out session timeout refresh prompt, enable rate limiting
+    // todo : add all endpoints that require ADMIN.
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
@@ -35,9 +36,10 @@ public class SecurityConfig {
                                 "/blog/postComponent/validateSize",
                                 "/blog/blogComponent/posts/inProgress",
                                 "/categories",
-                                "/categories/**")
-                            .hasAuthority("ADMIN")
-                        .anyRequest().permitAll() // todo : add all endpoints that require ADMIN.
+                                "/categories/**").hasAuthority("ADMIN")
+                        .requestMatchers(
+                                "/comment/createComment").authenticated()
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/blog")
