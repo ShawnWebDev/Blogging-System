@@ -3,39 +3,57 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <body>
-
-  <form th:fragment="comment-form-enabled(entryId, parentCommentId)" id="comment-form" hx-post="/comment/createComment" hx-target="this" hx-swap="outerHTML" method="POST">
+  <!--comment input form-->
+  <form th:fragment="comment-form-enabled(entryId, parentCommentId)" th:id="${parentCommentId == null ? 'comment-form' : 'reply-form-'+ parentCommentId}"
+        th:hx-post="@{(${parentCommentId == null ? '/comment/createComment' : '/comment/createReply'})}" hx-target="this" hx-swap="outerHTML">
     <input type="hidden" name="entryId" th:value="${entry == null ? entryId : entry.id}"/>
-    <label>Write Comment:
+    <input th:if="${parentCommentId != null}" type="hidden" name="parentCommentId" th:value="${parentCommentId}"/>
+    <label><span th:text="'Write ' + ${parentCommentId == null ? 'Comment' : 'Reply'} + ':'"></span>
       <textarea name="content" rows="3" th:text="${commentDto.content}"></textarea>
       <small th:errors="${commentDto.content}" th:text="${#fields.errors('commentDto.content')}" class="error"></small>
     </label>
     <input type="submit" value="Post" class="btn-primary">
+    <div th:if="${noAuth}" class="no-auth-msg">
+      <small class="error">Please </small>
+      <button onclick="openDialog('login-modal')" class="btn-secondary">Login</button>
+      <small class="error">to reply.</small>
+    </div>
   </form>
 
+  <!--single comment card-->
   <section th:fragment="single-comment(commentItem, isReply)" class="comment">
     <div th:if="${isReply}" class="denote-reply"><strong>&#187;</strong></div>
     <header>
-      <div>
-        <strong><span th:if="${!isReply}" class="denote-parent-comment">&#187; </span><small th:text="${commentItem.author.username}"></small></strong>
-        <small th:text="${isReply ? 'replied' : 'commented'}"></small>
-        <small>on <time th:text="${#temporals.format(commentItem.createdAt, 'MMMM dd, yyyy @ h:mm a')}"></time></small>
-      </div>
+        <div>
+          <strong><span th:if="${!isReply}" class="denote-parent-comment">&#187; </span><small th:text="${commentItem.author.username}"></small></strong>
+          <small th:text="${isReply ? 'replied' : 'commented'}"></small>
+        </div>
+        <small><time th:text="${#temporals.format(commentItem.createdAt, 'MMMM dd, yyyy - h:mm a')}"></time></small>
     </header>
     <section class="comment-content">
       <p th:text="${commentItem.content}"></p>
-      <button class="btn-secondary">Reply</button>
+      <div class="reply-form-container" th:id="'reply-form-container-' + ${commentItem.id}">
+        <button class="btn-secondary" th:hx-get="@{/comment/commentComponent/commentForm(entryId = ${commentItem.blogEntryId}, parentCommentId = ${commentItem.id})}"
+                hx-target="closest .reply-form-container" hx-swap="innerHTML">Reply</button>
+      </div>
     </section>
     <section class="comment-replies" th:id="'replies-' + ${commentItem.id}">
-      <button th:if="${commentItem.replyCount > 0}" th:text="'Show ' + ${commentItem.replyCount} + ' replies'"
-              th:hx-get="@{/comment/replies/{parentId}(parentId = ${commentItem.id})}" hx-target="closest .comment-replies" hx-swap="outerHTML" class="btn-secondary"></button>
+      <button  th:if="${commentItem.replyCount > 0}" th:hx-get="@{/comment/replies/{parentId}(parentId = ${commentItem.id})}"
+              hx-target="closest .comment-replies" hx-swap="outerHTML" class="btn-secondary">Get replies</button>
     </section>
   </section>
 
+  <!--used for swapping in single parent comment to #comment-list after submission-->
   <div th:fragment="single-comment-oob" hx-swap-oob="afterbegin:#comment-list">
     <section th:replace="~{components/comment-components::single-comment(${commentItem}, ${isReply})}"></section>
   </div>
 
+  <!--used for swapping in single reply comment to #replies-parentId after submission-->
+  <div th:fragment="single-reply-oob" th:hx-swap-oob="'afterbegin:#replies-' + ${parentCommentId}">
+    <section th:replace="~{components/comment-components::single-comment(${commentItem}, ${isReply})}"></section>
+  </div>
+
+  <!--contains all comments after user clicks "View Comments"-->
   <section th:fragment="comment-container" id="comment-container">
     <h3>Comments</h3>
     <p th:if="${comments.size() == 0}">No comments...</p>
@@ -46,15 +64,18 @@
     </div>
   </section>
 
-  <section th:fragment="comment-replies" class="comment-replies active-replies" th:id="'replies-' + ${parentId}">
+  <!--contains each reply section-->
+  <details th:fragment="comment-replies" class="comment-replies" th:id="'replies-' + ${parentId}" open>
+    <summary title="show/hide replies">Replies</summary>
     <th:block th:each="replyComment : ${replyComments}">
       <section th:replace="~{components/comment-components::single-comment(${replyComment}, true)}"></section>
     </th:block>
-  </section>
+  </details>
 
+  <!--initial empty comment section. if logged in, comment input form is also displayed-->
   <section th:fragment="comment-section(entryId)" id="comments-section">
-    <section id="comment-form-container" hx-trigger="loginSuccess from:body" th:hx-get="@{/comment/commentComponent/commentForm(entryId = ${entryId})}" hx-swap="innerHTML show:#comment-form:top" hx-target="this">
-      <div sec:authorize="isAuthenticated()" th:replace="~{components/comment-components :: comment-form-enabled(entryId, null)}"></div>
+    <section id="comment-form-container" hx-trigger="loginSuccess from:body" th:hx-get="@{/comment/commentComponent/commentForm(entryId = ${entryId})}" hx-swap="innerHTML show:#auth-section:top" hx-target="this">
+      <div sec:authorize="isAuthenticated()" th:replace="~{components/comment-components::comment-form-enabled(entryId, null)}"></div>
     </section>
 
     <section id="comment-container">
@@ -63,6 +84,12 @@
       <div id="comment-list"></div>
     </section>
   </section>
+
+  <!--Used to replace reply form with button that fetches a fresh form-->
+  <div th:fragment="reply-form-container-oob" class="reply-form-container" th:id="'reply-form-container-' + ${parentCommentId}" th:hx-swap-oob="'innerHTML:#reply-form-container-' + ${parentCommentId}">
+    <button class="btn-secondary" th:hx-get="@{/comment/commentComponent/commentForm(entryId = ${entryId}, parentCommentId = ${parentCommentId})}"
+            hx-target="closest .reply-form-container" hx-swap="innerHTML">Reply</button>
+  </div>
 
 </body>
 </html>

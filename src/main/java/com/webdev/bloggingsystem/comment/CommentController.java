@@ -51,17 +51,14 @@ public class CommentController {
         return "components/comment-components::comment-replies";
     }
 
-    // todo: add POST endpoint for creating comments and replies,
-    // todo: target comment-list or reply-(parent id) when adding new comment to necessary list
     @HxRequest
     @PostMapping("/createComment")
     public FragmentsRendering createComment(Model model,
                                             @Valid @ModelAttribute("commentDto") CreateCommentDto createCommentDto,
                                             BindingResult result) {
 
-        logger.info("createComment called.. dto = {}", createCommentDto);
-
         model.addAttribute("entryId", createCommentDto.getEntryId());
+        model.addAttribute("isReply", false);
 
         if (result.hasErrors()) {
             model.addAttribute("commentDto", createCommentDto);
@@ -69,16 +66,8 @@ public class CommentController {
                     .fragment("components/comment-components::comment-form-enabled")
                     .build();
         }
-        // for replies, target id: reply-(parent id)..
-        /*
-        if (createCommentDto.getParentCommentId() != null) {
-            model.addAttribute("parentCommentId", createCommentDto.getParentCommentId());
-            model.addAttribute("isReply", true);
-        }*/
 
-        // for top-level, target id: comment-list
         model.addAttribute("commentItem", commentService.saveComment(createCommentDto));
-        model.addAttribute("isReply", false);
         model.addAttribute("commentDto", new CreateCommentDto());
 
         return FragmentsRendering
@@ -86,6 +75,44 @@ public class CommentController {
                 .fragment("components/comment-components::single-comment-oob")
                 .build();
     }
+
+    @HxRequest
+    @PostMapping("/createReply")
+    public FragmentsRendering createReply(Model model,
+                                          @Valid @ModelAttribute("commentDto") CreateCommentDto createCommentDto,
+                                          BindingResult result) {
+
+        Integer parentCommentId = createCommentDto.getParentCommentId();
+
+        model.addAttribute("entryId", createCommentDto.getEntryId());
+        model.addAttribute("parentCommentId", parentCommentId);
+        model.addAttribute("isReply", true);
+
+        boolean hasErrors = false;
+
+        if (CommentService.getUsername() == null) {
+            hasErrors = true;
+            model.addAttribute("noAuth", true);
+        }
+
+        if (hasErrors || result.hasErrors()) {
+            model.addAttribute("commentDto", createCommentDto);
+            return FragmentsRendering
+                    .fragment("components/comment-components::comment-form-enabled")
+                    .build();
+        }
+
+        model.addAttribute("commentItem", commentService.saveComment(createCommentDto));
+        model.addAttribute("commentDto", new CreateCommentDto());
+
+        // for replies, target id: reply-(parent id)..
+        return FragmentsRendering
+                .fragment("components/comment-components::single-reply-oob")
+                .fragment("components/comment-components::reply-form-container-oob")
+                .build();
+
+    }
+
 
     // todo: another POST endpoint for updating,
     // todo: add DELETE endpoint for soft delete of comment/reply,

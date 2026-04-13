@@ -15,8 +15,7 @@
     <nav>
       <ul>
         <li>
-          <a href="/" hx-get="/" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromAbout != null ? ' active' : ''}"
-             title="About Me">
+          <a href="/" hx-get="/" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromAbout != null ? ' active' : ''}">
             <div class="nav-spans">
               <span>About </span><span class="secondary-span">Me</span>
             </div>
@@ -26,8 +25,7 @@
           </a>
         </li>
         <li>
-          <a href="/portfolio" hx-get="/portfolio" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromPortfolio != null ? ' active' : ''}"
-             title="My Portfolio">
+          <a href="/portfolio" hx-get="/portfolio" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromPortfolio != null ? ' active' : ''}">
             <div class="nav-spans">
               <span class="secondary-span">My </span><span>Work</span>
             </div>
@@ -37,8 +35,7 @@
           </a>
         </li>
         <li>
-          <a href="/blog" hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromBlog != null ? ' active' : ''}"
-             title="My Blog">
+          <a href="/blog" hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromBlog != null ? ' active' : ''}">
             <div class="nav-spans">
               <span class="secondary-span">My </span><span>Blog</span>
             </div>
@@ -48,8 +45,7 @@
           </a>
         </li>
         <li id="contact-nav">
-          <a href="/#contact" hx-get="/" hx-target="#main-content" hx-swap="outerHTML swap:150ms show:#contact:top" th:class="nav-item + ${fromContact != null ? ' active' : ''}"
-             title="Contact Me">
+          <a href="/#contact" hx-get="/" hx-target="#main-content" hx-swap="outerHTML swap:150ms show:#contact:top" th:class="nav-item + ${fromContact != null ? ' active' : ''}">
             <div class="nav-spans">
               <span>Contact </span><span class="secondary-span">Me</span>
             </div>
@@ -75,6 +71,9 @@
         if (el) {
           e.detail.headers[el.dataset.header] = el.dataset.token;
         }
+      });
+      document.body.addEventListener('loginSuccess', function() {
+        document.querySelectorAll('.no-auth-msg').forEach(el => el.remove());
       });
       function closeDialog(elementId) {
         document.getElementById(elementId).close();
