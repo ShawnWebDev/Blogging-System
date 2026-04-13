@@ -58,12 +58,12 @@ public class DaoTests {
     }
 
     @Test
-    void getAuthorById() {
-        Optional<AuthorDto> author = appUserDao.findAuthorById(1);
+    void getAuthorByUsername() {
+        Optional<AuthorDto> author = appUserDao.findAuthorByUsername("TestAdmin");
 
         System.out.println(author);
         Assertions.assertTrue(author.isPresent());
-        Assertions.assertEquals("TestAdmin", author.get().username());
+        Assertions.assertEquals(1, author.get().id());
     }
 
     // ** BlogEntry **
