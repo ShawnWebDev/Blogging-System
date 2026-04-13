@@ -23,7 +23,7 @@ public class CommentDao {
     // LEFT JOIN ensures top-level comments without replies are still included.
     public List<Comment> getParentCommentsByPostId(int postId) {
         return jdbc.sql(
-                "SELECT c.id, c.content, c.created_at, c.updated_at, c.author_id, u.username, " +
+                "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, u.username, " +
                     "COALESCE(r.reply_count, 0) AS reply_count " +
                 "FROM comments c " +
                 "JOIN users u ON c.author_id = u.id " +
@@ -41,7 +41,7 @@ public class CommentDao {
 
     public List<Comment> getReplyCommentsByParentId(int parentCommentId) {
         return jdbc.sql(
-                "SELECT c.id, c.content, c.created_at, c.updated_at, c.author_id, u.username, " +
+                "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, u.username, " +
                     "COALESCE(r.reply_count, 0) AS reply_count " +
                 "FROM comments c " +
                 "JOIN users u ON c.author_id = u.id " +
@@ -59,7 +59,7 @@ public class CommentDao {
 
     public Comment getCommentById(int commentId) {
         return jdbc.sql(
-                "SELECT c.id, c.content, c.created_at, c.updated_at, c.author_id, u.username, 0 AS reply_count " +
+                "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, u.username, 0 AS reply_count " +
                 "FROM comments c " +
                 "JOIN users u ON c.author_id = u.id " +
                 "WHERE c.id = :commentId")
@@ -93,6 +93,7 @@ public class CommentDao {
                 rs.getString("content"),
                 rs.getTimestamp("created_at").toInstant(),
                 updatedAt != null ? updatedAt.toInstant() : null,
+                rs.getInt("post_id"),
                 authorDto,
                 rs.getInt("reply_count")
         );

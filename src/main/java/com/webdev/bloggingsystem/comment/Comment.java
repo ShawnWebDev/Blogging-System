@@ -30,11 +30,12 @@ public class Comment {
         this.blogEntryId = blogEntryId;
     }
 
-    public Comment(int id, String content, Instant createdAt, Instant updatedAt, AuthorDto author, Integer replyCount) {
+    public Comment(int id, String content, Instant createdAt, Instant updatedAt, Integer blogEntryId, AuthorDto author, Integer replyCount) {
         this.id = id;
         this.content = content;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.blogEntryId = blogEntryId;
         this.author = author;
         this.replyCount = replyCount;
     }
