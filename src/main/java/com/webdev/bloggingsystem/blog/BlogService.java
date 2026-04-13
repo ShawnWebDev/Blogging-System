@@ -23,53 +23,53 @@ public class BlogService {
     private final Parser markdownParser;
     private final HtmlRenderer htmlRenderer;
 
-    public BlogService(BlogEntryDao blogEntryDao, CategoryDao categoryDao, Parser markdownParser, HtmlRenderer htmlRenderer) {
+    BlogService(BlogEntryDao blogEntryDao, CategoryDao categoryDao, Parser markdownParser, HtmlRenderer htmlRenderer) {
         this.blogEntryDao = blogEntryDao;
         this.categoryDao = categoryDao;
         this.markdownParser = markdownParser;
         this.htmlRenderer = htmlRenderer;
     }
 
-    public List<SimpleBlogEntryDto> findAllSimpleBlogEntries() {
+    List<SimpleBlogEntryDto> findAllSimpleBlogEntries() {
         return blogEntryDao.findAllSimple();
     }
 
-    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesInProgress() {
+    List<SimpleBlogEntryDto> findAllSimpleBlogEntriesInProgress() {
         return blogEntryDao.findAllSimpleInProgress();
     }
 
-    public List<SimpleBlogEntryDto> findAllSimpleBlogEntriesToCategoryName(String categoryName) {
+    List<SimpleBlogEntryDto> findAllSimpleBlogEntriesToCategoryName(String categoryName) {
         return blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName);
     }
 
-    public List<Category> findAllCategories() {
+    List<Category> findAllCategories() {
         return categoryDao.findAll();
     }
 
-    public Category findCategoryById(Integer id) {
+    Category findCategoryById(Integer id) {
         return categoryDao.findCategoryById(id)
                 .orElseThrow(() -> new BlogEntryException("Category with id " + id + " not found!")
         );
     }
 
-    public List<SimpleCategoryDto> findAllSimpleCategories() {
+    List<SimpleCategoryDto> findAllSimpleCategories() {
         return categoryDao.findAllNames();
     }
 
-    public String findCategoryDescriptionByName(String categoryName) {
+    String findCategoryDescriptionByName(String categoryName) {
         return categoryDao.findCategoryDescriptionByName(categoryName);
     }
 
-    public int createCategory(Category category) {
+    int createCategory(Category category) {
         return categoryDao.insert(category);
     }
 
-    public void deleteCategoryById(int id) {
+    void deleteCategoryById(int id) {
         categoryDao.deleteCategoryById(id);
     }
 
     @Transactional
-    public int createPost(CreateBlogEntryDto dto) {
+    int createPost(CreateBlogEntryDto dto) {
         //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set<ids>, id)
         logger.info("Post is being saved...");
         BlogEntry blogEntry = new BlogEntry(
@@ -92,7 +92,7 @@ public class BlogService {
         return blogId;
     }
 
-    public BlogEntry readPostById(int id) {
+    BlogEntry readPostById(int id) {
         BlogEntry entry = blogEntryDao.findById(id)
                 .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
         if (entry.getInProgress() && isNotAdmin()) {
@@ -102,7 +102,7 @@ public class BlogService {
         return entry;
     }
 
-    public BlogEntry readPostBySlug(String slug) {
+    BlogEntry readPostBySlug(String slug) {
         BlogEntry entry = blogEntryDao.findBySlug(slug)
                 .orElseThrow(() -> new BlogEntryException("Entry not found: " + slug));
         if (entry.getInProgress() && isNotAdmin()) {
@@ -119,7 +119,7 @@ public class BlogService {
     }
 
     @Transactional
-    public void updatePost(CreateBlogEntryDto dto) {
+    void updatePost(CreateBlogEntryDto dto) {
         logger.info("Post is being updated...");
         int blogId = dto.getId();
         BlogEntry blogEntry = new BlogEntry(
@@ -152,7 +152,7 @@ public class BlogService {
         }
     }
 
-    public void updateCategory(Category category) {
+    void updateCategory(Category category) {
         logger.info("Category is being updated...");
         int categoryId = category.getId();
         Category categoryToUpdate = new Category(
@@ -181,7 +181,7 @@ public class BlogService {
         return htmlRenderer.render(markdownParser.parse(content));
     }
 
-    public CreateBlogEntryDto buildCreateDto(int id) {
+    CreateBlogEntryDto buildCreateDto(int id) {
         BlogEntry post = blogEntryDao.findById(id)
                 .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
         int[] categoryIds = new int[4];

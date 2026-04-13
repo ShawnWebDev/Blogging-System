@@ -3,38 +3,39 @@ package com.webdev.bloggingsystem.comment;
 import com.webdev.bloggingsystem.errorHandling.BlogEntryException;
 import com.webdev.bloggingsystem.user.AppUserDao;
 import com.webdev.bloggingsystem.user.AuthorDto;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CommentService {
     private final CommentDao commentDao;
     private final AppUserDao appUserDao;
 
-    public CommentService(CommentDao commentDao, AppUserDao appUserDao) {
+    CommentService(CommentDao commentDao, AppUserDao appUserDao) {
         this.commentDao = commentDao;
         this.appUserDao = appUserDao;
     }
 
-    public List<Comment> getParentCommentsByPostId(Integer entryId) {
+    // todo : unit test
+
+    List<Comment> getParentCommentsByPostId(Integer entryId) {
         return commentDao.getParentCommentsByPostId(entryId);
     }
 
-    public List<Comment> getReplyCommentsByParentId(Integer parentId) {
+    List<Comment> getReplyCommentsByParentId(Integer parentId) {
         return commentDao.getReplyCommentsByParentId(parentId);
     }
 
-
-    // todo : test insert and get by id.
+    // todo : integration test insert and get by id.
     // returns comment for UI so not to fetch entire list again.
-    public Comment saveComment(CreateCommentDto dto) {
+    Comment saveComment(CreateCommentDto dto) {
         String username = getUsername();
         AuthorDto author = appUserDao.findAuthorByUsername(username)
-                .orElseThrow(() -> new BlogEntryException("User with name " + username + " not found!"));
+                .orElseThrow(() -> new BlogEntryException("Please login to comment."));
 
         Comment comment = new Comment(
                 dto.content,
@@ -50,15 +51,15 @@ public class CommentService {
     }
 
 /*
-    public Comment updateComment() {}
+    Comment updateComment() {}
 
     public void deleteComment(Integer commentId) {
         // soft delete setting "deleted by Username or ADMIN"
     }*/
 
-    public static String getUsername() {
+    static String getUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
+        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
             return null;
         }
         return auth.getName();
