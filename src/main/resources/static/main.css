@@ -228,7 +228,7 @@ a:hover, .btn-anchor-look:hover {
     margin: 1.5rem auto;
 }
 
-article header, .comment header {
+article header {
     position: relative;
     display: flex;
     flex-wrap: wrap;
@@ -437,6 +437,17 @@ article header h4 {
     border: 1px solid var(--transparent-color-light);
 }
 
+.comment header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    background-color: var(--color-dark);
+    border-radius: 0.25rem 0.25rem 0 0;
+    padding: 0.5rem;
+    border-bottom: 2px solid var(--accent-color-transparent);
+}
+
 .comment-content {
     margin-left: 0.5rem;
     padding: 0.5rem;
@@ -454,6 +465,22 @@ article header h4 {
     margin: 0 0 0 0.5rem;
 }
 
+.comment-replies summary {
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--main-text-color);
+}
+
+.comment-replies:not([open]) > summary::before {
+    content: "Show ";
+    color: var(--main-text-color);
+}
+
+.comment-replies[open] > summary::before {
+    content: "Hide ";
+    color: var(--main-text-color);
+}
+
 .denote-parent-comment, .denote-reply {
     color: var(--accent-color);
 }
@@ -466,14 +493,14 @@ article header h4 {
     z-index: 2;
 }
 
-.active-replies {
+.comment-replies:has(.comment) {
     border-radius: 0;
     padding-top: 1rem;
     background-color: transparent;
     border-left: 1px dashed var(--accent-color-transparent);
 }
 
-.active-replies .comment {
+.comment-replies:has(.comment) .comment {
     background-color: var(--transparent-color-dark);
     border-radius: 0 0.25rem 0.25rem 0;
     border-top: 1px solid var(--transparent-color-light);
@@ -483,6 +510,9 @@ article header h4 {
     margin-left : 0.5rem;
 }
 
+.margin-bottom {
+    margin-bottom: 1rem;
+}
 
 /* FORM STYLES */
 
