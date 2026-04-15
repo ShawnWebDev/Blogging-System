@@ -9,10 +9,10 @@
 <!--blog dashboard components-->
 <section th:fragment="all-posts" id="posts">
     <header>
-        <h3 th:text="${categoryName + ' Posts'}"></h3>
+        <h2 th:text="${categoryName + ' Posts'}"></h2>
         <p th:text="${categoryDesc}"></p>
         <button onclick="openDialog('categories-modal')" class="btn-primary">Filter by category</button>
-        <button th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:150ms" class="btn-primary" hx-on:click="removeActiveCategories()">All Posts</button>
+        <button th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:150ms" class="btn-primary" hx-on:click="removeActiveCategories()">Show All</button>
     </header>
 
     <section id="post-container">
@@ -45,7 +45,7 @@
                 <button aria-label="Close" onclick="closeDialog('categories-modal')" class="close-btn btn-primary">X</button>
             </header>
         <div id="categories-container">
-            <button class="category-selection btn-primary"
+            <button class="category-selection btn-secondary"
                     th:each="category : ${categories}"
                     th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.name})}"
                     hx-target="#posts"
