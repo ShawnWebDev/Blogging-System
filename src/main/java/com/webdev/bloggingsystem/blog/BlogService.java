@@ -84,7 +84,7 @@ public class BlogService {
 
         int blogId = blogEntryDao.insert(blogEntry);
         //remove 0 values from categoryIds array.
-        Set<Integer> cleanedCategoryIds = cleanCategoryIds(dto.getCategoryIds());
+        Set<Integer> cleanedCategoryIds = this.cleanCategoryIds(dto.getCategoryIds());
         logger.info("Saving category relations... ");
         categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
 
@@ -95,7 +95,7 @@ public class BlogService {
     BlogEntry readPostById(int id) {
         BlogEntry entry = blogEntryDao.findById(id)
                 .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
-        if (entry.getInProgress() && isNotAdmin()) {
+        if (entry.getInProgress() && this.isNotAdmin()) {
             throw new BlogEntryException("Entry is in progress and cannot be read!");
         }
         entry.setContent(this.renderMarkdown(entry.getContent()));
@@ -105,14 +105,14 @@ public class BlogService {
     BlogEntry readPostBySlug(String slug) {
         BlogEntry entry = blogEntryDao.findBySlug(slug)
                 .orElseThrow(() -> new BlogEntryException("Entry not found: " + slug));
-        if (entry.getInProgress() && isNotAdmin()) {
+        if (entry.getInProgress() && this.isNotAdmin()) {
             throw new BlogEntryException("Entry is in progress and cannot be read!");
         }
         entry.setContent(this.renderMarkdown(entry.getContent()));
         return entry;
     }
 
-    static boolean isNotAdmin() {
+    boolean isNotAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication == null ||
                 !authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"));
@@ -138,14 +138,14 @@ public class BlogService {
         }
         categoryDao.deleteJoinedByBlogId(blogId);
         //remove 0 values from categoryIds array.
-        Set<Integer> cleanedCategoryIds = cleanCategoryIds(dto.getCategoryIds());
+        Set<Integer> cleanedCategoryIds = this.cleanCategoryIds(dto.getCategoryIds());
 
         logger.info("Updating category relations... ");
         categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
     }
 
     // database handles cascade delete of category join table's relations
-    public void deletePost(int id) {
+    void deletePost(int id) {
         int deleted = blogEntryDao.deleteById(id);
         if (deleted == 0) {
             throw new BlogEntryException("Entry NOT deleted with id: " + id);
@@ -166,7 +166,7 @@ public class BlogService {
         }
     }
 
-    static Set<Integer> cleanCategoryIds(int[] categoryIds) {
+    Set<Integer> cleanCategoryIds(int[] categoryIds) {
         //remove 0 and possible duplicate values from categoryIds array.
         Set<Integer> cleanedCategoryIds = new HashSet<>();
         for (int catId : categoryIds) {
