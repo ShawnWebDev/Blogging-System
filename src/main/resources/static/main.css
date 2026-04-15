@@ -8,17 +8,22 @@
 
     --color-dark: rgb(41, 41, 41);
     --color-light: rgb(105, 105, 105);
+    --more-transparent-color-dark: rgba(41, 41, 41, 0.25);
     --transparent-color-dark: rgba(41, 41, 41, 0.5);
     --transparent-color-light: rgba(105, 105, 105, 0.5);
 
     --main-text-color: rgb(227, 230, 233);
 
     --error-color: rgb(255, 120, 120);
+    --code-color: rgb(239, 223, 190);
+
+}
+/* todo : get a css minify extension for maven */
+/* Layout Styles */
+html {
+    font-size: 95%;
 }
 
-/* todo : get a css minify extension for maven */
-
-/* Layout Styles */
 body {
     background-color: var(--main-bg-color);
     color: var(--main-text-color);
@@ -26,15 +31,15 @@ body {
 }
 
 main {
-    width: 100%;
-    min-height: calc(100vh - 6rem);
     background-color: var(--secondary-bg-color);
+    width: 100%;
 }
 
 #main-content {
-    padding: 2.5rem 0.5rem;
+    padding: 2.5rem 0.25rem;
     opacity: 1;
     transition: opacity 150ms ease-in-out;
+    min-height: calc(100vh - 8.5rem);
 }
 
 #main-content.htmx-swapping {
@@ -53,30 +58,31 @@ main {
 
 #main-header h2 {
     margin: 0;
-    padding: 0 0 0 0.5rem;
+    padding: 0 0.25rem;
 }
 
-#main-content h1 {
+#main-content > header {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin: 0;
+    margin-bottom: 2rem;
 }
 
-#main-content h1 span {
+#main-content > header h1 {
     margin: 0;
     font-size: 1.75rem;
 }
 
-#main-content h1 svg {
+#main-content > header svg {
     width: 2rem;
     height: 2rem;
     fill: var(--accent-color-less-transparent);
 }
 
-#main-header section {
+#main-header > section {
     display: none;
 }
+
 nav {
     width: fit-content;
 }
@@ -86,7 +92,7 @@ nav ul, ul.group {
     justify-content: space-between;
     gap: 0.25rem;
     list-style: none;
-    padding: 0;
+    padding: 0 0.25rem;
     margin: 0;
 }
 
@@ -94,7 +100,6 @@ nav ul, ul.group {
     cursor: pointer;
     background-color: var(--transparent-color-dark);
     padding: 0.5rem 1rem;
-    font-size: 0.9rem;
     font-weight: 500;
     display: flex;
     gap: 0.75rem;
@@ -108,10 +113,11 @@ nav ul, ul.group {
 
 .nav-item span {
     color: var(--main-text-color);
+    padding: 0;
 }
 
-.nav-item:hover span, .nav-item.active span {
-    color: #fff;
+.nav-item .secondary-span {
+    display: none;
 }
 
 .nav-item svg {
@@ -121,29 +127,49 @@ nav ul, ul.group {
 }
 
 .nav-item:hover svg, .nav-item.active svg {
-    opacity: 1;
+    opacity: 0.8;
 }
 
 .nav-item:hover {
     box-shadow: 0 -2px 0 var(--accent-color-less-transparent),
     1px 0 0 var(--color-light), -1px 0 0 var(--color-light);
     background-color: var(--secondary-bg-color);
-    color: #fff;
 }
 
 .nav-item.active {
     background-color: var(--secondary-bg-color);
-    color: #fff;
     box-shadow: 0 -3px 0 var(--accent-color), 0 -2px 0 var(--secondary-bg-color), 0 2px 0 var(--secondary-bg-color),
     1px -2px 0 var(--color-light), -1px -2px 0 var(--color-light), 1px 2px 0 var(--color-light), -1px 2px 0 var(--color-light);
 }
 
-.nav-item span, .nav-item svg {
+.nav-item .nav-spans, .nav-item svg {
     transition: transform 200ms ease-in-out, opacity 200ms ease-in-out;
     will-change: transform;
 }
-.nav-item.active span, .nav-item.active > svg {
+
+.nav-item.active .nav-spans, .nav-item.active > svg {
+    color: #fff;
     transform: translateY(0.125rem);
+    opacity: 1;
+}
+
+#contact-nav {
+    display: block;
+}
+
+.contact-icon {
+    text-decoration: none;
+}
+
+#contact-section svg:hover {
+    opacity: 1;
+}
+
+#contact-section svg {
+    width: 2rem;
+    height: 2rem;
+    fill: var(--main-text-color);
+    opacity: 0.5;
 }
 
 button, input[type = submit] {
@@ -166,10 +192,15 @@ a:hover, .btn-anchor-look:hover {
 #posts {
     opacity: 1;
     transition: opacity 150ms ease-in-out;
+    margin-bottom: 2rem;
 }
 
 #posts.htmx-swapping {
     opacity: 0;
+}
+
+#posts > header {
+    margin-bottom: 3rem;
 }
 
 #categories-modal > article {
@@ -267,7 +298,7 @@ article header h4 {
     background-color: var(--accent-color-transparent);
     border: 1px solid var(--accent-color-less-transparent);
     border-radius: 0.25rem;
-    color: /*rgb(0, 50, 25)*/#fff;
+    color: var(--main-text-color);
     transition: color 200ms ease-in-out, border-color 200ms ease-in-out, background-color 200ms ease-in-out;
     padding: 0.5rem 0.75rem;
 }
@@ -283,15 +314,11 @@ article header h4 {
     color: #000;
 }
 
-.category-selection:hover, .category-selection.active-category, input[type=submit]:hover {
-    border-color: var(--main-bg-color);
-}
-
 .btn-secondary {
     font-weight: 500;
     background-color: var(--secondary-bg-color);
     color: var(--main-text-color);
-    border: 1px solid var(--transparent-color-light);
+    border: 1px solid var(--accent-color-transparent);
     border-radius: 0.25rem;
     padding: 0.25rem 0.5rem;
     transition: color 200ms ease-in-out, border-color 200ms ease-in-out;
@@ -302,8 +329,15 @@ article header h4 {
     border-color: var(--accent-color);
 }
 
-#admin-btns {
-    padding-bottom: 0.5rem;
+#login-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-top: 1px solid var(--transparent-color-light);
+}
+
+.spacer {
+    padding: 0.5rem 0;
 }
 
 #error-section {
@@ -311,17 +345,40 @@ article header h4 {
 }
 
 #error-field {
-    margin: 1rem auto;
+    margin: auto;
     font-size: 1.25rem;
 }
 
 /* SINGLE POST STYLES */
 #post-header {
-    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--transparent-color-light);
 }
 
-#post-thumbnail {
+#post-content {
+    margin: 3rem auto;
+}
+
+#post-content h2, #post-content h3, #post-content h4 {
+    margin: 2rem auto 1.5rem auto;
+}
+
+#post-content p, #post-content li {
+    padding-left: 0.5rem;
+}
+
+#post-content pre {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: var(--transparent-color-dark);
+    color: var(--code-color);
+}
+
+.post-thumbnail {
     display: inline;
+    width: 3rem;
+    height: auto;
+    max-width: 100%;
 }
 
 #post-header-content {
@@ -329,13 +386,149 @@ article header h4 {
     flex-wrap: wrap;
     align-items: center;
     gap: 1rem;
+    flex: 100%;
 }
 
 #single-post-navigation-container {
     display: flex;
+    justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin: 0 auto 0.5rem auto;
+    margin-bottom: 1.5rem;
+    flex: 1;
+}
+
+#comments-section {
+    display: flex;
+    flex-direction: column;
+}
+
+#comments-section h3, #comment-form {
+    margin: 0;
+    padding-bottom: 1rem;
+}
+
+#comments-section h3 {
+    padding-top: 1rem;
+    border-top: 1px solid var(--transparent-color-light);
+}
+
+#comment-container, .comment-replies {
+    opacity: 1;
+    transition: opacity 150ms ease-in-out;
+}
+
+#comment-container.htmx-swapping, .comment-replies.htmx-swapping {
+    opacity: 0;
+}
+
+#comment-container > .btn-secondary {
+    width: 100%;
+}
+
+#comment-container > .comment {
+    margin-bottom: 2rem;
+}
+
+.comment {
+    background-color: var(--transparent-color-light);
+    border-radius: 0.25rem;
+    margin: 1rem 0;
+    padding-bottom: 0.5rem;
+    border: 1px solid var(--transparent-color-light);
+}
+
+.comment header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    background-color: var(--color-dark);
+    border-radius: 0.25rem 0.25rem 0 0;
+    padding: 0.5rem;
+    border-bottom: 2px solid var(--accent-color-transparent);
+}
+
+.comment-content {
+    margin-left: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    border-left: 1px dashed var(--accent-color-transparent);
+}
+
+.comment-content p {
+    margin-bottom: 0;
+    padding-bottom: 1rem;
+}
+
+.comment-input {
+    background-color: var(--more-transparent-color-dark);
+    border: 1px solid var(--transparent-color-light);
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+}
+
+.comment-replies {
+    margin: 0 0 0 0.5rem;
+}
+
+.comment-replies summary {
+    position: relative;
+    right: 0.5rem;
+    bottom: 1rem;
+    font-size: 1.25rem;
+    cursor: pointer;
+    width: fit-content;
+    color: var(--accent-color);
+    height: 0;
+}
+
+.comment-replies[open] > summary::marker {
+    content: '\229D';
+}
+
+.comment-replies > summary::marker {
+    content: '\2295';
+}
+
+.denote-parent-comment, .denote-reply {
+    color: var(--accent-color-less-transparent);
+}
+
+.denote-reply {
+    position: relative;
+    line-height: 0;
+    right: 0.4rem;
+    top: 1.15rem;
+    z-index: 2;
+}
+
+.comment-replies .comment:first-of-type {
+    margin-top: 0;
+}
+
+.comment-replies:has(.comment) {
+    border-radius: 0;
+    border-left: 1px dashed var(--accent-color-transparent);
+    padding-top: 1rem;
+}
+
+.comment-replies:has(.comment) .comment {
+    border-radius: 0 0.25rem 0.25rem 0;
+    border-top: 1px solid var(--transparent-color-light);
+    border-right: none;
+    border-bottom: 1px solid var(--transparent-color-light);
+    border-left: none;
+    margin-left : 0.5rem;
+    background-color: var(--transparent-color-dark);
+}
+
+.reply-form-container:has(.comment-input) > .btn-secondary {
+    display: none;
+}
+
+.margin-bottom {
+    margin-bottom: 1rem;
 }
 
 /* FORM STYLES */
@@ -361,6 +554,7 @@ input[type="url"],
 input[type="password"],
 textarea, select {
     width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
     padding: 0.5rem;
     background-color: var(--transparent-color-dark);
@@ -369,7 +563,9 @@ textarea, select {
     font-size: 1rem;
     font-weight: 500;
 }
-
+textarea {
+    resize: vertical;
+}
 select:hover, option:hover {
     cursor: pointer;
     background-color: var(--secondary-bg-color);
@@ -465,17 +661,18 @@ dialog #login-message {
     color: var(--error-color);
 }
 
+
 /* 480-767 */
-@media (min-width: 510px) {
+@media (min-width: 430px) {
     nav {
         width: fit-content;
     }
     nav ul {
+        padding: 0 0.5rem;
         gap: 1rem;
     }
     .nav-item {
-        padding: 0.5rem 0.75rem;
-        font-size: 1rem;
+        padding: 0.75rem;
     }
     .nav-item svg {
         display: block;
@@ -484,6 +681,12 @@ dialog #login-message {
     }
     #main-header {
         padding: 0.5rem 0.5rem 0 0;
+    }
+    #main-header h2 {
+        padding: 0 0.5rem;
+    }
+    #main-content {
+        padding: 2.5rem 0.5rem;
     }
     #post-container > .post-card header {
         padding: 0.5rem 1rem;
@@ -494,7 +697,7 @@ dialog #login-message {
 }
 
 /* 768-1023 */
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     #main-header {
         flex-direction: row;
         align-items: center;
@@ -509,7 +712,10 @@ dialog #login-message {
         padding: 2.5rem 2rem;
     }
     .nav-item {
-        font-weight: 600;
+        font-weight: 500;
+    }
+    .nav-item .secondary-span {
+        display: inline;
     }
     nav ul {
         padding: 0;
@@ -526,6 +732,9 @@ dialog #login-message {
 
 /* 1024 - 1359 */
 @media (min-width: 1024px) {
+    html {
+        font-size: 100%;
+    }
     body {
         display: flex;
         margin: auto;
@@ -537,24 +746,23 @@ dialog #login-message {
         position: sticky;
         top: 0;
         padding: 0 0 0 calc(0.5rem + 2vw);
-        max-width: 15rem;
+        width: 20rem;
     }
     nav {
         width: 100%;
     }
+    .nav-item {
+        font-weight: 600;
+    }
     #main-content {
         padding: 1.25rem calc(0.5rem + 2vw) 2rem 5vw;
+        min-height: calc(100vh - 3.25rem);
     }
     #main-greeting {
         display: none;
     }
     #main-header, #main-header section {
         display: block;
-    }
-    #head-greeting {
-        display: flex !important;
-        flex-direction: column;
-        gap: 0.5rem;
     }
     #head-greeting p {
         margin: 0;
@@ -567,23 +775,28 @@ dialog #login-message {
     #main-header h2 {
         width: 100%;
     }
-    #main-header, #main-header h2, #main-header h3, #main-header h4 {
+    #main-header, #main-header h2 {
         margin: 0;
     }
-    #main-header h2, #main-header nav, #main-header section {
+    #main-header h4 {
+        margin-top: 0;
+    }
+    #main-header h2, #head-greeting {
         border-bottom: 1px solid var(--transparent-color-light);
+    }
+    #main-header h2, #main-header nav, #head-greeting, #contact-section {
         padding: 1.5rem 0;
     }
     #main-header nav ul {
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 1rem;
     }
     #main-header nav ul li, .nav-item {
         text-align: left;
     }
     .nav-item {
         justify-content: space-between;
-        padding-left: 1rem;
+        padding: 0.75rem 0.5rem 0.75rem 1rem;
         box-shadow: -1px 0 0 var(--accent-color-transparent), 0 0 2px var(--transparent-color-light);
         clip-path: inset(-3px round 14px 0 0 14px);
     }
@@ -601,7 +814,7 @@ dialog #login-message {
         height: 1.25rem;
         padding-right: 0.5rem;
     }
-    .nav-item.active > span, .nav-item.active > svg {
+    .nav-item.active .nav-spans, .nav-item.active > svg {
         transform: translateX(0.25rem);
     }
     .post-card header span svg {

@@ -8,8 +8,7 @@
     <main>
         <div id="main-content">
             <section id="error-section">
-            <span th:fragment="error-field" id="error-field" hx-swap-oob="true">
-                <span th:if="${errorMsg == null}" class="error">Error!</span>
+            <span th:fragment="error-field" id="error-field" hx-swap-oob="true" hx-trigger="loginSuccess from:body" hx-get="/clearError">
                 <span th:if="${errorMsg != null}" th:text="${errorMsg}" class="error"></span>
             </span>
                 <a href="/" hx-get="/" hx-target="#main-content" hx-swap="outerHTML">Home</a>

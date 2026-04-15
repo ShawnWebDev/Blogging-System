@@ -1,5 +1,6 @@
 package com.webdev.bloggingsystem.blog;
 
+import com.webdev.bloggingsystem.comment.CreateCommentDto;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
@@ -46,6 +47,7 @@ public class BlogController {
         model.addAttribute("entry", entry);
         model.addAttribute("fromBlog", true);
         model.addAttribute("title", entry.getSlug());
+        model.addAttribute("commentDto", new CreateCommentDto());
     }
 
     // called when requesting main blog dashboard
@@ -142,7 +144,6 @@ public class BlogController {
     // "/blog/post/{slug}" to be used by external links, direct url, refresh
     @GetMapping("/post/{slug}")
     public String singlePostViewFromSlug(Model model, @PathVariable String slug) {
-        logger.info("(controller) Reading post by slug: {}", slug);
         BlogEntry entry = blogService.readPostBySlug(slug);
         populateSinglePostModel(model, entry);
 

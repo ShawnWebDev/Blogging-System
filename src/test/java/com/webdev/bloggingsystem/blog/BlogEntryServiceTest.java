@@ -58,7 +58,7 @@ public class BlogEntryServiceTest {
     @Test
     void testCleanCategoryIds_shouldRemoveZerosAndDuplicates() {
         int[] idArray = new int[]{1, 2, 2, 0};
-        Set<Integer> categoryIdSet = BlogService.cleanCategoryIds(idArray);
+        Set<Integer> categoryIdSet = blogEntryService.cleanCategoryIds(idArray);
         assertEquals(Set.of(1, 2), categoryIdSet);
     }
 
@@ -125,14 +125,14 @@ public class BlogEntryServiceTest {
     @Test
     void testIsNotAdmin_isAdmin() {
         setAuth("ADMIN");
-        boolean isAdmin = BlogService.isNotAdmin();
+        boolean isAdmin = blogEntryService.isNotAdmin();
         Assertions.assertFalse(isAdmin);
     }
 
     @Test
     void testIsNotAdmin_isUser() {
         setAuth("USER");
-        boolean isAdmin = BlogService.isNotAdmin();
+        boolean isAdmin = blogEntryService.isNotAdmin();
         Assertions.assertTrue(isAdmin);
     }
 

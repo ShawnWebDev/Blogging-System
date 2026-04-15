@@ -20,8 +20,8 @@
 
             <section id="auth-section">
                 <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button-blog}"></div>
-                <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button}"></div>
-                <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
+                <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button-blog}"></div>
+                <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token" hx-swap-oob="true"></span>
             </section>
 
             <div id="error-field"></div>

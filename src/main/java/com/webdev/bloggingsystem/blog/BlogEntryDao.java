@@ -6,10 +6,8 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.sql.Timestamp;
+import java.util.*;
 
 @Repository
 public class BlogEntryDao {
@@ -47,7 +45,7 @@ public class BlogEntryDao {
                                 "WHERE b.id = :id " +
                                 "GROUP BY b.id")
                     .param("id", id)
-                    .query((rs, _) -> singleBlogEntryExtractor(rs))
+                    .query((rs, _) -> fullBlogEntryExtractor(rs))
                     .optional();
     }
 
@@ -60,7 +58,7 @@ public class BlogEntryDao {
                         "WHERE b.slug = :slug " +
                         "GROUP BY b.id")
                 .param("slug", slug)
-                .query((rs, _) -> singleBlogEntryExtractor(rs))
+                .query((rs, _) -> fullBlogEntryExtractor(rs))
                 .optional();
     }
 
@@ -147,28 +145,33 @@ public class BlogEntryDao {
                     .update();
     }
 
+
     private static SimpleBlogEntryDto simpleBlogEntryExtractor(ResultSet rs) throws SQLException {
+        Timestamp createdAt = rs.getTimestamp("created_at");
         return new SimpleBlogEntryDto(
                 rs.getInt("id"),
                 rs.getString("slug"),
                 rs.getString("title"),
                 rs.getString("description"),
-                rs.getTimestamp("created_at").toInstant(),
+                createdAt == null ? null : createdAt.toInstant(),
                 rs.getString("thumbnail_url"),
                 rs.getString("thumbnail_alt")
         );
     }
 
-    private static BlogEntry singleBlogEntryExtractor(ResultSet rs) throws SQLException {
+    private static BlogEntry fullBlogEntryExtractor(ResultSet rs) throws SQLException {
+        Timestamp createdAt = rs.getTimestamp("created_at");
+        Timestamp updatedAt = rs.getTimestamp("updated_at");
+        String concatCategories = rs.getString("category_list");
         return new BlogEntry(
                 rs.getInt("id"),
                 rs.getString("title"),
                 rs.getString("description"),
                 rs.getString("content"),
-                rs.getTimestamp("created_at").toInstant(),
-                rs.getTimestamp("updated_at").toInstant(),
+                createdAt == null ? null : createdAt.toInstant(),
+                updatedAt == null ? null : updatedAt.toInstant(),
                 rs.getString("slug"),
-                rs.getString("category_list") != null ? List.of(rs.getString("category_list").split(",")) : List.of(),
+                concatCategories == null ? List.of() : List.of(concatCategories.split(",")),
                 rs.getString("thumbnail_url"),
                 rs.getString("thumbnail_alt"),
                 rs.getBoolean("in_progress")
