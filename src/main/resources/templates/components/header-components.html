@@ -81,6 +81,9 @@
       function openDialog(elementId) {
         document.getElementById(elementId).showModal();
       }
+      function removeElement(elementId) {
+        document.getElementById(elementId).remove();
+      }
     </script>
     <script th:if="${param.sessionExpired != null}">
       openDialog('login-modal');
