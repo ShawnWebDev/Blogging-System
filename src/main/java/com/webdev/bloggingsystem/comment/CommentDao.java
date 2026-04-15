@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class CommentDao {
@@ -57,7 +58,7 @@ public class CommentDao {
                     .list();
     }
 
-    public Comment getCommentById(int commentId) {
+    public Optional<Comment> getCommentById(int commentId) {
         return jdbc.sql(
                 "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, u.username, 0 AS reply_count " +
                 "FROM comments c " +
@@ -65,7 +66,34 @@ public class CommentDao {
                 "WHERE c.id = :commentId")
                     .param("commentId", commentId)
                     .query((rs, _) -> commentExtractor(rs))
-                    .single();
+                    .optional();
+    }
+
+    public Optional<Comment> getUpdatedCommentById(int commentId) {
+        return jdbc.sql(
+                        "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, u.username, " +
+                                "COALESCE(r.reply_count, 0) AS reply_count " +
+                                "FROM comments c " +
+                                "JOIN users u ON c.author_id = u.id " +
+                                "LEFT JOIN ( " +
+                                    "SELECT parent_comment_id, COUNT(*) AS reply_count " +
+                                    "FROM comments WHERE parent_comment_id IS NOT NULL " +
+                                    "GROUP BY parent_comment_id) r " +
+                                    "ON r.parent_comment_id = c.id " +
+                                "WHERE c.id = :commentId")
+                .param("commentId", commentId)
+                .query((rs, _) -> commentExtractor(rs))
+                .optional();
+    }
+
+    public boolean existsCommentByIdInEntry(int commentId, int entryId) {
+        return jdbc.sql(
+                "SELECT 1 FROM comments c " +
+                "WHERE c.id = :commentId AND c.post_id = :entryId")
+                    .param("commentId", commentId)
+                    .param("entryId", entryId)
+                    .query(Integer.class)
+                    .optional().isPresent();
     }
 
     public int insert(Comment comment) {

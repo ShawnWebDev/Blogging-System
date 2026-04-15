@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -19,8 +20,6 @@ public class CommentService {
         this.commentDao = commentDao;
         this.appUserDao = appUserDao;
     }
-
-    // todo : unit test
 
     List<Comment> getParentCommentsByPostId(Integer entryId) {
         return commentDao.getParentCommentsByPostId(entryId);
@@ -42,12 +41,15 @@ public class CommentService {
                 author,
                 dto.entryId
         );
+        // Check comment is a reply and
         if (dto.getParentCommentId() != null) {
             comment.setParentCommentId(dto.getParentCommentId());
         }
+
         int savedId = commentDao.insert(comment);
 
-        return commentDao.getCommentById(savedId);
+        return commentDao.getCommentById(savedId)
+                .orElseThrow(() -> new BlogEntryException("Comment not found with id: " + savedId));
     }
 
 /*
@@ -57,12 +59,19 @@ public class CommentService {
         // soft delete setting "deleted by Username or ADMIN"
     }*/
 
-    static String getUsername() {
+    String getUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {
             return null;
         }
         return auth.getName();
+    }
+
+    String commentExistsInEntry(Integer commentId, Integer entryId) {
+        if (!commentDao.existsCommentByIdInEntry(commentId, entryId)) {
+            return "Id does not match!";
+        }
+        return "";
     }
 
 }
