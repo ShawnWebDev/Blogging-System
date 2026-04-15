@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -237,7 +236,7 @@ public class DaoTests {
     @Test
     public void testFindSimpleCategories() {
         List<SimpleCategoryDto> result = categoryDao.findAllNames();
-        Assertions.assertNotNull(result);
+
         SimpleCategoryDto simpleCategoryDto_1 = new SimpleCategoryDto(1, "Test Category 1");
         SimpleCategoryDto simpleCategoryDto_2 = new SimpleCategoryDto(2, "Test Category 2");
         SimpleCategoryDto simpleCategoryDto_3 = new SimpleCategoryDto(3, "Test Category 3");
@@ -250,7 +249,6 @@ public class DaoTests {
     public void testFindAllParentCommentsById() {
         List<Comment> result = commentDao.getParentCommentsByPostId(1);
 
-        Assertions.assertNotNull(result);
         Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals(3, result.size());
         Assertions.assertEquals("Test Comment on Test Post 1", result.getFirst().getContent());
@@ -260,16 +258,115 @@ public class DaoTests {
     }
 
     @Test
-    public void testFindAllRepliesByParentId() {
-        List<Comment> result = commentDao.getReplyCommentsByParentId(1);
+    public void testFindAllParentCommentsById_NonExistentId() {
+        List<Comment> result = commentDao.getParentCommentsByPostId(99);
 
-        Assertions.assertNotNull(result);
-        Assertions.assertFalse(result.isEmpty());
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals("Test Reply 1 to Comment 1 on Test Post 1", result.getFirst().getContent());
-        Assertions.assertEquals(1, result.getFirst().getReplyCount());
+        Assertions.assertTrue(result.isEmpty());
 
         System.out.println("result: " + result);
     }
+
+    @Test
+    public void testFindAllRepliesByParentId() {
+        List<Comment> result = commentDao.getReplyCommentsByParentId(1);
+
+        Assertions.assertFalse(result.isEmpty());
+        Assertions.assertEquals(2, result.size());
+        // fetched in descending order.
+        Assertions.assertEquals("Test Reply 2 to Comment 1 on Test Post 1", result.getFirst().getContent());
+        Assertions.assertEquals(1, result.get(1).getReplyCount());
+
+        System.out.println("result: " + result);
+    }
+
+    @Test
+    public void testFindAllRepliesByParentId_NoReplies() {
+        List<Comment> result = commentDao.getReplyCommentsByParentId(4);
+
+        Assertions.assertTrue(result.isEmpty());
+
+        System.out.println("result: " + result);
+    }
+
+    @Test
+    public void testFindAllRepliesByParentId_NonExistentId() {
+        List<Comment> result = commentDao.getReplyCommentsByParentId(99);
+
+        Assertions.assertTrue(result.isEmpty());
+
+        System.out.println("result: " + result);
+    }
+
+    @Test
+    public void testFindCommentById() {
+        Comment result = commentDao.getCommentById(1).orElse(null);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("Test Comment on Test Post 1", result.getContent());
+        // reply count should be defaulted to 0 in single comment query as it's only used when inserting new comment.
+        Assertions.assertEquals(0, result.getReplyCount());
+    }
+
+    @Test
+    public void testFindCommentById_NonExistentId() {
+        Comment result = commentDao.getCommentById(99).orElse(null);
+        Assertions.assertNull(result);
+    }
+
+
+    @Test
+    public void testFindUpdatedCommentById() {
+        Comment result = commentDao.getUpdatedCommentById(1).orElse(null);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("Test Comment on Test Post 1", result.getContent());
+        // reply count should be counted for updated comment
+        Assertions.assertEquals(2, result.getReplyCount());
+    }
+
+    @Test
+    public void testFindUpdatedCommentById_NonExistentId() {
+        Comment result = commentDao.getUpdatedCommentById(99).orElse(null);
+        Assertions.assertNull(result);
+    }
+
+    @Test
+    @Transactional
+    void testInsertParentComment() {
+        Comment comment = new Comment(
+                "Test insert new parent comment.",
+                new AuthorDto(2, "TestUser"),
+                1
+        );
+        int insertedId = commentDao.insert(comment);
+
+        Comment insertedComment = commentDao.getCommentById(insertedId).orElse(null);
+        Assertions.assertNotNull(insertedComment);
+        Assertions.assertEquals("Test insert new parent comment.", insertedComment.getContent());
+        Assertions.assertEquals(0, insertedComment.getReplyCount());
+        Assertions.assertEquals("TestUser", insertedComment.getAuthor().username());
+    }
+
+    @Test
+    @Transactional
+    void testInsertReplyComment() {
+        Comment comment = new Comment(
+                "Test insert new reply comment.",
+                new AuthorDto(2, "TestUser"),
+                1
+        );
+        comment.setParentCommentId(1);
+        int insertedId = commentDao.insert(comment);
+        //verify insert
+        Comment insertedComment = commentDao.getCommentById(insertedId).orElse(null);
+        Assertions.assertNotNull(insertedComment);
+        Assertions.assertEquals("Test insert new reply comment.", insertedComment.getContent());
+        Assertions.assertEquals(0, insertedComment.getReplyCount());
+        Assertions.assertEquals("TestUser", insertedComment.getAuthor().username());
+        //verify is counted in replies of parent comment
+        List<Comment> parentCommentReplies = commentDao.getReplyCommentsByParentId(1);
+        Assertions.assertNotNull(parentCommentReplies);
+        Assertions.assertEquals(3, parentCommentReplies.size());
+        Assertions.assertEquals("Test insert new reply comment.", parentCommentReplies.getFirst().getContent());
+    }
+
 
 }
