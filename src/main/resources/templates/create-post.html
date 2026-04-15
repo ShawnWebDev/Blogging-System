@@ -21,25 +21,25 @@
 
           <label>Title:
             <input type="text" name="title" th:value="${post.title}"/>
-            <small th:errors="${post.title}" th:text="${#fields.errors('post.title')}" class="error"></small>
+            <small th:errors="${post.title}" class="error"></small>
           </label>
 
           <label>Description:
             <textarea name="description" id="description-input" th:text="${post.description}" required></textarea>
-            <small th:errors="${post.description}" th:text="${#fields.errors('post.description')}" class="error"></small>
+            <small th:errors="${post.description}" class="error"></small>
           </label>
 
           <div class="form-group">
             <div>
               <label>Thumbnail URL:
                 <input type="text" name="thumbnailUrl" th:value="${post.thumbnailUrl}"/>
-                <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
+                <small th:errors="${post.thumbnailUrl}" class="error"></small>
               </label>
             </div>
             <div>
               <label>Thumbnail Alt:
                 <input type="text" name="thumbnailAlt" th:value="${post.thumbnailAlt}"/>
-                <small th:errors="${post.thumbnailUrl}" th:text="${#fields.errors('post.thumbnailUrl')}" class="error"></small>
+                <small th:errors="${post.thumbnailUrl}" class="error"></small>
               </label>
             </div>
           </div>
@@ -81,7 +81,7 @@
 
           <label>Content: <br><a href="https://commonmark.org/help/" target="_blank" rel="noopener noreferrer">Markdown Reference</a>
             <textarea name="content" id="post-content-input" th:text="${post.content}" required></textarea>
-            <small th:errors="${post.content}" th:text="${#fields.errors('post.content')}" class="error"></small>
+            <small th:errors="${post.content}" class="error"></small>
           </label>
 
           <div>
