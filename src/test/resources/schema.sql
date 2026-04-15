@@ -16,7 +16,7 @@ CREATE TABLE `blog_entries` (
         `title` varchar(255) NOT NULL,
         `description` varchar(500) NOT NULL,
         `created_at` datetime DEFAULT current_timestamp(),
-        `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+        `updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
         `slug` varchar(255) NOT NULL,
         `thumbnail_url` varchar(255) NOT NULL,
         `thumbnail_alt` varchar(255) NOT NULL,
@@ -29,8 +29,8 @@ CREATE TABLE `blog_entries` (
 CREATE TABLE `comments` (
         `id` int NOT NULL AUTO_INCREMENT,
         `content` varchar(500) NOT NULL,
-        `created_at` datetime NOT NULL,
-        `updated_at` datetime,
+        `created_at` datetime DEFAULT current_timestamp(),
+        `updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
         `parent_comment_id` int DEFAULT NULL,
         `author_id` int NOT NULL,
         `post_id` int NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE `comments` (
         KEY `Comments_Users_FK` (`author_id`),
         KEY `Comments_Blog_Entries_FK` (`post_id`),
         CONSTRAINT `Comments_Blog_Entries_FK` FOREIGN KEY (`post_id`) REFERENCES `blog_entries` (`id`) ON DELETE CASCADE,
-        CONSTRAINT `Comments_Comments_FK` FOREIGN KEY (`parent_comment_id`) REFERENCES `comments` (`id`),
+        CONSTRAINT `Comments_Comments_FK` FOREIGN KEY (`parent_comment_id`) REFERENCES `comments` (`id`) ON DELETE CASCADE,
         CONSTRAINT `Comments_Users_FK` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`)
 );
 
