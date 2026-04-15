@@ -8,6 +8,7 @@
 
     --color-dark: rgb(41, 41, 41);
     --color-light: rgb(105, 105, 105);
+    --more-transparent-color-dark: rgba(41, 41, 41, 0.25);
     --transparent-color-dark: rgba(41, 41, 41, 0.5);
     --transparent-color-light: rgba(105, 105, 105, 0.5);
 
@@ -412,12 +413,12 @@ article header h4 {
     border-top: 1px solid var(--transparent-color-light);
 }
 
-#comment-container {
+#comment-container, .comment-replies {
     opacity: 1;
     transition: opacity 150ms ease-in-out;
 }
 
-#comment-container.htmx-swapping {
+#comment-container.htmx-swapping, .comment-replies.htmx-swapping {
     opacity: 0;
 }
 
@@ -432,7 +433,7 @@ article header h4 {
 .comment {
     background-color: var(--transparent-color-light);
     border-radius: 0.25rem;
-    margin-bottom: 1rem;
+    margin: 1rem 0;
     padding-bottom: 0.5rem;
     border: 1px solid var(--transparent-color-light);
 }
@@ -460,29 +461,38 @@ article header h4 {
     padding-bottom: 1rem;
 }
 
-.comment-replies {
+.comment-input {
+    background-color: var(--more-transparent-color-dark);
+    border: 1px solid var(--transparent-color-light);
     border-radius: 0.25rem;
+    padding: 0.5rem;
+}
+
+.comment-replies {
     margin: 0 0 0 0.5rem;
 }
 
 .comment-replies summary {
+    position: relative;
+    right: 0.5rem;
+    bottom: 1rem;
+    font-size: 1.25rem;
     cursor: pointer;
-    background-color: transparent;
-    color: var(--main-text-color);
+    width: fit-content;
+    color: var(--accent-color);
+    height: 0;
 }
 
-.comment-replies:not([open]) > summary::before {
-    content: "Show ";
-    color: var(--main-text-color);
+.comment-replies[open] > summary::marker {
+    content: '\229D';
 }
 
-.comment-replies[open] > summary::before {
-    content: "Hide ";
-    color: var(--main-text-color);
+.comment-replies > summary::marker {
+    content: '\2295';
 }
 
 .denote-parent-comment, .denote-reply {
-    color: var(--accent-color);
+    color: var(--accent-color-less-transparent);
 }
 
 .denote-reply {
@@ -493,21 +503,28 @@ article header h4 {
     z-index: 2;
 }
 
+.comment-replies .comment:first-of-type {
+    margin-top: 0;
+}
+
 .comment-replies:has(.comment) {
     border-radius: 0;
-    padding-top: 1rem;
-    background-color: transparent;
     border-left: 1px dashed var(--accent-color-transparent);
+    padding-top: 1rem;
 }
 
 .comment-replies:has(.comment) .comment {
-    background-color: var(--transparent-color-dark);
     border-radius: 0 0.25rem 0.25rem 0;
     border-top: 1px solid var(--transparent-color-light);
-    border-right: 1px solid var(--transparent-color-light);
+    border-right: none;
     border-bottom: 1px solid var(--transparent-color-light);
     border-left: none;
     margin-left : 0.5rem;
+    background-color: var(--transparent-color-dark);
+}
+
+.reply-form-container:has(.comment-input) > .btn-secondary {
+    display: none;
 }
 
 .margin-bottom {
