@@ -5,18 +5,25 @@
 <body>
   <!--comment input form-->
   <form th:fragment="comment-form-enabled(entryId, parentCommentId)" th:id="${parentCommentId == null ? 'comment-form' : 'reply-form-'+ parentCommentId}"
-        th:hx-post="@{(${parentCommentId == null ? '/comment/createComment' : '/comment/createReply'})}" hx-target="this" hx-swap="outerHTML">
+        th:hx-post="@{(${parentCommentId == null ? '/comment/createComment' : '/comment/createReply'})}" hx-target="this" hx-swap="outerHTML" class="comment-input">
     <input type="hidden" name="entryId" th:value="${entry == null ? entryId : entry.id}"/>
     <input th:if="${parentCommentId != null}" type="hidden" name="parentCommentId" th:value="${parentCommentId}"/>
-    <label><span th:text="'Write ' + ${parentCommentId == null ? 'Comment' : 'Reply'} + ':'"></span>
-      <textarea name="content" rows="3" th:text="${commentDto.content}"></textarea>
-      <small th:errors="${commentDto.content}" th:text="${#fields.errors('commentDto.content')}" class="error"></small>
+    <label class="margin-bottom"><span th:text="'Write ' + ${parentCommentId == null ? 'Comment' : 'Reply'} + ':'"></span>
+      <textarea name="content" rows="3" th:text="${commentDto.content}" autofocus></textarea>
+      <small th:errors="${commentDto.content}" class="error"></small>
     </label>
-    <input type="submit" value="Post" class="btn-primary">
+    <div class="form-group">
+      <input type="submit" value="Post" class="btn-primary">
+      <button type="button" class="btn-primary" th:if="${parentCommentId != null}"
+              th:data-id="${parentCommentId == null ? 'comment-form' : 'reply-form-'+ parentCommentId}" onclick="removeElement(this.getAttribute('data-id'))">Cancel</button>
+    </div>
     <div th:if="${noAuth}" class="no-auth-msg">
       <small class="error">Please </small>
       <button onclick="openDialog('login-modal')" class="btn-secondary">Login</button>
       <small class="error">to reply.</small>
+    </div>
+    <div th:if="${noComment}">
+      <small class="error" th:text="${noComment}"></small>
     </div>
   </form>
 
@@ -34,7 +41,7 @@
       <p th:text="${commentItem.content}"></p>
       <div class="reply-form-container" th:id="'reply-form-container-' + ${commentItem.id}">
         <button class="btn-secondary" th:hx-get="@{/comment/commentComponent/commentForm(entryId = ${commentItem.blogEntryId}, parentCommentId = ${commentItem.id})}"
-                hx-target="closest .reply-form-container" hx-swap="innerHTML">Reply</button>
+                hx-target="closest .reply-form-container" hx-swap="beforeend">Reply</button>
       </div>
     </section>
     <section class="comment-replies" th:id="'replies-' + ${commentItem.id}">
@@ -66,7 +73,7 @@
 
   <!--contains each reply section-->
   <details th:fragment="comment-replies" class="comment-replies" th:id="'replies-' + ${parentId}" open>
-    <summary title="show/hide replies">Replies</summary>
+    <summary title="show/hide replies"></summary>
     <th:block th:each="replyComment : ${replyComments}">
       <section th:replace="~{components/comment-components::single-comment(${replyComment}, true)}"></section>
     </th:block>
@@ -80,15 +87,15 @@
 
     <section id="comment-container">
       <h3>Comments</h3>
-      <button class="btn-secondary margin-bottom" th:hx-get="@{/comment/all/{entryId}(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms show:#comment-container:top">View Comments</button>
+      <button class="btn-secondary margin-bottom" th:hx-get="@{/comment/all/{entryId}(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms show:#auth-section:top">View Comments</button>
       <div id="comment-list"></div>
     </section>
   </section>
 
-  <!--Used to replace reply form with button that fetches a fresh form-->
+  <!--Used to replace reply form with reply button that fetches a fresh form-->
   <div th:fragment="reply-form-container-oob" class="reply-form-container" th:id="'reply-form-container-' + ${parentCommentId}" th:hx-swap-oob="'innerHTML:#reply-form-container-' + ${parentCommentId}">
     <button class="btn-secondary" th:hx-get="@{/comment/commentComponent/commentForm(entryId = ${entryId}, parentCommentId = ${parentCommentId})}"
-            hx-target="closest .reply-form-container" hx-swap="innerHTML">Reply</button>
+            hx-target="closest .reply-form-container" hx-swap="beforeend">Reply</button>
   </div>
 
 </body>

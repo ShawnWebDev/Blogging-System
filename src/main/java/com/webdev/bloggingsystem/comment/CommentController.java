@@ -89,10 +89,15 @@ public class CommentController {
         model.addAttribute("isReply", true);
 
         boolean hasErrors = false;
+        String commentExists = commentService.commentExistsInEntry(createCommentDto.parentCommentId, createCommentDto.entryId);
 
-        if (CommentService.getUsername() == null) {
+        if (commentService.getUsername() == null) {
             hasErrors = true;
             model.addAttribute("noAuth", true);
+        }
+        if (createCommentDto.parentCommentId != null && !commentExists.isEmpty()) {
+            hasErrors = true;
+            model.addAttribute("noComment", commentExists);
         }
 
         if (hasErrors || result.hasErrors()) {
@@ -110,7 +115,6 @@ public class CommentController {
                 .fragment("components/comment-components::single-reply-oob")
                 .fragment("components/comment-components::reply-form-container-oob")
                 .build();
-
     }
 
 
