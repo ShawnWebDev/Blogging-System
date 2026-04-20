@@ -37,29 +37,31 @@ public class BlogEntryDao {
     }
 
     public Optional<BlogEntry> findById(int id) {
-        return jdbc.sql("SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt, b.in_progress, " +
-                        "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
-                                "FROM blog_entries b " +
-                                "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
-                                "LEFT JOIN categories c ON c.id = pc.category_id " +
-                                "WHERE b.id = :id " +
-                                "GROUP BY b.id")
+        return jdbc.sql(
+                "SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt, b.in_progress, " +
+                    "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
+                "FROM blog_entries b " +
+                "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
+                "LEFT JOIN categories c ON c.id = pc.category_id " +
+                "WHERE b.id = :id " +
+                "GROUP BY b.id")
                     .param("id", id)
                     .query((rs, _) -> fullBlogEntryExtractor(rs))
                     .optional();
     }
 
     public Optional<BlogEntry> findBySlug(String slug) {
-        return jdbc.sql("SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt, b.in_progress, " +
-                        "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
-                        "FROM blog_entries b " +
-                        "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
-                        "LEFT JOIN categories c ON c.id = pc.category_id " +
-                        "WHERE b.slug = :slug " +
-                        "GROUP BY b.id")
-                .param("slug", slug)
-                .query((rs, _) -> fullBlogEntryExtractor(rs))
-                .optional();
+        return jdbc.sql(
+                "SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt, b.in_progress, " +
+                    "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
+                "FROM blog_entries b " +
+                "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
+                "LEFT JOIN categories c ON c.id = pc.category_id " +
+                "WHERE b.slug = :slug " +
+                "GROUP BY b.id")
+                    .param("slug", slug)
+                    .query((rs, _) -> fullBlogEntryExtractor(rs))
+                    .optional();
     }
 
     public boolean existsByTitleAndNotId(String title, Integer id) {
@@ -111,15 +113,15 @@ public class BlogEntryDao {
 
     public List<SimpleBlogEntryDto> findAllSimpleInProgress () {
         return jdbc.sql(
-                        "SELECT b.id,b. slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt " +
-                                "FROM blog_entries b " +
-                                "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
-                                "LEFT JOIN categories c ON c.id = pc.category_id " +
-                                "WHERE b.in_progress " +
-                                "GROUP BY b.id " +
-                                "ORDER BY b.id")
-                .query((rs, _) -> simpleBlogEntryExtractor(rs))
-                .list();
+                "SELECT b.id,b. slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt " +
+                "FROM blog_entries b " +
+                "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
+                "LEFT JOIN categories c ON c.id = pc.category_id " +
+                "WHERE b.in_progress " +
+                "GROUP BY b.id " +
+                "ORDER BY b.id")
+                    .query((rs, _) -> simpleBlogEntryExtractor(rs))
+                    .list();
     }
 
     public int update(BlogEntry blogEntry) {
