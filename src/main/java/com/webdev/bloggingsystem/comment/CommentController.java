@@ -24,15 +24,32 @@ public class CommentController {
 
     @HxRequest
     @GetMapping("/commentComponent/commentForm")
-    public String commentForm(Model model, @RequestParam Integer entryId, @RequestParam(required = false) Integer parentCommentId) {
-        model.addAttribute("entryId", entryId);
-        model.addAttribute("commentDto", new CreateCommentDto());
+    public String commentForm(Model model,
+                              @RequestParam Integer entryId, @RequestParam(required = false) Integer parentCommentId) {
+        CreateCommentDto dto = new CreateCommentDto();
+        dto.setEntryId(entryId);
 
         if (parentCommentId != null) {
-            model.addAttribute("parentCommentId", parentCommentId);
+            dto.setParentCommentId(parentCommentId);
         }
+        model.addAttribute("commentDto", dto);
 
         return "components/comment-components::comment-form-enabled";
+    }
+
+    @HxRequest
+    @GetMapping("/commentComponent/editForm")
+    public String editCommentForm(Model model,
+                                  @RequestParam Integer entryId, @RequestParam Integer commentId) {
+        String content = commentService.getCommentContentByCommentId(commentId);
+        CreateCommentDto dto = new CreateCommentDto();
+        dto.setContent(content);
+        dto.setEntryId(entryId);
+        dto.setCommentId(commentId);
+
+        model.addAttribute("commentDto", dto);
+
+        return "components/comment-components::edit-comment-form";
     }
 
     @HxRequest
@@ -47,27 +64,23 @@ public class CommentController {
     @GetMapping("/replies/{parentId}")
     public String replyComments(Model model, @PathVariable Integer parentId) {
         model.addAttribute("replyComments", commentService.getReplyCommentsByParentId(parentId));
-        model.addAttribute("parentId", parentId);
+
         return "components/comment-components::comment-replies";
     }
 
     @HxRequest
     @PostMapping("/createComment")
-    public FragmentsRendering createComment(Model model,
-                                            @Valid @ModelAttribute("commentDto") CreateCommentDto createCommentDto,
-                                            BindingResult result) {
+    public Object createComment(Model model,
+                                @Valid @ModelAttribute("commentDto") CreateCommentDto commentDto, BindingResult result) {
 
-        model.addAttribute("entryId", createCommentDto.getEntryId());
         model.addAttribute("isReply", false);
 
         if (result.hasErrors()) {
-            model.addAttribute("commentDto", createCommentDto);
-            return FragmentsRendering
-                    .fragment("components/comment-components::comment-form-enabled")
-                    .build();
+            model.addAttribute("commentDto", commentDto);
+            return "components/comment-components::comment-form-enabled";
         }
 
-        model.addAttribute("commentItem", commentService.saveComment(createCommentDto));
+        model.addAttribute("commentItem", commentService.saveComment(commentDto));
         model.addAttribute("commentDto", new CreateCommentDto());
 
         return FragmentsRendering
@@ -78,47 +91,64 @@ public class CommentController {
 
     @HxRequest
     @PostMapping("/createReply")
-    public FragmentsRendering createReply(Model model,
-                                          @Valid @ModelAttribute("commentDto") CreateCommentDto createCommentDto,
-                                          BindingResult result) {
+    public Object createReply(Model model,
+                              @Valid @ModelAttribute("commentDto") CreateCommentDto commentDto, BindingResult result) {
 
-        Integer parentCommentId = createCommentDto.getParentCommentId();
-
-        model.addAttribute("entryId", createCommentDto.getEntryId());
-        model.addAttribute("parentCommentId", parentCommentId);
         model.addAttribute("isReply", true);
 
         boolean hasErrors = false;
-        String commentExists = commentService.commentExistsInEntry(createCommentDto.parentCommentId, createCommentDto.entryId);
+        String commentValidation = commentService.validateCommentInEntry(commentDto.parentCommentId, commentDto.entryId);
 
         if (commentService.getUsername() == null) {
             hasErrors = true;
             model.addAttribute("noAuth", true);
         }
-        if (createCommentDto.parentCommentId != null && !commentExists.isEmpty()) {
+        if (commentDto.parentCommentId != null && !commentValidation.isEmpty()) {
             hasErrors = true;
-            model.addAttribute("noComment", commentExists);
+            model.addAttribute("noComment", commentValidation);
         }
-
         if (hasErrors || result.hasErrors()) {
-            model.addAttribute("commentDto", createCommentDto);
-            return FragmentsRendering
-                    .fragment("components/comment-components::comment-form-enabled")
-                    .build();
+            model.addAttribute("commentDto", commentDto);
+            return "components/comment-components::comment-form-enabled";
         }
 
-        model.addAttribute("commentItem", commentService.saveComment(createCommentDto));
-        model.addAttribute("commentDto", new CreateCommentDto());
+        model.addAttribute("commentItem", commentService.saveComment(commentDto));
 
-        // for replies, target id: reply-(parent id)..
         return FragmentsRendering
                 .fragment("components/comment-components::single-reply-oob")
-                .fragment("components/comment-components::reply-form-container-oob")
+                .header("HX-Reswap", "delete")
                 .build();
     }
 
+    // todo: Error handling, author access validation? validate commentId with EntryId?
+    @HxRequest
+    @PostMapping("/editComment")
+    public Object editComment(Model model,
+                            @Valid @ModelAttribute("commentDto") CreateCommentDto commentDto, BindingResult result) {
 
-    // todo: another POST endpoint for updating,
+        boolean hasErrors = false;
+        String commentValidation = commentService.validateCommentInEntry(commentDto.commentId, commentDto.entryId);
+
+        if (!commentValidation.isEmpty()) {
+            hasErrors = true;
+            model.addAttribute("noComment", commentValidation);
+        }
+        if (hasErrors || result.hasErrors()) {
+            model.addAttribute("commentDto", commentDto);
+            return "components/comment-components::edit-comment-form";
+        }
+
+        // return Comment from service to swap
+        model.addAttribute("commentItem", commentService.updateComment(commentDto));
+
+        // HX-Reswap to change the swap target in the form from "this" to "delete" on success
+        return FragmentsRendering
+                .fragment("components/comment-components::edit-single-comment-content-oob")
+                .fragment("components/comment-components::edit-single-comment-time-oob")
+                .header("HX-Reswap", "delete")
+                .build();
+    }
+
     // todo: add DELETE endpoint for soft delete of comment/reply,
     // todo: ensure only comment author or ADMIN can modify comments (using Principal)
     // todo: add these to template functionality
