@@ -3,14 +3,15 @@
     --secondary-bg-color: rgb(33, 33, 33);
 
     --accent-color: rgb(130, 255, 165);
-    --accent-color-less-transparent: rgba(130, 255, 165, 0.85);
+    --accent-color-less-transparent: rgba(130, 255, 165, 0.75);
     --accent-color-transparent: rgba(130, 255, 165, 0.25);
 
     --color-dark: rgb(41, 41, 41);
     --color-light: rgb(105, 105, 105);
-    --more-transparent-color-dark: rgba(41, 41, 41, 0.25);
     --transparent-color-dark: rgba(41, 41, 41, 0.5);
     --transparent-color-light: rgba(105, 105, 105, 0.5);
+    --more-transparent-color-dark: rgba(41, 41, 41, 0.25);
+    --more-transparent-color-light: rgba(105, 105, 105, 0.25);
 
     --main-text-color: rgb(227, 230, 233);
 
@@ -177,11 +178,11 @@ button, input[type = submit] {
     cursor: pointer;
 }
 
-a, .btn-anchor-look {
+a, .denote-parent-comment, .denote-reply {
     color: var(--accent-color-less-transparent);
 }
 
-a:hover, .btn-anchor-look:hover {
+a:hover {
     color: var(--accent-color);
 }
 
@@ -320,7 +321,7 @@ article header h4 {
     color: var(--main-text-color);
     border: 1px solid var(--accent-color-transparent);
     border-radius: 0.25rem;
-    padding: 0.25rem 0.5rem;
+    padding: 0.3rem 0.5rem;
     transition: color 200ms ease-in-out, border-color 200ms ease-in-out;
 }
 
@@ -413,12 +414,12 @@ article header h4 {
     border-top: 1px solid var(--transparent-color-light);
 }
 
-#comment-container, .comment-replies {
+#comment-container {
     opacity: 1;
     transition: opacity 150ms ease-in-out;
 }
 
-#comment-container.htmx-swapping, .comment-replies.htmx-swapping {
+#comment-container.htmx-swapping {
     opacity: 0;
 }
 
@@ -451,36 +452,43 @@ article header h4 {
 
 .comment-content {
     margin-left: 0.5rem;
-    padding: 0.5rem;
+    padding: 0.5rem 0.5rem 1rem 0.5rem;
     font-size: 0.9rem;
     border-left: 1px dashed var(--accent-color-transparent);
 }
 
-.comment-content p {
-    margin-bottom: 0;
-    padding-bottom: 1rem;
-}
-
 .comment-input {
-    background-color: var(--more-transparent-color-dark);
+    background-color: var(--more-transparent-color-light);
     border: 1px solid var(--transparent-color-light);
     border-radius: 0.25rem;
     padding: 0.5rem;
 }
 
+.comment-input textarea {
+    background-color: transparent;
+}
+
+.comment-input .form-group {
+    justify-content: space-between;
+}
+
 .comment-replies {
     margin: 0 0 0 0.5rem;
+    padding-top: 0.5rem;
 }
 
 .comment-replies summary {
     position: relative;
     right: 0.5rem;
-    bottom: 1rem;
+    bottom: 0.5rem;
     font-size: 1.25rem;
     cursor: pointer;
-    width: fit-content;
+    width: 1.25rem;
     color: var(--accent-color);
-    height: 0;
+}
+
+.btn-get-replies {
+    width: calc(100% - 0.5rem);
 }
 
 .comment-replies[open] > summary::marker {
@@ -491,16 +499,14 @@ article header h4 {
     content: '\2295';
 }
 
-.denote-parent-comment, .denote-reply {
-    color: var(--accent-color-less-transparent);
-}
-
 .denote-reply {
     position: relative;
     line-height: 0;
-    right: 0.4rem;
-    top: 1.15rem;
+    bottom: 0.25rem;
+    right: 0.75rem;
     z-index: 2;
+    font-size: 1.25rem;
+    user-select: none;
 }
 
 .comment-replies .comment:first-of-type {
@@ -510,11 +516,10 @@ article header h4 {
 .comment-replies:has(.comment) {
     border-radius: 0;
     border-left: 1px dashed var(--accent-color-transparent);
-    padding-top: 1rem;
 }
 
 .comment-replies:has(.comment) .comment {
-    border-radius: 0 0.25rem 0.25rem 0;
+    border-radius: 0 0 0 0.25rem;
     border-top: 1px solid var(--transparent-color-light);
     border-right: none;
     border-bottom: 1px solid var(--transparent-color-light);
@@ -523,12 +528,23 @@ article header h4 {
     background-color: var(--transparent-color-dark);
 }
 
-.reply-form-container:has(.comment-input) > .btn-secondary {
+.reply-form-container:has(.comment-input) > .btn-secondary,
+.comment:has(> .comment-content .reply-form-container .comment-input) > header .edit-btn {
     display: none;
+}
+
+.comment-author-btns {
+    width: fit-content;
+    padding-left: 0.5rem;
 }
 
 .margin-bottom {
     margin-bottom: 1rem;
+}
+
+.inline {
+    display: flex;
+    align-items: center;
 }
 
 /* FORM STYLES */
