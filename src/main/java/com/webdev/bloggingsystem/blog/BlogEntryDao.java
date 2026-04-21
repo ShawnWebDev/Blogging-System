@@ -148,7 +148,7 @@ public class BlogEntryDao {
     }
 
 
-    private static SimpleBlogEntryDto simpleBlogEntryExtractor(ResultSet rs) throws SQLException {
+    private SimpleBlogEntryDto simpleBlogEntryExtractor(ResultSet rs) throws SQLException {
         Timestamp createdAt = rs.getTimestamp("created_at");
         return new SimpleBlogEntryDto(
                 rs.getInt("id"),
@@ -161,7 +161,7 @@ public class BlogEntryDao {
         );
     }
 
-    private static BlogEntry fullBlogEntryExtractor(ResultSet rs) throws SQLException {
+    private BlogEntry fullBlogEntryExtractor(ResultSet rs) throws SQLException {
         Timestamp createdAt = rs.getTimestamp("created_at");
         Timestamp updatedAt = rs.getTimestamp("updated_at");
         String concatCategories = rs.getString("category_list");
