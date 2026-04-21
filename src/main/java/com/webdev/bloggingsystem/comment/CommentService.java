@@ -9,7 +9,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -29,7 +28,11 @@ public class CommentService {
         return commentDao.getReplyCommentsByParentId(parentId);
     }
 
-    // todo : integration test insert and get by id.
+    String getCommentContentByCommentId(Integer commentId) {
+        return commentDao.getCommentContentByCommentId(commentId).orElse("");
+    }
+
+    // todo : integration tests.
     // returns comment for UI so not to fetch entire list again.
     Comment saveComment(CreateCommentDto dto) {
         String username = getUsername();
@@ -52,10 +55,31 @@ public class CommentService {
                 .orElseThrow(() -> new BlogEntryException("Comment not found with id: " + savedId));
     }
 
-/*
-    Comment updateComment() {}
+    Comment updateComment(CreateCommentDto dto) {
+        String username = getUsername();
+        AuthorDto author = appUserDao.findAuthorByUsername(username)
+                .orElseThrow(() -> new BlogEntryException("Please login to comment."));
 
-    public void deleteComment(Integer commentId) {
+        Comment commentToEdit = commentDao.getCommentById(dto.commentId)
+                .orElseThrow(() -> new BlogEntryException("Comment not found with id: " + dto.commentId));
+
+        if (!commentToEdit.getAuthor().id().equals(author.id())) {
+            throw new BlogEntryException("You are not the author of this comment.");
+        }
+
+        commentToEdit.setContent(dto.content);
+
+        int isUpdated = commentDao.update(commentToEdit.getId(), commentToEdit.getContent());
+
+        if (isUpdated == 1) {
+            return commentDao.getCommentById(commentToEdit.getId())
+                    .orElseThrow(() -> new BlogEntryException("Comment not found with id: " + commentToEdit.getId()));
+        } else  {
+            throw new BlogEntryException("Comment not updated.");
+        }
+    }
+
+/*    public void deleteComment(Integer commentId) {
         // soft delete setting "deleted by Username or ADMIN"
     }*/
 
@@ -67,9 +91,9 @@ public class CommentService {
         return auth.getName();
     }
 
-    String commentExistsInEntry(Integer commentId, Integer entryId) {
+    String validateCommentInEntry(Integer commentId, Integer entryId) {
         if (!commentDao.existsCommentByIdInEntry(commentId, entryId)) {
-            return "Id does not match!";
+            return "Ids do not match!";
         }
         return "";
     }
