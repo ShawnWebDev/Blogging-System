@@ -40,6 +40,16 @@ public class Comment {
         this.replyCount = replyCount;
     }
 
+    public Comment(int id, String content, Instant createdAt, Instant updatedAt, Integer blogEntryId, Integer parentCommentId, AuthorDto author, Integer replyCount) {
+        this.id = id;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.blogEntryId = blogEntryId;
+        this.parentCommentId = parentCommentId;
+        this.author = author;
+        this.replyCount = replyCount;
+    }
 
     public Integer getId() {
         return id;
