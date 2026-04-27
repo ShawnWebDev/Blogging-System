@@ -34,8 +34,7 @@ public class CommentService {
 
     // todo : integration tests.
     // returns comment for UI so not to fetch entire list again.
-    Comment saveComment(CreateCommentDto dto) {
-        String username = getUsername();
+    Comment saveComment(CreateCommentDto dto, String username) {
         AuthorDto author = appUserDao.findAuthorByUsername(username)
                 .orElseThrow(() -> new BlogEntryException("Please login to comment."));
 
@@ -57,19 +56,16 @@ public class CommentService {
 
     Comment updateComment(CreateCommentDto dto) {
         String username = getUsername();
-        AuthorDto author = appUserDao.findAuthorByUsername(username)
-                .orElseThrow(() -> new BlogEntryException("Please login to comment."));
+        Integer commentId = dto.getCommentId();
+        Comment commentToEdit = commentDao.getCommentById(commentId)
+                .orElseThrow(() -> new BlogEntryException("Comment not found with id: " + commentId));
 
-        Comment commentToEdit = commentDao.getCommentById(dto.commentId)
-                .orElseThrow(() -> new BlogEntryException("Comment not found with id: " + dto.commentId));
-
-        if (!commentToEdit.getAuthor().id().equals(author.id())) {
-            throw new BlogEntryException("You are not the author of this comment.");
-        }
+        this.validateAuthor(username, commentToEdit.getAuthor().id());
 
         commentToEdit.setContent(dto.content);
+        commentToEdit.setDeleted(false);
 
-        int isUpdated = commentDao.update(commentToEdit.getId(), commentToEdit.getContent());
+        int isUpdated = commentDao.update(commentToEdit.getId(), commentToEdit.getContent(), commentToEdit.isDeleted());
 
         if (isUpdated == 1) {
             return commentDao.getCommentById(commentToEdit.getId())
@@ -79,9 +75,33 @@ public class CommentService {
         }
     }
 
-/*    public void deleteComment(Integer commentId) {
+    Comment deleteComment(Integer commentId) {
         // soft delete setting "deleted by Username or ADMIN"
-    }*/
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //these fields in auth cannot be null at this point. Security will filter non-authenticated user out.
+        String username = auth.getName();
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ADMIN"));
+
+        Comment commentToEdit = commentDao.getCommentById(commentId)
+                .orElseThrow(() -> new BlogEntryException("Comment not found with id: " + commentId));
+
+        if (!commentToEdit.getContent().equals("Comment deleted.") &&
+                (this.validateAuthor(username, commentToEdit.getAuthor().id()) || isAdmin)) {
+            commentToEdit.setContent("Comment deleted.");
+        }
+
+        commentToEdit.setDeleted(true);
+
+        int isUpdated = commentDao.update(commentToEdit.getId(), commentToEdit.getContent(), commentToEdit.isDeleted());
+
+        if (isUpdated == 1) {
+            return commentDao.getCommentById(commentToEdit.getId())
+                    .orElseThrow(() -> new BlogEntryException("Comment not found with id: " + commentToEdit.getId()));
+        } else  {
+            throw new BlogEntryException("Comment not deleted.");
+        }
+    }
 
     String getUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -96,6 +116,16 @@ public class CommentService {
             return "Ids do not match!";
         }
         return "";
+    }
+
+    boolean validateAuthor(String username, Integer commentAuthorId) {
+        AuthorDto author = appUserDao.findAuthorByUsername(username)
+                .orElseThrow(() -> new BlogEntryException("Please login to comment."));
+
+        if (!commentAuthorId.equals(author.id())) {
+            throw new BlogEntryException("Not the author of this comment.");
+        }
+        return true;
     }
 
 }
