@@ -1,5 +1,6 @@
 package com.webdev.bloggingsystem.comment;
 
+import com.webdev.bloggingsystem.errorHandling.BlogEntryException;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -80,15 +81,21 @@ public class CommentController {
             return "components/comment-components::comment-form-enabled";
         }
 
-        model.addAttribute("commentItem", commentService.saveComment(commentDto));
-        model.addAttribute("commentDto", new CreateCommentDto());
+        String username = commentService.getUsername();
+        Comment savedComment = commentService.saveComment(commentDto, username);
+
+        CreateCommentDto freshDto = new CreateCommentDto();
+        freshDto.setEntryId(savedComment.getBlogEntryId());
+
+        model.addAttribute("commentItem", savedComment);
+        model.addAttribute("commentDto", freshDto);
 
         return FragmentsRendering
                 .fragment("components/comment-components::comment-form-enabled")
                 .fragment("components/comment-components::single-comment-oob")
                 .build();
     }
-
+    // reply form is available without authenticating. So username check is needed.
     @HxRequest
     @PostMapping("/createReply")
     public Object createReply(Model model,
@@ -98,8 +105,9 @@ public class CommentController {
 
         boolean hasErrors = false;
         String commentValidation = commentService.validateCommentInEntry(commentDto.parentCommentId, commentDto.entryId);
+        String username = commentService.getUsername();
 
-        if (commentService.getUsername() == null) {
+        if (username == null) {
             hasErrors = true;
             model.addAttribute("noAuth", true);
         }
@@ -112,7 +120,7 @@ public class CommentController {
             return "components/comment-components::comment-form-enabled";
         }
 
-        model.addAttribute("commentItem", commentService.saveComment(commentDto));
+        model.addAttribute("commentItem", commentService.saveComment(commentDto, username));
 
         return FragmentsRendering
                 .fragment("components/comment-components::single-reply-oob")
@@ -133,6 +141,10 @@ public class CommentController {
             hasErrors = true;
             model.addAttribute("noComment", commentValidation);
         }
+        if (commentDto.getContent().equals("Comment deleted.")) {
+            hasErrors = true;
+            model.addAttribute("badEdit", "You must change the deleted comment.");
+        }
         if (hasErrors || result.hasErrors()) {
             model.addAttribute("commentDto", commentDto);
             return "components/comment-components::edit-comment-form";
@@ -149,8 +161,21 @@ public class CommentController {
                 .build();
     }
 
-    // todo: add DELETE endpoint for soft delete of comment/reply,
-    // todo: ensure only comment author or ADMIN can modify comments (using Principal)
-    // todo: add these to template functionality
+    @HxRequest
+    @DeleteMapping("/delete")
+    public Object deleteComment(Model model, @RequestParam Integer entryId, @RequestParam Integer commentId) {
+        String commentValidation = commentService.validateCommentInEntry(commentId, entryId);
+        if (!commentValidation.isEmpty()) {
+            throw new BlogEntryException(commentValidation);
+        };
 
+        model.addAttribute("commentItem", commentService.deleteComment(commentId));
+
+        return FragmentsRendering
+                .fragment("components/comment-components::edit-single-comment-content-oob")
+                .fragment("components/comment-components::edit-single-comment-time-oob")
+                .build();
+    }
+
+    // todo: ensure only comment author or ADMIN can modify comments (using Principal)
 }
