@@ -40,7 +40,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/comment/createComment",
                                 "/comment/commentComponent/editForm",
-                                "/comment/editComment").authenticated()
+                                "/comment/editComment",
+                                "/comment/delete").authenticated()
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
