@@ -23,9 +23,7 @@
       <button onclick="openDialog('login-modal')" class="btn-secondary">Login</button>
       <small class="error">to reply.</small>
     </div>
-    <div th:if="${noComment}">
-      <small class="error" th:text="${noComment}"></small>
-    </div>
+    <small th:if="${noComment}" th:text="${noComment}" class="error"></small>
   </form>
 
   <!--edit comment input form-->
@@ -41,14 +39,13 @@
       <input type="submit" value="Save" class="btn-secondary">
       <button type="button" class="btn-secondary" th:data-cancelid="${'edit-form-'+ commentDto.commentId}" onclick="removeElement(this.getAttribute('data-cancelid'))">Cancel</button>
     </div>
-    <div th:if="${noComment}">
-      <small class="error" th:text="${noComment}"></small>
-    </div>
+    <small th:if="${noComment}" th:text="${noComment}" class="error"></small>
+    <small th:if="${badEdit}" th:text="${badEdit}" class="error"></small>
   </form>
 
   <!--single comment card-->
   <section th:fragment="single-comment(commentItem, isReply)" class="comment" th:id="${'comment-'+ commentItem.id}"
-           th:data-entryId="${commentItem.blogEntryId}" th:data-commentId="${commentItem.id}" th:data-authorName="${commentItem.author.username}">
+           th:data-entryId="${commentItem.blogEntryId}" th:data-commentId="${commentItem.id}" th:data-authorName="${commentItem.author.username}" th:data-deleted="${commentItem.deleted}">
     <div th:if="${isReply}" class="denote-reply"><strong>&#8600;</strong></div>
     <header>
         <div>
@@ -58,25 +55,23 @@
           <small th:text="${isReply ? 'replied' : 'commented'}"></small>
         </div>
         <div class="inline">
-          <small th:id="${'comment-time-'+ commentItem.id}">
-            <i th:if="${commentItem.updatedAt == null}">created on
+          <small th:id="${'comment-time-'+ commentItem.id}" th:with="display=${commentItem.updatedAt == null ? 'created' : (commentItem.deleted ? 'deleted' : 'updated')} +' on'">
+            <i><span th:text="${display}"></span>
               <time th:text="${#temporals.format(commentItem.createdAt, 'MMMM dd, yyyy @ h:mm a')}"></time>
             </i>
-            <i th:unless="${commentItem.updatedAt == null}">updated on
-              <time th:text="${#temporals.format(commentItem.updatedAt, 'MMMM dd, yyyy @ h:mm a')}"></time>
-            </i>
           </small>
-          <div class="comment-author-btns">
-            <div th:if="${#authentication.name == commentItem.author.username}">
+          <div class="comment-author-btns" th:with="isAuthor=${#authentication.name == commentItem.author.username}, isAdmin=${#authorization.expression('hasAuthority(''ADMIN'')')}">
+            <div th:if="${isAdmin || isAuthor}">
               <button class="btn-secondary edit-btn" th:hx-get="@{/comment/commentComponent/editForm(entryId = ${commentItem.blogEntryId}, commentId = ${commentItem.id})}"
                       th:hx-target="'#reply-form-container-' + ${commentItem.id}" hx-swap="beforeend">Edit</button>
-              <button class="btn-secondary" th:hx-target="${'comment-'+ commentItem.id}" hx-swap="delete">Delete</button>
+              <button th:if="${!commentItem.deleted}" class="btn-secondary" th:hx-delete="@{/comment/delete(entryId = ${commentItem.blogEntryId}, commentId = ${commentItem.id})}" hx-swap="delete">Delete</button>
             </div>
           </div>
         </div>
     </header>
     <section class="comment-content">
-      <p th:text="${commentItem.content}" th:id="${'comment-content-'+ commentItem.id}"></p>
+      <p th:if="${commentItem.deleted}" th:id="${'comment-content-'+ commentItem.id}"><i th:text="${commentItem.content}"></i></p>
+      <p th:unless="${commentItem.deleted}" th:id="${'comment-content-'+ commentItem.id}" th:text="${commentItem.content}"></p>
       <div class="reply-form-container" th:id="'reply-form-container-' + ${commentItem.id}">
         <button class="btn-secondary" th:hx-get="@{/comment/commentComponent/commentForm(entryId = ${commentItem.blogEntryId}, parentCommentId = ${commentItem.id})}"
                 hx-target="closest .reply-form-container" hx-swap="beforeend">Reply</button>
@@ -98,15 +93,18 @@
     <section th:replace="~{components/comment-components::single-comment(${commentItem}, ${isReply})}"></section>
   </div>
 
-  <!-- used for updated timestamp after edit-->
-  <small th:fragment="edit-single-comment-time-oob" th:id="${'comment-time-'+ commentItem.id}" th:hx-swap-oob="'outerHTML:#comment-time-' + ${commentItem.id}">
-    <i>updated on
+  <!-- used for updated display and time after update-->
+  <small th:fragment="edit-single-comment-time-oob" th:id="${'comment-time-'+ commentItem.id}" th:hx-swap-oob="'outerHTML:#comment-time-' + ${commentItem.id}" th:with="display=${commentItem.deleted ? 'deleted' : 'updated'} +' on'">
+    <i><span th:text="${display}"></span>
       <time th:text="${#temporals.format(commentItem.updatedAt, 'MMMM dd, yyyy @ h:mm a')}"></time>
     </i>
   </small>
 
   <!--used for updated content after edit-->
-  <p th:fragment="edit-single-comment-content-oob" th:id="${'comment-content-'+ commentItem.id}" th:hx-swap-oob="'outerHTML:#comment-content-' + ${commentItem.id}" th:text="${commentItem.content}"></p>
+  <p th:fragment="edit-single-comment-content-oob" th:id="${'comment-content-'+ commentItem.id}" th:hx-swap-oob="'outerHTML:#comment-content-' + ${commentItem.id}">
+    <i th:if="${commentItem.deleted}" th:text="${commentItem.content}"></i>
+    <th:block th:unless="${commentItem.deleted}" th:text="${commentItem.content}"></th:block>
+  </p>
 
   <!--contains all comments after user clicks "View Comments"-->
   <section th:fragment="comment-container" id="comment-container">
