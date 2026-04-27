@@ -24,7 +24,7 @@ public class CommentDao {
     // LEFT JOIN ensures top-level comments without replies are still included.
     public List<Comment> getParentCommentsByPostId(int postId) {
         return jdbc.sql(
-                "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, u.username, " +
+                "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, c.is_deleted, u.username, " +
                     "COALESCE(r.reply_count, 0) AS reply_count " +
                 "FROM comments c " +
                 "JOIN users u ON c.author_id = u.id " +
@@ -42,7 +42,7 @@ public class CommentDao {
 
     public List<Comment> getReplyCommentsByParentId(int parentCommentId) {
         return jdbc.sql(
-                "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, u.username, " +
+                "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, c.is_deleted, u.username, " +
                     "COALESCE(r.reply_count, 0) AS reply_count " +
                 "FROM comments c " +
                 "JOIN users u ON c.author_id = u.id " +
@@ -60,7 +60,7 @@ public class CommentDao {
 
     public Optional<Comment> getCommentById(int commentId) {
         return jdbc.sql(
-                "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.parent_comment_id,c.author_id, u.username, 0 AS reply_count " +
+                "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.parent_comment_id, c.author_id, c.is_deleted, u.username, 0 AS reply_count " +
                 "FROM comments c " +
                 "JOIN users u ON c.author_id = u.id " +
                 "WHERE c.id = :commentId")
@@ -102,12 +102,13 @@ public class CommentDao {
         return keyHolder.getKey().intValue();
     }
 
-    public int update(int commentId, String content) {
+    public int update(int commentId, String content, boolean isDeleted) {
         return jdbc.sql(
                 "UPDATE comments " +
-                "SET content = :content " +
+                "SET content = :content, is_deleted = :isDeleted " +
                 "WHERE id = :commentId")
                     .param("content", content)
+                    .param("isDeleted", isDeleted)
                     .param("commentId", commentId)
                     .update();
     }
@@ -125,7 +126,8 @@ public class CommentDao {
                 updatedAt != null ? updatedAt.toInstant() : null,
                 rs.getInt("post_id"),
                 authorDto,
-                rs.getInt("reply_count")
+                rs.getInt("reply_count"),
+                rs.getBoolean("is_deleted")
         );
     }
 
@@ -142,7 +144,8 @@ public class CommentDao {
                 rs.getInt("post_id"),
                 rs.getInt("parent_comment_id"),
                 authorDto,
-                rs.getInt("reply_count")
+                rs.getInt("reply_count"),
+                rs.getBoolean("is_deleted")
         );
     }
 
