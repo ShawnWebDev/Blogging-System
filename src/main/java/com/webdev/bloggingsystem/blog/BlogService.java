@@ -6,6 +6,8 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +30,11 @@ public class BlogService {
         this.categoryDao = categoryDao;
         this.markdownParser = markdownParser;
         this.htmlRenderer = htmlRenderer;
+    }
+
+    BlogEntry findBlogEntryById(int id) {
+        return blogEntryDao.findById(id)
+                .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
     }
 
     List<SimpleBlogEntryDto> findAllSimpleBlogEntries() {
@@ -69,7 +76,7 @@ public class BlogService {
     }
 
     @Transactional
-    int createPost(CreateBlogEntryDto dto) {
+    BlogEntry createPost(CreateBlogEntryDto dto) {
         //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set<ids>, id)
         logger.info("Post is being saved...");
         BlogEntry blogEntry = new BlogEntry(
@@ -89,22 +96,12 @@ public class BlogService {
         categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
 
         // return id for location redirect after submit.
-        return blogId;
+        return this.findBlogEntryById(blogId);
     }
 
-    BlogEntry readPostById(int id) {
-        BlogEntry entry = blogEntryDao.findById(id)
-                .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
-        if (entry.getInProgress() && this.isNotAdmin()) {
-            throw new BlogEntryException("Entry is in progress and cannot be read!");
-        }
-        entry.setContent(this.renderMarkdown(entry.getContent()));
-        return entry;
-    }
-
-    BlogEntry readPostBySlug(String slug) {
-        BlogEntry entry = blogEntryDao.findBySlug(slug)
-                .orElseThrow(() -> new BlogEntryException("Entry not found: " + slug));
+    @Cacheable(value = "posts", key = "#id", unless = "#result.inProgress")
+    public BlogEntry readPost(int id) {
+        BlogEntry entry = this.findBlogEntryById(id);
         if (entry.getInProgress() && this.isNotAdmin()) {
             throw new BlogEntryException("Entry is in progress and cannot be read!");
         }
@@ -118,8 +115,9 @@ public class BlogService {
                 !authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"));
     }
 
+    @CacheEvict(value = "posts", key = "#dto.id")
     @Transactional
-    void updatePost(CreateBlogEntryDto dto) {
+    public BlogEntry updatePost(CreateBlogEntryDto dto) {
         logger.info("Post is being updated...");
         int blogId = dto.getId();
         BlogEntry blogEntry = new BlogEntry(
@@ -142,10 +140,12 @@ public class BlogService {
 
         logger.info("Updating category relations... ");
         categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
+        return this.findBlogEntryById(blogId);
     }
 
     // database handles cascade delete of category join table's relations
-    void deletePost(int id) {
+    @CacheEvict(value = "posts", key = "#id")
+    public void deletePost(int id) {
         int deleted = blogEntryDao.deleteById(id);
         if (deleted == 0) {
             throw new BlogEntryException("Entry NOT deleted with id: " + id);
@@ -182,8 +182,7 @@ public class BlogService {
     }
 
     CreateBlogEntryDto buildCreateDto(int id) {
-        BlogEntry post = blogEntryDao.findById(id)
-                .orElseThrow(() -> new BlogEntryException("Entry not found with id: " + id));
+        BlogEntry post = this.findBlogEntryById(id);
         int[] categoryIds = new int[4];
 
         if (!post.getCategoryNames().isEmpty()) {
