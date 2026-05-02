@@ -6,8 +6,6 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -67,6 +65,11 @@ public class BlogService {
         return categoryDao.findCategoryDescriptionByName(categoryName);
     }
 
+    void batchInsertCategoryJoins(int[] categoryIds, int blogId) {
+        //remove 0 values from dto.categoryIds array and batch insert ids
+        categoryDao.batchInsertJoins(this.cleanCategoryIds(categoryIds), blogId);
+    }
+
     int createCategory(Category category) {
         return categoryDao.insert(category);
     }
@@ -76,7 +79,7 @@ public class BlogService {
     }
 
     @Transactional
-    BlogEntry createPost(CreateBlogEntryDto dto) {
+    Object[] createPost(CreateBlogEntryDto dto) {
         //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set<ids>, id)
         logger.info("Post is being saved...");
         BlogEntry blogEntry = new BlogEntry(
@@ -90,16 +93,11 @@ public class BlogService {
         blogEntry.setInProgress(dto.getInProgress());
 
         int blogId = blogEntryDao.insert(blogEntry);
-        //remove 0 values from categoryIds array.
-        Set<Integer> cleanedCategoryIds = this.cleanCategoryIds(dto.getCategoryIds());
-        logger.info("Saving category relations... ");
-        categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
-
-        // return id for location redirect after submit.
-        return this.findBlogEntryById(blogId);
+        this.batchInsertCategoryJoins(dto.getCategoryIds(), blogId);
+        // return id and slug for location redirect after submit.
+        return new Object[]{blogId, blogEntry.getSlug()};
     }
 
-    @Cacheable(value = "posts", key = "#id", unless = "#result.inProgress")
     public BlogEntry readPost(int id) {
         BlogEntry entry = this.findBlogEntryById(id);
         if (entry.getInProgress() && this.isNotAdmin()) {
@@ -115,9 +113,8 @@ public class BlogService {
                 !authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"));
     }
 
-    @CacheEvict(value = "posts", key = "#dto.id")
     @Transactional
-    public BlogEntry updatePost(CreateBlogEntryDto dto) {
+    public Object[] updatePost(CreateBlogEntryDto dto) {
         logger.info("Post is being updated...");
         int blogId = dto.getId();
         BlogEntry blogEntry = new BlogEntry(
@@ -135,16 +132,12 @@ public class BlogService {
             throw new BlogEntryException("Entry NOT updated with id: " + blogId);
         }
         categoryDao.deleteJoinedByBlogId(blogId);
-        //remove 0 values from categoryIds array.
-        Set<Integer> cleanedCategoryIds = this.cleanCategoryIds(dto.getCategoryIds());
-
-        logger.info("Updating category relations... ");
-        categoryDao.batchInsertJoins(cleanedCategoryIds, blogId);
-        return this.findBlogEntryById(blogId);
+        this.batchInsertCategoryJoins(dto.getCategoryIds(), blogId);
+        // return id and slug for location redirect after submit.
+        return new Object[]{blogId, blogEntry.getSlug()};
     }
 
     // database handles cascade delete of category join table's relations
-    @CacheEvict(value = "posts", key = "#id")
     public void deletePost(int id) {
         int deleted = blogEntryDao.deleteById(id);
         if (deleted == 0) {
