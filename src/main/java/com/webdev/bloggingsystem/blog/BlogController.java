@@ -176,10 +176,10 @@ public class BlogController {
             return "create-post::create-post";
         }
 
-        BlogEntry entry = blogService.createPost(createBlogEntryDto);
+        Object[] entryRef = blogService.createPost(createBlogEntryDto);
 
         return ResponseEntity.ok()
-                .header("HX-Location", "{\"path\":\"/blog/post/" +entry.getId()+ "/" + entry.getSlug()+"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
+                .header("HX-Location", "{\"path\":\"/blog/post/" + entryRef[0] + "/" + entryRef[1] +"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
                 .build();
     }
 
@@ -208,10 +208,11 @@ public class BlogController {
 
             return "create-post::create-post";
         }
-        BlogEntry updatedEntry = blogService.updatePost(createBlogEntryDto);
+
+        Object[] entryRef = blogService.updatePost(createBlogEntryDto);
 
         return ResponseEntity.ok()
-                .header("HX-Location", "{\"path\":\"/blog/post/" + updatedEntry.getId() + "/" + updatedEntry.getSlug() + "\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
+                .header("HX-Location", "{\"path\":\"/blog/post/" + entryRef[0] + "/" + entryRef[1] + "\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
                 .build();
     }
 
