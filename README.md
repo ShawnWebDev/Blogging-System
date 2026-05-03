@@ -33,8 +33,7 @@ A modern blogging platform that feels like a highly interactive single-page appl
         * Written in Markdown,
         * Stored as a TEXT field in DB,
         * Rendered to HTML with CommonMark and sent to template
-3. Caching handled by basic ConcurrentHashMap and Spring-Boot-Starter-Cache for posts to prevent re-fetch and re-rendering of Markdown to HTML, post is evicted from cache on update/delete.
-4. Testing:
+3. Testing:
    * *Unit:* JUnit & Mockito to test helper methods and error handling in Services
    * *Integration:* JUnit/JdbcTest and TestContainers to test various CRUD functionality in DAOs
      * *End to End:* @SpringBootTest (full application context), JUnit, TestContainers, TestRestTemplate to test interaction from controller to data and back.
@@ -49,4 +48,5 @@ Will follow a multi-tier architecture of:
 ### Future Scaling Considerations
 * Migrating MariaDB to its own EC2 instance.
 * AWS load balancing multiple EC2 instances for application.
-* Pagination on BlogEntry/Comment lists. (Already configured, just need available in UI once I get enough posts/comments to use it.)
+* Pagination on BlogEntries/Comments lists.
+* Cache BlogEntries after HTML is generated from Markdown.
