@@ -16,11 +16,11 @@ A modern blogging platform that feels like a highly interactive single-page appl
 
 ## Requirements
 1. Tech Stack:
-    * *Backend:* Java 21+, Spring Boot 4, Spring MVC, Spring Security, Spring JDBC Client.
-    * *Templating:* SSR with Thymeleaf.
-    * *Interactivity:* HTMX & Vanilla CSS.
-    * *Database:* MariaDB.
-    * *Deployment:* AWS EC2 + S3(for DB backups in private bucket and css/image files in public bucket), Nginx(for reverse proxy & SSL with Certbot).
+    * *Backend:* Java 21+, Spring Boot 4, Spring MVC, Spring Security, Spring JDBC Client
+    * *Templating:* Thymeleaf
+    * *Interactivity:* HTMX & CSS
+    * *Database:* MariaDB
+    * *Deployment:* AWS EC2 & S3, Nginx, Amazon Corretto JDK 25, conservative JVM and InnoDB memory tuning
 2. Core Features:
     * *CRUD operations* on Blog Posts, Post Comments, and Categories -
         * Filter Blog posts by category.
@@ -33,7 +33,10 @@ A modern blogging platform that feels like a highly interactive single-page appl
         * Written in Markdown,
         * Stored as a TEXT field in DB,
         * Rendered to HTML with CommonMark and sent to template
-3. Caching may be handled with innodb_buffer_pool with as much memory as I can give. (Not much as the EC2 instance has 1gb) *Need to profile.
+3. Testing:
+   * *Unit:* JUnit & Mockito to test helper methods and error handling in Services
+   * *Integration:* JUnit/JdbcTest and TestContainers to test various CRUD functionality in DAOs
+     * *End to End:* @SpringBootTest (full application context), JUnit, TestContainers, TestRestTemplate to test interaction from controller to data and back.
 
 ## Architecture
 Will follow a multi-tier architecture of:
@@ -45,4 +48,5 @@ Will follow a multi-tier architecture of:
 ### Future Scaling Considerations
 * Migrating MariaDB to its own EC2 instance.
 * AWS load balancing multiple EC2 instances for application.
-* Pagination on BlogEntry/Comment lists. (Already configured, just need available in UI once I get enough posts/comments to use it.)
+* Pagination on BlogEntries/Comments lists.
+* Cache BlogEntries after HTML is generated from Markdown.

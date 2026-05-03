@@ -53,7 +53,6 @@ public class BlogController {
     // called when requesting main blog dashboard
     @GetMapping
     public Object blogDashboardView(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
-        // will need count to show how many pages are available when I implement that part.
         populateBlogDashboardModel(model, "All", "");
         model.addAttribute("posts", blogService.findAllSimpleBlogEntries());
         model.addAttribute("categories", blogService.findAllSimpleCategories());
@@ -75,7 +74,7 @@ public class BlogController {
                 .build();
     }
 
-    // This is a separate endpoint for security, in progress posts should not be viewable by USER
+    // This is a separate endpoint for security, in progress posts should not be viewable by USER role
     @HxRequest
     @GetMapping("/blogComponent/posts/inProgress")
     public String inProgressPostsView(Model model) {
@@ -127,24 +126,24 @@ public class BlogController {
                 .build();
     }
 
-    // "/blog?id=#" only to be used by HTMX internal navigation
+    // to be used by HTMX navigation
     @HxRequest
-    @GetMapping("/post/{id}")
-    public FragmentsRendering singlePostViewFromId(Model model, @PathVariable Integer id) {
-        BlogEntry entry = blogService.readPostById(id);
+    @GetMapping("/post/{id}/{slug}")
+    public FragmentsRendering singlePostViewFragment(Model model, @PathVariable Integer id, @PathVariable String slug) {
+        BlogEntry entry = blogService.readPost(id);
         populateSinglePostModel(model, entry);
 
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
                 .fragment("single-post::single-post")
-                .header("HX-Push-Url", "/blog/post/"+entry.getSlug())
+                .header("HX-Push-Url", "/blog/post/" + id + "/" + entry.getSlug())
                 .build();
     }
 
-    // "/blog/post/{slug}" to be used by external links, direct url, refresh
-    @GetMapping("/post/{slug}")
-    public String singlePostViewFromSlug(Model model, @PathVariable String slug) {
-        BlogEntry entry = blogService.readPostBySlug(slug);
+    // to be used by external links, direct url, refresh
+    @GetMapping("/post/{id}/{slug}")
+    public String singlePostViewFullPage(Model model, @PathVariable Integer id, @PathVariable String slug) {
+        BlogEntry entry = blogService.readPost(id);
         populateSinglePostModel(model, entry);
 
         return "single-post";
@@ -177,10 +176,10 @@ public class BlogController {
             return "create-post::create-post";
         }
 
-        int blogId = blogService.createPost(createBlogEntryDto);
+        Object[] entryRef = blogService.createPost(createBlogEntryDto);
 
         return ResponseEntity.ok()
-                .header("HX-Location", "{\"path\":\"/blog/post/"+blogId+"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
+                .header("HX-Location", "{\"path\":\"/blog/post/" + entryRef[0] + "/" + entryRef[1] +"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
                 .build();
     }
 
@@ -188,7 +187,7 @@ public class BlogController {
     @GetMapping("/post/editPost/{id}")
     public Object editPostView(Model model, @PathVariable Integer id,
                                        HtmxRequest htmxRequest) {
-        CreateBlogEntryDto dto = blogService.buildCreateDto(id);
+        CreateBlogEntryDto dto = blogService.buildCreateDtoForEdit(id);
         populateCreatePostModel(model, dto, true);
 
         if (!htmxRequest.isHtmxRequest()) {
@@ -209,10 +208,11 @@ public class BlogController {
 
             return "create-post::create-post";
         }
-        blogService.updatePost(createBlogEntryDto);
+
+        Object[] entryRef = blogService.updatePost(createBlogEntryDto);
 
         return ResponseEntity.ok()
-                .header("HX-Location", "{\"path\":\"/blog/post/"+createBlogEntryDto.getId()+"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
+                .header("HX-Location", "{\"path\":\"/blog/post/" + entryRef[0] + "/" + entryRef[1] + "\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
                 .build();
     }
 

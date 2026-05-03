@@ -11,6 +11,8 @@ public class CreateCommentDto {
     @NotNull
     Integer entryId;
 
+    Integer commentId;
+
     Integer parentCommentId;
 
     public CreateCommentDto() {}
@@ -31,6 +33,14 @@ public class CreateCommentDto {
         this.entryId = entryId;
     }
 
+    public Integer getCommentId() {
+        return commentId;
+    }
+
+    public void setCommentId(Integer commentId) {
+        this.commentId = commentId;
+    }
+
     public Integer getParentCommentId() {
         return parentCommentId;
     }
@@ -44,6 +54,7 @@ public class CreateCommentDto {
         return "CreateCommentDto{" +
                 "content= " + content +
                 ", entryId= " + entryId +
+                ", commentId= " + commentId +
                 ", parentCommentId= " + parentCommentId +
                 '}';
     }

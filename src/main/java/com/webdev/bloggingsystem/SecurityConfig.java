@@ -38,7 +38,10 @@ public class SecurityConfig {
                                 "/categories",
                                 "/categories/**").hasAuthority("ADMIN")
                         .requestMatchers(
-                                "/comment/createComment").authenticated()
+                                "/comment/createComment",
+                                "/comment/commentComponent/editForm",
+                                "/comment/editComment",
+                                "/comment/delete").authenticated()
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form

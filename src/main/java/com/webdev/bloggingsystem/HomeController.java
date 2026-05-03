@@ -4,13 +4,13 @@ import com.webdev.bloggingsystem.blog.BlogService;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
-import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxTrigger;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,9 +79,8 @@ public class HomeController {
                 .build();
     }
 
-    @HxTrigger("loginSuccess")
     @GetMapping("/loginSuccess")
-    public FragmentsRendering loginSuccess(HttpServletRequest request, HtmxResponse htmxResponse) {
+    public FragmentsRendering loginSuccess(HttpServletRequest request, HtmxResponse htmxResponse, Model model) {
         // called from Spring Security redirect on successful log in, does not use HtmxRequest because is from redirect by Security
         String referer = request.getHeader("Referer");
         boolean isFromBlog = false;
@@ -98,11 +97,14 @@ public class HomeController {
             return FragmentsRendering
                     .fragment("components/auth-components::logout-button-blog")
                     .fragment("components/auth-components::csrf-token-oob")
+                    .header("HX-Trigger", "loginSuccess")
                     .build();
         }
+
         return FragmentsRendering
                 .fragment("components/auth-components::logout-button-post")
                 .fragment("components/auth-components::csrf-token-oob") // to refresh the csrf token with an out-of-band swap
+                .header("HX-Trigger", "{\"loginSuccess\": \""+ SecurityContextHolder.getContext().getAuthentication().getName() + "\"}")
                 .build();
     }
 

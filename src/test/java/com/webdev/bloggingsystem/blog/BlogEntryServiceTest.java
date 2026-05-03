@@ -66,16 +66,8 @@ public class BlogEntryServiceTest {
     void testReadPostById_throwNotFound() {
         when(blogEntryDao.findById(anyInt())).thenReturn(Optional.empty());
         Exception ex = Assertions.assertThrows(BlogEntryException.class, () ->
-                blogEntryService.readPostById(0));
+                blogEntryService.readPost(0));
         Assertions.assertEquals("Entry not found with id: 0", ex.getMessage());
-    }
-
-    @Test
-    void testReadPostBySlug_throwNotFound() {
-        when(blogEntryDao.findBySlug(anyString())).thenReturn(Optional.empty());
-        Exception ex = Assertions.assertThrows(BlogEntryException.class, () ->
-                blogEntryService.readPostBySlug(""));
-        Assertions.assertEquals("Entry not found: ", ex.getMessage());
     }
 
     @Test
@@ -84,17 +76,7 @@ public class BlogEntryServiceTest {
         inProgressEntry.setInProgress(true);
         when(blogEntryDao.findById(anyInt())).thenReturn(Optional.of(inProgressEntry));
         Exception ex = Assertions.assertThrows(BlogEntryException.class, () ->
-                blogEntryService.readPostById(1));
-        Assertions.assertEquals("Entry is in progress and cannot be read!", ex.getMessage());
-    }
-
-    @Test
-    void testReadPostBySlug_throwInProgress() {
-        setAuth("USER");
-        inProgressEntry.setInProgress(true);
-        when(blogEntryDao.findBySlug(anyString())).thenReturn(Optional.of(inProgressEntry));
-        Exception ex = Assertions.assertThrows(BlogEntryException.class, () ->
-                blogEntryService.readPostBySlug("some-slug"));
+                blogEntryService.readPost(1));
         Assertions.assertEquals("Entry is in progress and cannot be read!", ex.getMessage());
     }
 
@@ -105,19 +87,7 @@ public class BlogEntryServiceTest {
         inProgressEntry.setId(1);
         when(blogEntryDao.findById(anyInt())).thenReturn(Optional.of(inProgressEntry));
 
-        BlogEntry entry = blogEntryService.readPostById(1);
-
-        assertEquals(1, entry.getId());
-    }
-
-    @Test
-    void testReadPostBySlug_allowInProgress() {
-        setAuth("ADMIN");
-        inProgressEntry.setInProgress(true);
-        inProgressEntry.setId(1);
-        when(blogEntryDao.findBySlug(anyString())).thenReturn(Optional.of(inProgressEntry));
-
-        BlogEntry entry = blogEntryService.readPostBySlug("some-slug");
+        BlogEntry entry = blogEntryService.readPost(1);
 
         assertEquals(1, entry.getId());
     }

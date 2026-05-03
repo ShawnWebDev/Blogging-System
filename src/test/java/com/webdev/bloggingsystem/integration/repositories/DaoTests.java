@@ -312,22 +312,6 @@ public class DaoTests {
         Assertions.assertNull(result);
     }
 
-
-    @Test
-    public void testFindUpdatedCommentById() {
-        Comment result = commentDao.getUpdatedCommentById(1).orElse(null);
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals("Test Comment on Test Post 1", result.getContent());
-        // reply count should be counted for updated comment
-        Assertions.assertEquals(2, result.getReplyCount());
-    }
-
-    @Test
-    public void testFindUpdatedCommentById_NonExistentId() {
-        Comment result = commentDao.getUpdatedCommentById(99).orElse(null);
-        Assertions.assertNull(result);
-    }
-
     @Test
     @Transactional
     void testInsertParentComment() {

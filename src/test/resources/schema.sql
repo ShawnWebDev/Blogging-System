@@ -34,6 +34,7 @@ CREATE TABLE `comments` (
         `parent_comment_id` int DEFAULT NULL,
         `author_id` int NOT NULL,
         `post_id` int NOT NULL,
+        `is_deleted` tinyint(1) DEFAULT 0,
         PRIMARY KEY (`id`),
         KEY `Comments_Comments_FK` (`parent_comment_id`),
         KEY `Comments_Users_FK` (`author_id`),

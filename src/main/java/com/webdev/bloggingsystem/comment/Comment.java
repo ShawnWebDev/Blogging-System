@@ -21,6 +21,7 @@ public class Comment {
 
     private Integer replyCount;
 
+    private boolean deleted;
 
     public Comment() {}
 
@@ -30,7 +31,7 @@ public class Comment {
         this.blogEntryId = blogEntryId;
     }
 
-    public Comment(int id, String content, Instant createdAt, Instant updatedAt, Integer blogEntryId, AuthorDto author, Integer replyCount) {
+    public Comment(int id, String content, Instant createdAt, Instant updatedAt, Integer blogEntryId, AuthorDto author, Integer replyCount, boolean deleted) {
         this.id = id;
         this.content = content;
         this.createdAt = createdAt;
@@ -38,8 +39,20 @@ public class Comment {
         this.blogEntryId = blogEntryId;
         this.author = author;
         this.replyCount = replyCount;
+        this.deleted = deleted;
     }
 
+    public Comment(int id, String content, Instant createdAt, Instant updatedAt, Integer blogEntryId, Integer parentCommentId, AuthorDto author, Integer replyCount, boolean deleted) {
+        this.id = id;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.blogEntryId = blogEntryId;
+        this.parentCommentId = parentCommentId;
+        this.author = author;
+        this.replyCount = replyCount;
+        this.deleted = deleted;
+    }
 
     public Integer getId() {
         return id;
@@ -85,6 +98,12 @@ public class Comment {
     }
     public void setReplyCount(Integer replyCount) {
         this.replyCount = replyCount;
+    }
+    public boolean isDeleted() {
+        return deleted;
+    }
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     @Override
