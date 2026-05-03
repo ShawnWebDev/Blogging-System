@@ -7,7 +7,7 @@
     <header th:replace="~{components/header-components :: full-header}"></header>
 
     <main>
-        <div th:fragment="single-post" id="main-content">
+        <div th:fragment="single-post" id="main-content" hx-on:htmx:load="initSidebar()">
             <header id="post-header">
                 <div id="post-header-content">
                     <img th:if="${!entry.thumbnailUrl.isBlank()}" th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="post-thumbnail"/>
@@ -26,7 +26,13 @@
                 </div>
             </header>
 
-            <article th:utext="${entry.content}" id="post-content"></article>
+            <article id="post-content">
+                <section th:utext="${entry.content}" id="post-text"></section>
+
+                <aside id="sidebar">
+                    <nav id="sidebar-menu"></nav>
+                </aside>
+            </article>
 
             <section th:replace="~{components/post-components::admin-buttons(${entry.id})}"></section>
 
@@ -39,6 +45,8 @@
             </section>
 
             <section th:replace="~{components/comment-components::comment-section}" id="comments-section"></section>
+
+            <script th:src="@{/sidebar.js}"></script>
         </div>
     </main>
 

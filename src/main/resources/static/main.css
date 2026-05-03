@@ -23,6 +23,7 @@
 /* Layout Styles */
 html {
     font-size: 95%;
+    scroll-behavior: smooth;
 }
 
 body {
@@ -66,7 +67,6 @@ main {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 2rem;
 }
 
 #main-content > header h1 {
@@ -335,6 +335,7 @@ article header h4 {
     align-items: center;
     gap: 1rem;
     border-top: 1px solid var(--transparent-color-light);
+    padding: 1rem 0;
 }
 
 .spacer {
@@ -350,38 +351,41 @@ article header h4 {
     font-size: 1.25rem;
 }
 
-/* SINGLE POST STYLES */
+/* * SINGLE POST STYLES * */
 #post-header {
     flex-wrap: wrap;
     border-bottom: 1px solid var(--transparent-color-light);
 }
-
-#post-content {
-    margin: 3rem auto;
+#post-text {
+    padding: 1rem 0 1rem 0;
 }
-
-#post-content h2, #post-content h3, #post-content h4 {
+#sidebar {
+    padding-top: 2.5rem;
+    min-width: 20rem;
+}
+#post-content h2  {
     margin: 2rem auto 1.5rem auto;
+    scroll-margin-top: 1.5rem;
 }
-
-#post-content p, #post-content li {
+#post-content h3 {
+    margin: 1.5rem auto 1rem auto;
+    scroll-margin-top: 2rem;
+}
+#post-content li {
     padding-left: 0.5rem;
 }
-
 #post-content pre {
     padding: 0.5rem;
     border-radius: 0.25rem;
     background-color: var(--transparent-color-dark);
     color: var(--code-color);
 }
-
 .post-thumbnail {
     display: inline;
     width: 3rem;
     height: auto;
     max-width: 100%;
 }
-
 #post-header-content {
     display: flex;
     flex-wrap: wrap;
@@ -389,48 +393,38 @@ article header h4 {
     gap: 1rem;
     flex: 100%;
 }
-
 #single-post-navigation-container {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2.5rem;
     flex: 1;
 }
-
 #comments-section {
     display: flex;
     flex-direction: column;
 }
-
-#comments-section h3, #comment-form {
+#comment-form {
     margin: 0;
     padding-bottom: 1rem;
 }
-
-#comments-section h3 {
-    padding-top: 1rem;
-    border-top: 1px solid var(--transparent-color-light);
-}
-
 #comment-container {
     opacity: 1;
     transition: opacity 150ms ease-in-out;
 }
-
+#comment-container > h4 {
+    padding: 1rem 0;
+}
 #comment-container.htmx-swapping {
     opacity: 0;
 }
-
 #comment-container > .btn-secondary {
     width: 100%;
 }
-
 #comment-container > .comment {
     margin-bottom: 2rem;
 }
-
 .comment {
     background-color: var(--transparent-color-light);
     border-radius: 0.25rem;
@@ -438,7 +432,6 @@ article header h4 {
     padding-bottom: 0.5rem;
     border: 1px solid var(--transparent-color-light);
 }
-
 .comment header {
     display: flex;
     align-items: center;
@@ -449,34 +442,28 @@ article header h4 {
     padding: 0.5rem;
     border-bottom: 2px solid var(--accent-color-transparent);
 }
-
 .comment-content {
     margin-left: 0.5rem;
     padding: 0.5rem 0.5rem 1rem 0.5rem;
     font-size: 0.9rem;
     border-left: 1px dashed var(--accent-color-transparent);
 }
-
 .comment-input {
     background-color: var(--more-transparent-color-light);
     border: 1px solid var(--transparent-color-light);
     border-radius: 0.25rem;
     padding: 0.5rem;
 }
-
 .comment-input textarea {
     background-color: transparent;
 }
-
 .comment-input .form-group {
     justify-content: space-between;
 }
-
 .comment-replies {
     margin: 0 0 0 0.5rem;
     padding-top: 0.5rem;
 }
-
 .comment-replies summary {
     position: relative;
     right: 0.5rem;
@@ -486,19 +473,15 @@ article header h4 {
     width: 1.25rem;
     color: var(--accent-color);
 }
-
 .btn-get-replies {
     width: calc(100% - 0.5rem);
 }
-
 .comment-replies[open] > summary::marker {
     content: '\229D';
 }
-
 .comment-replies > summary::marker {
     content: '\2295';
 }
-
 .denote-reply {
     position: relative;
     line-height: 0;
@@ -508,16 +491,13 @@ article header h4 {
     font-size: 1.25rem;
     user-select: none;
 }
-
 .comment-replies .comment:first-of-type {
     margin-top: 0;
 }
-
 .comment-replies:has(.comment) {
     border-radius: 0;
     border-left: 1px dashed var(--accent-color-transparent);
 }
-
 .comment-replies:has(.comment) .comment {
     border-radius: 0 0 0 0.25rem;
     border-top: 1px solid var(--transparent-color-light);
@@ -527,21 +507,17 @@ article header h4 {
     margin-left : 0.5rem;
     background-color: var(--transparent-color-dark);
 }
-
 .reply-form-container:has(.comment-input) > .btn-secondary,
 .comment:has(> .comment-content .reply-form-container .comment-input) > header .edit-btn {
     display: none;
 }
-
 .comment-author-btns {
     width: fit-content;
     padding-left: 0.5rem;
 }
-
 .margin-bottom {
     margin-bottom: 1rem;
 }
-
 .inline {
     display: flex;
     align-items: center;
@@ -555,7 +531,6 @@ article header h4 {
     gap: 1.5rem;
     padding-top: 2rem;
 }
-
 #post-content-input {
     height: 40vh;
     background-color: var(--transparent-color-dark);
@@ -586,12 +561,10 @@ select:hover, option:hover {
     cursor: pointer;
     background-color: var(--secondary-bg-color);
 }
-
 #create-post-form label:has(input[type="checkbox"]), input[type="checkbox"] {
     width: fit-content;
     cursor: pointer;
 }
-
 .form-group {
     display: flex;
     flex-wrap: wrap;
@@ -602,7 +575,6 @@ select:hover, option:hover {
     flex: 1;
     min-width: 10rem;
 }
-
 .close-btn {
     width: 1.5rem;
     height: 1.5rem;
@@ -613,11 +585,9 @@ select:hover, option:hover {
     background-color: var(--main-bg-color);
     border: 1px solid var(--accent-color);
 }
-
 .close-btn:hover {
     background-color: var(--accent-color);
 }
-
 dialog {
     border: 1px solid var(--transparent-color-light);
     border-radius: 0.25rem;
@@ -626,7 +596,6 @@ dialog {
     transition: opacity 200ms ease-in-out;
     padding: 0;
 }
-
 #categories-modal {
     top: 7rem;
     bottom: auto;
@@ -641,7 +610,6 @@ dialog {
 dialog::backdrop {
     background-color: var(--transparent-color-dark);
 }
-
 dialog article header {
     display: flex;
     justify-content: space-between;
@@ -650,7 +618,6 @@ dialog article header {
     border-radius: 0.25rem 0.25rem 0 0;
     border-bottom: 1px solid var(--transparent-color-light);
 }
-
 dialog form {
     display: flex;
     flex-direction: column;
@@ -658,25 +625,20 @@ dialog form {
     gap: 1rem;
     padding: 1.5rem 2rem;
 }
-
 dialog form input[type="submit"] {
     margin-top: 1rem;
     background-color: var(--transparent-color-dark);
 }
-
 dialog #login-message {
     text-align: center;
     padding-bottom: 0.5rem;
 }
-
 #byte-validator {
     display: none;
 }
-
 .error {
     color: var(--error-color);
 }
-
 
 /* 480-767 */
 @media (min-width: 430px) {
@@ -712,7 +674,7 @@ dialog #login-message {
     }
 }
 
-/* 768-1023 */
+/* 800-1023 */
 @media (min-width: 800px) {
     #main-header {
         flex-direction: row;
@@ -753,7 +715,7 @@ dialog #login-message {
     }
     body {
         display: flex;
-        margin: auto;
+        margin: 0 auto;
     }
     #main-header {
         border-right: 1px solid var(--color-light);
@@ -771,8 +733,7 @@ dialog #login-message {
         font-weight: 600;
     }
     #main-content {
-        padding: 1.25rem calc(0.5rem + 2vw) 2rem 5vw;
-        min-height: calc(100vh - 3.25rem);
+        padding: 1.25rem calc(0.5rem + 2vw);
     }
     #main-greeting {
         display: none;
@@ -842,23 +803,50 @@ dialog #login-message {
 /* 1360 - 1920 */
 @media (min-width: 1361px) {
     #main-content {
-        padding: 1.25rem 0 2rem 5vw;
-        margin-right: 10vw
+        padding: 1.25rem 4vw 2rem 4vw;
     }
     #main-header {
-        padding: 0 0 0 10vw;
+        padding: 0 0 0 4vw;
+    }
+    #post-content {
+        display: flex;
+        justify-content: space-between;
+        gap: 4vw;
+    }
+    #post-text {
+        flex: 4;
+        max-width: 90rem;
+    }
+    #sidebar {
+        flex: 1;
+        height: inherit;
+        border-left: 1px solid var(--more-transparent-color-light);
+        font-size: 0.9rem;
+    }
+    #sidebar h5 {
+        text-align: center;
+        border-bottom: 1px solid var(--more-transparent-color-light);
+    }
+    #sidebar nav {
+        position: sticky;
+        top: 2.5rem;
+    }
+    #sidebar nav ul {
+        display: block;
+    }
+    #sidebar-menu ul li {
+        list-style: disc inside;
     }
 }
 @media (min-width: 1920px) {
-    body {
-        gap: 0;
-        margin: auto;
-    }
     #main-content {
-        padding: 1.25rem 5vw 2rem 5vw;
-        margin-right: 15vw
+        padding: 1.25rem 8vw 2rem 4vw;
+        max-width: 125rem;
     }
     #main-header {
-        padding: 0 0 0 15vw;
+        padding: 0 0 0 8vw;
+    }
+    #post-text {
+        flex: 5;
     }
 }
