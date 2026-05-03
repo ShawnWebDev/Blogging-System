@@ -9,6 +9,7 @@ import java.util.Arrays;
 @UniqueTitle
 public class CreateBlogEntryDto {
     private Integer id;
+    private String slug;
     @NotBlank
     @Size(min = 2, max = 255)
     private String title;
@@ -28,8 +29,9 @@ public class CreateBlogEntryDto {
 
     public CreateBlogEntryDto() {}
 
-    public CreateBlogEntryDto(Integer id, String title, String description, String thumbnailUrl, String thumbnailAlt, int[] categoryIds, String content, boolean inProgress) {
+    public CreateBlogEntryDto(Integer id, String slug, String title, String description, String thumbnailUrl, String thumbnailAlt, int[] categoryIds, String content, boolean inProgress) {
         this.id = id;
+        this.slug = slug;
         this.title = title;
         this.description = description;
         this.thumbnailUrl = thumbnailUrl;
@@ -44,6 +46,9 @@ public class CreateBlogEntryDto {
     }
     public void setId(Integer id) {
         this.id = id;
+    }
+    public String getSlug() {
+        return slug;
     }
     public String getTitle() {
         return title;

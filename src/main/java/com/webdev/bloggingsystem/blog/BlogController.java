@@ -187,7 +187,7 @@ public class BlogController {
     @GetMapping("/post/editPost/{id}")
     public Object editPostView(Model model, @PathVariable Integer id,
                                        HtmxRequest htmxRequest) {
-        CreateBlogEntryDto dto = blogService.buildCreateDto(id);
+        CreateBlogEntryDto dto = blogService.buildCreateDtoForEdit(id);
         populateCreatePostModel(model, dto, true);
 
         if (!htmxRequest.isHtmxRequest()) {

@@ -174,7 +174,7 @@ public class BlogService {
         return htmlRenderer.render(markdownParser.parse(content));
     }
 
-    CreateBlogEntryDto buildCreateDto(int id) {
+    CreateBlogEntryDto buildCreateDtoForEdit(int id) {
         BlogEntry post = this.findBlogEntryById(id);
         int[] categoryIds = new int[4];
 
@@ -185,7 +185,7 @@ public class BlogService {
             }
         }
 
-        return new CreateBlogEntryDto(post.getId(), post.getTitle(), post.getDescription(),
+        return new CreateBlogEntryDto(post.getId(), post.getSlug(), post.getTitle(), post.getDescription(),
                 post.getThumbnailUrl(), post.getThumbnailAlt(), categoryIds, post.getContent(), post.getInProgress());
     }
 }

@@ -9,7 +9,7 @@
     <div id="main-content" th:fragment="create-post">
       <h1 th:text="${isEditing ? 'Edit Post' : 'Create Post'}"></h1>
       <section id="create-post-form-container">
-        <button th:if="${isEditing}" th:hx-get="@{/blog/post/{id}(id = ${post.id})}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Changes will be lost!" class="btn-primary">Back To Post</button>
+        <button th:if="${isEditing}" th:hx-get="@{/blog/post/{id}/{slug}(id = ${post.id}, slug = ${post.slug})}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Changes will be lost!" class="btn-primary">Back To Post</button>
         <button th:if="${!isEditing}" th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Content will be lost!" class="btn-primary">Back To Blog</button>
 
         <form action="#" th:hx-post="@{${isEditing ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#main-content" hx-swap="outerHTML">
