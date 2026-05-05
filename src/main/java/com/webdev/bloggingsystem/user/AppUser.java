@@ -20,13 +20,6 @@ public class AppUser {
         this.password = password;
     }
 
-    public static AppUser createUser(String username, String password) {
-        AppUser appUser = new AppUser(username, password);
-        appUser.isActive(true);
-        appUser.setDateCreated(LocalDate.now());
-        return appUser;
-    }
-
     public Integer getId() {
         return id;
     }
