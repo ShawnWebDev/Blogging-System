@@ -1,5 +1,5 @@
 :root {
-    --main-bg-color: rgb(50, 50, 50);
+    --main-bg-color: rgb(40, 40, 40);
     --secondary-bg-color: rgb(33, 33, 33);
 
     --accent-color: rgb(130, 255, 165);
@@ -14,12 +14,12 @@
     --more-transparent-color-light: rgba(105, 105, 105, 0.25);
 
     --main-text-color: rgb(227, 230, 233);
+    --main-text-color-transparent: rgba(227, 230, 233, 0.60);
 
     --error-color: rgb(255, 120, 120);
     --code-color: rgb(239, 223, 190);
-
 }
-/* todo : get a css minify extension for maven */
+
 /* Layout Styles */
 html {
     font-size: 95%;
@@ -359,9 +359,29 @@ article header h4 {
 #post-text {
     padding: 1rem 0 1rem 0;
 }
+#post-content {
+    display: flex;
+    flex-direction: column-reverse;
+}
 #sidebar {
     padding-top: 2.5rem;
     min-width: 20rem;
+    font-size: 0.9rem;
+}
+#sidebar nav ol {
+    list-style: lower-roman;
+}
+#sidebar nav ul {
+    display: block;
+}
+#sidebar-menu ol li a, #sidebar-menu ul li a, #sidebar-menu ol li, #sidebar-menu ul li  {
+    padding: 0.25rem 0;
+}
+#sidebar-menu ul li {
+    list-style: circle inside;
+}
+.sidebar-nav-item {
+    color: var(--main-text-color-transparent);
 }
 #post-content h2  {
     margin: 2rem auto 1.5rem auto;
@@ -640,7 +660,7 @@ dialog #login-message {
     color: var(--error-color);
 }
 
-/* 480-767 */
+/* 430-799 */
 @media (min-width: 430px) {
     nav {
         width: fit-content;
@@ -723,7 +743,7 @@ dialog #login-message {
         height: 100vh;
         position: sticky;
         top: 0;
-        padding: 0 0 0 calc(0.5rem + 2vw);
+        padding: 0 0 0 4vw;
         width: 20rem;
     }
     nav {
@@ -733,7 +753,7 @@ dialog #login-message {
         font-weight: 600;
     }
     #main-content {
-        padding: 1.25rem calc(0.5rem + 2vw);
+        padding: 1.25rem 4vw 2rem 4vw;
     }
     #main-greeting {
         display: none;
@@ -800,16 +820,16 @@ dialog #login-message {
     }
 }
 
-/* 1360 - 1920 */
-@media (min-width: 1361px) {
+/* 1360 - 1919 */
+@media (min-width: 1440px) {
     #main-content {
-        padding: 1.25rem 4vw 2rem 4vw;
+        padding: 1.25rem calc(0.5rem + 2vw) 2rem 4vw;
     }
     #main-header {
-        padding: 0 0 0 4vw;
+        padding: 0 0 0 calc(0.5rem + 2vw);
     }
     #post-content {
-        display: flex;
+        flex-direction: row;
         justify-content: space-between;
         gap: 4vw;
     }
@@ -821,23 +841,18 @@ dialog #login-message {
         flex: 1;
         height: inherit;
         border-left: 1px solid var(--more-transparent-color-light);
-        font-size: 0.9rem;
     }
-    #sidebar h5 {
+    #sidebar h4 {
         text-align: center;
-        border-bottom: 1px solid var(--more-transparent-color-light);
+        color: var(--main-text-color-transparent);
     }
     #sidebar nav {
         position: sticky;
         top: 2.5rem;
     }
-    #sidebar nav ul {
-        display: block;
-    }
-    #sidebar-menu ul li {
-        list-style: disc inside;
-    }
 }
+
+/* 1920 and up */
 @media (min-width: 1920px) {
     #main-content {
         padding: 1.25rem 8vw 2rem 4vw;
