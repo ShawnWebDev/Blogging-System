@@ -16,10 +16,10 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    // todo : enable caching for static resources, figure out session timeout refresh prompt, enable rate limiting
+    // todo : figure out session timeout refresh prompt, enable rate limiting (Nginx)
     // todo : add all endpoints that require ADMIN.
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, LoginFailureHandler loginFailureHandler) {
         http
                 .csrf(Customizer.withDefaults())
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -48,7 +48,7 @@ public class SecurityConfig {
                         .loginPage("/blog")
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/loginSuccess", true)
-                        .failureUrl("/loginError")
+                        .failureHandler(loginFailureHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
