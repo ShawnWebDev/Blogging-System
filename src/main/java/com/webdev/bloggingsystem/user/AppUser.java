@@ -9,15 +9,18 @@ public class AppUser {
 
     private String password;
 
+    private String email;
+
     private boolean isActive;
 
     private LocalDate dateCreated;
 
     private RoleType role;
 
-    public AppUser(String username, String password) {
+    public AppUser(String username, String password, String email) {
         this.username = username;
         this.password = password;
+        this.email = email;
     }
 
     public Integer getId() {
@@ -37,6 +40,12 @@ public class AppUser {
     }
     public void setPassword(String password) {
         this.password = password;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
     }
     public boolean getIsActive() {
         return isActive;

@@ -15,19 +15,38 @@ public class AppUserDao {
 
     public Optional<AppUser> findByUsername(String username) {
         return jdbc.sql(
-                "SELECT u.id, u.username, u.password, u.is_active, u.role " +
+                "SELECT u.id, u.username, u.password, u.email, u.is_active, u.role " +
                         "FROM users u " +
-                        "WHERE u.username = :username"
-        ).param("username", username).query(AppUser.class).optional();
+                        "WHERE u.username = :username")
+                .param("username", username)
+                .query(AppUser.class).optional();
     }
 
     public Optional<AuthorDto> findAuthorByUsername(String username) {
         return jdbc.sql(
                 "SELECT u.id, u.username " +
                         "FROM users u " +
-                        "WHERE u.username = :username"
-        ).param("username", username).query(AuthorDto.class).optional();
+                        "WHERE u.username = :username")
+                .param("username", username)
+                .query(AuthorDto.class).optional();
     }
+
+    public boolean existsByUsername(String username) {
+        return jdbc.sql(
+                "SELECT 1 from users u WHERE u.username = :username")
+                .param("username", username)
+                .query(Integer.class).optional()
+                .isPresent();
+    }
+
+    public boolean existsByEmail(String email) {
+        return jdbc.sql(
+                        "SELECT 1 from users u WHERE u.email = :email")
+                .param("email", email)
+                .query(Integer.class).optional()
+                .isPresent();
+    }
+
 
 
 
