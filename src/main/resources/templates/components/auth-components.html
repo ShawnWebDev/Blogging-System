@@ -30,7 +30,6 @@
     <div th:fragment="login-button-blog" id="login-container">
         <button onclick="openDialog('login-modal')" class="btn-secondary">Login</button>
         <div th:replace="~{components/auth-components::login-message}"></div>
-        <p class="spacer"></p>
     </div>
 
     <div th:fragment="login-button-post" id="login-container">
@@ -48,24 +47,67 @@
             <button title="Close" aria-label="Close" onclick="closeDialog('login-modal')" class="close-btn btn-primary">X</button>
         </header>
         <form role="form" aria-label="Login form" hx-post="/login" hx-target="#login-container" hx-swap="outerHTML" method="post" hx-on::after-request="if(event.detail.successful) closeDialog('login-modal')">
-            <label>
-                Username:
+            <label>Username:
                 <input type="text" name="username" placeholder="Username" required/>
             </label>
-            <label>
-                Password:
+            <label>Password:
                 <input type="password" name="password" placeholder="Password" required/>
             </label>
             <input type="submit" value="Sign In" class="btn-primary"/>
         </form>
+        <p>No account? <button class="btn-secondary" hx-get="/register" hx-target="#login-article" hx-swap="outerHTML">Register Here</button></p>
         <div th:replace="~{components/auth-components::login-message}"></div>
+    </article>
+
+    <article th:fragment="register-article" id="register-article">
+        <header>
+            <span id="login-dialog-title">Register</span>
+            <button title="Close" aria-label="Close" onclick="closeDialog('login-modal')" class="close-btn btn-primary">X</button>
+        </header>
+        <form role="form" aria-label="Register form" hx-post="/register" hx-target="#register-article" hx-swap="outerHTML" method="post">
+            <label>Email:
+                <input type="text" name="email" placeholder="Email" th:value="${userDto.email}" required/>
+                <small>Your email will only be used to validate your account.</small>
+                <small th:errors="${userDto.email}" class="error"></small>
+            </label>
+            <label>Username:
+                <input type="text" name="username" placeholder="Username" th:value="${userDto.username}" required/>
+                <small th:errors="${userDto.username}" class="error"></small>
+            </label>
+            <label>Password:
+                <input type="password" name="password" placeholder="Password" required/>
+                <small th:errors="${userDto.password}" class="error"></small>
+            </label>
+            <label>Confirm Password:
+                <input type="password" name="confirmPassword" placeholder="Password" required/>
+                <small th:errors="${userDto.confirmPassword}" class="error"></small>
+            </label>
+            <input type="submit" value="Register" class="btn-primary"/>
+        </form>
+        <p>Back to <button class="btn-secondary" hx-get="/loginForm" hx-target="#register-article" hx-swap="outerHTML">Login</button></p>
     </article>
 
     <div th:fragment="login-message" id="login-message">
         <small th:if="${loginError}" th:text="${loginError}" class="error"></small>
+        <button th:if="${registerError}" hx-get="/resendValidation" hx-target="#login-article" hx-swap="outerHTML" class="btn-secondary">Resend Code</button>
         <small th:if="${param.logout}" class="error">You have logged out.</small>
         <small th:if="${param.sessionExpired}" class="error">Your session has expired. Please log in again.</small>
     </div>
+
+    <article th:fragment="validate-prompt-article" id="register-article">
+        <header>
+            <span id="login-dialog-title">Register</span>
+            <button title="Close" aria-label="Close" onclick="closeDialog('login-modal')" class="close-btn btn-primary">X</button>
+        </header>
+        <p>Thank you for registering!</p>
+        <p>To validate your account, please check your email for a message from <strong>shawn.porfolio.blog@gmail.com</strong> for your one time password.</p>
+        <form>
+            <label>6-Digit Code:
+                <input type="text" placeholder="000000" name="otp" required/>
+            </label>
+            <input type="submit" value="Validate" class="btn-primary"/>
+        </form>
+    </article>
 
     <!-- for initial load, oob swap requires there be an element with the ID before swapping otherwise it is discarded by HTMX -->
     <span th:fragment="csrf-token" id="csrf-token" th:data-token="${_csrf.token}" th:data-header="${_csrf.headerName}"></span>
