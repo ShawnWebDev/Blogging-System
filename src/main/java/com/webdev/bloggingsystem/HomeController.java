@@ -1,38 +1,26 @@
 package com.webdev.bloggingsystem;
 
 import com.webdev.bloggingsystem.blog.BlogService;
-import com.webdev.bloggingsystem.user.RegistrationService;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.view.FragmentsRendering;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 
 @Controller
 public class HomeController {
 
     private final BlogService blogEntryService;
-    private final RegistrationService registrationService;
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
-    public HomeController(BlogService blogEntryService, RegistrationService registrationService) {
+    public HomeController(BlogService blogEntryService) {
         this.blogEntryService = blogEntryService;
-        this.registrationService = registrationService;
     }
 
     @GetMapping("/")
@@ -83,76 +71,6 @@ public class HomeController {
                 .fragment("contact::contact-main")
                 .build();
     }
-
-    @GetMapping("/loginSuccess")
-    public FragmentsRendering loginSuccess(HttpServletRequest request, HtmxResponse htmxResponse, Model model) {
-        // called from Spring Security redirect on successful log in, does not use HtmxRequest because is from redirect by Security
-        String referer = request.getHeader("Referer");
-        boolean isFromBlog = false;
-        try {
-            // getPath() strips params to correctly send fragment if /blog, /blog?logout, or /blog?sessionExpired
-            isFromBlog = referer != null && new URI(referer).getPath().equals("/blog");
-        } catch (URISyntaxException e) {
-            logger.warn("Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", referer);
-        }
-
-        if (isFromBlog) {
-            // clear ?logout and ?sessionExpired params after login success
-            htmxResponse.setPushUrl("/blog");
-            return FragmentsRendering
-                    .fragment("components/auth-components::logout-button-blog")
-                    .fragment("components/auth-components::csrf-token-oob")
-                    .header("HX-Trigger", "loginSuccess")
-                    .build();
-        }
-
-        return FragmentsRendering
-                .fragment("components/auth-components::logout-button-post")
-                .fragment("components/auth-components::csrf-token-oob") // to refresh the csrf token with an out-of-band swap
-                .header("HX-Trigger", "{\"loginSuccess\": \""+ SecurityContextHolder.getContext().getAuthentication().getName() + "\"}")
-                .build();
-    }
-
-    @GetMapping("/logoutSuccess")
-    public ResponseEntity<Void> logout() {
-        return ResponseEntity.ok()
-                .header("HX-Redirect", "/blog?logout")
-                .build();
-    }
-
-    @GetMapping("/loginError")
-    public String loginError(Model model, HttpServletResponse response, HttpServletRequest request) {
-        HttpSession httpSession = request.getSession(false);
-        String errorMsg = "Invalid username or password";
-
-        if (httpSession != null) {
-            Exception ex = (Exception) httpSession.getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
-            if (ex instanceof DisabledException) {
-                errorMsg = "Check your email to verify your account.";
-            }
-        }
-        model.addAttribute("loginError", errorMsg);
-
-        response.addHeader("HX-Retarget", "#login-article");
-        return "components/auth-components::login-article";
-    }
-
-/*    @GetMapping("/register")
-    public String registrationView(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
-
-    }
-
-    @PostMapping("/register")
-    public String registration() {
-
-    }
-
-
-    @GetMapping("/verify")
-    public String verifyAccount(@RequestParam String token, Model model) {
-
-    }
-    */
 
 
     private static void pushUrlIfNeeded(HtmxRequest request, HtmxResponse response, String url) {

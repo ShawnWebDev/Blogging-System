@@ -61,3 +61,12 @@ CREATE TABLE `posts_categories` (
         CONSTRAINT `Posts_Categories_Blog_Entry_FK` FOREIGN KEY (`post_id`) REFERENCES `blog_entries` (`id`) ON DELETE CASCADE,
         CONSTRAINT `Posts_Categories_Categories_FK` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE
 );
+
+CREATE TABLE `verification` (
+       `otp` int NOT NULL,
+       `user_id` int NOT NULL,
+       `expiry` datetime NOT NULL,
+       PRIMARY KEY (`otp`),
+       KEY `verification_tokens_users_FK` (`user_id`),
+       CONSTRAINT `verification_tokens_users_FK` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+)

@@ -46,3 +46,13 @@ function openDialog(elementId) {
 function removeElement(elementId) {
     document.getElementById(elementId).remove();
 }
+
+// TODO -->
+function convertTimeToLocal() {
+    console.log('login message fragment');
+    const timeEl = document.getElementById('timeExpiration');
+    if (!timeEl) {
+        return;
+    }
+    console.log("time element exists.. convert: " + timeEl.innerText);
+}

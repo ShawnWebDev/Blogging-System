@@ -1,7 +1,11 @@
 package com.webdev.bloggingsystem;
 
+import com.webdev.bloggingsystem.user.BlogSystemUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,8 +23,9 @@ public class SecurityConfig {
     // todo : figure out session timeout refresh prompt, enable rate limiting (Nginx)
     // todo : add all endpoints that require ADMIN.
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, LoginFailureHandler loginFailureHandler) {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider passwordFirstDaoProvider, LoginFailureHandler loginFailureHandler) {
         http
+                .authenticationProvider(passwordFirstDaoProvider)
                 .csrf(Customizer.withDefaults())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
@@ -67,5 +72,21 @@ public class SecurityConfig {
     @Bean
     public HttpSessionEventPublisher httpSessionEventPublisher() {
         return new HttpSessionEventPublisher();
+    }
+
+    /**
+     * Sets UserDetailsChecker to check nothing in preAuthChecks (locked, expired, disabled) and sets disabled check after password check (post-auth).
+     * Not using the other checks from UserDetails. (Just setting to true in UserDetailsService)
+     * */
+    @Bean
+    public AuthenticationProvider passwordFirstDaoProvider(BlogSystemUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setPreAuthenticationChecks(_ -> {});
+        provider.setPostAuthenticationChecks(user -> {
+            if (!user.isEnabled())
+                throw new DisabledException("Account is disabled");
+        });
+        return provider;
     }
 }
