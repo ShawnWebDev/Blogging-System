@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -66,20 +65,32 @@ public class AppUserDao {
                     .update();
     }
 
+    public void updateVerification(int otp, int userId, Instant expires) {
+        jdbc.sql(
+                "UPDATE verification " +
+                "SET otp = :otp, expiry = :expires " +
+                "WHERE user_id = :user_id")
+                .param("otp", otp)
+                .param("user_id", userId)
+                .param("expires", Timestamp.from(expires))
+                .update();
+    }
+
     public Instant getExpires(int userId) {
         return jdbc.sql(
                 "SELECT expiry FROM verification " +
                 "WHERE user_id = :userId")
                     .param("userId", userId)
-                    .query(Instant.class).optional().orElse(null);
+                    .query(Instant.class)
+                    .optional().orElse(null);
     }
 
     public boolean existsByUsername(String username) {
         return jdbc.sql(
                 "SELECT 1 from users u WHERE u.username = :username")
                     .param("username", username)
-                    .query(Integer.class).optional()
-                    .isPresent();
+                    .query(Integer.class)
+                    .optional().isPresent();
     }
 
     public boolean existsByEmail(String email) {
@@ -89,8 +100,6 @@ public class AppUserDao {
                     .query(Integer.class).optional()
                     .isPresent();
     }
-
-
 
 
 }

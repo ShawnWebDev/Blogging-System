@@ -29,11 +29,13 @@
 
     <div th:fragment="login-button-blog" id="login-container">
         <button onclick="openDialog('login-modal')" class="btn-secondary">Login</button>
+        <dialog th:replace="~{components/auth-components :: login-dialog}"></dialog>
         <div th:replace="~{components/auth-components::login-message}"></div>
     </div>
 
     <div th:fragment="login-button-post" id="login-container">
         <p>Please <button onclick="openDialog('login-modal')" class="btn-secondary">Login</button> to comment.</p>
+        <dialog th:replace="~{components/auth-components :: login-dialog}"></dialog>
         <div th:replace="~{components/auth-components::login-message}"></div>
     </div>
 
@@ -46,16 +48,16 @@
             <span id="login-dialog-title">Login</span>
             <button title="Close" aria-label="Close" onclick="closeDialog('login-modal')" class="close-btn btn-primary">X</button>
         </header>
-        <form role="form" aria-label="Login form" hx-post="/login" hx-target="#login-container" hx-swap="outerHTML" method="post" hx-on::after-request="if(event.detail.successful) closeDialog('login-modal')">
+        <form th:if="${validUntil == null && expired == null}" role="form" aria-label="Login form" hx-post="/login" hx-target="#login-container" hx-swap="outerHTML" method="post" hx-on::after-request="if(event.detail.successful) closeDialog('login-modal')">
             <label>Username:
                 <input type="text" name="username" placeholder="Username" required/>
             </label>
             <label>Password:
                 <input type="password" name="password" placeholder="Password" required/>
             </label>
-            <input type="submit" value="Sign In" class="btn-primary"/>
+            <input type="submit" value="Log In" class="btn-primary"/>
+            <p>No account? <button class="btn-secondary" hx-get="/register" hx-target="#login-article" hx-swap="outerHTML">Register Here</button></p>
         </form>
-        <p>No account? <button class="btn-secondary" hx-get="/register" hx-target="#login-article" hx-swap="outerHTML">Register Here</button></p>
         <p th:replace="~{components/auth-components::login-message}"></p>
     </article>
 
@@ -84,18 +86,20 @@
             </label>
             <input type="submit" value="Register" class="btn-primary"/>
         </form>
-        <p>Back to <button class="btn-secondary" hx-get="/loginForm" hx-target="#register-article" hx-swap="outerHTML">Login</button></p>
+        <p>Back to <button class="btn-secondary" hx-get="/loginForm" hx-target="#register-article" hx-swap="outerHTML">Log In</button></p>
     </article>
 
     <p th:fragment="login-message" id="login-message" >
         <span th:if="${loginError}">
-            <small th:text="${loginError}" class="error"></small><small th:if="${validUntil}" th:text="${validUntil}" id="timeExpiration"></small>
-                <br>
-                <button th:if="${validUntil}" hx-get="/validate" hx-target="#login-article" hx-swap="outerHTML" class="btn-secondary">Enter Code</button>
-                <button th:if="${expired}" hx-get="/resendValidation" hx-target="#login-article" hx-swap="outerHTML" class="btn-secondary">Resend Code</button>
+            <small th:text="${loginError}" class="error"></small>
+            <br>
+            <small th:if="${validUntil}" th:text="${validUntil}" id="timeExpiration"></small>
+            <br>
+            <button th:if="${validUntil}" hx-get="/validate" hx-target="#login-article" hx-swap="outerHTML" class="btn-secondary">Enter Code</button>
+            <button th:if="${expired}" hx-get="/resendValidation" hx-target="#login-article" hx-swap="outerHTML" class="btn-secondary">Re-send Code</button>
         </span>
         <small th:if="${param.logout}" class="error">You have logged out.</small>
-        <small th:if="${param.sessionExpired}" class="error">Your session has expired. Please log in again.</small>
+        <small th:if="${param.sessionExpired}" class="error">The previous session expired. Please log in again.</small>
     </p>
 
     <article th:fragment="validate-prompt-article" id="register-article">
@@ -105,19 +109,30 @@
         </header>
         <p>Thank you for registering!</p>
         <p>To validate your account, please check your email for a message from <strong>shawn.porfolio.blog@gmail.com</strong> for your one time password.</p>
+        <div>
+            <small th:if="${validUntil}">Valid until: </small>
+            <small th:if="${validUntil}" th:text="${validUntil}" id="timeExpiration"></small>
+            <button th:if="${expired}" hx-get="/resendValidation" hx-target="#login-article" hx-swap="outerHTML" class="btn-secondary">Re-send Code</button>
+        </div>
         <form>
             <label>6-Digit Code:
                 <input type="text" placeholder="000000" name="otp" required/>
             </label>
             <input type="submit" value="Validate" class="btn-primary" id="submitValidation"/>
         </form>
-        <p>Back to <button class="btn-secondary" hx-get="/loginForm" hx-target="#register-article" hx-swap="outerHTML">Login</button></p>
+        <p>Back to <button class="btn-secondary" hx-get="/loginForm" hx-target="#register-article" hx-swap="outerHTML">Log In</button></p>
     </article>
 
     <!-- for initial load, oob swap requires there be an element with the ID before swapping otherwise it is discarded by HTMX -->
     <span th:fragment="csrf-token" id="csrf-token" th:data-token="${_csrf.token}" th:data-header="${_csrf.headerName}"></span>
 
     <span th:fragment="csrf-token-oob" id="csrf-token" th:data-token="${_csrf.token}" th:data-header="${_csrf.headerName}" hx-swap-oob="true"></span>
+
+    <div th:fragment="refreshCsrf" hx-get="/refresh-token" hx-swap="none" hx-trigger="every 30m" style="display: none;"></div>
+
+    <p th:fragment="noscript" class="noscript-warning error">
+        Much of this application requires JavaScript to function, please enable it for the best experience. Basic browsing is possible, just expect broken functionality.
+    </p>
 
 </body>
 </html>

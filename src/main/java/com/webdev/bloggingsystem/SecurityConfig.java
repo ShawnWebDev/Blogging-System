@@ -1,6 +1,8 @@
 package com.webdev.bloggingsystem;
 
 import com.webdev.bloggingsystem.user.BlogSystemUserDetailsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -14,12 +16,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
     // todo : figure out session timeout refresh prompt, enable rate limiting (Nginx)
     // todo : add all endpoints that require ADMIN.
     @Bean
@@ -30,7 +32,8 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                        .maximumSessions(1).maxSessionsPreventsLogin(false).expiredUrl("/blog?sessionExpired")
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
                 )
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(
@@ -68,11 +71,6 @@ public class SecurityConfig {
 
     @Bean
     PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
-
-    @Bean
-    public HttpSessionEventPublisher httpSessionEventPublisher() {
-        return new HttpSessionEventPublisher();
-    }
 
     /**
      * Sets UserDetailsChecker to check nothing in preAuthChecks (locked, expired, disabled) and sets disabled check after password check (post-auth).

@@ -2,14 +2,12 @@ package com.webdev.bloggingsystem.user;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 
 @Service
@@ -18,10 +16,12 @@ public class RegistrationService {
 
     private final AppUserDao appUserDao;
     private final PasswordEncoder passwordEncoder;
+    private final BlogSystemUserDetailsService userDetailsService;
 
-    public RegistrationService(AppUserDao appUserDao, PasswordEncoder passwordEncoder) {
+    public RegistrationService(AppUserDao appUserDao, PasswordEncoder passwordEncoder, BlogSystemUserDetailsService userDetailsService) {
         this.appUserDao = appUserDao;
         this.passwordEncoder = passwordEncoder;
+        this.userDetailsService = userDetailsService;
     }
 
     // TODO
@@ -49,8 +49,7 @@ public class RegistrationService {
         int userId = appUserDao.insert(appUser);
 
         int otpRand = this.getRandomOtp();
-        // expires in 15min (900 seconds) from now.
-        Instant otpExpires = Instant.now().plusSeconds(900);
+        Instant otpExpires = this.getExpirationFromNow();
         logger.info("Expires: {}", otpExpires);
 
         appUserDao.insertVerification(otpRand, userId, otpExpires);
@@ -61,11 +60,30 @@ public class RegistrationService {
         return random.nextInt(100000,1000000);
     }
 
-    /*
-    public String verifyUser(String token) {
+    public Instant getExpirationFromNow() {
+        // expires in 15min (900 seconds) from now.
+        return Instant.now().plusSeconds(900);
+    }
+
+    public Instant resetOtp(String username) {
+        Integer userId = appUserDao.findUserIdByUsername(username);
+        int otpRand = this.getRandomOtp();
+        Instant otpExpires = this.getExpirationFromNow();
+        appUserDao.updateVerification(otpRand, userId, otpExpires);
+        // this.sendOtp();
+        return otpExpires;
+    }
+
+    // todo: send otp to email..
+    public void sendOtp(String username) {
+        logger.info("Sending OTP for user {}", username);
+        //
+    }
+
+    // todo: verify entered otp and user from last login in session..
+    public String verifyUser(String token, String username) {
 
         return "";
     }
-    */
 
 }

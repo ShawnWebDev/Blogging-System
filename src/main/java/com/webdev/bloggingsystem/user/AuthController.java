@@ -46,7 +46,7 @@ public class AuthController {
         try {
             isFromBlog = referer != null && new URI(referer).getPath().equals("/blog");
         } catch (URISyntaxException e) {
-            logger.warn("Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", referer);
+            logger.warn("{} ** Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", e, referer);
         }
 
         if (isFromBlog) {
@@ -57,7 +57,6 @@ public class AuthController {
                     .header("HX-Trigger", "loginSuccess")
                     .build();
         }
-
         return FragmentsRendering
                 .fragment("components/auth-components::logout-button-post")
                 .fragment("components/auth-components::csrf-token-oob") // to refresh the csrf token with an out-of-band swap
@@ -74,25 +73,24 @@ public class AuthController {
 /**
  * <p> On login error, this method retargets login form submission to its container to re-render the error messages and buttons if needed.
  * <p> Uses the current session to get the PENDING_VERIFICATION_USER attribute set by the LoginFailureHandler after a DisabledException.
- * The attribute is set only if login credentials were valid but the user has isActive set to false in the DB. (Enabled = false in UserDetails Object)
+ * The attribute is set only after registration OR if login credentials were valid but the user has isActive set to false in the DB. (Enabled = false in UserDetails Object)
   */
     @GetMapping("/loginError")
-    public String loginError(Model model, HttpServletResponse response, HttpServletRequest request) {
+    public FragmentsRendering loginError(Model model, HttpServletResponse response, HttpServletRequest request) {
         HttpSession httpSession = request.getSession(false);
         String errorMsg = "Invalid username or password.";
 
         if (httpSession != null) {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
             if (username != null) {
-                errorMsg = "Account has not been verified.";
+                errorMsg = "Account not verified. ";
                 Instant otpValidUntil = registrationService.otpValidUntil(username);
 
                 if (otpValidUntil.isAfter(Instant.now())) {
-                    errorMsg += " Your one time password is valid until ";
+                    errorMsg += "Your one time password is valid until ";
                     model.addAttribute("validUntil", otpValidUntil);
-
                 } else {
-                    errorMsg += " Your one time password has expired.";
+                    errorMsg += "Your one time password has expired.";
                     model.addAttribute("expired", true);
                 }
             }
@@ -105,8 +103,11 @@ public class AuthController {
 
     @HxRequest
     @GetMapping("/loginForm")
-    public String loginView() {
-        return "components/auth-components::login-article";
+    public FragmentsRendering loginView() {
+        return FragmentsRendering
+                .fragment("components/auth-components::login-article")
+                .fragment("components/auth-components::csrf-token-oob")
+                .build();
     }
 
     @HxRequest
@@ -123,7 +124,7 @@ public class AuthController {
     // user enters OTP, set their enabled flag using email to get username/role, log them in, delete OTP row in verification table
     @HxRequest
     @PostMapping("/register")
-    public String registration(Model model,
+    public String registration(Model model, HttpServletRequest request,
                                @Valid @ModelAttribute("userDto") UserRegistrationDto userRegistrationDto, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
@@ -135,34 +136,71 @@ public class AuthController {
 
         registrationService.registerUser(userRegistrationDto);
 
+        String username = userRegistrationDto.username;
+        model.addAttribute("validUntil", registrationService.otpValidUntil(username));
+        request.getSession(true).setAttribute("PENDING_VERIFICATION_USER", username);
 
         return  "components/auth-components::validate-prompt-article";
     }
 
+    // todo - this opens the form to enter the otp,
     @HxRequest
     @GetMapping("/validate")
-    public String validate(Model model) {
-        return "";
+    public Object validateView(Model model, HttpServletRequest request) {
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
+            if (username != null) {
+                model.addAttribute("validUntil", registrationService.otpValidUntil(username));
+                return  "components/auth-components::validate-prompt-article";
+            }
+        }
+        return this.loginView();
     }
 
     @HxRequest
     @GetMapping("/resendValidation")
-    public String resendValidation(HttpServletRequest request) {
+    public Object resendValidation(Model model, HttpServletRequest request) {
         HttpSession httpSession = request.getSession(false);
         if (httpSession != null) {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
-            logger.info("Last User {}", username);
-            logger.info("otp: {}", registrationService.getRandomOtp());
+            if (username != null) {
+                model.addAttribute("validUntil", registrationService.resetOtp(username));
+                registrationService.sendOtp(username);
+            } else {
+                model.addAttribute("loginError", "Invalid username or password.");
+                return this.loginView();
+            }
             return  "components/auth-components::validate-prompt-article";
         }
 
         return this.loginView();
     }
 
+    // todo: check if still valid, compare entered value to stored value, reset session, log user in if otp valid
 /*
-    @GetMapping("/verify")
-    public String verifyAccount(@RequestParam String token, Model model) {
+    @HxRequest
+    @PostMapping("/validate")
+    public String verifyAccount(@RequestParam String otp, Model model) {
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
+            if (username != null) {}
+        }
 
+        if (valid) {
+            login...
+            return "/blog" OR "/single-post" depending on referer
+        } else {
+            add error msg to model
+            return  "components/auth-components::validate-prompt-article";
+        }
     }
 */
+
+    @HxRequest
+    @GetMapping("/refresh-token")
+    public String refreshToken() {
+        return "components/auth-components::csrf-token-oob";
+    }
 }
