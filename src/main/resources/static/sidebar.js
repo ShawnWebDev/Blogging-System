@@ -1,19 +1,18 @@
 // needed for full page load, HTMX will not fire it using hx-on
 document.addEventListener("DOMContentLoaded", initSidebar);
 
-// prevents initSidebar from running on each swap within single-pages
-window.sidebarInitialized = false;
-
 // todo: add Intersection Observer to highlight the sidebar nav item that the page heading is related to.
 
 function initSidebar() {
-    if (window.sidebarInitialized) return;
-
+    console.log("Sidebar Check..");
     const textContainer = document.getElementById("post-text");
+    if (!textContainer) return;
+    console.log("Initializing Sidebar..");
+
     const sidebarNavContainer = document.getElementById("sidebar-menu");
     const headers = textContainer.querySelectorAll("h2, h3");
 
-    let list = [`<h5>Table Of Contents</h5><ol>`];
+    let list = [`<strong>Table Of Contents</strong><ol>`];
     let isH2Active = false;
     let hasNested = false;
 
