@@ -14,6 +14,11 @@
                 <h1>Blog Dashboard</h1>
             </header>
 
+            <noscript>
+                <th:block th:replace="~{components/auth-components::noscript}"></th:block>
+            </noscript>
+
+            <p>remove dialog and just display the categories..</p>
             <section th:replace="~{components/blog-components::categories}" id="categories"></section>
 
             <section th:replace="~{components/blog-components :: all-posts}" id="posts"></section>
@@ -21,10 +26,15 @@
             <section id="auth-section">
                 <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button-blog}"></div>
                 <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button-blog}"></div>
-                <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token" hx-swap-oob="true"></span>
+                <div th:replace="~{components/auth-components::refreshCsrf}"></div>
+                <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
             </section>
 
             <div id="error-field"></div>
+
+            <script th:if="${param.sessionExpired != null}">
+                openDialog('login-modal');
+            </script>
         </div>
     </main>
 

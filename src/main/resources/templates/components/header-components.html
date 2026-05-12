@@ -56,13 +56,8 @@
         </li>
       </ul>
     </nav>
-
-    <dialog th:replace="~{components/auth-components :: login-dialog}"></dialog>
-
-    <script src="/main.js"></script>
-
     <script th:if="${param.sessionExpired != null}">
-      openDialog('login-modal');
+      document.getElementById('login-modal').showModal();
     </script>
 
   </header>

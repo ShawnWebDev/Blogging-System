@@ -26,6 +26,10 @@
                 </div>
             </header>
 
+            <noscript>
+                <th:block th:replace="~{components/auth-components::noscript}"></th:block>
+            </noscript>
+
             <article id="post-content">
                 <section th:utext="${entry.content}" id="post-text"></section>
 
@@ -41,12 +45,12 @@
             <section id="auth-section">
                 <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button-post}"></div>
                 <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button-post}"></div>
+                <div th:replace="~{components/auth-components::refreshCsrf}"></div>
                 <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
             </section>
 
             <section th:replace="~{components/comment-components::comment-section}" id="comments-section"></section>
 
-            <script th:src="@{/sidebar.js}"></script>
         </div>
     </main>
 
