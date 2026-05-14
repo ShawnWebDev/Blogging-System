@@ -7,9 +7,11 @@ function initSidebar() {
     console.log("Sidebar Check..");
     const textContainer = document.getElementById("post-text");
     if (!textContainer) return;
-    console.log("Initializing Sidebar..");
 
     const sidebarNavContainer = document.getElementById("sidebar-menu");
+    if (sidebarNavContainer.innerHTML.startsWith('<strong>')) return;
+    console.log("Initializing Sidebar..");
+
     const headers = textContainer.querySelectorAll("h2, h3");
 
     let list = [`<strong>Table Of Contents</strong><ol>`];
@@ -41,7 +43,6 @@ function initSidebar() {
     if (hasNested) list.push('</ul>');
     list.push('</ol>');
     sidebarNavContainer.innerHTML = list.join('');
-    window.sidebarInitialized = true;
 }
 
 function createListItem(id, text) {
