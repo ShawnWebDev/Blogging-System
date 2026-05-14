@@ -1,7 +1,13 @@
 package com.webdev.bloggingsystem.user;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,16 +30,10 @@ public class RegistrationService {
         this.userDetailsService = userDetailsService;
     }
 
-    // TODO
-
     public Instant otpValidUntil(String username) {
         // username is verified to exist at this point.
         Integer userId = appUserDao.findUserIdByUsername(username);
-        Instant expiry = appUserDao.getExpires(userId);
-        if (expiry == null) {
-            return Instant.now();
-        }
-        return expiry;
+        return appUserDao.getExpires(userId);
     }
 
     @Transactional
@@ -53,6 +53,8 @@ public class RegistrationService {
         logger.info("Expires: {}", otpExpires);
 
         appUserDao.insertVerification(otpRand, userId, otpExpires);
+
+        this.sendOtp(appUser.getUsername(), appUser.getEmail());
     }
 
     public int getRandomOtp() {
@@ -74,16 +76,46 @@ public class RegistrationService {
         return otpExpires;
     }
 
+    // todo: figure out email service!!!
     // todo: send otp to email..
-    public void sendOtp(String username) {
+    public void sendOtp(String username, String email) {
         logger.info("Sending OTP for user {}", username);
         //
     }
 
-    // todo: verify entered otp and user from last login in session..
-    public String verifyUser(String token, String username) {
+    public String verifyUser(HttpServletRequest request, String username, int otp) {
+        // [int otp, Instant expiry]
+        Object[] otpDetails = appUserDao.getOtpDetailsByUsername(username);
 
-        return "";
+        if (otpDetails == null) {
+            return "expired";
+        }
+
+        int savedOtp = (int) otpDetails[0];
+        Instant otpValidUntil = (Instant) otpDetails[1];
+
+        if (otp != savedOtp) {
+            return "invalid";
+        }
+        if (otpValidUntil.isBefore(Instant.now())) {
+            return "expired";
+        }
+
+        appUserDao.updateUserActive(username);
+        // create new session, store in fresh SecurityContext
+        HttpSession oldSession = request.getSession(false);
+        oldSession.invalidate();
+        HttpSession newSession = request.getSession(true);
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities()
+        );
+        context.setAuthentication(auth);
+        SecurityContextHolder.setContext(context);
+        newSession.setAttribute("SPRING_SECURITY_CONTEXT", context);
+
+        return "valid";
     }
 
 }

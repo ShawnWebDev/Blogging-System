@@ -16,6 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.FragmentsRendering;
 
 import java.net.URI;
@@ -42,14 +43,7 @@ public class AuthController {
     @GetMapping("/loginSuccess")
     public FragmentsRendering loginSuccess(HttpServletRequest request, HtmxResponse htmxResponse) {
         String referer = request.getHeader("Referer");
-        boolean isFromBlog = false;
-        try {
-            isFromBlog = referer != null && new URI(referer).getPath().equals("/blog");
-        } catch (URISyntaxException e) {
-            logger.warn("{} ** Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", e, referer);
-        }
-
-        if (isFromBlog) {
+        if (this.isFromBlog(referer)) {
             htmxResponse.setPushUrl("/blog");
             return FragmentsRendering
                     .fragment("components/auth-components::logout-button-blog")
@@ -159,6 +153,42 @@ public class AuthController {
     }
 
     @HxRequest
+    @PostMapping("/validate")
+    public Object verifyAccount(Model model, HttpServletRequest request, @RequestParam Integer otp) {
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
+            if (username != null) {
+                logger.info("user: {} --- otp entered: {}", username, otp);
+                String referer = request.getHeader("Referer");
+                String validationStatus = registrationService.verifyUser(request, username, otp);
+                switch (validationStatus) {
+                    case "valid":
+                        try {
+                            String path = new URI(referer).getPath();
+                            return ResponseEntity.ok()
+                                    .header("HX-Redirect", path)
+                                    .build();
+                        } catch (URISyntaxException e) {
+                            logger.warn("{} ** Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", e, referer);
+                        }
+                        break;
+                    case "invalid":
+                        model.addAttribute("validUntil", registrationService.otpValidUntil(username));
+                        model.addAttribute("otpError", "Invalid code!");
+                        return  "components/auth-components::validate-prompt-article";
+                    case "expired":
+                        model.addAttribute("expired", true);
+                        return  "components/auth-components::validate-prompt-article";
+                }
+            }
+        }
+
+        model.addAttribute("loginError", "Unexpected error.");
+        return this.loginView();
+    }
+
+    @HxRequest
     @GetMapping("/resendValidation")
     public Object resendValidation(Model model, HttpServletRequest request) {
         HttpSession httpSession = request.getSession(false);
@@ -166,41 +196,30 @@ public class AuthController {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
             if (username != null) {
                 model.addAttribute("validUntil", registrationService.resetOtp(username));
-                registrationService.sendOtp(username);
+                registrationService.sendOtp(username, null);
             } else {
                 model.addAttribute("loginError", "Invalid username or password.");
                 return this.loginView();
             }
             return  "components/auth-components::validate-prompt-article";
         }
-
         return this.loginView();
     }
-
-    // todo: check if still valid, compare entered value to stored value, reset session, log user in if otp valid
-/*
-    @HxRequest
-    @PostMapping("/validate")
-    public String verifyAccount(@RequestParam String otp, Model model) {
-        HttpSession httpSession = request.getSession(false);
-        if (httpSession != null) {
-            String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
-            if (username != null) {}
-        }
-
-        if (valid) {
-            login...
-            return "/blog" OR "/single-post" depending on referer
-        } else {
-            add error msg to model
-            return  "components/auth-components::validate-prompt-article";
-        }
-    }
-*/
 
     @HxRequest
     @GetMapping("/refresh-token")
     public String refreshToken() {
         return "components/auth-components::csrf-token-oob";
+    }
+
+
+    private boolean isFromBlog(String referer) {
+        boolean isFromBlog = false;
+        try {
+            isFromBlog = referer != null && new URI(referer).getPath().equals("/blog");
+        } catch (URISyntaxException e) {
+            logger.warn("{} ** Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", e, referer);
+        }
+        return isFromBlog;
     }
 }
