@@ -1,8 +1,6 @@
 package com.webdev.bloggingsystem;
 
 import com.webdev.bloggingsystem.user.BlogSystemUserDetailsService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -12,7 +10,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -21,8 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
-    // todo : figure out session timeout refresh prompt, enable rate limiting (Nginx)
+    // todo : enable rate limiting (Nginx)
     // todo : add all endpoints that require ADMIN.
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider passwordFirstDaoProvider, LoginFailureHandler loginFailureHandler) {
@@ -31,7 +27,6 @@ public class SecurityConfig {
                 .csrf(Customizer.withDefaults())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false)
                 )
@@ -47,7 +42,8 @@ public class SecurityConfig {
                                 "/categories/**").hasAuthority("ADMIN")
                         .requestMatchers(
                                 "/comment/createComment",
-                                "/comment/commentComponent/editForm",
+                                "/comment/createComment/commentForm/**",
+                                "/comment/commentComponent/editForm/**",
                                 "/comment/editComment",
                                 "/comment/delete").authenticated()
                         .anyRequest().permitAll()
