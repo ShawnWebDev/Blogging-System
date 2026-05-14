@@ -99,7 +99,7 @@
             <button th:if="${expired}" hx-get="/resendValidation" hx-target="#login-article" hx-swap="outerHTML" class="btn-secondary">Re-send Code</button>
         </span>
         <small th:if="${param.logout}" class="error">You have logged out.</small>
-        <small th:if="${param.sessionExpired}" class="error">The previous session expired. Please log in again.</small>
+        <small th:if="${param.sessionExpired}" class="error">Session has expired. Please log in.</small>
     </p>
 
     <article th:fragment="validate-prompt-article" id="register-article">
