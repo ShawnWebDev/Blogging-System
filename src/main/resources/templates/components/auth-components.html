@@ -61,12 +61,12 @@
         <p th:replace="~{components/auth-components::login-message}"></p>
     </article>
 
-    <article th:fragment="register-article" id="register-article">
+    <article th:fragment="register-article" id="login-article">
         <header>
             <span id="login-dialog-title">Register</span>
             <button title="Close" aria-label="Close" onclick="closeDialog('login-modal')" class="close-btn btn-primary">X</button>
         </header>
-        <form role="form" aria-label="Register form" hx-post="/register" hx-target="#register-article" hx-swap="outerHTML" method="post">
+        <form role="form" aria-label="Register form" hx-post="/register" hx-target="#login-article" hx-swap="outerHTML">
             <label>Email:
                 <input type="text" name="email" placeholder="Email" th:value="${userDto.email}" required/>
                 <small>Your email will only be used to validate your account.</small>
@@ -86,7 +86,7 @@
             </label>
             <input type="submit" value="Register" class="btn-primary"/>
         </form>
-        <p>Back to <button class="btn-secondary" hx-get="/loginForm" hx-target="#register-article" hx-swap="outerHTML">Log In</button></p>
+        <p>Back to <button class="btn-secondary" hx-get="/loginForm" hx-target="#login-article" hx-swap="outerHTML">Log In</button></p>
     </article>
 
     <p th:fragment="login-message" id="login-message" >
@@ -102,7 +102,7 @@
         <small th:if="${param.sessionExpired}" class="error">Session has expired. Please log in.</small>
     </p>
 
-    <article th:fragment="validate-prompt-article" id="register-article">
+    <article th:fragment="validate-prompt-article" id="login-article">
         <header>
             <span id="login-dialog-title">Register</span>
             <button title="Close" aria-label="Close" onclick="closeDialog('login-modal')" class="close-btn btn-primary">X</button>
@@ -110,17 +110,22 @@
         <p>Thank you for registering!</p>
         <p>To validate your account, please check your email for a message from <strong>shawn.porfolio.blog@gmail.com</strong> for your one time password.</p>
         <div>
-            <small th:if="${validUntil}">Valid until: </small>
-            <small th:if="${validUntil}" th:text="${validUntil}" id="timeExpiration"></small>
-            <button th:if="${expired}" hx-get="/resendValidation" hx-target="#login-article" hx-swap="outerHTML" class="btn-secondary">Re-send Code</button>
+            <div th:if="${validUntil}">
+                <small>Valid until: </small><small th:text="${validUntil}" id="timeExpiration"></small>
+            </div>
+            <div th:if="${expired}">
+                <small class="error">Code Expired.</small>
+                <button hx-get="/resendValidation" hx-target="#login-article" hx-swap="outerHTML" class="btn-secondary">Re-send Code</button>
+            </div>
         </div>
-        <form>
+        <form role="form" aria-label="Validate OTP form" hx-post="/validate" hx-target="#login-article" hx-swap="outerHTML" hx-on::after-request="if(event.detail.successful) closeDialog('login-modal')">
             <label>6-Digit Code:
                 <input type="text" placeholder="000000" name="otp" required/>
+                <small th:if="${otpError != null}" th:text="${otpError}" class="error"></small>
             </label>
             <input type="submit" value="Validate" class="btn-primary" id="submitValidation"/>
         </form>
-        <p>Back to <button class="btn-secondary" hx-get="/loginForm" hx-target="#register-article" hx-swap="outerHTML">Log In</button></p>
+        <p>Back to <button class="btn-secondary" hx-get="/loginForm" hx-target="#login-article" hx-swap="outerHTML">Log In</button></p>
     </article>
 
     <!-- for initial load, oob swap requires there be an element with the ID before swapping otherwise it is discarded by HTMX -->
