@@ -21,7 +21,6 @@
     <div th:if="${noAuth}" class="no-auth-msg">
       <small class="error">Please </small>
       <button onclick="openDialog('login-modal')" class="btn-secondary">Login</button>
-      <small class="error">to reply.</small>
     </div>
     <small th:if="${noComment}" th:text="${noComment}" class="error"></small>
   </form>
