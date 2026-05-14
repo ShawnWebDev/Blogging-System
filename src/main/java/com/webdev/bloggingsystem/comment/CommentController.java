@@ -3,8 +3,6 @@ package com.webdev.bloggingsystem.comment;
 import com.webdev.bloggingsystem.errorHandling.BlogEntryException;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,7 +15,6 @@ import org.springframework.web.servlet.view.FragmentsRendering;
 public class CommentController {
 
     private final CommentService commentService;
-    private final static Logger logger = LoggerFactory.getLogger(CommentController.class);
 
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
@@ -76,12 +73,18 @@ public class CommentController {
 
         model.addAttribute("isReply", false);
 
-        if (result.hasErrors()) {
+        String username = commentService.getUsername();
+        boolean hasErrors = false;
+
+        if (username == null) {
+            hasErrors = true;
+            model.addAttribute("noAuth", true);
+        }
+        if (hasErrors || result.hasErrors()) {
             model.addAttribute("commentDto", commentDto);
             return "components/comment-components::comment-form-enabled";
         }
 
-        String username = commentService.getUsername();
         Comment savedComment = commentService.saveComment(commentDto, username);
 
         CreateCommentDto freshDto = new CreateCommentDto();
@@ -128,7 +131,6 @@ public class CommentController {
                 .build();
     }
 
-    // todo: Error handling, author access validation? validate commentId with EntryId?
     @HxRequest
     @PostMapping("/editComment")
     public Object editComment(Model model,
@@ -176,6 +178,4 @@ public class CommentController {
                 .fragment("components/comment-components::edit-single-comment-time-oob")
                 .build();
     }
-
-    // todo: ensure only comment author or ADMIN can modify comments (using Principal)
 }
