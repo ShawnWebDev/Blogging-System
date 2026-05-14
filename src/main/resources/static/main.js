@@ -40,6 +40,7 @@ function closeDialog(elementId) {
 }
 
 function openDialog(elementId) {
+    htmx.ajax('GET', '/refresh-token', {swap: 'none'});
     document.getElementById(elementId).showModal();
 }
 

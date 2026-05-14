@@ -45,12 +45,14 @@
             <section id="auth-section">
                 <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button-post}"></div>
                 <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button-post}"></div>
-                <div th:replace="~{components/auth-components::refreshCsrf}"></div>
                 <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
             </section>
 
             <section th:replace="~{components/comment-components::comment-section}" id="comments-section"></section>
 
+            <script th:if="${param.sessionExpired != null}">
+                openDialog('login-modal');
+            </script>
         </div>
     </main>
 

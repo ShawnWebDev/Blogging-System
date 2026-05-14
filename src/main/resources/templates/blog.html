@@ -26,7 +26,6 @@
             <section id="auth-section">
                 <div sec:authorize="isAuthenticated()" th:replace="~{components/auth-components::logout-button-blog}"></div>
                 <div sec:authorize="isAnonymous()" th:replace="~{components/auth-components::login-button-blog}"></div>
-                <div th:replace="~{components/auth-components::refreshCsrf}"></div>
                 <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
             </section>
 
