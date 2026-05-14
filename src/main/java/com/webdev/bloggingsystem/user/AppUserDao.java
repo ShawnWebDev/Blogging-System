@@ -4,6 +4,8 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Optional;
@@ -55,6 +57,15 @@ public class AppUserDao {
         return keyHolder.getKey().intValue();
     }
 
+    public void updateUserActive(String username) {
+        jdbc.sql(
+                "UPDATE users SET is_active = 1 " +
+                "WHERE username = :username")
+                .param("username", username)
+                .update();
+    }
+
+
     public void insertVerification(int otp, int userId, Instant expires) {
         jdbc.sql(
                 "INSERT INTO verification (otp, user_id, expiry) " +
@@ -82,7 +93,17 @@ public class AppUserDao {
                 "WHERE user_id = :userId")
                     .param("userId", userId)
                     .query(Instant.class)
-                    .optional().orElse(null);
+                    .optional().orElse(Instant.now());
+    }
+
+    public Object[] getOtpDetailsByUsername(String username) {
+        return jdbc.sql(
+                "SELECT v.otp, v.expiry FROM users u " +
+                "JOIN verification v on u.id = v.user_id " +
+                "WHERE u.username = :username")
+                .param("username", username)
+                .query((rs, _) -> this.getOtpDetailsExtractor(rs))
+                .optional().orElse(null);
     }
 
     public boolean existsByUsername(String username) {
@@ -101,5 +122,11 @@ public class AppUserDao {
                     .isPresent();
     }
 
+    private Object[] getOtpDetailsExtractor(ResultSet rs) throws SQLException {
+        Object[] result = new Object[2];
+        result[0] = rs.getInt("otp");
+        result[1] = rs.getTimestamp("expiry").toInstant();
+        return result;
+    };
 
 }
