@@ -9,7 +9,10 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,9 +31,11 @@ public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final RegistrationService registrationService;
+    private final BlogSystemUserDetailsService userDetailsService;
 
-    public AuthController(RegistrationService registrationService) {
+    public AuthController(RegistrationService registrationService, BlogSystemUserDetailsService userDetailsService) {
         this.registrationService = registrationService;
+        this.userDetailsService = userDetailsService;
     }
 
     /**
@@ -115,7 +120,7 @@ public class AuthController {
     }
 
     //todo: if DTO is valid, registration service generates OTP, sends email,
-    // user enters OTP, set their enabled flag using email to get username/role, log them in, delete OTP row in verification table
+    // user enters OTP, set their enabled flag, log them in, delete OTP row in verification table
     @HxRequest
     @PostMapping("/register")
     public String registration(Model model, HttpServletRequest request,
@@ -130,14 +135,14 @@ public class AuthController {
 
         registrationService.registerUser(userRegistrationDto);
 
-        String username = userRegistrationDto.username;
+        String username = userRegistrationDto.getUsername();
         model.addAttribute("validUntil", registrationService.otpValidUntil(username));
         request.getSession(true).setAttribute("PENDING_VERIFICATION_USER", username);
 
         return  "components/auth-components::validate-prompt-article";
     }
 
-    // todo - this opens the form to enter the otp,
+    // sends the form to enter the otp.
     @HxRequest
     @GetMapping("/validate")
     public Object validateView(Model model, HttpServletRequest request) {
@@ -154,32 +159,31 @@ public class AuthController {
 
     @HxRequest
     @PostMapping("/validate")
-    public Object verifyAccount(Model model, HttpServletRequest request, @RequestParam Integer otp) {
+    public Object verifyAccount(Model model, HttpServletRequest request, HtmxResponse htmxResponse, @RequestParam String otp) {
         HttpSession httpSession = request.getSession(false);
         if (httpSession != null) {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
             if (username != null) {
-                logger.info("user: {} --- otp entered: {}", username, otp);
-                String referer = request.getHeader("Referer");
-                String validationStatus = registrationService.verifyUser(request, username, otp);
-                switch (validationStatus) {
-                    case "valid":
-                        try {
-                            String path = new URI(referer).getPath();
-                            return ResponseEntity.ok()
-                                    .header("HX-Redirect", path)
-                                    .build();
-                        } catch (URISyntaxException e) {
-                            logger.warn("{} ** Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", e, referer);
-                        }
-                        break;
-                    case "invalid":
-                        model.addAttribute("validUntil", registrationService.otpValidUntil(username));
-                        model.addAttribute("otpError", "Invalid code!");
-                        return  "components/auth-components::validate-prompt-article";
-                    case "expired":
-                        model.addAttribute("expired", true);
-                        return  "components/auth-components::validate-prompt-article";
+                try {
+                    int otpInt = Integer.parseInt(otp);
+                    logger.info("user: {} --- otp entered: {}", username, otp);
+                    VerificationStatus verificationStatus = registrationService.verifyUser(username, otpInt);
+                    switch (verificationStatus) {
+                        case VALID:
+                            this.authorizeUser(request, username);
+                            htmxResponse.setRetarget("#login-container");
+                            return this.loginSuccess(request, htmxResponse);
+                        case INVALID:
+                            model.addAttribute("validUntil", registrationService.otpValidUntil(username));
+                            model.addAttribute("otpError", "Invalid code!");
+                            return  "components/auth-components::validate-prompt-article";
+                        case EXPIRED:
+                            model.addAttribute("expired", true);
+                            return  "components/auth-components::validate-prompt-article";
+                    }
+                } catch (NumberFormatException e) {
+                    model.addAttribute("otpError", "Please enter a 6 digit number.");
+                    return  "components/auth-components::validate-prompt-article";
                 }
             }
         }
@@ -196,7 +200,6 @@ public class AuthController {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
             if (username != null) {
                 model.addAttribute("validUntil", registrationService.resetOtp(username));
-                registrationService.sendOtp(username, null);
             } else {
                 model.addAttribute("loginError", "Invalid username or password.");
                 return this.loginView();
@@ -221,5 +224,20 @@ public class AuthController {
             logger.warn("{} ** Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", e, referer);
         }
         return isFromBlog;
+    }
+
+    private void authorizeUser(HttpServletRequest request, String username) {
+        // create new session, store in fresh SecurityContext
+        HttpSession oldSession = request.getSession(false);
+        oldSession.invalidate();
+        HttpSession newSession = request.getSession(true);
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities()
+        );
+        context.setAuthentication(auth);
+        SecurityContextHolder.setContext(context);
+        newSession.setAttribute("SPRING_SECURITY_CONTEXT", context);
     }
 }
