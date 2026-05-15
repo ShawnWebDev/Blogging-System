@@ -15,6 +15,7 @@ document.addEventListener("htmx:configRequest", function(e) {
 });
 
 document.body.addEventListener('loginSuccess', function(e) {
+    fetchNewCsrfToken();
     document.querySelectorAll('.no-auth-msg').forEach(el => el.remove());
     document.querySelectorAll('.comment').forEach((el) => {
         let commentId = el.dataset.commentid;
@@ -40,12 +41,16 @@ function closeDialog(elementId) {
 }
 
 function openDialog(elementId) {
-    htmx.ajax('GET', '/refresh-token', {swap: 'none'});
+    fetchNewCsrfToken();
     document.getElementById(elementId).showModal();
 }
 
 function removeElement(elementId) {
     document.getElementById(elementId).remove();
+}
+
+function fetchNewCsrfToken() {
+    htmx.ajax('GET', '/refresh-token', {swap: 'none'});
 }
 
 // TODO -->
