@@ -13,13 +13,13 @@ public class UserRegistrationDto {
     @NotBlank
     @Size(min = 4, max = 64)
     @UniqueUsername
-    String username;
+    private String username;
 
     @NotBlank
     @Size(max = 255)
     @Email
     @UniqueEmail
-    String email;
+    private String email;
 
     @NotBlank
     @Size(min = 8, max = 64)
@@ -27,19 +27,12 @@ public class UserRegistrationDto {
             message = "must have at least 1 digit, 1 uppercase, 1 lowercase. No spaces.")
     @Pattern(regexp = "^(?=.*[.!@#*+_-]).+$",
             message = "must have 1 special character of @#.!*+_-")
-    String password;
+    private String password;
 
     @NotBlank
-    String confirmPassword;
+    private String confirmPassword;
 
     public UserRegistrationDto() {}
-
-    public UserRegistrationDto(String username, String email, String password, String confirmPassword) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.confirmPassword = confirmPassword;
-    }
 
     public String getUsername() {
         return username;
