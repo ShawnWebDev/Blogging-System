@@ -21,6 +21,7 @@
                 </th:block>
             </section>
 
+            <div th:replace="~{components/auth-components::csrf-refresh}"></div>
             <span th:replace="~{components/auth-components::csrf-token}" id="csrf-token"></span>
         </div>
     </main>
