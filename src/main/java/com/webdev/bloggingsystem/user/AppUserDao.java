@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -18,10 +19,12 @@ public class AppUserDao {
         this.jdbc = jdbcClient;
     }
 
-    public Integer findUserIdByUsername(String username) {
+    public Object[] getUserIdEmailByUsername(String username) {
         return jdbc.sql(
-                "SELECT u.id FROM users u WHERE u.username = :username")
-                .param("username", username).query(Integer.class).single();
+                "SELECT u.id, u.email FROM users u WHERE u.username = :username")
+                    .param("username", username)
+                    .query((rs, _) -> this.getUserIdEmailByUsernameExtractor(rs))
+                    .optional().orElse(null);
     }
 
     public Optional<AppUser> findByUsername(String username) {
@@ -54,17 +57,16 @@ public class AppUserDao {
                     .param("email", appUser.getEmail())
                     .update(keyHolder);
 
-        return keyHolder.getKey().intValue();
+        return Objects.requireNonNull(keyHolder.getKey()).intValue();
     }
 
     public void updateUserActive(String username) {
         jdbc.sql(
                 "UPDATE users SET is_active = 1 " +
                 "WHERE username = :username")
-                .param("username", username)
-                .update();
+                    .param("username", username)
+                    .update();
     }
-
 
     public void insertVerification(int otp, int userId, Instant expires) {
         jdbc.sql(
@@ -76,34 +78,31 @@ public class AppUserDao {
                     .update();
     }
 
-    public void updateVerification(int otp, int userId, Instant expires) {
-        jdbc.sql(
-                "UPDATE verification " +
-                "SET otp = :otp, expiry = :expires " +
-                "WHERE user_id = :user_id")
-                .param("otp", otp)
-                .param("user_id", userId)
-                .param("expires", Timestamp.from(expires))
-                .update();
-    }
-
-    public Instant getExpires(int userId) {
+    public Instant getOtpExpirationByUsername(String username) {
         return jdbc.sql(
-                "SELECT expiry FROM verification " +
-                "WHERE user_id = :userId")
-                    .param("userId", userId)
+                "SELECT v.expiry FROM users u " +
+                "JOIN verification v on u.id = v.user_id " +
+                "WHERE u.username = :username")
+                    .param("username", username)
                     .query(Instant.class)
                     .optional().orElse(Instant.now());
     }
 
     public Object[] getOtpDetailsByUsername(String username) {
         return jdbc.sql(
-                "SELECT v.otp, v.expiry FROM users u " +
+                "SELECT v.user_id, v.otp, v.expiry FROM users u " +
                 "JOIN verification v on u.id = v.user_id " +
                 "WHERE u.username = :username")
-                .param("username", username)
-                .query((rs, _) -> this.getOtpDetailsExtractor(rs))
-                .optional().orElse(null);
+                    .param("username", username)
+                    .query((rs, _) -> this.getOtpDetailsExtractor(rs))
+                    .optional().orElse(null);
+    }
+
+    public void deleteOtpDetailsByUserId(int userId) {
+        jdbc.sql(
+                "DELETE from verification WHERE user_id = :user_id")
+                    .param("user_id", userId)
+                    .update();
     }
 
     public boolean existsByUsername(String username) {
@@ -123,10 +122,18 @@ public class AppUserDao {
     }
 
     private Object[] getOtpDetailsExtractor(ResultSet rs) throws SQLException {
-        Object[] result = new Object[2];
-        result[0] = rs.getInt("otp");
-        result[1] = rs.getTimestamp("expiry").toInstant();
+        Object[] result = new Object[3];
+        result[0] = rs.getInt("user_id");
+        result[1] = rs.getInt("otp");
+        result[2] = rs.getTimestamp("expiry").toInstant();
         return result;
-    };
+    }
+
+    private Object[] getUserIdEmailByUsernameExtractor(ResultSet rs) throws SQLException {
+        Object[] result = new Object[2];
+        result[0] = rs.getInt("id");
+        result[1] = rs.getString("email");
+        return result;
+    }
 
 }
