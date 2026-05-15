@@ -2,30 +2,33 @@ package com.webdev.bloggingsystem.errorHandling;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.view.FragmentsRendering;
 
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BlogEntryException.class)
-    public FragmentsRendering handleError(BlogEntryException ex, Model model, HtmxRequest request) {
-        model.addAttribute("errorMsg", ex.getMessage());
+    public String handleError(BlogEntryException ex, Model model, HtmxRequest request, HtmxResponse response) {
+        String message = ex.getMessage();
+        if (message.equals("Username not found!")) {
+            model.addAttribute("loginError", message);
+            response.setRetarget("#login-article");
+            return "components/auth-components::login-article";
+        }
+
+        model.addAttribute("errorMsg", message);
         model.addAttribute("title", "Error!");
 
         if (!request.isHtmxRequest()) {
-            return FragmentsRendering
-                    .fragment("error/error-components")
-                    .build();
+            return "error/error-components";
         }
 
-        return FragmentsRendering
-                .fragment("error/error-components::error-field")
-                .header("HX-Retarget", "#error-field")
-                .build();
+        response.setRetarget("#error-field");
+        return "error/error-components::error-field";
     }
 
 }
