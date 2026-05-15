@@ -204,25 +204,6 @@ a:hover {
     margin-bottom: 3rem;
 }
 
-#categories-modal > article {
-    max-width: 40rem;
-    max-height: calc(100vh - 5rem);
-    min-height: 8rem;
-    overflow-y: scroll;
-}
-#categories-modal > article > header {
-    position: sticky;
-    top: 0;
-}
-
-#categories-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    gap: 0.5rem;
-    padding: 1.5rem;
-}
-
 #post-container, #edit-category-container {
     display: flex;
     flex-direction: column;
@@ -310,11 +291,6 @@ article header h4 {
     border-color: var(--secondary-bg-color);
 }
 
-.active-category {
-    background-color: var(--accent-color);
-    color: #000;
-}
-
 .btn-secondary {
     font-weight: 500;
     background-color: var(--secondary-bg-color);
@@ -328,6 +304,20 @@ article header h4 {
 .btn-secondary:hover {
     color: var(--accent-color);
     border-color: var(--accent-color);
+}
+
+#categories-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem 0;
+}
+
+.active-category, .active-category:hover {
+    background-color: #000;
+    color: var(--accent-color);
+    border-color: var(--accent-color-transparent);
+    cursor: default;
 }
 
 #login-container {
