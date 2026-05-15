@@ -38,7 +38,6 @@
 </section>
 
 <section th:fragment="categories" id="categories">
-<!--    <dialog id="categories-modal" aria-labelledby="categories-container-title" tabindex="-1">-->
     <strong>Filter by category:</strong>
         <div id="categories-container">
             <button class="category-selection btn-secondary"
@@ -49,7 +48,6 @@
                     th:text="${category.name}">
             </button>
         </div>
-<!--    </dialog>-->
     <script>
         function removeActiveCategories() {
             document.querySelectorAll('.category-selection').forEach((el) => {
