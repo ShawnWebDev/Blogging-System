@@ -2,6 +2,7 @@ package com.webdev.bloggingsystem.user;
 
 import com.webdev.bloggingsystem.errorHandling.BlogEntryException;
 
+import jakarta.mail.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,11 +20,14 @@ public class RegistrationService {
 
     private final AppUserDao appUserDao;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
     private final SecureRandom random = new SecureRandom();
 
-    public RegistrationService(AppUserDao appUserDao, PasswordEncoder passwordEncoder) {
+    public RegistrationService(AppUserDao appUserDao, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.appUserDao = appUserDao;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     public Instant otpValidUntil(String username) {
@@ -49,7 +53,12 @@ public class RegistrationService {
 
         appUserDao.insertVerification(otpRand, userId, otpExpires);
 
-        this.sendOtp(appUser.getEmail(), otpRand);
+        try {
+            emailService.sendOtp(appUser.getEmail(), otpRand);
+        } catch (MessagingException e) {
+            logger.error("Error sending OTP", e);
+            throw new BlogEntryException("Error sending OTP.");
+        }
     }
 
     public int getRandomOtp() {
@@ -61,6 +70,7 @@ public class RegistrationService {
         return Instant.now().plusSeconds(900);
     }
 
+    @Transactional
     public Instant resetOtp(String username) {
         // [userId, email]
         Object[] userIdEmail = appUserDao.getUserIdEmailByUsername(username);
@@ -77,20 +87,19 @@ public class RegistrationService {
         appUserDao.deleteOtpDetailsByUserId(userId);
         appUserDao.insertVerification(otpRand, userId, otpExpires);
 
-        this.sendOtp(email, otpRand);
+        try {
+            emailService.sendOtp(email, otpRand);
+        } catch (MessagingException e) {
+            logger.error("Error sending OTP", e);
+            throw new BlogEntryException("Error sending OTP.");
+        }
 
         return otpExpires;
     }
 
-    // todo: figure out email service!!!
-    // todo: send otp to email..
-    public void sendOtp(String email, int otp) {
-        //
-    }
-
     public VerificationStatus verifyUser(String username, int otp) {
         // [int userId, int otp, Instant expiry]
-        // get by username ensures userId matches username
+        // get by username (based on session and correct credentials) ensures userId matches username
         Object[] otpDetails = appUserDao.getOtpDetailsByUsername(username);
         logger.info("Verifying user {}", Arrays.toString(otpDetails));
         if (otpDetails == null || otpDetails.length != 3) {

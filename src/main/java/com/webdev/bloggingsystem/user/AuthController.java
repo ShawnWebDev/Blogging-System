@@ -119,8 +119,6 @@ public class AuthController {
         return "components/auth-components::register-article";
     }
 
-    //todo: if DTO is valid, registration service generates OTP, sends email,
-    // user enters OTP, set their enabled flag, log them in, delete OTP row in verification table
     @HxRequest
     @PostMapping("/register")
     public String registration(Model model, HttpServletRequest request,
@@ -160,6 +158,7 @@ public class AuthController {
     @HxRequest
     @PostMapping("/validate")
     public Object verifyAccount(Model model, HttpServletRequest request, HtmxResponse htmxResponse, @RequestParam String otp) {
+        otp = otp.trim();
         HttpSession httpSession = request.getSession(false);
         if (httpSession != null) {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
