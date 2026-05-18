@@ -51,7 +51,7 @@
             <section th:replace="~{components/comment-components::comment-section}" id="comments-section"></section>
 
             <script th:if="${param.sessionExpired != null}">
-                openDialog('login-modal');
+                document.getElementById('login-modal').showModal();
             </script>
         </div>
     </main>
