@@ -72,10 +72,11 @@
     <section class="comment-content">
       <p th:if="${commentItem.deleted}" th:id="${'comment-content-'+ commentItem.id}"><i th:text="${commentItem.content}"></i></p>
       <p th:unless="${commentItem.deleted}" th:id="${'comment-content-'+ commentItem.id}" th:text="${commentItem.content}"></p>
-      <div th:if="${!commentItem.deleted}" class="reply-form-container" th:id="'reply-form-container-' + ${commentItem.id}">
-        <button class="btn-secondary" th:hx-get="@{/comment/commentComponent/commentForm(entryId = ${commentItem.blogEntryId}, parentCommentId = ${commentItem.id})}"
+      <div class="reply-form-container" th:id="'reply-form-container-' + ${commentItem.id}">
+        <button th:if="${!commentItem.deleted}" class="btn-secondary" th:hx-get="@{/comment/commentComponent/commentForm(entryId = ${commentItem.blogEntryId}, parentCommentId = ${commentItem.id})}"
                 hx-target="closest .reply-form-container" hx-swap="beforeend">Reply</button>
       </div>
+
     </section>
     <section class="comment-replies" th:id="'replies-' + ${commentItem.id}">
       <button  th:if="${commentItem.replyCount > 0}" th:hx-get="@{/comment/replies/{parentId}(parentId = ${commentItem.id})}"
