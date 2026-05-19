@@ -41,15 +41,14 @@ public class SecurityConfig {
                                 "/categories",
                                 "/categories/**").hasAuthority("ADMIN")
                         .requestMatchers(
+                                "/comment/commentComponent/editForm",
                                 "/comment/createComment",
-                                "/comment/createComment/commentForm/**",
-                                "/comment/commentComponent/editForm/**",
                                 "/comment/editComment",
                                 "/comment/delete").authenticated()
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
-                        .loginPage("/blog")
+                        .loginPage("/blog?logout")
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/loginSuccess", true)
                         .failureHandler(loginFailureHandler)
