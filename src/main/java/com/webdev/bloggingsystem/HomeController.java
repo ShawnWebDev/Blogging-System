@@ -26,7 +26,7 @@ public class HomeController {
     @GetMapping("/")
     public Object home(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
         model.addAttribute("title", "Shawn Osborne's Website");
-
+        model.addAttribute("metaDesc", "A software engineer and his personal portfolio and blogging website. By Shawn Osborne.");
         if (!htmxRequest.isHtmxRequest()) {
             model.addAttribute("fromAbout", true);
             return "index";
@@ -43,7 +43,7 @@ public class HomeController {
     @GetMapping("/portfolio")
     public Object portfolio(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
         model.addAttribute("title", "Portfolio | Shawn Osborne");
-
+        model.addAttribute("metaDesc", "A software engineer's personal portfolio page. By Shawn Osborne.");
         if (!htmxRequest.isHtmxRequest()) {
             model.addAttribute("fromPortfolio", true);
             return "portfolio";
@@ -56,24 +56,7 @@ public class HomeController {
                 .build();
     }
 
-    @GetMapping("/contact")
-    public Object contact(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
-        model.addAttribute("title", "Contact | Shawn Osborne");
-
-        if (!htmxRequest.isHtmxRequest()) {
-            model.addAttribute("fromContact", true);
-            return "contact";
-        }
-        pushUrlIfNeeded(htmxRequest, htmxResponse, "/contact");
-
-        return FragmentsRendering
-                .fragment("components/shared-head::head-title")
-                .fragment("contact::contact-main")
-                .build();
-    }
-
-
-    private static void pushUrlIfNeeded(HtmxRequest request, HtmxResponse response, String url) {
+    private void pushUrlIfNeeded(HtmxRequest request, HtmxResponse response, String url) {
         if (request.getCurrentUrl() == null || !request.getCurrentUrl().endsWith(url)) {
             response.setPushUrl(url);
         }

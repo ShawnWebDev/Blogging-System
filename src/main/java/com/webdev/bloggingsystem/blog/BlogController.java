@@ -39,6 +39,7 @@ public class BlogController {
 
     private void populateBlogDashboardModel(Model model, String categoryName, String categoryDescription) {
         model.addAttribute("title", "Blog | Shawn Osborne");
+        model.addAttribute("metaDesc", "A software engineer's personal blog where he talks about technology and life. By Shawn Osborne.");
         model.addAttribute("categoryName", categoryName);    // used for dynamic heading of 'all-posts' fragment with category filter
         model.addAttribute("categoryDesc", categoryDescription);
     }
@@ -47,6 +48,7 @@ public class BlogController {
         model.addAttribute("entry", entry);
         model.addAttribute("fromBlog", true);
         model.addAttribute("title", entry.getSlug());
+        model.addAttribute("metaDesc", entry.getDescription());
         model.addAttribute("commentDto", new CreateCommentDto());
     }
 
