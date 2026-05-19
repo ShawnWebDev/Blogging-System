@@ -21,6 +21,7 @@
     <div th:if="${noAuth}" class="no-auth-msg">
       <small class="error">Please </small>
       <button onclick="openDialog('login-modal')" class="btn-secondary">Login</button>
+      <small class="error">to comment.</small>
     </div>
     <small th:if="${noComment}" th:text="${noComment}" class="error"></small>
   </form>
@@ -78,7 +79,7 @@
     </section>
     <section class="comment-replies" th:id="'replies-' + ${commentItem.id}">
       <button  th:if="${commentItem.replyCount > 0}" th:hx-get="@{/comment/replies/{parentId}(parentId = ${commentItem.id})}"
-              hx-target="closest .comment-replies" hx-swap="outerHTML" class="btn-secondary btn-get-replies" th:text="${'View '+ (commentItem.replyCount > 1 ? ' replies' : ' reply')}"></button>
+              hx-target="closest .comment-replies" hx-swap="outerHTML" class="btn-secondary btn-get-replies" th:text="${'View '+ (commentItem.replyCount > 1 ? commentItem.replyCount + ' replies' : '1 reply')}"></button>
     </section>
   </section>
 
