@@ -63,10 +63,10 @@ CREATE TABLE `posts_categories` (
 );
 
 CREATE TABLE `verification` (
-       `otp` int NOT NULL,
        `user_id` int NOT NULL,
+       `otp` varchar(72) NOT NULL,
        `expiry` datetime NOT NULL,
-       PRIMARY KEY (`otp`),
+       PRIMARY KEY (`user_id`),
        KEY `verification_tokens_users_FK` (`user_id`),
        CONSTRAINT `verification_tokens_users_FK` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-)
+);

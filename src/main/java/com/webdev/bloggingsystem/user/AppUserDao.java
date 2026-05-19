@@ -68,7 +68,7 @@ public class AppUserDao {
                     .update();
     }
 
-    public void insertVerification(int otp, int userId, Instant expires) {
+    public void insertVerification(String otp, int userId, Instant expires) {
         jdbc.sql(
                 "INSERT INTO verification (otp, user_id, expiry) " +
                 "VALUES (:otp, :user_id, :expiry)")
@@ -124,7 +124,7 @@ public class AppUserDao {
     private Object[] getOtpDetailsExtractor(ResultSet rs) throws SQLException {
         Object[] result = new Object[3];
         result[0] = rs.getInt("user_id");
-        result[1] = rs.getInt("otp");
+        result[1] = rs.getString("otp");
         result[2] = rs.getTimestamp("expiry").toInstant();
         return result;
     }
