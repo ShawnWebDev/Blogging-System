@@ -22,7 +22,7 @@ public class EmailService {
             message.setText(
                     "<p>Enter this 6 digit code to validate your account:</p>" +
                     "<p>" + otp + "</p>" +
-                    "<p>If you closed the validation window, you must login using the credentials you registered with first.</p>",
+                    "<p>If you closed or refreshed the tab or window, you must log in using the credentials you registered with and follow the prompts.</p>",
                     true);
         });
     }
