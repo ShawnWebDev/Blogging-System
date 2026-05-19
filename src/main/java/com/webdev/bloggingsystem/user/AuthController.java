@@ -1,5 +1,6 @@
 package com.webdev.bloggingsystem.user;
 
+import com.webdev.bloggingsystem.errorHandling.BlogEntryException;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +27,7 @@ import org.springframework.web.servlet.view.FragmentsRendering;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.Optional;
 
 @Controller
 public class AuthController {
@@ -56,10 +59,12 @@ public class AuthController {
                     .header("HX-Trigger", "loginSuccess")
                     .build();
         }
+        Optional<Authentication> authentication = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication());
+        if (authentication.isEmpty()) throw new BlogEntryException("Bad Credentials");
         return FragmentsRendering
                 .fragment("components/auth-components::logout-button-post")
                 .fragment("components/auth-components::csrf-token-oob") // to refresh the csrf token with an out-of-band swap
-                .header("HX-Trigger", "{\"loginSuccess\": \""+ SecurityContextHolder.getContext().getAuthentication().getName() + "\"}")
+                .header("HX-Trigger", "{\"loginSuccess\": \""+ authentication.get().getName() + "\"}")
                 .build();
     }
 
@@ -163,10 +168,9 @@ public class AuthController {
         if (httpSession != null) {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
             if (username != null) {
-                try {
-                    int otpInt = Integer.parseInt(otp);
+                if (this.isValidOtp(otp)){
                     logger.info("user: {} --- otp entered: {}", username, otp);
-                    VerificationStatus verificationStatus = registrationService.verifyUser(username, otpInt);
+                    VerificationStatus verificationStatus = registrationService.verifyUser(username, otp);
                     switch (verificationStatus) {
                         case VALID:
                             this.authorizeUser(request, username);
@@ -180,13 +184,12 @@ public class AuthController {
                             model.addAttribute("expired", true);
                             return  "components/auth-components::validate-prompt-article";
                     }
-                } catch (NumberFormatException e) {
+                } else {
                     model.addAttribute("otpError", "Please enter a 6 digit number.");
                     return  "components/auth-components::validate-prompt-article";
                 }
             }
         }
-
         model.addAttribute("loginError", "Unexpected error.");
         return this.loginView();
     }
@@ -214,6 +217,15 @@ public class AuthController {
         return "components/auth-components::csrf-token-oob";
     }
 
+
+    private boolean isValidOtp(String otp) {
+        if (otp == null || otp.length() != 6) return false;
+        char[] otpChars = otp.toCharArray();
+        for (char c : otpChars) {
+            if (!Character.isDigit(c)) return false;
+        }
+        return true;
+    }
 
     private boolean isFromBlog(String referer) {
         boolean isFromBlog = false;

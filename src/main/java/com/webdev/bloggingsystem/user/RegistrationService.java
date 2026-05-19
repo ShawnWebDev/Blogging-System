@@ -51,7 +51,7 @@ public class RegistrationService {
         Instant otpExpires = this.getExpirationFromNow();
         logger.info("Expires: {}", otpExpires);
 
-        appUserDao.insertVerification(otpRand, userId, otpExpires);
+        appUserDao.insertVerification(passwordEncoder.encode(String.valueOf(otpRand)), userId, otpExpires);
 
         try {
             emailService.sendOtp(appUser.getEmail(), otpRand);
@@ -85,7 +85,7 @@ public class RegistrationService {
         String email = (String) userIdEmail[1];
 
         appUserDao.deleteOtpDetailsByUserId(userId);
-        appUserDao.insertVerification(otpRand, userId, otpExpires);
+        appUserDao.insertVerification(passwordEncoder.encode(String.valueOf(otpRand)), userId, otpExpires);
 
         try {
             emailService.sendOtp(email, otpRand);
@@ -97,7 +97,7 @@ public class RegistrationService {
         return otpExpires;
     }
 
-    public VerificationStatus verifyUser(String username, int otp) {
+    public VerificationStatus verifyUser(String username, String otp) {
         // [int userId, int otp, Instant expiry]
         // get by username (based on session and correct credentials) ensures userId matches username
         Object[] otpDetails = appUserDao.getOtpDetailsByUsername(username);
@@ -107,10 +107,10 @@ public class RegistrationService {
         }
 
         int userId = (int) otpDetails[0];
-        int savedOtp = (int) otpDetails[1];
+        String savedOtp = (String) otpDetails[1];
         Instant otpValidUntil = (Instant) otpDetails[2];
 
-        if (otp != savedOtp) {
+        if (!passwordEncoder.matches(otp, savedOtp)) {
             return VerificationStatus.INVALID;
         }
         if (otpValidUntil.isBefore(Instant.now())) {
