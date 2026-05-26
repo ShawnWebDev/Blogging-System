@@ -23,16 +23,17 @@ public class BlogEntryDao {
 
         jdbc.sql(
                 "INSERT INTO blog_entries (content, title, description, slug, thumbnail_url, thumbnail_alt, in_progress) " +
-                "VALUES (:content, :title, :description, :slug, :thumbnail_url, :thumbnail_alt, :in_progress)")
+                "VALUES (:content, :title, :description, :slug, :thumbnailUrl, :thumbnailAlt, :in_progress)")
                     .param("content", blogEntry.getContent())
                     .param("title", blogEntry.getTitle())
                     .param("slug", blogEntry.getSlug())
                     .param("description", blogEntry.getDescription())
-                    .param("thumbnail_url", blogEntry.getThumbnailUrl())
-                    .param("thumbnail_alt", blogEntry.getThumbnailAlt())
+                    .param("thumbnailUrl", blogEntry.getThumbnailUrl())
+                    .param("thumbnailAlt", blogEntry.getThumbnailAlt())
                     .param("in_progress", blogEntry.getInProgress())
                     .update(keyHolder);
 
+        if (keyHolder.getKey() == null) throw new RuntimeException("Insert failure, key is null!");
         return keyHolder.getKey().intValue();
     }
 
@@ -46,20 +47,6 @@ public class BlogEntryDao {
                 "WHERE b.id = :id " +
                 "GROUP BY b.id")
                     .param("id", id)
-                    .query((rs, _) -> fullBlogEntryExtractor(rs))
-                    .optional();
-    }
-
-    public Optional<BlogEntry> findBySlug(String slug) {
-        return jdbc.sql(
-                "SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt, b.in_progress, " +
-                    "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
-                "FROM blog_entries b " +
-                "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
-                "LEFT JOIN categories c ON c.id = pc.category_id " +
-                "WHERE b.slug = :slug " +
-                "GROUP BY b.id")
-                    .param("slug", slug)
                     .query((rs, _) -> fullBlogEntryExtractor(rs))
                     .optional();
     }
@@ -83,11 +70,8 @@ public class BlogEntryDao {
         return jdbc.sql(
                 "SELECT b.id, b.slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt " +
                 "FROM blog_entries b " +
-                "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
-                "LEFT JOIN categories c ON c.id = pc.category_id " +
                 "WHERE NOT b.in_progress " +
-                "GROUP BY b.id " +
-                "ORDER BY b.id")
+                "ORDER BY b.created_at DESC")
                     .query((rs, _) -> simpleBlogEntryExtractor(rs))
                     .list();
     }
@@ -98,14 +82,12 @@ public class BlogEntryDao {
         return jdbc.sql(
                 "SELECT b.id, b.slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt " +
                 "FROM blog_entries b " +
-                "JOIN posts_categories pc ON pc.post_id = b.id " +
-                "JOIN categories c ON c.id = pc.category_id " +
-                "WHERE b.id IN (" +
+                "WHERE b.id IN ( " +
                     "SELECT pc_sub.post_id FROM posts_categories pc_sub " +
                     "JOIN categories c_sub ON c_sub.id = pc_sub.category_id " +
-                    "WHERE c_sub.category_name = :categoryName) AND NOT b.in_progress " +
-                "GROUP BY b.id " +
-                "ORDER BY b.id")
+                    "WHERE c_sub.category_name = :categoryName " +
+                        ") AND NOT b.in_progress " +
+                "ORDER BY b.created_at DESC")
                     .param("categoryName", categoryName)
                     .query((rs, _) -> simpleBlogEntryExtractor(rs))
                     .list();
@@ -113,13 +95,10 @@ public class BlogEntryDao {
 
     public List<SimpleBlogEntryDto> findAllSimpleInProgress () {
         return jdbc.sql(
-                "SELECT b.id,b. slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt " +
+                "SELECT b.id, b.slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt " +
                 "FROM blog_entries b " +
-                "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
-                "LEFT JOIN categories c ON c.id = pc.category_id " +
                 "WHERE b.in_progress " +
-                "GROUP BY b.id " +
-                "ORDER BY b.id")
+                "ORDER BY b.created_at")
                     .query((rs, _) -> simpleBlogEntryExtractor(rs))
                     .list();
     }
@@ -142,27 +121,25 @@ public class BlogEntryDao {
 
     public int deleteById(int id) {
         return jdbc.sql(
-                "DELETE from blog_entries WHERE id = :id")
+                "DELETE FROM blog_entries WHERE id = :id")
                     .param("id", id)
                     .update();
     }
 
 
     private SimpleBlogEntryDto simpleBlogEntryExtractor(ResultSet rs) throws SQLException {
-        Timestamp createdAt = rs.getTimestamp("created_at");
         return new SimpleBlogEntryDto(
                 rs.getInt("id"),
                 rs.getString("slug"),
                 rs.getString("title"),
                 rs.getString("description"),
-                createdAt == null ? null : createdAt.toInstant(),
+                rs.getTimestamp("created_at").toInstant(),
                 rs.getString("thumbnail_url"),
                 rs.getString("thumbnail_alt")
         );
     }
 
     private BlogEntry fullBlogEntryExtractor(ResultSet rs) throws SQLException {
-        Timestamp createdAt = rs.getTimestamp("created_at");
         Timestamp updatedAt = rs.getTimestamp("updated_at");
         String concatCategories = rs.getString("category_list");
         return new BlogEntry(
@@ -170,7 +147,7 @@ public class BlogEntryDao {
                 rs.getString("title"),
                 rs.getString("description"),
                 rs.getString("content"),
-                createdAt == null ? null : createdAt.toInstant(),
+                rs.getTimestamp("created_at").toInstant(),
                 updatedAt == null ? null : updatedAt.toInstant(),
                 rs.getString("slug"),
                 concatCategories == null ? List.of() : List.of(concatCategories.split(",")),
