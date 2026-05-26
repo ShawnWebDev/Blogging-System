@@ -24,14 +24,15 @@ public class CommentDao {
     // LEFT JOIN ensures top-level comments without replies are still included.
     public List<Comment> getParentCommentsByPostId(int postId) {
         return jdbc.sql(
-                "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, c.is_deleted, u.username, " +
+                "SELECT c.id, c.parent_comment_id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, c.is_deleted, u.username, " +
                     "COALESCE(r.reply_count, 0) AS reply_count " +
                 "FROM comments c " +
                 "JOIN users u ON c.author_id = u.id " +
                 "LEFT JOIN ( " +
                     "SELECT parent_comment_id, COUNT(*) AS reply_count " +
-                    "FROM comments WHERE parent_comment_id IS NOT NULL " +
-                    "GROUP BY parent_comment_id) r " +
+                    "FROM comments sub_c " +
+                    "WHERE sub_c.parent_comment_id IS NOT NULL AND sub_c.post_id = :postId " +
+                    "GROUP BY sub_c.parent_comment_id) r " +
                     "ON r.parent_comment_id = c.id " +
                 "WHERE c.post_id = :postId AND c.parent_comment_id IS NULL " +
                 "ORDER BY c.created_at desc")
@@ -40,33 +41,44 @@ public class CommentDao {
                     .list();
     }
 
-    public List<Comment> getReplyCommentsByParentId(int parentCommentId) {
+    public List<Comment> getReplyCommentsByParentId(int parentCommentId, int postId) {
         return jdbc.sql(
-                "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, c.is_deleted, u.username, " +
+                "SELECT c.id, c.parent_comment_id, c.content, c.created_at, c.updated_at, c.post_id, c.author_id, c.is_deleted, u.username, " +
                     "COALESCE(r.reply_count, 0) AS reply_count " +
                 "FROM comments c " +
                 "JOIN users u ON c.author_id = u.id " +
                 "LEFT JOIN ( " +
-                    "SELECT parent_comment_id, COUNT(*) AS reply_count " +
-                    "FROM comments WHERE parent_comment_id IS NOT NULL " +
-                    "GROUP BY parent_comment_id) r " +
+                    "SELECT sub_c.parent_comment_id, COUNT(*) AS reply_count " +
+                    "FROM comments sub_c " +
+                    "WHERE sub_c.parent_comment_id IS NOT NULL AND sub_c.post_id = :postId " +
+                    "GROUP BY sub_c.parent_comment_id) r " +
                     "ON r.parent_comment_id = c.id " +
-                "WHERE c.parent_comment_id = :parentCommentId " +
+                "WHERE c.post_id = :postId AND c.parent_comment_id = :parentCommentId " +
                 "ORDER BY c.created_at desc")
                     .param("parentCommentId", parentCommentId)
+                    .param("postId", postId)
                     .query((rs, _) -> commentExtractor(rs))
                     .list();
     }
 
     public Optional<Comment> getCommentById(int commentId) {
         return jdbc.sql(
-                "SELECT c.id, c.content, c.created_at, c.updated_at, c.post_id, c.parent_comment_id, c.author_id, c.is_deleted, u.username, 0 AS reply_count " +
+                "SELECT c.id, c.parent_comment_id, c.content, c.created_at, c.updated_at, c.post_id, c.parent_comment_id, c.author_id, c.is_deleted, u.username, 0 AS reply_count " +
                 "FROM comments c " +
                 "JOIN users u ON c.author_id = u.id " +
                 "WHERE c.id = :commentId")
                     .param("commentId", commentId)
-                    .query((rs, _) -> fullCommentExtractor(rs))
+                    .query((rs, _) -> commentExtractor(rs))
                     .optional();
+    }
+
+    public boolean hasReplies(int commentId) {
+        return jdbc.sql(
+                "SELECT 1 FROM comments " +
+                "WHERE parent_comment_id = :commentId LIMIT 1")
+                    .param("commentId", commentId)
+                    .query(Integer.class)
+                    .optional().isPresent();
     }
 
     public Optional<String> getCommentContentByCommentId(int commentId) {
@@ -81,7 +93,7 @@ public class CommentDao {
     public boolean existsCommentByIdInEntry(int commentId, int entryId) {
         return jdbc.sql(
                 "SELECT 1 FROM comments c " +
-                "WHERE c.id = :commentId AND c.post_id = :entryId")
+                "WHERE c.id = :commentId AND c.post_id = :entryId LIMIT 1")
                     .param("commentId", commentId)
                     .param("entryId", entryId)
                     .query(Integer.class)
@@ -99,16 +111,32 @@ public class CommentDao {
                 .param("postId", comment.getBlogEntryId())
                 .update(keyHolder);
 
+        if (keyHolder.getKey() == null) throw new RuntimeException("Insert failure, key is null!");
         return keyHolder.getKey().intValue();
     }
 
-    public int update(int commentId, String content, boolean isDeleted) {
+    public int update(int commentId, String content) {
         return jdbc.sql(
                 "UPDATE comments " +
-                "SET content = :content, is_deleted = :isDeleted " +
+                "SET content = :content, is_deleted = false " +
                 "WHERE id = :commentId")
                     .param("content", content)
-                    .param("isDeleted", isDeleted)
+                    .param("commentId", commentId)
+                    .update();
+    }
+
+    public int softDelete(int commentId) {
+        return jdbc.sql(
+                "UPDATE comments " +
+                "SET content = 'Comment Deleted', is_deleted = true " +
+                "WHERE id = :commentId")
+                    .param("commentId", commentId)
+                    .update();
+    }
+
+    public int hardDelete(int commentId) {
+        return jdbc.sql(
+                "DELETE FROM comments WHERE id = :commentId")
                     .param("commentId", commentId)
                     .update();
     }
@@ -125,28 +153,10 @@ public class CommentDao {
                 rs.getTimestamp("created_at").toInstant(),
                 updatedAt != null ? updatedAt.toInstant() : null,
                 rs.getInt("post_id"),
+                rs.getObject("parent_comment_id", Integer.class),
                 authorDto,
                 rs.getInt("reply_count"),
                 rs.getBoolean("is_deleted")
         );
     }
-
-    private Comment fullCommentExtractor(ResultSet rs) throws SQLException {
-        AuthorDto authorDto = new AuthorDto(
-                rs.getInt("author_id"), rs.getString("username")
-        );
-        Timestamp updatedAt = rs.getTimestamp("updated_at");
-        return new Comment(
-                rs.getInt("id"),
-                rs.getString("content"),
-                rs.getTimestamp("created_at").toInstant(),
-                updatedAt != null ? updatedAt.toInstant() : null,
-                rs.getInt("post_id"),
-                rs.getInt("parent_comment_id"),
-                authorDto,
-                rs.getInt("reply_count"),
-                rs.getBoolean("is_deleted")
-        );
-    }
-
 }
