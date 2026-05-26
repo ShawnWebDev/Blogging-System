@@ -135,6 +135,7 @@ nav ul, ul.group {
     box-shadow: 0 -2px 0 var(--accent-color-less-transparent),
     1px 0 0 var(--color-light), -1px 0 0 var(--color-light);
     background-color: var(--secondary-bg-color);
+    color: var(--main-text-color);
 }
 
 .nav-item.active {
@@ -382,7 +383,7 @@ article header h4 {
 #sidebar {
     flex: 1;
     padding-top: 3rem;
-    min-width: 20rem;
+    min-width: 18rem;
     font-size: 0.85rem;
     height: inherit;
 }
@@ -463,6 +464,9 @@ article header h4 {
 }
 #comment-container > .comment {
     margin-bottom: 2rem;
+}
+#comment-list:has(.comment) > .no-comments-msg {
+    display: none;
 }
 .comment {
     background-color: var(--transparent-color-light);
@@ -776,13 +780,10 @@ dialog #login-message {
         position: sticky;
         top: 0;
         padding: 0 0 0 4vw;
-        width: 20rem;
+        width: 18rem;
     }
     nav {
         width: 100%;
-    }
-    .nav-item {
-        font-weight: 600;
     }
     #main-content {
         padding: 1.25rem 4vw 2rem 4vw;
@@ -828,6 +829,7 @@ dialog #login-message {
         padding: 0.75rem 0.5rem 0.75rem 1rem;
         box-shadow: -1px 0 0 var(--accent-color-transparent), 0 0 2px var(--transparent-color-light);
         clip-path: inset(-3px round 14px 0 0 14px);
+        font-weight: 600;
     }
     .nav-item:hover {
         box-shadow: -2px 0 0 var(--accent-color);
