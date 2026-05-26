@@ -76,10 +76,9 @@
         <button th:if="${!commentItem.deleted}" class="btn-secondary" th:hx-get="@{/comment/commentComponent/commentForm(entryId = ${commentItem.blogEntryId}, parentCommentId = ${commentItem.id})}"
                 hx-target="closest .reply-form-container" hx-swap="beforeend">Reply</button>
       </div>
-
     </section>
     <section class="comment-replies" th:id="'replies-' + ${commentItem.id}">
-      <button  th:if="${commentItem.replyCount > 0}" th:hx-get="@{/comment/replies/{parentId}(parentId = ${commentItem.id})}"
+      <button  th:if="${commentItem.replyCount > 0}" th:hx-get="@{/comment/replies(parentId = ${commentItem.id}, entryId = ${commentItem.blogEntryId})}"
               hx-target="closest .comment-replies" hx-swap="outerHTML" class="btn-secondary btn-get-replies" th:text="${'View '+ (commentItem.replyCount > 1 ? commentItem.replyCount + ' replies' : '1 reply')}"></button>
     </section>
   </section>
@@ -89,7 +88,7 @@
     <section th:replace="~{components/comment-components::single-comment(${commentItem}, ${isReply})}"></section>
   </div>
 
-  <!--used for swapping in single reply comment to #replies-parentId after submission-->
+  <!--used for swapping in single reply comment to top of #replies-parentId container after submission-->
   <div th:fragment="single-reply-oob" th:hx-swap-oob="'afterbegin:#replies-' + ${commentItem.parentCommentId}">
     <section th:replace="~{components/comment-components::single-comment(${commentItem}, ${isReply})}"></section>
   </div>
@@ -110,8 +109,8 @@
   <!--contains all comments after user clicks "View Comments"-->
   <section th:fragment="comment-container" id="comment-container">
     <h4>Comments</h4>
-    <p th:if="${comments.size() == 0}">No comments...</p>
     <div id="comment-list">
+      <p th:if="${comments.size() == 0}" class="no-comments-msg">No comments...</p>
       <th:block th:each="commentObj : ${comments}">
         <section th:replace="~{components/comment-components::single-comment(${commentObj}, false)}"></section>
       </th:block>
@@ -134,7 +133,7 @@
 
     <section id="comment-container">
       <h4>Comments</h4>
-      <button class="btn-secondary margin-bottom" th:hx-get="@{/comment/all/{entryId}(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms show:#auth-section:top">View Comments</button>
+      <button class="btn-secondary margin-bottom" th:hx-get="@{/comment/all(entryId = ${entry.id})}" hx-target="#comment-container" hx-swap="outerHTML swap:150ms show:#auth-section:top">View Comments</button>
       <div id="comment-list"></div>
     </section>
   </section>
