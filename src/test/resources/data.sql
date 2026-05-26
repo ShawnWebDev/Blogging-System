@@ -1,11 +1,10 @@
 
-INSERT INTO `users` (username, password, date_created, is_active, role)
+INSERT INTO `users` (username, password, date_created, is_active, role, email)
 VALUES
-    ('TestAdmin', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', '2025-10-05', TRUE, 'ADMIN'),
-    ('TestUser', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', '2025-10-05', TRUE, 'USER'),
-    ('TestUser2', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', '2025-10-15', TRUE, 'USER'),
-    ('Te5tU$er', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', '2026-01-03', TRUE, 'USER');
-
+    ('TestAdmin', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', '2025-10-05', TRUE, 'ADMIN', 'TestAdmin@email.com'),
+    ('TestUser', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', '2025-10-05', TRUE, 'USER', 'TestUser@email.com'),
+    ('TestUser2', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', '2025-10-15', TRUE, 'USER', 'TestUser2@email.com'),
+    ('Te5tU$er', '$2a$10$bKQEC46DI0S.2SlYfTxLZOM9dabIOFaeQ/eOW8raycdxgopNVAc8y', '2026-01-03', FALSE, 'USER', 'Te5tU$er@email.com');
 
 INSERT INTO `categories` (category_name, description)
 VALUES
@@ -33,8 +32,8 @@ VALUES
     (3,3),
     (4,3),
     (5,1),
-    (6, 1),
-    (6, 3);
+    (6,1),
+    (6,3);
 
 INSERT INTO `comments` (content, created_at, updated_at, parent_comment_id, author_id, post_id)
 VALUES
