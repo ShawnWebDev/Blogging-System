@@ -1,8 +1,9 @@
 package com.webdev.bloggingsystem.comment;
 
 import com.webdev.bloggingsystem.errorHandling.BlogEntryException;
-import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.*;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -51,18 +52,18 @@ public class CommentController {
     }
 
     @HxRequest
-    @GetMapping("/all/{entryId}")
-    public String allParentComments(Model model, @PathVariable Integer entryId) {
+    @GetMapping("/all")
+    public String allParentComments(Model model, @RequestParam Integer entryId) {
         model.addAttribute("comments", commentService.getParentCommentsByPostId(entryId));
 
         return "components/comment-components::comment-container";
     }
 
     @HxRequest
-    @GetMapping("/replies/{parentId}")
-    public String replyComments(Model model, @PathVariable Integer parentId) {
-        model.addAttribute("replyComments", commentService.getReplyCommentsByParentId(parentId));
-
+    @GetMapping("/replies")
+    public String replyComments(Model model, @RequestParam Integer parentId, @RequestParam Integer entryId) {
+        model.addAttribute("replyComments", commentService.getReplyCommentsByParentId(parentId, entryId));
+        model.addAttribute("parentId", parentId);
         return "components/comment-components::comment-replies";
     }
 
@@ -107,16 +108,16 @@ public class CommentController {
         model.addAttribute("isReply", true);
 
         boolean hasErrors = false;
-        String commentValidation = commentService.validateCommentInEntry(commentDto.parentCommentId, commentDto.entryId);
+        boolean commentValidation = commentService.validateCommentInEntry(commentDto.parentCommentId, commentDto.entryId);
         String username = commentService.getUsername();
 
         if (username == null) {
             hasErrors = true;
             model.addAttribute("noAuth", true);
         }
-        if (commentDto.parentCommentId != null && !commentValidation.isEmpty()) {
+        if (commentDto.parentCommentId != null && !commentValidation) {
             hasErrors = true;
-            model.addAttribute("noComment", commentValidation);
+            model.addAttribute("noComment", "Ids do not match!");
         }
         if (hasErrors || result.hasErrors()) {
             model.addAttribute("commentDto", commentDto);
@@ -137,11 +138,11 @@ public class CommentController {
                             @Valid @ModelAttribute("commentDto") CreateCommentDto commentDto, BindingResult result) {
 
         boolean hasErrors = false;
-        String commentValidation = commentService.validateCommentInEntry(commentDto.commentId, commentDto.entryId);
+        boolean commentValidation = commentService.validateCommentInEntry(commentDto.commentId, commentDto.entryId);
 
-        if (!commentValidation.isEmpty()) {
+        if (!commentValidation) {
             hasErrors = true;
-            model.addAttribute("noComment", commentValidation);
+            model.addAttribute("noComment", "Ids do not match!");
         }
         if (commentDto.getContent().equals("Comment deleted.")) {
             hasErrors = true;
@@ -165,17 +166,26 @@ public class CommentController {
 
     @HxRequest
     @DeleteMapping("/delete")
-    public Object deleteComment(Model model, @RequestParam Integer entryId, @RequestParam Integer commentId) {
-        String commentValidation = commentService.validateCommentInEntry(commentId, entryId);
-        if (!commentValidation.isEmpty()) {
-            throw new BlogEntryException(commentValidation);
+    public Object deleteComment(Model model, @RequestParam Integer entryId, @RequestParam Integer commentId,
+                                HtmxResponse htmxResponse) {
+        boolean commentValidation = commentService.validateCommentInEntry(commentId, entryId);
+        if (!commentValidation) {
+            throw new BlogEntryException("Ids do not match!");
         };
 
-        model.addAttribute("commentItem", commentService.deleteComment(commentId));
+        Comment deletedComment = commentService.deleteComment(commentId);
+        if (deletedComment == null) {
+            htmxResponse.setRetarget("#comment-" + commentId);
+            htmxResponse.setReswap(HtmxReswap.delete());
+            return ResponseEntity.ok().build();
+        }
+
+        model.addAttribute("commentItem", deletedComment);
 
         return FragmentsRendering
                 .fragment("components/comment-components::edit-single-comment-content-oob")
                 .fragment("components/comment-components::edit-single-comment-time-oob")
                 .build();
-    }
+        }
+
 }
