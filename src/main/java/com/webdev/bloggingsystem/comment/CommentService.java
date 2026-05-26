@@ -21,12 +21,12 @@ public class CommentService {
         this.appUserDao = appUserDao;
     }
 
-    List<Comment> getParentCommentsByPostId(Integer entryId) {
-        return commentDao.getParentCommentsByPostId(entryId);
+    List<Comment> getParentCommentsByPostId(Integer postId) {
+        return commentDao.getParentCommentsByPostId(postId);
     }
 
-    List<Comment> getReplyCommentsByParentId(Integer parentId) {
-        return commentDao.getReplyCommentsByParentId(parentId);
+    List<Comment> getReplyCommentsByParentId(Integer parentId, Integer postId) {
+        return commentDao.getReplyCommentsByParentId(parentId, postId);
     }
 
     String getCommentContentByCommentId(Integer commentId) {
@@ -62,15 +62,14 @@ public class CommentService {
                 .orElseThrow(() -> new BlogEntryException("Comment not found with id: " + commentId));
 
         this.validateAuthor(username, commentToEdit.getAuthor().id());
-
         commentToEdit.setContent(dto.content);
-        commentToEdit.setDeleted(false);
 
-        int isUpdated = commentDao.update(commentToEdit.getId(), commentToEdit.getContent(), commentToEdit.isDeleted());
+        // only updates content
+        int isUpdated = commentDao.update(commentToEdit.getId(), commentToEdit.getContent());
 
         if (isUpdated == 1) {
-            return commentDao.getCommentById(commentToEdit.getId())
-                    .orElseThrow(() -> new BlogEntryException("Comment not found with id: " + commentToEdit.getId()));
+            // if isUpdated, then comment exists, do not need to fetch again as content is updated with original object.
+            return commentToEdit;
         } else  {
             throw new BlogEntryException("Comment not updated.");
         }
@@ -89,14 +88,21 @@ public class CommentService {
                 .orElseThrow(() -> new BlogEntryException("Comment not found with id: " + commentId));
 
         int isUpdated = 0;
+        boolean isHardDelete = false;
+        int id = commentToEdit.getId();
         if (!commentToEdit.getContent().equals("Comment deleted.") &&
                 (isAdmin || this.validateAuthor(username, commentToEdit.getAuthor().id()))) {
-            commentToEdit.setContent("Comment deleted.");
-            commentToEdit.setDeleted(true);
-            isUpdated = commentDao.update(commentToEdit.getId(), commentToEdit.getContent(), commentToEdit.isDeleted());
+            if (commentDao.hasReplies(id)) {
+                isUpdated = commentDao.softDelete(id);
+            } else {
+                isUpdated = commentDao.hardDelete(id);
+                isHardDelete = true;
+            }
         }
 
-        if (isUpdated == 1) {
+        if (isUpdated == 1 && isHardDelete) {
+            return null;
+        } else if (isUpdated == 1) {
             return commentDao.getCommentById(commentToEdit.getId())
                     .orElseThrow(() -> new BlogEntryException("Comment not found with id: " + commentToEdit.getId()));
         } else  {
@@ -112,11 +118,8 @@ public class CommentService {
         return auth.getName();
     }
 
-    String validateCommentInEntry(Integer commentId, Integer entryId) {
-        if (!commentDao.existsCommentByIdInEntry(commentId, entryId)) {
-            return "Ids do not match!";
-        }
-        return "";
+    boolean validateCommentInEntry(Integer commentId, Integer entryId) {
+        return commentDao.existsCommentByIdInEntry(commentId, entryId);
     }
 
     boolean validateAuthor(String username, Integer commentAuthorId) {
