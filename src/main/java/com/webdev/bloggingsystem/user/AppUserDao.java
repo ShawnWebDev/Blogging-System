@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
@@ -74,7 +73,7 @@ public class AppUserDao {
                 "VALUES (:otp, :user_id, :expiry)")
                     .param("otp", otp)
                     .param("user_id", userId)
-                    .param("expiry", Timestamp.from(expires))
+                    .param("expiry", expires)
                     .update();
     }
 
@@ -85,7 +84,7 @@ public class AppUserDao {
                 "WHERE u.username = :username")
                     .param("username", username)
                     .query(Instant.class)
-                    .optional().orElse(Instant.now());
+                    .optional().orElse(Instant.parse("2011-11-11T11:00:00Z"));
     }
 
     public Object[] getOtpDetailsByUsername(String username) {
@@ -135,5 +134,4 @@ public class AppUserDao {
         result[1] = rs.getString("email");
         return result;
     }
-
 }
