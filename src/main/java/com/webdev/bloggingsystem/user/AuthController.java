@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -182,7 +183,8 @@ public class AuthController {
                             return  "components/auth-components::validate-prompt-article";
                         case EXPIRED:
                             model.addAttribute("expired", true);
-                            return  "components/auth-components::validate-prompt-article";
+                            model.addAttribute("loginError", "Your one time password has expired.");
+                            return this.loginView();
                     }
                 } else {
                     model.addAttribute("otpError", "Please enter a 6 digit number.");
@@ -238,17 +240,23 @@ public class AuthController {
     }
 
     private void authorizeUser(HttpServletRequest request, String username) {
-        // create new session, store in fresh SecurityContext
+        // after OTP validation (user enters correct user/pass then correct otp, or registers and enters correct otp),
+        // create new auth token, create new session, store both in fresh SecurityContext
         HttpSession oldSession = request.getSession(false);
-        oldSession.invalidate();
-        HttpSession newSession = request.getSession(true);
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        if (oldSession != null) {
+            oldSession.invalidate();
+        }
+
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 userDetails, null, userDetails.getAuthorities()
         );
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(auth);
         SecurityContextHolder.setContext(context);
-        newSession.setAttribute("SPRING_SECURITY_CONTEXT", context);
+
+        HttpSession newSession = request.getSession(true);
+        newSession.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
     }
 }

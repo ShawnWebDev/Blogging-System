@@ -74,12 +74,12 @@ public class RegistrationService {
     public Instant resetOtp(String username) {
         // [userId, email]
         Object[] userIdEmail = appUserDao.getUserIdEmailByUsername(username);
-        int otpRand = this.getRandomOtp();
-        Instant otpExpires = this.getExpirationFromNow();
-
         if (userIdEmail == null) {
             throw new BlogEntryException("Username not found!");
         }
+
+        int otpRand = this.getRandomOtp();
+        Instant otpExpires = this.getExpirationFromNow();
 
         int userId = (int) userIdEmail[0];
         String email = (String) userIdEmail[1];
@@ -103,6 +103,8 @@ public class RegistrationService {
         Object[] otpDetails = appUserDao.getOtpDetailsByUsername(username);
         logger.info("Verifying user {}", Arrays.toString(otpDetails));
         if (otpDetails == null || otpDetails.length != 3) {
+            logger.warn("OTP details incorrect for user: {}. Otp length: {}.",
+                    username, otpDetails == null ? "null" : otpDetails.length);
             return VerificationStatus.EXPIRED;
         }
 
@@ -110,11 +112,11 @@ public class RegistrationService {
         String savedOtp = (String) otpDetails[1];
         Instant otpValidUntil = (Instant) otpDetails[2];
 
-        if (!passwordEncoder.matches(otp, savedOtp)) {
-            return VerificationStatus.INVALID;
-        }
         if (otpValidUntil.isBefore(Instant.now())) {
             return VerificationStatus.EXPIRED;
+        }
+        if (!passwordEncoder.matches(otp, savedOtp)) {
+            return VerificationStatus.INVALID;
         }
 
         appUserDao.updateUserActive(username);
