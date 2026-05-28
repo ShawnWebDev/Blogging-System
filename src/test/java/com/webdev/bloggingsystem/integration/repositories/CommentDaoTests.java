@@ -146,6 +146,31 @@ public class CommentDaoTests {
         Assertions.assertNotNull(comment);
         String updatedContent = "***Updated comment.***";
         int isUpdated = commentDao.update(1, updatedContent);
+        Assertions.assertEquals(1, isUpdated);
+        Comment updatedComment = commentDao.getCommentById(1).orElse(null);
+        Assertions.assertNotNull(updatedComment);
+        Assertions.assertEquals(updatedContent, updatedComment.getContent());
     }
 
+    @Test
+    @Transactional
+    void testSoftDeleteComment() {
+        int softDeletedComment = commentDao.softDelete(1);
+        Assertions.assertEquals(1, softDeletedComment);
+
+        Comment comment = commentDao.getCommentById(1).orElse(null);
+        Assertions.assertNotNull(comment);
+        Assertions.assertEquals("Comment Deleted", comment.getContent());
+        Assertions.assertTrue(comment.isDeleted());
+    }
+
+    @Test
+    @Transactional
+    void testHardDeleteComment() {
+        int hardDeletedComment = commentDao.hardDelete(4);
+        Assertions.assertEquals(1, hardDeletedComment);
+
+        Comment comment = commentDao.getCommentById(4).orElse(null);
+        Assertions.assertNull(comment);
+    }
 }
