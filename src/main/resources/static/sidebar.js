@@ -1,16 +1,29 @@
 // needed for full page load, HTMX will not fire it using hx-on
 document.addEventListener("DOMContentLoaded", initSidebar);
 
-// todo: add Intersection Observer to highlight the sidebar nav item that the page heading is related to.
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        document.querySelector(`#sidebar-item-${entry.target.id}`).classList.toggle("active-nav-link", entry.isIntersecting);
+    })
+},{
+    threshold: 0.95,
+    rootMargin: "-10% 0px -45% 0px"
+})
+
+function createListItem(id, text) {
+    return `
+    <li>
+        <a href="#${id}" class="sidebar-nav-item ${id}" id="sidebar-item-${id}">${text}</a>
+    </li>
+`;
+}
 
 function initSidebar() {
-    console.log("Sidebar Check..");
     const textContainer = document.getElementById("post-text");
     if (!textContainer) return;
 
     const sidebarNavContainer = document.getElementById("sidebar-menu");
     if (sidebarNavContainer.innerHTML.startsWith('<strong>')) return;
-    console.log("Initializing Sidebar..");
 
     const headers = textContainer.querySelectorAll("h2, h3");
 
@@ -19,7 +32,7 @@ function initSidebar() {
     let hasNested = false;
 
     headers.forEach(el => {
-        // remove anything not a Word
+        // remove symbols and whitespace
         const elementId = el.textContent.replace(/\W/g, '');
         el.id = elementId;
 
@@ -38,18 +51,10 @@ function initSidebar() {
             }
             list.push(createListItem(elementId, el.textContent));
         }
+        observer.observe(el);
     });
 
     if (hasNested) list.push('</ul>');
     list.push('</ol>');
     sidebarNavContainer.innerHTML = list.join('');
 }
-
-function createListItem(id, text) {
-    return `
-    <li>
-        <a href="#${id}" class="sidebar-nav-item">${text}</a>
-    </li>
-`;
-}
-
