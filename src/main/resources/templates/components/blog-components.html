@@ -9,7 +9,7 @@
 <!--blog dashboard components-->
 <section th:fragment="all-posts" id="posts">
     <header>
-        <button th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:150ms" class="btn-secondary" hx-on:click="removeActiveCategories()">Remove Filter</button>
+        <button th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:150ms" class="btn-secondary" id="remove-filter-btn" hx-on:click="removeActiveCategories()">Remove Filter</button>
         <h2 th:if="${categoryName != 'All'}" th:text="${'Posts in ' + categoryName + ' category'}"></h2>
         <h2 th:unless="${categoryName != 'All'}">All Posts</h2>
         <p th:text="${categoryDesc}"></p>
