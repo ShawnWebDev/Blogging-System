@@ -47,7 +47,7 @@ public class BlogController {
     private void populateSinglePostModel(Model model, BlogEntry entry) {
         model.addAttribute("entry", entry);
         model.addAttribute("fromBlog", true);
-        model.addAttribute("title", entry.getSlug());
+        model.addAttribute("title", entry.getTitle());
         model.addAttribute("metaDesc", entry.getDescription());
         model.addAttribute("commentDto", new CreateCommentDto());
     }
@@ -133,7 +133,7 @@ public class BlogController {
     @GetMapping("/post/{id}/{slug}")
     public FragmentsRendering singlePostViewFragment(Model model, @PathVariable Integer id, @PathVariable String slug) {
         BlogEntry entry = blogService.readPost(id);
-        populateSinglePostModel(model, entry);
+        this.populateSinglePostModel(model, entry);
 
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
@@ -146,7 +146,7 @@ public class BlogController {
     @GetMapping("/post/{id}/{slug}")
     public String singlePostViewFullPage(Model model, @PathVariable Integer id, @PathVariable String slug) {
         BlogEntry entry = blogService.readPost(id);
-        populateSinglePostModel(model, entry);
+        this.populateSinglePostModel(model, entry);
 
         return "single-post";
     }
