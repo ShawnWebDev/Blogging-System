@@ -18,6 +18,9 @@
 
     --error-color: rgb(255, 120, 120);
     --code-color: rgb(239, 223, 190);
+
+    --header-font-family: "Anta";
+    --main-text-font-family: "Sansation";
 }
 
 /* Layout Styles */
@@ -30,11 +33,16 @@ body {
     background-color: var(--main-bg-color);
     color: var(--main-text-color);
     margin: 0;
+    font-family: var(--main-text-font-family), sans-serif;
 }
 
 main {
     background-color: var(--secondary-bg-color);
     width: 100%;
+}
+
+p {
+    line-height: 2;
 }
 
 #main-content {
@@ -67,11 +75,16 @@ main {
     display: flex;
     align-items: center;
     gap: 1rem;
+    padding-bottom: 2rem;
 }
 
 #main-content > header h1 {
     margin: 0;
     font-size: 1.75rem;
+}
+
+h1, h2 {
+    font-family: var(--header-font-family), sans-serif;
 }
 
 #main-content > header svg {
@@ -110,6 +123,10 @@ nav ul, ul.group {
     align-items: center;
     box-shadow: 0 -2px 0 var(--accent-color-transparent),
     1px 0 0 var(--transparent-color-light), -1px 0 0 var(--transparent-color-light);
+}
+
+.nav-spans {
+    font-family: var(--header-font-family), sans-serif;
 }
 
 .nav-item span {
@@ -177,6 +194,7 @@ nav ul, ul.group {
 button, input[type = submit] {
     font-weight: 600;
     cursor: pointer;
+    font-family: var(--header-font-family), sans-serif;
 }
 
 a, .denote-parent-comment, .denote-reply {
@@ -185,10 +203,6 @@ a, .denote-parent-comment, .denote-reply {
 
 a:hover {
     color: var(--accent-color);
-}
-
-#main-greeting {
-    display: block;
 }
 
 #posts {
@@ -209,7 +223,7 @@ a:hover {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    margin: 1.5rem auto;
+    margin: 1.5rem 0;
 }
 
 article header {
@@ -304,6 +318,10 @@ article header h4 {
     border-color: var(--accent-color);
 }
 
+#categories {
+    border-bottom: 1px solid var(--transparent-color-light);
+}
+
 #categories-container {
     display: flex;
     flex-wrap: wrap;
@@ -318,12 +336,15 @@ article header h4 {
     cursor: default;
 }
 
+#remove-filter-btn {
+    margin-top: 1rem;
+}
+
 #login-container {
     display: flex;
     align-items: center;
     gap: 1rem;
-    border-top: 1px solid var(--transparent-color-light);
-    padding: 1rem 0;
+    padding: 2rem 0 1rem 0;
 }
 
 .htmx-indicator {
@@ -369,39 +390,64 @@ article header h4 {
 }
 
 /* * SINGLE POST STYLES * */
+img[src$="#inline-img"] { /* for commonmark: syntax = ![Alt](/url#inline-img) */
+    display: inline;
+}
+
+img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width-img) */
+    display: block;
+    width: 100%;
+}
+
 #post-header {
     flex-wrap: wrap;
     border-bottom: 1px solid var(--transparent-color-light);
 }
 #post-text {
-    padding: 1rem 0 1rem 0;
+    padding: 1rem 0 2rem 0;
 }
 #post-content {
     display: flex;
     flex-direction: column-reverse;
+    border-bottom: 1px solid var(--transparent-color-light);
+}
+.post-image {
+    max-width: 12rem;
 }
 #sidebar {
     flex: 1;
     padding-top: 3rem;
     min-width: 18rem;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     height: inherit;
+    text-align: center;
 }
 #sidebar nav ol {
-    list-style: circle;
-    padding-left: 0.85rem;
+    padding-left: 0.5rem;
 }
-#sidebar nav ul {
-    display: block;
+#sidebar nav li {
+    text-align: left;
+    list-style: none;
+}
+#sidebar-menu {
+    padding-bottom: 2rem;
 }
 .sidebar-nav-item, #sidebar-menu ol li, #sidebar-menu ul li  {
     padding: 0.25rem 0;
 }
-#sidebar-menu ul li {
-    list-style: circle inside;
+#sidebar-menu ul {
+    display: block;
+    border-left: 1px dashed var(--transparent-color-light);
+    padding-left: 0.5rem;
+    margin-left: 0.5rem;
 }
 .sidebar-nav-item {
+    text-decoration: none;
+    font-weight: 300;
     color: var(--main-text-color-transparent);
+}
+#sidebar nav li .active-nav-link {
+    color: var(--accent-color);
 }
 #post-content h2  {
     margin: 2rem auto 1.5rem auto;
@@ -434,12 +480,7 @@ article header h4 {
     flex: 100%;
 }
 #single-post-navigation-container {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 2.5rem;
-    flex: 1;
+    margin: 1rem 0 -2rem 0;
 }
 #comments-section {
     display: flex;
@@ -696,8 +737,8 @@ dialog #login-message {
     color: var(--error-color);
 }
 
-/* 430-799 */
-@media (min-width: 430px) {
+/* 460-799 */
+@media (min-width: 460px) {
     nav {
         width: fit-content;
     }
@@ -767,7 +808,7 @@ dialog #login-message {
 /* 1024 - 1439 */
 @media (min-width: 1024px) {
     html {
-        font-size: 100%;
+        font-size: 103%;
     }
     body {
         display: flex;
@@ -779,17 +820,14 @@ dialog #login-message {
         height: 100vh;
         position: sticky;
         top: 0;
-        padding: 0 0 0 4vw;
+        padding: 0 0 0 5vw;
         width: 18rem;
     }
     nav {
         width: 100%;
     }
     #main-content {
-        padding: 1.25rem 4vw 2rem 4vw;
-    }
-    #main-greeting {
-        display: none;
+        padding: 1.25rem 5vw 2rem 5vw;
     }
     #main-header, #main-header section {
         display: block;
@@ -857,10 +895,10 @@ dialog #login-message {
 /* 1440 - 1920 */
 @media (min-width: 1440px) {
     #main-content {
-        padding: 1.25rem calc(0.5rem + 2.5vw);
+        padding: 1.25rem calc(0.5rem + 5vw);
     }
     #main-header {
-        padding: 0 0 0 calc(0.5rem + 2.5vw);
+        padding: 0 0 0 calc(0.5rem + 5vw);
     }
     #post-content {
         flex-direction: row;
@@ -869,7 +907,6 @@ dialog #login-message {
     }
     #post-text {
         flex: 4;
-        max-width: 90rem;
     }
     #sidebar {
         border-left: 1px solid var(--more-transparent-color-light);
