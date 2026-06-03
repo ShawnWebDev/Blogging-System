@@ -46,7 +46,7 @@ p {
 }
 
 #main-content {
-    padding: 2.5rem 0.25rem;
+    padding: 2.5rem 0.25rem 4rem 0.25rem;
     opacity: 1;
     transition: opacity 150ms ease-in-out;
     min-height: calc(100vh - 8.5rem);
@@ -62,13 +62,12 @@ p {
     gap: 0.5rem;
     border-bottom: 1px solid var(--color-light);
     margin: 0;
-    background-color: var(--main-bg-color);
     padding: 0.5rem 0 0 0;
 }
 
 #main-header h2 {
     margin: 0;
-    padding: 0 0.25rem;
+    padding: 0 0.25rem 0.75rem 0.25rem;
 }
 
 #main-content > header {
@@ -93,12 +92,12 @@ h1, h2 {
     fill: var(--accent-color-less-transparent);
 }
 
-#main-header > section {
-    display: none;
-}
-
 nav {
     width: fit-content;
+}
+
+#main-header > nav {
+    margin-top: 0;
 }
 
 nav ul, ul.group {
@@ -172,25 +171,6 @@ nav ul, ul.group {
     opacity: 1;
 }
 
-#contact-nav {
-    display: block;
-}
-
-.contact-icon {
-    text-decoration: none;
-}
-
-#contact-section svg:hover {
-    opacity: 1;
-}
-
-#contact-section svg {
-    width: 2rem;
-    height: 2rem;
-    fill: var(--main-text-color);
-    opacity: 0.5;
-}
-
 button, input[type = submit] {
     font-weight: 600;
     cursor: pointer;
@@ -204,7 +184,14 @@ a, .denote-parent-comment, .denote-reply {
 a:hover {
     color: var(--accent-color);
 }
-
+.about-section {
+    margin-top: 3rem;
+    width: fit-content;
+}
+.about-section > h2, #welcome-text > h2 {
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--more-transparent-color-light);
+}
 #posts {
     opacity: 1;
     transition: opacity 150ms ease-in-out;
@@ -416,21 +403,16 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
 }
 #sidebar {
     flex: 1;
-    padding-top: 3rem;
+    padding: 3rem 0 2rem 0.5rem;
     min-width: 18rem;
     font-size: 0.9rem;
     height: inherit;
-    text-align: center;
 }
 #sidebar nav ol {
-    padding-left: 0.5rem;
+    padding-left: 0;
 }
 #sidebar nav li {
-    text-align: left;
     list-style: none;
-}
-#sidebar-menu {
-    padding-bottom: 2rem;
 }
 .sidebar-nav-item, #sidebar-menu ol li, #sidebar-menu ul li  {
     padding: 0.25rem 0;
@@ -636,7 +618,6 @@ textarea, select {
     border: 1px solid var(--color-light);
     color: var(--main-text-color);
     font-size: 1rem;
-    font-weight: 500;
 }
 textarea {
     resize: vertical;
@@ -758,10 +739,10 @@ dialog #login-message {
         padding: 0.5rem 0.5rem 0 0;
     }
     #main-header h2 {
-        padding: 0 0.5rem;
+        padding: 0 0.5rem 0.75rem 0.5rem;
     }
     #main-content {
-        padding: 2.5rem 0.5rem;
+        padding: 2.5rem 0.5rem 4rem 0.5rem;
     }
     #post-container > .post-card header {
         padding: 0.5rem 1rem;
@@ -775,7 +756,7 @@ dialog #login-message {
 @media (min-width: 800px) {
     #main-header {
         flex-direction: row;
-        align-items: center;
+        align-items: flex-end;
         justify-content: space-between;
         padding: 1rem 2rem 0 2rem;
     }
@@ -784,10 +765,10 @@ dialog #login-message {
         width: fit-content;
     }
     #main-content {
-        padding: 2.5rem 2rem;
+        padding: 2.5rem 2rem 4rem 2rem;
     }
     .nav-item {
-        font-weight: 500;
+        font-weight: 400;
     }
     .nav-item .secondary-span {
         display: inline;
@@ -820,22 +801,20 @@ dialog #login-message {
         height: 100vh;
         position: sticky;
         top: 0;
-        padding: 0 0 0 5vw;
-        width: 18rem;
+        padding: 0 0 0 2vw;
+        width: 20rem;
     }
     nav {
         width: 100%;
     }
+    #main-header > nav {
+        margin-top: 1.5rem;
+    }
     #main-content {
-        padding: 1.25rem 5vw 2rem 5vw;
+        padding: 2rem 5vw 4rem 5vw;
     }
     #main-header, #main-header section {
         display: block;
-    }
-    #head-greeting p {
-        margin: 0;
-        padding: 0 0.5rem 0 0;
-        font-size: 0.9rem;
     }
     #main-content h1 {
         font-size: 2rem;
@@ -849,25 +828,22 @@ dialog #login-message {
     #main-header h4 {
         margin-top: 0;
     }
-    #main-header h2, #head-greeting {
-        border-bottom: 1px solid var(--transparent-color-light);
-    }
-    #main-header h2, #main-header nav, #head-greeting, #contact-section {
+    #main-header h2, #main-header nav, #contact-section {
         padding: 1.5rem 0;
     }
     #main-header nav ul {
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.5rem;
     }
     #main-header nav ul li, .nav-item {
         text-align: left;
     }
     .nav-item {
         justify-content: space-between;
-        padding: 0.75rem 0.5rem 0.75rem 1rem;
+        padding: 1rem 0.5rem 1rem 1.5rem;
         box-shadow: -1px 0 0 var(--accent-color-transparent), 0 0 2px var(--transparent-color-light);
         clip-path: inset(-3px round 14px 0 0 14px);
-        font-weight: 600;
+        font-weight: 700;
     }
     .nav-item:hover {
         box-shadow: -2px 0 0 var(--accent-color);
@@ -895,10 +871,7 @@ dialog #login-message {
 /* 1440 - 1920 */
 @media (min-width: 1440px) {
     #main-content {
-        padding: 1.25rem calc(0.5rem + 5vw);
-    }
-    #main-header {
-        padding: 0 0 0 calc(0.5rem + 5vw);
+        padding: 2rem calc(0.5rem + 5vw) 4rem calc(0.5rem + 5vw);
     }
     #post-content {
         flex-direction: row;
@@ -921,11 +894,11 @@ dialog #login-message {
 /* 1921 and up */
 @media (min-width: 1921px) {
     #main-content {
-        padding: 1.25rem 8vw 2rem 4vw;
+        padding: 2rem 8vw 4rem 8vw;
         max-width: 125rem;
     }
     #main-header {
-        padding: 0 0 0 8vw;
+        padding: 0 0 0 4vw;
     }
     #post-text {
         flex: 5;
