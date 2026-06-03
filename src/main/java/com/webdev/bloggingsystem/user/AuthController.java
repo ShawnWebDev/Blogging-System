@@ -81,7 +81,7 @@ public class AuthController {
  * The attribute is set only after registration OR if login credentials were valid but the user has isActive set to false in the DB. (Enabled = false in UserDetails Object)
   */
     @GetMapping("/loginError")
-    public FragmentsRendering loginError(Model model, HttpServletResponse response, HttpServletRequest request) {
+    public String loginError(Model model, HttpServletResponse response, HttpServletRequest request) {
         HttpSession httpSession = request.getSession(false);
         String errorMsg = "Invalid username or password.";
 
@@ -108,11 +108,8 @@ public class AuthController {
 
     @HxRequest
     @GetMapping("/loginForm")
-    public FragmentsRendering loginView() {
-        return FragmentsRendering
-                .fragment("components/auth-components::login-article")
-                .fragment("components/auth-components::csrf-token-oob")
-                .build();
+    public String loginView() {
+        return "components/auth-components::login-article";
     }
 
     @HxRequest
@@ -149,7 +146,7 @@ public class AuthController {
     // sends the form to enter the otp.
     @HxRequest
     @GetMapping("/validate")
-    public Object validateView(Model model, HttpServletRequest request) {
+    public String validateView(Model model, HttpServletRequest request) {
         HttpSession httpSession = request.getSession(false);
         if (httpSession != null) {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
@@ -198,7 +195,7 @@ public class AuthController {
 
     @HxRequest
     @GetMapping("/resendValidation")
-    public Object resendValidation(Model model, HttpServletRequest request) {
+    public String resendValidation(Model model, HttpServletRequest request) {
         HttpSession httpSession = request.getSession(false);
         if (httpSession != null) {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
