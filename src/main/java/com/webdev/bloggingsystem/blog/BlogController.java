@@ -5,10 +5,12 @@ import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -39,6 +41,7 @@ public class BlogController {
 
     private void populateBlogDashboardModel(Model model, String categoryName, String categoryDescription) {
         model.addAttribute("title", "Blog | Shawn Osborne");
+        model.addAttribute("metaDesc", "A software engineer's personal blog where he talks about technology and life. By Shawn Osborne.");
         model.addAttribute("categoryName", categoryName);    // used for dynamic heading of 'all-posts' fragment with category filter
         model.addAttribute("categoryDesc", categoryDescription);
     }
@@ -46,28 +49,33 @@ public class BlogController {
     private void populateSinglePostModel(Model model, BlogEntry entry) {
         model.addAttribute("entry", entry);
         model.addAttribute("fromBlog", true);
-        model.addAttribute("title", entry.getSlug());
+        model.addAttribute("title", entry.getTitle());
+        model.addAttribute("metaDesc", entry.getDescription());
         model.addAttribute("commentDto", new CreateCommentDto());
     }
 
     // called when requesting main blog dashboard
     @GetMapping
-    public Object blogDashboardView(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
-        populateBlogDashboardModel(model, "All", "");
+    public Object blogDashboardView(Model model, HtmxResponse htmxResponse, HttpServletRequest request) {
+        this.populateBlogDashboardModel(model, "All", "");
         model.addAttribute("posts", blogService.findAllSimpleBlogEntries());
         model.addAttribute("categories", blogService.findAllSimpleCategories());
 
-        if (!htmxRequest.isHtmxRequest()) {
+        if (request.getHeader("HX-Request") == null) {
             // for refresh or direct to /blog, contains heading fragment with nav, css/js, and blog-main fragment with all-posts
             model.addAttribute("fromBlog", true);
             return "blog";
         }
         // checks if request is from HTMX and the current address is not already set to /blog,
         // then pushes /blog into browser history and address bar.
-        if (htmxRequest.getCurrentUrl() == null || !htmxRequest.getCurrentUrl().endsWith("/blog")) {
+        String currUrl = request.getHeader("HX-Current-URL");
+        if (currUrl == null || !currUrl.endsWith("/blog")) {
             htmxResponse.setPushUrl("/blog");
         }
-        // for htmx request, only needs heading h1 and blog-main with all-posts
+
+        // for htmx request, only needs heading h1, blog-main, and csrf token resolved (implicit session creation)
+        this.setToken(request);
+
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
                 .fragment("blog::blog-main")
@@ -78,7 +86,7 @@ public class BlogController {
     @HxRequest
     @GetMapping("/blogComponent/posts/inProgress")
     public String inProgressPostsView(Model model) {
-        populateBlogDashboardModel(model, "In Progress", "");
+        this.populateBlogDashboardModel(model, "In Progress", "");
         model.addAttribute("posts", blogService.findAllSimpleBlogEntriesInProgress());
 
         return "components/blog-components::all-posts";
@@ -110,7 +118,7 @@ public class BlogController {
             logger.warn("Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", url);
         }
 
-        populateBlogDashboardModel(model, categoryName, categoryDescription);
+        this.populateBlogDashboardModel(model, categoryName, categoryDescription);
         model.addAttribute("posts", filteredBlogEntries);
 
         if (isFromBlog) {
@@ -129,10 +137,11 @@ public class BlogController {
     // to be used by HTMX navigation
     @HxRequest
     @GetMapping("/post/{id}/{slug}")
-    public FragmentsRendering singlePostViewFragment(Model model, @PathVariable Integer id, @PathVariable String slug) {
+    public FragmentsRendering singlePostViewFragment(Model model, @PathVariable Integer id, @PathVariable String slug,
+                                                     HttpServletRequest request) {
         BlogEntry entry = blogService.readPost(id);
-        populateSinglePostModel(model, entry);
-
+        this.populateSinglePostModel(model, entry);
+        this.setToken(request);
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
                 .fragment("single-post::single-post")
@@ -144,7 +153,7 @@ public class BlogController {
     @GetMapping("/post/{id}/{slug}")
     public String singlePostViewFullPage(Model model, @PathVariable Integer id, @PathVariable String slug) {
         BlogEntry entry = blogService.readPost(id);
-        populateSinglePostModel(model, entry);
+        this.populateSinglePostModel(model, entry);
 
         return "single-post";
     }
@@ -152,7 +161,7 @@ public class BlogController {
     // called when requesting blog entry input form template
     @GetMapping("/post/createPost")
     public String createPostView(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
-        populateCreatePostModel(model, new CreateBlogEntryDto(), false);
+        this.populateCreatePostModel(model, new CreateBlogEntryDto(), false);
 
         if (!htmxRequest.isHtmxRequest()) {
             // for refresh or direct to /blog/createPost
@@ -171,7 +180,7 @@ public class BlogController {
                               BindingResult result, Model model) {
 
         if (result.hasErrors()) {
-            populateCreatePostModel(model, createBlogEntryDto, false);
+            this.populateCreatePostModel(model, createBlogEntryDto, false);
 
             return "create-post::create-post";
         }
@@ -188,7 +197,7 @@ public class BlogController {
     public Object editPostView(Model model, @PathVariable Integer id,
                                        HtmxRequest htmxRequest) {
         CreateBlogEntryDto dto = blogService.buildCreateDtoForEdit(id);
-        populateCreatePostModel(model, dto, true);
+        this.populateCreatePostModel(model, dto, true);
 
         if (!htmxRequest.isHtmxRequest()) {
             return "create-post";
@@ -243,5 +252,13 @@ public class BlogController {
         model.addAttribute("size", count + " / " + max);
 
         return "components/post-components::size-count";
+    }
+
+    void setToken(HttpServletRequest request) {
+        // uses current session if valid, creates new session if not.
+        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+        if (token != null) {
+            token.getToken();
+        }
     }
 }

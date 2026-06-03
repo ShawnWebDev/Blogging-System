@@ -9,10 +9,10 @@
 <!--blog dashboard components-->
 <section th:fragment="all-posts" id="posts">
     <header>
-        <h2 th:text="${categoryName + ' Posts'}"></h2>
+        <button th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:150ms" class="btn-secondary" id="remove-filter-btn" hx-on:click="removeActiveCategories()">Remove Filter</button>
+        <h2 th:if="${categoryName != 'All'}" th:text="${'Posts in ' + categoryName + ' category'}"></h2>
+        <h2 th:unless="${categoryName != 'All'}">All Posts</h2>
         <p th:text="${categoryDesc}"></p>
-        <button onclick="openDialog('categories-modal')" class="btn-primary">Filter by category</button>
-        <button th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:150ms" class="btn-primary" hx-on:click="removeActiveCategories()">Show All</button>
     </header>
 
     <section id="post-container">
@@ -38,24 +38,16 @@
 </section>
 
 <section th:fragment="categories" id="categories">
-    <dialog id="categories-modal" aria-labelledby="categories-container-title" tabindex="-1">
-        <article>
-            <header>
-                <span id="categories-container-title">Filter By:</span>
-                <button aria-label="Close" onclick="closeDialog('categories-modal')" class="close-btn btn-primary">X</button>
-            </header>
+    <strong>Filter by category:</strong>
         <div id="categories-container">
             <button class="category-selection btn-secondary"
                     th:each="category : ${categories}"
                     th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.name})}"
                     hx-target="#posts"
                     hx-swap="outerHTML swap:150ms"
-                    onclick="closeDialog('categories-modal')"
                     th:text="${category.name}">
             </button>
         </div>
-        </article>
-    </dialog>
     <script>
         function removeActiveCategories() {
             document.querySelectorAll('.category-selection').forEach((el) => {

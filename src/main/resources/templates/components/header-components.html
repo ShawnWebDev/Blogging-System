@@ -3,19 +3,13 @@
 
 <body>
   <header th:fragment="full-header" id="main-header">
-    <h2>Shawn Osborne</h2>
-    <section id="head-greeting">
-      <p>
-        Hello, I'm a Software Engineer whose passion is developing and designing applications and games.
-      </p>
-      <p>
-        Welcome to my little corner of the web.
-      </p>
-    </section>
+    <h2>Shawn Osborne
+      <br><small>Software Developer</small>
+    </h2>
     <nav>
       <ul>
         <li>
-          <a href="/" hx-get="/" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromAbout != null ? ' active' : ''}">
+          <a href="/#main-content" hx-get="/" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromAbout != null ? ' active' : ''}">
             <div class="nav-spans">
               <span>About </span><span class="secondary-span">Me</span>
             </div>
@@ -27,7 +21,7 @@
         <li>
           <a href="/portfolio" hx-get="/portfolio" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromPortfolio != null ? ' active' : ''}">
             <div class="nav-spans">
-              <span class="secondary-span">My </span><span>Work</span>
+              <span>Portfolio</span>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true" focusable="false">
               <path d="M360.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm64.6 136.1c-12.5 12.5-12.5 32.8 0 45.3l73.4 73.4-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l96-96c12.5-12.5 12.5-32.8 0-45.3l-96-96c-12.5-12.5-32.8-12.5-45.3 0zm-274.7 0c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 150.6 182.6c12.5-12.5 12.5-32.8 0-45.3z"/>
@@ -45,7 +39,7 @@
           </a>
         </li>
         <li id="contact-nav">
-          <a href="/#contact" hx-get="/" hx-target="#main-content" hx-swap="outerHTML swap:150ms show:#contact:top" th:class="nav-item + ${fromContact != null ? ' active' : ''}">
+          <a href="/#contact" hx-get="/" hx-target="#main-content" hx-swap="outerHTML swap:150ms show:#contact-info:top" class="nav-item">
             <div class="nav-spans">
               <span>Contact </span><span class="secondary-span">Me</span>
             </div>
@@ -56,62 +50,6 @@
         </li>
       </ul>
     </nav>
-
-    <dialog th:replace="~{components/auth-components :: login-dialog}"></dialog>
-
-    <script>
-      const navItems = document.querySelectorAll('.nav-item');
-      navItems.forEach(el => {
-        el.addEventListener('click', function () {
-          navItems.forEach(el_2 => el_2.classList.remove('active'));
-          this.classList.add('active');
-        });
-      });
-
-      document.addEventListener("htmx:configRequest", function(e) {
-        const el = document.getElementById("csrf-token");
-        if (el) {
-          e.detail.headers[el.dataset.header] = el.dataset.token;
-        }
-      });
-
-      document.body.addEventListener('loginSuccess', function(e) {
-        document.querySelectorAll('.no-auth-msg').forEach(el => el.remove());
-        document.querySelectorAll('.comment').forEach((el) => {
-          let commentId = el.dataset.commentid;
-          let entryId = el.dataset.entryid;
-          let commentAuthor = el.dataset.authorname;
-          let knownName = e.detail.value;
-          let deleted = el.dataset.deleted === "true" || el.dataset.deleted === true;
-          if (knownName === commentAuthor) {
-            // Service confirms the author & id are related
-            let div = el.querySelector('.comment-author-btns');
-            div.innerHTML = `
-              <button class="btn-secondary edit-btn" hx-get="/comment/commentComponent/editForm?entryId=${entryId}&commentId=${commentId}"
-                      hx-target="#reply-form-container-${commentId}" hx-swap="beforeend">Edit</button>
-              ${deleted ? '' : `<button class="btn-secondary" hx-delete="/comment/delete?entryId=${entryId}&commentId=${commentId}" hx-swap="delete">Delete</button>`}
-            `;
-            htmx.process(div);
-          }
-        })
-      });
-
-      function closeDialog(elementId) {
-        document.getElementById(elementId).close();
-      }
-
-      function openDialog(elementId) {
-        document.getElementById(elementId).showModal();
-      }
-
-      function removeElement(elementId) {
-        document.getElementById(elementId).remove();
-      }
-    </script>
-    <script th:if="${param.sessionExpired != null}">
-      openDialog('login-modal');
-    </script>
-
   </header>
 
 </body>

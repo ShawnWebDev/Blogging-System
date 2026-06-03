@@ -15,15 +15,83 @@
                 <h1>About Me</h1>
             </header>
 
-            <section id="main-greeting">
-                <p>
-                    Hello, I'm a Software Engineer who enjoys developing and designing applications and games.
-                </p>
-                <p>Welcome to my little corner of the web.</p>
-            </section>
+            <noscript>
+                <th:block th:replace="~{components/auth-components::noscript}"></th:block>
+            </noscript>
 
-            <section id="contact-info">
-                <h2>Contact Info</h2>
+            <article id="post-content">
+                <section id="welcome-text">
+                    <p>
+                        I'm Shawn, a Software Developer. On this website, I showcase my projects, write about their underlying technologies,
+                        share my hobbies, and anything else I want to put out into the world.
+                    </p>
+                    <p>
+                        I enjoy tinkering and diving into how and why things work. I have broad interests in various systems,
+                        spanning from computer systems to car engines to biology and ecosystems. I am currently a stay-at-home father of
+                        two kids and a dog, a homeschool teacher, and a husband. Looking for a remote (or local to the northern Illinois / southern Wisconsin area)
+                        opportunity to work in full-stack software development, contributing to meaningful systems for a responsible company.
+                    </p>
+                    <p>
+                        Everything here is written with my own words and opinions. You will never see a single ad, AI-generated content, or tracking here.
+                        This site is my personal space for self-reflection, sharing what I have learned and what I am currently learning, and connecting with the readers of that content.
+                        It is also my attempt to inspire others to create their own personal space and participate in the fight against the
+                        noise and enshittification of our internet.
+                    </p>
+                    <p>
+                        Hello World! Welcome to my corner of the web.
+                    </p>
+                    <p><small><i>Updated: June 2026</i></small></p>
+                </section>
+                <aside id="sidebar">
+                    <!-- a good picture here -->
+                    <p>Better picture needed...</p>
+<!--                    <img src="/me.jpg" alt="Me" class="post-image"/>-->
+                </aside>
+            </article>
+            <section id="contact-info" class="about-section">
+                <h2>Contact</h2>
+                <p>Feel free to get in contact with me through email or at one of these.</p>
+                <ul>
+                    <li>shawns.portfolio.blog@gmail.com</li>
+                    <li><a href="https://github.com/ShawnWebDev">https://github.com/ShawnWebDev</a></li>
+                    <li><a href="">https://linkedin.com/in/shawnosbornedev</a></li>
+                </ul>
+            </section>
+            <section class="about-section">
+                <h2>Tools</h2>
+                <p>My PC setup and the software tools I have been using.</p>
+
+                <strong>Software:</strong>
+                <ul>
+                    <li>IntelliJ IDEA - Java, Spring Boot, JavaScript, CSS</li>
+                    <li>DBeaver - MySql, MariaDB</li>
+                    <li>Docker - TestContainers</li>
+                    <li>AWS - EC2, S3, IAM, Route 53</li>spa
+                </ul>
+
+                <strong>Main System:</strong>
+                <ul>
+                    <li>Linux Mint 22.3 - Cinnamon</li>
+                    <li>AMD Ryzen 5 3600</li>
+                    <li>AMD Radeon RX 6750 XT 12GB</li>
+                    <li>Corsair LPX 3200 32GB RAM (Samsung Dies)</li>
+                    <li>2TB Crucial PCI Express NVME drive (Home Directory)</li>
+                    <li>256GB Western Digital Blue SATA SSD (EFI, OS, & File System)</li>
+                    <li>1TB Western Digital Blue 7200 RPM HDD (Backups & Least used programs)</li>
+                    <li>36" ViewSonic 1440p monitor</li>
+                    <li>32" ASUS 1080p monitor</li>
+                    <li>Manual crank standup/sitdown desk</li>
+                </ul>
+
+                <strong>Headless Local Server:</strong>
+                <ul>
+                    <li>2GB Raspberry Pi 4, Linux Raspberry Pi OS lite, 32GB MicroSD, 32GB USB 3 Flash Drive for backup</li>
+                </ul>
+
+                <strong>Laptop:</strong>
+                <ul>
+                    <li>16" ASUS ZenBook, 8th Gen Intel I7, 16GB RAM, 256MB SSD, 1TB HDD, Windows 11 / Linux Mint Dual Boot</li>
+                </ul>
             </section>
         </div>
     </main>

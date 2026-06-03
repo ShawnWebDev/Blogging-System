@@ -14,20 +14,26 @@
                     <h1 th:text="${entry.title}" id="entry-title"></h1>
                 </div>
                 <div id="single-post-navigation-container">
-                    <div>
-                        <th:block th:each="category : ${entry.categoryNames}">
-                            <button th:hx-get="@{/blog/blogComponent/posts(categoryName=${category})}" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:text="${category}"
-                                    th:title="'View all posts in ' + ${category} + '.'" th:aria-label="'View all posts in ' + ${category} + ', navigates to blog dashboard.'" class="btn-secondary"></button>
-                        </th:block>
+                    <strong>Associated categories:</strong>
+                    <div id="categories-container">
+                        <button th:each="category : ${entry.categoryNames}"
+                                th:hx-get="@{/blog/blogComponent/posts(categoryName=${category})}"
+                                hx-target="#main-content" hx-swap="outerHTML swap:150ms"
+                                th:text="${category}"
+                                th:title="'View all posts in ' + ${category} + '.'"
+                                th:aria-label="'View all posts in ' + ${category} + ', navigates to blog dashboard.'" class="btn-secondary">
+                        </button>
                     </div>
                     <p th:if="${entry.categoryNames.size() == 0}">No associated categories.</p>
-                    <button hx-get="/blog" hx-swap="outerHTML swap:150ms" hx-target="#main-content" class="btn-secondary"
-                            title="Back to blog dashboard." aria-label="Navigates to blog dashboard.">Back To Blog</button>
                 </div>
             </header>
 
+            <noscript>
+                <th:block th:replace="~{components/auth-components::noscript}"></th:block>
+            </noscript>
+
             <article id="post-content">
-                <section th:utext="${entry.content}" id="post-text"></section>
+                <section th:utext="${entry.getContent()}" id="post-text"></section>
 
                 <aside id="sidebar">
                     <nav id="sidebar-menu"></nav>
@@ -46,7 +52,9 @@
 
             <section th:replace="~{components/comment-components::comment-section}" id="comments-section"></section>
 
-            <script th:src="@{/sidebar.js}"></script>
+            <script th:if="${param.sessionExpired != null}">
+                document.getElementById('login-modal').showModal();
+            </script>
         </div>
     </main>
 

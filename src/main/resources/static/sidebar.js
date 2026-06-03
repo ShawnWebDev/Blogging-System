@@ -1,24 +1,42 @@
 // needed for full page load, HTMX will not fire it using hx-on
 document.addEventListener("DOMContentLoaded", initSidebar);
 
-// prevents initSidebar from running on each swap within single-pages
-window.sidebarInitialized = false;
+const observer = new IntersectionObserver(entries => {
+    if (!document.getElementById("post-text")) {
+        observer.disconnect();
+        return;
+    }
 
-// todo: add Intersection Observer to highlight the sidebar nav item that the page heading is related to.
+    entries.forEach(entry => {
+        document.querySelector(`#sidebar-item-${entry.target.id}`).classList.toggle("active-nav-link", entry.isIntersecting);
+    })
+},{
+    threshold: 0.95,
+    rootMargin: "-10% 0px -45% 0px"
+})
+
+function createListItem(id, text) {
+    return `
+    <li>
+        <a href="#${id}" class="sidebar-nav-item ${id}" id="sidebar-item-${id}">${text}</a>
+    </li>
+`;
+}
 
 function initSidebar() {
-    if (window.sidebarInitialized) return;
-
     const textContainer = document.getElementById("post-text");
-    const sidebarNavContainer = document.getElementById("sidebar-menu");
-    const headers = textContainer.querySelectorAll("h2, h3");
+    if (!textContainer) return;
 
-    let list = [`<h5>Table Of Contents</h5><ol>`];
+    const sidebar = document.getElementById('sidebar-menu');
+    if (sidebar.innerHTML.length !== 0) return;
+
+    const headers = textContainer.querySelectorAll("h2, h3");
+    let list = [`<strong>Table Of Contents</strong><ol>`];
     let isH2Active = false;
     let hasNested = false;
 
     headers.forEach(el => {
-        // remove anything not a Word
+        // remove symbols and whitespace
         const elementId = el.textContent.replace(/\W/g, '');
         el.id = elementId;
 
@@ -37,19 +55,10 @@ function initSidebar() {
             }
             list.push(createListItem(elementId, el.textContent));
         }
+        observer.observe(el);
     });
 
     if (hasNested) list.push('</ul>');
     list.push('</ol>');
-    sidebarNavContainer.innerHTML = list.join('');
-    window.sidebarInitialized = true;
+    sidebar.innerHTML = list.join('');
 }
-
-function createListItem(id, text) {
-    return `
-    <li>
-        <a href="#${id}" class="sidebar-nav-item">${text}</a>
-    </li>
-`;
-}
-

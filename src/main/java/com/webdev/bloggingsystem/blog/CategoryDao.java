@@ -10,7 +10,7 @@ import java.util.*;
 @Repository
 public class CategoryDao {
     private final JdbcClient jdbc;
-    private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate; //<<- needed as JdbcClient does not have batch support..
 
     public CategoryDao(JdbcClient jdbcClient, JdbcTemplate jdbcTemplate) {
         this.jdbc = jdbcClient;
@@ -27,6 +27,7 @@ public class CategoryDao {
                     .param("description", category.getDescription())
                     .update(keyHolder);
 
+        if (keyHolder.getKey() == null) throw new RuntimeException("Insert failure, key is null!");
         return keyHolder.getKey().intValue();
     }
 
@@ -44,7 +45,6 @@ public class CategoryDao {
                 .query(Integer.class)
                 .optional().isPresent();
     }
-
 
     public int batchInsertJoins(Set<Integer> categoryIds, int blogId) {
         int result = 0;
@@ -97,7 +97,7 @@ public class CategoryDao {
                 "WHERE category_name = :categoryName")
                     .param("categoryName", categoryName)
                     .query(String.class)
-                    .single();
+                    .optional().orElse("No description available.");
     }
 
     public int update(Category category) {
@@ -119,6 +119,7 @@ public class CategoryDao {
                 .update();
     }
 
+    // used in updates to delete and re-insert many-to-many relations
     public void deleteJoinedByBlogId(int blogId) {
         jdbc.sql(
                 "DELETE FROM posts_categories " +

@@ -1,5 +1,5 @@
 :root {
-    --main-bg-color: rgb(50, 50, 50);
+    --main-bg-color: rgb(40, 40, 40);
     --secondary-bg-color: rgb(33, 33, 33);
 
     --accent-color: rgb(130, 255, 165);
@@ -14,12 +14,15 @@
     --more-transparent-color-light: rgba(105, 105, 105, 0.25);
 
     --main-text-color: rgb(227, 230, 233);
+    --main-text-color-transparent: rgba(227, 230, 233, 0.75);
 
     --error-color: rgb(255, 120, 120);
     --code-color: rgb(239, 223, 190);
 
+    --header-font-family: "Anta";
+    --main-text-font-family: "Sansation";
 }
-/* todo : get a css minify extension for maven */
+
 /* Layout Styles */
 html {
     font-size: 95%;
@@ -30,6 +33,7 @@ body {
     background-color: var(--main-bg-color);
     color: var(--main-text-color);
     margin: 0;
+    font-family: var(--main-text-font-family), sans-serif;
 }
 
 main {
@@ -37,8 +41,12 @@ main {
     width: 100%;
 }
 
+p {
+    line-height: 2;
+}
+
 #main-content {
-    padding: 2.5rem 0.25rem;
+    padding: 2.5rem 0.25rem 4rem 0.25rem;
     opacity: 1;
     transition: opacity 150ms ease-in-out;
     min-height: calc(100vh - 8.5rem);
@@ -54,24 +62,28 @@ main {
     gap: 0.5rem;
     border-bottom: 1px solid var(--color-light);
     margin: 0;
-    background-color: var(--main-bg-color);
     padding: 0.5rem 0 0 0;
 }
 
 #main-header h2 {
     margin: 0;
-    padding: 0 0.25rem;
+    padding: 0 0.25rem 0.75rem 0.25rem;
 }
 
 #main-content > header {
     display: flex;
     align-items: center;
     gap: 1rem;
+    padding-bottom: 2rem;
 }
 
 #main-content > header h1 {
     margin: 0;
     font-size: 1.75rem;
+}
+
+h1, h2 {
+    font-family: var(--header-font-family), sans-serif;
 }
 
 #main-content > header svg {
@@ -80,12 +92,12 @@ main {
     fill: var(--accent-color-less-transparent);
 }
 
-#main-header > section {
-    display: none;
-}
-
 nav {
     width: fit-content;
+}
+
+#main-header > nav {
+    margin-top: 0;
 }
 
 nav ul, ul.group {
@@ -104,12 +116,16 @@ nav ul, ul.group {
     font-weight: 500;
     display: flex;
     gap: 0.75rem;
-    transition: background-color 200ms ease-in-out, clip-path 200ms ease-in-out, box-shadow 200ms ease-in-out;
+    transition: background-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
     clip-path: inset(-4px round 12px 12px 0 0);
     text-decoration: none;
     align-items: center;
     box-shadow: 0 -2px 0 var(--accent-color-transparent),
     1px 0 0 var(--transparent-color-light), -1px 0 0 var(--transparent-color-light);
+}
+
+.nav-spans {
+    font-family: var(--header-font-family), sans-serif;
 }
 
 .nav-item span {
@@ -135,6 +151,7 @@ nav ul, ul.group {
     box-shadow: 0 -2px 0 var(--accent-color-less-transparent),
     1px 0 0 var(--color-light), -1px 0 0 var(--color-light);
     background-color: var(--secondary-bg-color);
+    color: var(--main-text-color);
 }
 
 .nav-item.active {
@@ -154,28 +171,10 @@ nav ul, ul.group {
     opacity: 1;
 }
 
-#contact-nav {
-    display: block;
-}
-
-.contact-icon {
-    text-decoration: none;
-}
-
-#contact-section svg:hover {
-    opacity: 1;
-}
-
-#contact-section svg {
-    width: 2rem;
-    height: 2rem;
-    fill: var(--main-text-color);
-    opacity: 0.5;
-}
-
 button, input[type = submit] {
     font-weight: 600;
     cursor: pointer;
+    font-family: var(--header-font-family), sans-serif;
 }
 
 a, .denote-parent-comment, .denote-reply {
@@ -185,11 +184,14 @@ a, .denote-parent-comment, .denote-reply {
 a:hover {
     color: var(--accent-color);
 }
-
-#main-greeting {
-    display: block;
+.about-section {
+    margin-top: 3rem;
+    width: fit-content;
 }
-
+.about-section > h2, #welcome-text > h2 {
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--more-transparent-color-light);
+}
 #posts {
     opacity: 1;
     transition: opacity 150ms ease-in-out;
@@ -204,30 +206,11 @@ a:hover {
     margin-bottom: 3rem;
 }
 
-#categories-modal > article {
-    max-width: 40rem;
-    max-height: calc(100vh - 5rem);
-    min-height: 8rem;
-    overflow-y: scroll;
-}
-#categories-modal > article > header {
-    position: sticky;
-    top: 0;
-}
-
-#categories-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    gap: 0.5rem;
-    padding: 1.5rem;
-}
-
 #post-container, #edit-category-container {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    margin: 1.5rem auto;
+    margin: 1.5rem 0;
 }
 
 article header {
@@ -236,7 +219,7 @@ article header {
     flex-wrap: wrap;
     column-gap: 1rem;
     justify-content: space-between;
-    background-color: var(--color-dark);
+    background-color: var(--main-bg-color);
     border-radius: 0.25rem 0.25rem 0 0;
     padding: 0.5rem;
     border-bottom: 2px solid var(--accent-color-transparent);
@@ -279,15 +262,12 @@ article header h4 {
     inset: 0;
 }
 
-.post-card, .category-card {
-    background-color: var(--main-bg-color);
-    border-radius: 0.25rem;
-}
-
 .description {
     display: flex;
     gap: 0.5rem;
     padding: 1rem 0.5rem;
+    background-color: var(--more-transparent-color-light);
+    border-radius: 0 0 0.25rem 0.25rem;
 }
 
 .description p {
@@ -310,11 +290,6 @@ article header h4 {
     border-color: var(--secondary-bg-color);
 }
 
-.active-category {
-    background-color: var(--accent-color);
-    color: #000;
-}
-
 .btn-secondary {
     font-weight: 500;
     background-color: var(--secondary-bg-color);
@@ -330,12 +305,62 @@ article header h4 {
     border-color: var(--accent-color);
 }
 
+#categories {
+    border-bottom: 1px solid var(--transparent-color-light);
+}
+
+#categories-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem 0;
+}
+
+.active-category, .active-category:hover {
+    background-color: #000;
+    color: var(--accent-color);
+    border-color: var(--accent-color-transparent);
+    cursor: default;
+}
+
+#remove-filter-btn {
+    margin-top: 1rem;
+}
+
 #login-container {
     display: flex;
     align-items: center;
     gap: 1rem;
-    border-top: 1px solid var(--transparent-color-light);
-    padding: 1rem 0;
+    padding: 2rem 0 1rem 0;
+}
+
+.htmx-indicator {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#loader > p {
+    margin: 0 !important;
+}
+
+.htmx-request .htmx-indicator {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 200ms ease-in-out;
+}
+
+.center {
+    text-align: center;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.login-error-container {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
 }
 
 .spacer {
@@ -352,16 +377,59 @@ article header h4 {
 }
 
 /* * SINGLE POST STYLES * */
+img[src$="#inline-img"] { /* for commonmark: syntax = ![Alt](/url#inline-img) */
+    display: inline;
+}
+
+img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width-img) */
+    display: block;
+    width: 100%;
+}
+
 #post-header {
     flex-wrap: wrap;
     border-bottom: 1px solid var(--transparent-color-light);
 }
 #post-text {
-    padding: 1rem 0 1rem 0;
+    padding: 1rem 0 2rem 0;
+}
+#post-content {
+    display: flex;
+    flex-direction: column-reverse;
+    border-bottom: 1px solid var(--transparent-color-light);
+}
+.post-image {
+    max-width: 12rem;
 }
 #sidebar {
-    padding-top: 2.5rem;
-    min-width: 20rem;
+    flex: 1;
+    padding: 3rem 0 2rem 0.5rem;
+    min-width: 18rem;
+    font-size: 0.9rem;
+    height: inherit;
+}
+#sidebar nav ol {
+    padding-left: 0;
+}
+#sidebar nav li {
+    list-style: none;
+}
+.sidebar-nav-item, #sidebar-menu ol li, #sidebar-menu ul li  {
+    padding: 0.25rem 0;
+}
+#sidebar-menu ul {
+    display: block;
+    border-left: 1px dashed var(--transparent-color-light);
+    padding-left: 0.5rem;
+    margin-left: 0.5rem;
+}
+.sidebar-nav-item {
+    text-decoration: none;
+    font-weight: 300;
+    color: var(--main-text-color-transparent);
+}
+#sidebar nav li .active-nav-link {
+    color: var(--accent-color);
 }
 #post-content h2  {
     margin: 2rem auto 1.5rem auto;
@@ -394,12 +462,7 @@ article header h4 {
     flex: 100%;
 }
 #single-post-navigation-container {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 2.5rem;
-    flex: 1;
+    margin: 1rem 0 -2rem 0;
 }
 #comments-section {
     display: flex;
@@ -424,6 +487,9 @@ article header h4 {
 }
 #comment-container > .comment {
     margin-bottom: 2rem;
+}
+#comment-list:has(.comment) > .no-comments-msg {
+    display: none;
 }
 .comment {
     background-color: var(--transparent-color-light);
@@ -552,7 +618,6 @@ textarea, select {
     border: 1px solid var(--color-light);
     color: var(--main-text-color);
     font-size: 1rem;
-    font-weight: 500;
 }
 textarea {
     resize: vertical;
@@ -574,6 +639,19 @@ select:hover, option:hover {
 .form-group > div {
     flex: 1;
     min-width: 10rem;
+}
+#login-modal {
+    max-width: 30rem;
+}
+#login-article p, #register-article p {
+    font-size: 0.9rem;
+    text-align: center;
+}
+#login-article .btn-secondary, #register-article .btn-secondary {
+    background-color: var(--main-bg-color);
+}
+#register-article div {
+    text-align: center;
 }
 .close-btn {
     width: 1.5rem;
@@ -623,7 +701,7 @@ dialog form {
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
-    padding: 1.5rem 2rem;
+    padding: 1.5rem 2rem 0 2rem;
 }
 dialog form input[type="submit"] {
     margin-top: 1rem;
@@ -631,7 +709,7 @@ dialog form input[type="submit"] {
 }
 dialog #login-message {
     text-align: center;
-    padding-bottom: 0.5rem;
+    padding: 0.5rem 0;
 }
 #byte-validator {
     display: none;
@@ -640,8 +718,8 @@ dialog #login-message {
     color: var(--error-color);
 }
 
-/* 480-767 */
-@media (min-width: 430px) {
+/* 460-799 */
+@media (min-width: 460px) {
     nav {
         width: fit-content;
     }
@@ -661,10 +739,10 @@ dialog #login-message {
         padding: 0.5rem 0.5rem 0 0;
     }
     #main-header h2 {
-        padding: 0 0.5rem;
+        padding: 0 0.5rem 0.75rem 0.5rem;
     }
     #main-content {
-        padding: 2.5rem 0.5rem;
+        padding: 2.5rem 0.5rem 4rem 0.5rem;
     }
     #post-container > .post-card header {
         padding: 0.5rem 1rem;
@@ -678,7 +756,7 @@ dialog #login-message {
 @media (min-width: 800px) {
     #main-header {
         flex-direction: row;
-        align-items: center;
+        align-items: flex-end;
         justify-content: space-between;
         padding: 1rem 2rem 0 2rem;
     }
@@ -687,10 +765,10 @@ dialog #login-message {
         width: fit-content;
     }
     #main-content {
-        padding: 2.5rem 2rem;
+        padding: 2.5rem 2rem 4rem 2rem;
     }
     .nav-item {
-        font-weight: 500;
+        font-weight: 400;
     }
     .nav-item .secondary-span {
         display: inline;
@@ -708,10 +786,10 @@ dialog #login-message {
     }
 }
 
-/* 1024 - 1359 */
+/* 1024 - 1439 */
 @media (min-width: 1024px) {
     html {
-        font-size: 100%;
+        font-size: 103%;
     }
     body {
         display: flex;
@@ -723,28 +801,20 @@ dialog #login-message {
         height: 100vh;
         position: sticky;
         top: 0;
-        padding: 0 0 0 calc(0.5rem + 2vw);
+        padding: 0 0 0 2vw;
         width: 20rem;
     }
     nav {
         width: 100%;
     }
-    .nav-item {
-        font-weight: 600;
+    #main-header > nav {
+        margin-top: 1.5rem;
     }
     #main-content {
-        padding: 1.25rem calc(0.5rem + 2vw);
-    }
-    #main-greeting {
-        display: none;
+        padding: 2rem 5vw 4rem 5vw;
     }
     #main-header, #main-header section {
         display: block;
-    }
-    #head-greeting p {
-        margin: 0;
-        padding: 0 0.5rem 0 0;
-        font-size: 0.9rem;
     }
     #main-content h1 {
         font-size: 2rem;
@@ -758,24 +828,22 @@ dialog #login-message {
     #main-header h4 {
         margin-top: 0;
     }
-    #main-header h2, #head-greeting {
-        border-bottom: 1px solid var(--transparent-color-light);
-    }
-    #main-header h2, #main-header nav, #head-greeting, #contact-section {
+    #main-header h2, #main-header nav, #contact-section {
         padding: 1.5rem 0;
     }
     #main-header nav ul {
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.5rem;
     }
     #main-header nav ul li, .nav-item {
         text-align: left;
     }
     .nav-item {
         justify-content: space-between;
-        padding: 0.75rem 0.5rem 0.75rem 1rem;
+        padding: 1rem 0.5rem 1rem 1.5rem;
         box-shadow: -1px 0 0 var(--accent-color-transparent), 0 0 2px var(--transparent-color-light);
         clip-path: inset(-3px round 14px 0 0 14px);
+        font-weight: 700;
     }
     .nav-item:hover {
         box-shadow: -2px 0 0 var(--accent-color);
@@ -800,51 +868,37 @@ dialog #login-message {
     }
 }
 
-/* 1360 - 1920 */
-@media (min-width: 1361px) {
+/* 1440 - 1920 */
+@media (min-width: 1440px) {
     #main-content {
-        padding: 1.25rem 4vw 2rem 4vw;
-    }
-    #main-header {
-        padding: 0 0 0 4vw;
+        padding: 2rem calc(0.5rem + 5vw) 4rem calc(0.5rem + 5vw);
     }
     #post-content {
-        display: flex;
+        flex-direction: row;
         justify-content: space-between;
         gap: 4vw;
     }
     #post-text {
         flex: 4;
-        max-width: 90rem;
     }
     #sidebar {
-        flex: 1;
-        height: inherit;
         border-left: 1px solid var(--more-transparent-color-light);
-        font-size: 0.9rem;
     }
-    #sidebar h5 {
-        text-align: center;
-        border-bottom: 1px solid var(--more-transparent-color-light);
-    }
-    #sidebar nav {
+    #sidebar-menu {
+        padding-left: 0.85rem;
         position: sticky;
         top: 2.5rem;
     }
-    #sidebar nav ul {
-        display: block;
-    }
-    #sidebar-menu ul li {
-        list-style: disc inside;
-    }
 }
-@media (min-width: 1920px) {
+
+/* 1921 and up */
+@media (min-width: 1921px) {
     #main-content {
-        padding: 1.25rem 8vw 2rem 4vw;
+        padding: 2rem 8vw 4rem 8vw;
         max-width: 125rem;
     }
     #main-header {
-        padding: 0 0 0 8vw;
+        padding: 0 0 0 4vw;
     }
     #post-text {
         flex: 5;
