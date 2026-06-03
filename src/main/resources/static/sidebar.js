@@ -2,6 +2,11 @@
 document.addEventListener("DOMContentLoaded", initSidebar);
 
 const observer = new IntersectionObserver(entries => {
+    if (!document.getElementById("post-text")) {
+        observer.disconnect();
+        return;
+    }
+
     entries.forEach(entry => {
         document.querySelector(`#sidebar-item-${entry.target.id}`).classList.toggle("active-nav-link", entry.isIntersecting);
     })
@@ -22,11 +27,10 @@ function initSidebar() {
     const textContainer = document.getElementById("post-text");
     if (!textContainer) return;
 
-    const sidebarNavContainer = document.getElementById("sidebar-menu");
-    if (sidebarNavContainer.innerHTML.startsWith('<strong>')) return;
+    const sidebar = document.getElementById('sidebar-menu');
+    if (sidebar.innerHTML.length !== 0) return;
 
     const headers = textContainer.querySelectorAll("h2, h3");
-
     let list = [`<strong>Table Of Contents</strong><ol>`];
     let isH2Active = false;
     let hasNested = false;
@@ -56,5 +60,5 @@ function initSidebar() {
 
     if (hasNested) list.push('</ul>');
     list.push('</ol>');
-    sidebarNavContainer.innerHTML = list.join('');
+    sidebar.innerHTML = list.join('');
 }
