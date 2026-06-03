@@ -9,7 +9,6 @@ import org.springframework.boot.webmvc.error.ErrorController;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,38 +24,38 @@ public class BlogErrorController implements ErrorController {
     @RequestMapping("/error")
     public Object handleError(Model model, HttpServletRequest request) {
         Integer status = (Integer) request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
-        // handle 403 status for invalid Session or mismatched CSRF,
-        // not likely to happen on /login due to CSRF refresh on dialog open
+        // handle 403 status for invalid Session or CSRF token,
+        // if a state changing request happens after expiration, re-direct to /URI?sessionExpired informing user to log in again.
         if (status != null && status == HttpStatus.FORBIDDEN.value()) {
-            CsrfToken storedToken = (CsrfToken) request.getAttribute("_csrf");
-            String requestToken = request.getHeader("X-CSRF-TOKEN");
             String refererUrl = request.getHeader("Referer");
             String redirectParam = "?sessionExpired=true";
             String redirectUrl = "/blog";
-            try {
-                refererUrl = new URI(refererUrl).getPath();
-                if (refererUrl.startsWith("/blog") || refererUrl.startsWith("/portfolio")) {
-                    redirectUrl = refererUrl;
+            // ensure user stays on page if single post page
+            if (refererUrl != null) {
+                try {
+                    refererUrl = new URI(refererUrl).getPath();
+                    if (refererUrl != null && refererUrl.startsWith("/blog/post")) {
+                        redirectUrl = refererUrl;
+                    }
+                } catch (URISyntaxException e) {
+                    logger.warn("Incorrect referer header: {}. ** 'redirect' is default Redirect.", refererUrl);
                 }
-            } catch (URISyntaxException e) {
-                logger.warn("Incorrect referer header: {}. ** 'redirect' is default Redirect.", refererUrl);
             }
 
-            if (storedToken == null || !storedToken.getToken().equals(requestToken)) {
-                boolean isHtmx = "true".equals(request.getHeader("HX-Request"));
-                if (isHtmx) {
-                    String hxLocation = String.format(
-                            "{\"path\":\"%s\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}", redirectUrl + redirectParam
-                    );
+            boolean isHtmx = "true".equals(request.getHeader("HX-Request"));
+            if (isHtmx) {
+                String hxLocation = String.format(
+                        "{\"path\":\"%s\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}", redirectUrl + redirectParam
+                );
 
-                    return ResponseEntity.ok()
-                            .header("HX-Location", hxLocation)
-                            .build();
-                }
-
-                return "redirect:" + redirectUrl + redirectParam;
+                return ResponseEntity.ok()
+                        .header("HX-Location", hxLocation)
+                        .build();
             }
+
+            return "redirect:" + redirectUrl + redirectParam;
         }
+
         // handle other errors
         model.addAttribute("title", "Error!");
         model.addAttribute("errorMsg", this.getErrorMessage(status));
