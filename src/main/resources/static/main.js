@@ -15,7 +15,6 @@ document.addEventListener("htmx:configRequest", function(e) {
 });
 
 document.body.addEventListener('loginSuccess', function(e) {
-    fetchNewCsrfToken();
     document.querySelectorAll('.no-auth-msg').forEach(el => el.remove());
     document.querySelectorAll('.comment').forEach((el) => {
         let commentId = el.dataset.commentid;
@@ -36,13 +35,24 @@ document.body.addEventListener('loginSuccess', function(e) {
     })
 });
 
+let refreshTimer;
+
+//close dialog after 20 mins, keeps csrf token fresh by re-fetching when modal re-opened
+function startCloseDialogTimer(elementId) {
+    refreshTimer = setTimeout(() => {
+        closeDialog(elementId);
+    }, 60000 * 30)
+}
+
 function closeDialog(elementId) {
     document.getElementById(elementId).close();
+    clearTimeout(refreshTimer);
 }
 
 function openDialog(elementId) {
     fetchNewCsrfToken();
     document.getElementById(elementId).showModal();
+    startCloseDialogTimer(elementId);
 }
 
 function removeElement(elementId) {
