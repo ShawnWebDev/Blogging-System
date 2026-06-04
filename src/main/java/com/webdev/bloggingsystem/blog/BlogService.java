@@ -82,15 +82,7 @@ public class BlogService {
     Object[] createPost(CreateBlogEntryDto dto) {
         //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set<ids>, id)
         logger.info("Post is being saved...");
-        BlogEntry blogEntry = new BlogEntry(
-                dto.getTitle(),
-                dto.getDescription(),
-                dto.getContent(),
-                dto.getThumbnailUrl(),
-                dto.getThumbnailAlt()
-        );
-        blogEntry.setSlug(dto.getTitle());
-        blogEntry.setInProgress(dto.getInProgress());
+        BlogEntry blogEntry = this.buildBlogEntryFromDto(dto);
 
         int blogId = blogEntryDao.insert(blogEntry);
         this.batchInsertCategoryJoins(dto.getCategoryIds(), blogId);
@@ -98,7 +90,7 @@ public class BlogService {
         return new Object[]{blogId, blogEntry.getSlug()};
     }
 
-    public BlogEntry readPost(int id) {
+    BlogEntry readPost(int id) {
         BlogEntry entry = this.findBlogEntryById(id);
         if (entry.getInProgress() && this.isNotAdmin()) {
             throw new BlogEntryException("Entry is in progress and cannot be read!");
@@ -114,19 +106,12 @@ public class BlogService {
     }
 
     @Transactional
-    public Object[] updatePost(CreateBlogEntryDto dto) {
+    Object[] updatePost(CreateBlogEntryDto dto) {
         logger.info("Post is being updated...");
         int blogId = dto.getId();
-        BlogEntry blogEntry = new BlogEntry(
-                dto.getTitle(),
-                dto.getDescription(),
-                dto.getContent(),
-                dto.getThumbnailUrl(),
-                dto.getThumbnailAlt()
-        );
+        BlogEntry blogEntry = this.buildBlogEntryFromDto(dto);
         blogEntry.setId(blogId);
-        blogEntry.setSlug(dto.getTitle());
-        blogEntry.setInProgress(dto.getInProgress());
+
         int isUpdated = blogEntryDao.update(blogEntry);
         if (isUpdated == 0) {
             throw new BlogEntryException("Entry NOT updated with id: " + blogId);
@@ -138,7 +123,7 @@ public class BlogService {
     }
 
     // database handles cascade delete of category join table's relations
-    public void deletePost(int id) {
+    void deletePost(int id) {
         int deleted = blogEntryDao.deleteById(id);
         if (deleted == 0) {
             throw new BlogEntryException("Entry NOT deleted with id: " + id);
@@ -170,7 +155,24 @@ public class BlogService {
         return cleanedCategoryIds;
     }
 
-    private String renderMarkdown(String content) {
+    BlogEntry buildBlogEntryFromDto(CreateBlogEntryDto dto) {
+        logger.info("Building blog entry from dto {}", dto.toString());
+        BlogEntry blogEntry = new BlogEntry(
+                dto.getTitle(),
+                dto.getDescription(),
+                dto.getContent(),
+                dto.getThumbnailUrl(),
+                dto.getThumbnailAlt()
+        );
+        blogEntry.setSlug(dto.getTitle());
+        blogEntry.setInProgress(dto.getInProgress());
+        blogEntry.setCodeUrl(dto.getCodeUrl());
+        blogEntry.setDemoUrl(dto.getDemoUrl());
+        blogEntry.setPortfolio(dto.getIsPortfolio());
+        return blogEntry;
+    }
+
+    String renderMarkdown(String content) {
         return htmlRenderer.render(markdownParser.parse(content));
     }
 
@@ -186,6 +188,7 @@ public class BlogService {
         }
 
         return new CreateBlogEntryDto(post.getId(), post.getSlug(), post.getTitle(), post.getDescription(),
-                post.getThumbnailUrl(), post.getThumbnailAlt(), categoryIds, post.getContent(), post.getInProgress());
+                post.getThumbnailUrl(), post.getThumbnailAlt(), categoryIds, post.getContent(), post.getInProgress(),
+                post.getCodeUrl(), post.getDemoUrl(), post.isPortfolio());
     }
 }

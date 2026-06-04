@@ -23,6 +23,9 @@ CREATE TABLE `blog_entries` (
     `thumbnail_url` varchar(255) NOT NULL,
     `thumbnail_alt` varchar(255) NOT NULL,
     `in_progress` tinyint(1) NOT NULL,
+    `code_url` varchar(255) DEFAULT NULL,
+    `demo_url` varchar(255) DEFAULT NULL,
+    `is_portfolio` tinyint(1) NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `title_unique` (`title`),
     UNIQUE KEY `slug_unique` (`slug`)

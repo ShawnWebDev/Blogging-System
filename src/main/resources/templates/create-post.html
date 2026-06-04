@@ -45,6 +45,25 @@
           </div>
 
           <div class="form-group">
+            <label for="portfolio-checkbox">For Portfolio?:</label>
+            <input type="checkbox" name="isPortfolio" th:checked="${post.isPortfolio}" id="portfolio-checkbox"/>
+            <div class="form-group" id="portfolio-urls">
+              <div>
+                <label>Code URL:
+                  <input type="text" name="codeUrl" th:value="${post.codeUrl}"/>
+                  <small th:errors="${post.codeUrl}" class="error"></small>
+                </label>
+              </div>
+              <div>
+                <label>Demo URL:
+                  <input type="text" name="demoUrl" th:value="${post.demoUrl}"/>
+                  <small th:errors="${post.demoUrl}" class="error"></small>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
             <div>
               <label>Category 1:
                 <select name="categoryIds[0]">
