@@ -39,6 +39,10 @@ public class BlogService {
         return blogEntryDao.findAllSimple();
     }
 
+    public List<SimplePortfolioEntryDto> findAllSimplePortfolioEntries() {
+        return blogEntryDao.findAllSimplePortfolio();
+    }
+
     List<SimpleBlogEntryDto> findAllSimpleBlogEntriesInProgress() {
         return blogEntryDao.findAllSimpleInProgress();
     }
