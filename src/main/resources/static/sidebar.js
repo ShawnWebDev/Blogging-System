@@ -8,11 +8,16 @@ const observer = new IntersectionObserver(entries => {
     }
 
     entries.forEach(entry => {
-        document.querySelector(`#sidebar-item-${entry.target.id}`).classList.toggle("active-nav-link", entry.isIntersecting);
+        const navItem = document.querySelector(`#sidebar-item-${entry.target.id}`);
+        if (entry.isIntersecting) {
+            navItem.classList.add("active-nav-link");
+        } else if (entry.boundingClientRect.top > 0) {
+            navItem.classList.remove("active-nav-link");
+        }
     })
 },{
-    threshold: 0.95,
-    rootMargin: "-10% 0px -45% 0px"
+    threshold: 1,
+    rootMargin: "0px 0px -25% 0px"
 })
 
 function createListItem(id, text) {
@@ -31,7 +36,7 @@ function initSidebar() {
     if (sidebar.innerHTML.length !== 0) return;
 
     const headers = textContainer.querySelectorAll("h2, h3");
-    let list = [`<strong>Table Of Contents</strong><ol>`];
+    let list = [`<strong>Table of Contents:</strong><ol>`];
     let isH2Active = false;
     let hasNested = false;
 
