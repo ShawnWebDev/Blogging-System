@@ -93,8 +93,8 @@ public class BlogController {
     }
 
     // called when filtering posts by category in main blog dashboard
-    @HxRequest
-    @GetMapping("/blogComponent/posts")
+   // @HxRequest
+    @GetMapping("/posts")
     public Object filteredPostsView(Model model, HtmxRequest htmxRequest, HtmxResponse htmxResponse,
                                     @RequestParam(value = "categoryName", defaultValue = "All", required = false) String categoryName) {
 
@@ -104,33 +104,42 @@ public class BlogController {
         if (categoryName.equals("All")) {
             filteredBlogEntries = blogService.findAllSimpleBlogEntries();
             categoryDescription = "";
+            htmxResponse.setPushUrl("/blog");
         } else {
             filteredBlogEntries = blogService.findAllSimpleBlogEntriesToCategoryName(categoryName);
             categoryDescription = blogService.findCategoryDescriptionByName(categoryName);
+            htmxResponse.setPushUrl("/blog/posts?categoryName=" + categoryName);
         }
 
         boolean isFromBlog = false;
         String url = htmxRequest.getCurrentUrl();
         try {
             // getPath() strips params to correctly send fragment if /blog, /blog?logout, or /blog?sessionExpired
-            isFromBlog = url != null && new URI(url).getPath().equals("/blog");
+            if (url != null) {
+                String path = new URI(url).getPath();
+                isFromBlog = path.equals("/blog") || path.equals("/blog/posts");
+            }
         } catch (URISyntaxException e) {
             logger.warn("Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", url);
         }
 
         this.populateBlogDashboardModel(model, categoryName, categoryDescription);
         model.addAttribute("posts", filteredBlogEntries);
-
+        if (!htmxRequest.isHtmxRequest()) {
+            model.addAttribute("fromBlog", true);
+            model.addAttribute("categories", blogService.findAllSimpleCategories());
+            return "blog";
+        }
         if (isFromBlog) {
             return "components/blog-components::all-posts";
         }
 
         // if from single-post page: reset url to /blog, fetch category list, and render blog dashboard with "posts" filter applied
-        htmxResponse.setPushUrl("/blog");
         model.addAttribute("categories", blogService.findAllSimpleCategories());
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
                 .fragment("blog::blog-main")
+                .header("HX-Trigger", "navigationChange")
                 .build();
     }
 
