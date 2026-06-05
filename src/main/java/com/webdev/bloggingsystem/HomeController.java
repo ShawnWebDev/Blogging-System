@@ -16,22 +16,24 @@ import org.springframework.web.servlet.view.FragmentsRendering;
 @Controller
 public class HomeController {
 
-    private final BlogService blogEntryService;
+    private final BlogService blogService;
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
     public HomeController(BlogService blogEntryService) {
-        this.blogEntryService = blogEntryService;
+        this.blogService = blogEntryService;
     }
 
     @GetMapping("/")
     public Object home(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
         model.addAttribute("title", "Shawn Osborne's Website");
-        model.addAttribute("metaDesc", "A software engineer and his personal portfolio and blogging website. By Shawn Osborne.");
+        model.addAttribute("metaDesc", "A software developer's personal portfolio and blogging website. By Shawn Osborne.");
+
         if (!htmxRequest.isHtmxRequest()) {
             model.addAttribute("fromAbout", true);
             return "index";
         }
-        pushUrlIfNeeded(htmxRequest, htmxResponse, "/");
+
+        this.pushUrlIfNeeded(htmxRequest, htmxResponse, "/");
 
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
@@ -39,16 +41,22 @@ public class HomeController {
                 .build();
     }
 
-    // todo : get posts with 'portfolio' category and send view
+    // todo : get posts with 'portfolio' category and send to template,
+    //  -- : portfolio card should have thumbnail, description, code_link, demo_link, and article_link (constructed with /blog/post/{id}/{slug}),
+    //  -- : test
+
     @GetMapping("/portfolio")
     public Object portfolio(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {
         model.addAttribute("title", "Portfolio | Shawn Osborne");
-        model.addAttribute("metaDesc", "A software engineer's personal portfolio page. By Shawn Osborne.");
+        model.addAttribute("metaDesc", "A software developer's personal portfolio page. By Shawn Osborne.");
+        model.addAttribute("entries", blogService.findAllSimplePortfolioEntries());
+
         if (!htmxRequest.isHtmxRequest()) {
             model.addAttribute("fromPortfolio", true);
             return "portfolio";
         }
-        pushUrlIfNeeded(htmxRequest, htmxResponse, "/portfolio");
+
+        this.pushUrlIfNeeded(htmxRequest, htmxResponse, "/portfolio");
 
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
