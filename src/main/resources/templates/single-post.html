@@ -17,10 +17,10 @@
                     <strong>Associated categories:</strong>
                     <div id="categories-container">
                         <button th:each="category : ${entry.categoryNames}"
-                                th:hx-get="@{/blog/blogComponent/posts(categoryName=${category})}"
+                                th:hx-get="@{/blog/posts(categoryName=${category})}"
                                 hx-target="#main-content" hx-swap="outerHTML swap:150ms"
                                 th:text="${category}"
-                                th:title="'View all posts in ' + ${category} + '.'"
+                                th:title="'View posts in ' + ${category} + '.'"
                                 th:aria-label="'View all posts in ' + ${category} + ', navigates to blog dashboard.'" class="btn-secondary">
                         </button>
                     </div>
