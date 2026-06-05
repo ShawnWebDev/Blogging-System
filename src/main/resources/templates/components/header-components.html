@@ -9,7 +9,7 @@
     <nav>
       <ul>
         <li>
-          <a href="/#main-content" hx-get="/" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromAbout != null ? ' active' : ''}">
+          <a href="/#main-content" hx-get="/" hx-target="#main-content" hx-swap="outerHTML swap:150ms show:window:top" th:class="nav-item + ${fromAbout != null ? ' active' : ''}">
             <div class="nav-spans">
               <span>About </span><span class="secondary-span">Me</span>
             </div>
