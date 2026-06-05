@@ -19,7 +19,7 @@
           </a>
         </li>
         <li>
-          <a href="/portfolio" hx-get="/portfolio" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromPortfolio != null ? ' active' : ''}">
+          <a href="/portfolio" hx-get="/portfolio" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromPortfolio != null ? ' active' : ''}" id="portfolio-nav-item">
             <div class="nav-spans">
               <span>Portfolio</span>
             </div>
@@ -29,7 +29,7 @@
           </a>
         </li>
         <li>
-          <a href="/blog" hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromBlog != null ? ' active' : ''}">
+          <a href="/blog" hx-get="/blog" hx-target="#main-content" hx-swap="outerHTML swap:150ms" th:class="nav-item + ${fromBlog != null ? ' active' : ''}" id="blog-nav-item">
             <div class="nav-spans">
               <span class="secondary-span">My </span><span>Blog</span>
             </div>
