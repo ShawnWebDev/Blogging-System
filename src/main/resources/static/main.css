@@ -41,7 +41,7 @@ main {
     width: 100%;
 }
 
-p {
+p, ul, ol {
     line-height: 2;
 }
 
@@ -103,7 +103,7 @@ nav {
 nav ul, ul.group {
     display: flex;
     justify-content: space-between;
-    gap: 0.25rem;
+    gap: 0.5rem;
     list-style: none;
     padding: 0 0.25rem;
     margin: 0;
@@ -112,7 +112,7 @@ nav ul, ul.group {
 .nav-item {
     cursor: pointer;
     background-color: var(--transparent-color-dark);
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 0.75rem;
     font-weight: 500;
     display: flex;
     gap: 0.75rem;
@@ -197,7 +197,6 @@ a:hover {
     transition: opacity 150ms ease-in-out;
     margin-bottom: 2rem;
 }
-
 #posts.htmx-swapping {
     opacity: 0;
 }
@@ -385,7 +384,6 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     display: block;
     width: 100%;
 }
-
 #post-header {
     flex-wrap: wrap;
     border-bottom: 1px solid var(--transparent-color-light);
@@ -398,8 +396,12 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     flex-direction: column-reverse;
     border-bottom: 1px solid var(--transparent-color-light);
 }
-.post-image {
-    max-width: 12rem;
+
+.about-image {
+    float: right;
+    margin: 0 0 0.5rem calc(0.5rem + 2vw);
+    width: 8rem;
+    border-radius: 0.25rem;
 }
 #sidebar {
     flex: 1;
@@ -407,15 +409,13 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     min-width: 18rem;
     font-size: 0.9rem;
     height: inherit;
+    border-bottom: 1px solid var(--transparent-color-light);
 }
 #sidebar nav ol {
     padding-left: 0;
 }
 #sidebar nav li {
     list-style: none;
-}
-.sidebar-nav-item, #sidebar-menu ol li, #sidebar-menu ul li  {
-    padding: 0.25rem 0;
 }
 #sidebar-menu ul {
     display: block;
@@ -711,6 +711,13 @@ dialog #login-message {
     text-align: center;
     padding: 0.5rem 0;
 }
+#portfolio-urls {
+    display: none;
+}
+#portfolio-checkbox:checked + #portfolio-urls {
+    display: flex;
+}
+
 #byte-validator {
     display: none;
 }
@@ -728,7 +735,7 @@ dialog #login-message {
         gap: 1rem;
     }
     .nav-item {
-        padding: 0.75rem;
+        padding: 0.25rem 0.5rem;
     }
     .nav-item svg {
         display: block;
@@ -750,6 +757,9 @@ dialog #login-message {
     .description {
         padding: 1rem;
     }
+    .about-image {
+        width: 10rem;
+    }
 }
 
 /* 800-1023 */
@@ -768,6 +778,7 @@ dialog #login-message {
         padding: 2.5rem 2rem 4rem 2rem;
     }
     .nav-item {
+        padding: 0.5rem 0.75rem;
         font-weight: 400;
     }
     .nav-item .secondary-span {
@@ -783,6 +794,15 @@ dialog #login-message {
     .post-card header span svg {
         width: 1rem;
         height: 1rem;
+    }
+    .about-post-content {
+        gap: 2rem !important;
+    }
+    .about-sidebar {
+        min-width: fit-content !important;
+    }
+    .about-image {
+        width: initial;
     }
 }
 
@@ -878,16 +898,27 @@ dialog #login-message {
         justify-content: space-between;
         gap: 4vw;
     }
+    .about-post-content {
+        gap: 4rem !important;
+    }
     #post-text {
         flex: 4;
     }
     #sidebar {
         border-left: 1px solid var(--more-transparent-color-light);
+        border-bottom: none;
+    }
+    .about-sidebar {
+        min-width: fit-content !important;
+        border: none !important;
     }
     #sidebar-menu {
         padding-left: 0.85rem;
         position: sticky;
         top: 2.5rem;
+    }
+    #welcome-text, #posts, #categories {
+        max-width: 60vw;
     }
 }
 
