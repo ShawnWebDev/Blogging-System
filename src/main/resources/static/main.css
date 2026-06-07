@@ -74,7 +74,6 @@ p, ul, ol {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding-bottom: 2rem;
 }
 
 #main-content > header h1 {
@@ -113,7 +112,7 @@ nav ul, ul.group {
     cursor: pointer;
     background-color: var(--transparent-color-dark);
     padding: 0.25rem 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
     display: flex;
     gap: 0.75rem;
     transition: background-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
@@ -172,13 +171,13 @@ nav ul, ul.group {
 }
 
 button, input[type = submit] {
-    font-weight: 600;
     cursor: pointer;
-    font-family: var(--header-font-family), sans-serif;
+    font-family: var(--main-text-font-family), sans-serif;
 }
 
 a, .denote-parent-comment, .denote-reply {
     color: var(--accent-color-less-transparent);
+    font-family: var(--main-text-font-family), sans-serif;
 }
 
 a:hover {
@@ -213,14 +212,16 @@ a:hover {
 }
 
 article header {
+    background-color: var(--main-bg-color);
+    padding: 0.5rem;
+}
+
+.post-card header {
     position: relative;
     display: flex;
     flex-wrap: wrap;
     column-gap: 1rem;
     justify-content: space-between;
-    background-color: var(--main-bg-color);
-    border-radius: 0.25rem 0.25rem 0 0;
-    padding: 0.5rem;
     border-bottom: 2px solid var(--accent-color-transparent);
     transition: border-color 200ms ease-in-out, color 200ms ease-in-out, background-color 200ms ease-in-out;
 }
@@ -230,7 +231,6 @@ article header {
 }
 
 .post-card header:hover {
-    background-color: var(--accent-color-transparent);
     border-color: var(--accent-color);
     color: #fff;
 }
@@ -246,7 +246,7 @@ article header h4 {
     gap: 1rem;
 }
 
-#post-container header, .post-card footer, article header h4 {
+#post-container header, article header, article footer {
     align-items: center;
 }
 
@@ -261,12 +261,44 @@ article header h4 {
     inset: 0;
 }
 
+.post-card, .portfolio-card {
+    border: 1px solid var(--more-transparent-color-light);
+    border-radius: 0.25rem;
+}
+
+#portfolio-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: 1rem;
+    margin-top: 4rem;
+}
+
+.portfolio-card {
+    min-width: 20rem;
+}
+
+.portfolio-card footer {
+    background-color: var(--main-bg-color);
+    padding: 0.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.portfolio-card footer a {
+    text-decoration: none;
+    color: var(--main-text-color);
+}
+
+.portfolio-card .description {
+    border-radius: 0;
+}
+
 .description {
     display: flex;
     gap: 0.5rem;
     padding: 1rem 0.5rem;
     background-color: var(--more-transparent-color-light);
-    border-radius: 0 0 0.25rem 0.25rem;
 }
 
 .description p {
@@ -274,7 +306,6 @@ article header h4 {
 }
 
 .btn-primary {
-    font-size: 0.9rem;
     background-color: var(--accent-color-transparent);
     border: 1px solid var(--accent-color-less-transparent);
     border-radius: 0.25rem;
@@ -290,13 +321,14 @@ article header h4 {
 }
 
 .btn-secondary {
-    font-weight: 500;
     background-color: var(--secondary-bg-color);
     color: var(--main-text-color);
     border: 1px solid var(--accent-color-transparent);
     border-radius: 0.25rem;
     padding: 0.3rem 0.5rem;
     transition: color 200ms ease-in-out, border-color 200ms ease-in-out;
+    font-weight: 500;
+    font-size: 0.8rem;
 }
 
 .btn-secondary:hover {
@@ -312,7 +344,7 @@ article header h4 {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    padding: 1rem 0;
+    padding: 1rem 0 2rem 0;
 }
 
 .active-category, .active-category:hover {
@@ -462,7 +494,7 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     flex: 100%;
 }
 #single-post-navigation-container {
-    margin: 1rem 0 -2rem 0;
+    margin-top: 1rem;
 }
 #comments-section {
     display: flex;
@@ -779,7 +811,6 @@ dialog #login-message {
     }
     .nav-item {
         padding: 0.5rem 0.75rem;
-        font-weight: 400;
     }
     .nav-item .secondary-span {
         display: inline;
@@ -863,7 +894,6 @@ dialog #login-message {
         padding: 1rem 0.5rem 1rem 1.5rem;
         box-shadow: -1px 0 0 var(--accent-color-transparent), 0 0 2px var(--transparent-color-light);
         clip-path: inset(-3px round 14px 0 0 14px);
-        font-weight: 700;
     }
     .nav-item:hover {
         box-shadow: -2px 0 0 var(--accent-color);
@@ -917,7 +947,7 @@ dialog #login-message {
         position: sticky;
         top: 2.5rem;
     }
-    #welcome-text, #posts, #categories {
+    #welcome-text, #posts, #categories, #portfolio-container, .explain-page {
         max-width: 60vw;
     }
 }
