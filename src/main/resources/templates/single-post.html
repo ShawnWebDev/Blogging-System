@@ -25,6 +25,10 @@
                         </button>
                     </div>
                     <p th:if="${entry.categoryNames.size() == 0}">No associated categories.</p>
+                    <small><i>
+                        <time th:if="${entry.updatedAt == null}" th:text="'Created: ' + ${#temporals.format(entry.createdAt, 'MMMM dd, yyyy')}"></time>
+                        <time th:if="${entry.updatedAt != null}" th:text="'Updated: ' + ${#temporals.format(entry.updatedAt, 'MMMM dd, yyyy')}"></time>
+                    </i></small>
                 </div>
             </header>
 
