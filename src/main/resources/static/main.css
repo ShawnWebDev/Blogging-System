@@ -186,6 +186,7 @@ a:hover {
 .about-section {
     margin-top: 3rem;
     width: fit-content;
+    scroll-margin-top: 2rem;
 }
 .about-section > h2, #welcome-text > h2 {
     padding-bottom: 0.5rem;
@@ -411,7 +412,6 @@ article header h4 {
 img[src$="#inline-img"] { /* for commonmark: syntax = ![Alt](/url#inline-img) */
     display: inline;
 }
-
 img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width-img) */
     display: block;
     width: 100%;
@@ -436,32 +436,38 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     border-radius: 0.25rem;
 }
 #sidebar {
-    flex: 1;
-    padding: 3rem 0 2rem 0.5rem;
-    min-width: 18rem;
-    font-size: 0.9rem;
-    height: inherit;
-    border-bottom: 1px solid var(--transparent-color-light);
+    display: none;
 }
 #sidebar nav ol {
     padding-left: 0;
 }
-#sidebar nav li {
+#sidebar nav ol li {
     list-style: none;
 }
 #sidebar-menu ul {
     display: block;
-    border-left: 1px dashed var(--transparent-color-light);
     padding-left: 0.5rem;
     margin-left: 0.5rem;
 }
+#sidebar-menu ul li {
+    border-left: 1px dashed var(--transparent-color-light);
+}
 .sidebar-nav-item {
     text-decoration: none;
+    font-size: 0.9rem;
     font-weight: 300;
     color: var(--main-text-color-transparent);
+    transition: color 200ms ease-in-out, border-color 200ms ease-in-out;
 }
 #sidebar nav li .active-nav-link {
-    color: var(--accent-color);
+    color: var(--accent-color-less-transparent);
+}
+#sidebar-menu ul:has(.active-nav-link) > li:has(.active-nav-link) {
+    border-left: 1px dashed var(--accent-color-less-transparent);
+}
+.last-active-nav-link {
+    color: var(--accent-color) !important;
+    text-decoration: underline;
 }
 #post-content h2  {
     margin: 2rem auto 1.5rem auto;
@@ -928,19 +934,15 @@ dialog #login-message {
         justify-content: space-between;
         gap: 4vw;
     }
-    .about-post-content {
-        gap: 4rem !important;
-    }
     #post-text {
         flex: 4;
     }
     #sidebar {
+        display: block;
         border-left: 1px solid var(--more-transparent-color-light);
-        border-bottom: none;
-    }
-    .about-sidebar {
-        min-width: fit-content !important;
-        border: none !important;
+        flex: 1;
+        padding: 3rem 0 2rem 0.5rem;
+        min-width: 18rem;
     }
     #sidebar-menu {
         padding-left: 0.85rem;
