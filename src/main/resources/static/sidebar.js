@@ -14,10 +14,12 @@ const observer = new IntersectionObserver(entries => {
         } else if (entry.boundingClientRect.top > 0) {
             navItem.classList.remove("active-nav-link");
         }
+        document.querySelector(".last-active-nav-link")?.classList.remove("last-active-nav-link");
+        [...document.querySelectorAll('.sidebar-nav-item.active-nav-link')].at(-1)?.classList.add("last-active-nav-link");
     })
 },{
     threshold: 1,
-    rootMargin: "0px 0px -25% 0px"
+    rootMargin: "0px 0px -75% 0px"
 })
 
 function createListItem(id, text) {
