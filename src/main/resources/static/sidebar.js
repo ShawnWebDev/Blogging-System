@@ -23,7 +23,7 @@ const observer = new IntersectionObserver(entries => {
     }
 },{
     threshold: 1,
-    rootMargin: "0px 0px -40% 0px"
+    rootMargin: "0px 0px -50% 0px"
 })
 
 function createListItem(id, text) {
