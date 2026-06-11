@@ -64,8 +64,8 @@
         </header>
         <form role="form" aria-label="Register form" hx-post="/register" hx-indicator="#loader" hx-target="#login-article" hx-swap="outerHTML" class="margin-bottom">
             <label>Email:
-                <input type="text" name="email" placeholder="Email" th:value="${userDto.email}" required/>
-                <small>Your email will only be used to validate your account.</small>
+                <input type="email" name="email" placeholder="Email" th:value="${userDto.email}" required/>
+                <small><i>Email will be used to validate your account.</i></small>
                 <small th:errors="${userDto.email}" class="error"></small>
             </label>
             <label>Username:
