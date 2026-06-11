@@ -186,7 +186,7 @@ a:hover {
 .about-section {
     margin-top: 3rem;
     width: fit-content;
-    scroll-margin-top: 2rem;
+    scroll-margin-top: 40vh;
 }
 .about-section > h2, #welcome-text > h2 {
     padding-bottom: 0.5rem;
@@ -471,11 +471,11 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
 }
 #post-content h2  {
     margin: 2rem auto 1.5rem auto;
-    scroll-margin-top: 1.5rem;
+    scroll-margin-top: 40vh;
 }
 #post-content h3 {
     margin: 1.5rem auto 1rem auto;
-    scroll-margin-top: 2rem;
+    scroll-margin-top: 40vh;
 }
 #post-content li {
     padding-left: 0.5rem;
@@ -644,9 +644,8 @@ label {
     width: 100%;
     display: block;
 }
-input[type="text"],
-input[type="url"],
-input[type="password"],
+
+input,
 textarea, select {
     width: 100%;
     max-width: 100%;
@@ -752,10 +751,10 @@ dialog #login-message {
 #portfolio-urls {
     display: none;
 }
-#portfolio-checkbox:checked + #portfolio-urls {
+#portfolio-checkbox:has(input:checked) + #portfolio-urls {
     display: flex;
+    flex: 100%;
 }
-
 #byte-validator {
     display: none;
 }
