@@ -45,8 +45,10 @@
           </div>
 
           <div class="form-group">
-            <label for="portfolio-checkbox">For Portfolio?:</label>
-            <input type="checkbox" name="isPortfolio" th:checked="${post.isPortfolio}" id="portfolio-checkbox"/>
+            <label id="portfolio-checkbox">For Portfolio?:
+              <input type="checkbox" name="isPortfolio" th:checked="${post.isPortfolio}"/>
+            </label>
+
             <div class="form-group" id="portfolio-urls">
               <div>
                 <label>Code URL:
