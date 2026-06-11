@@ -20,6 +20,7 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
                                         AuthenticationException ex) throws IOException, ServletException {
 
         if (ex instanceof DisabledException) {
+            // fires when logging in to account that has not been verified by email,
             // reset session, clear authentication context from thread-local, store username in new session for use in otp validation
             String username = request.getParameter("username");
             HttpSession oldSession = request.getSession(false);
