@@ -24,9 +24,9 @@ public class UserRegistrationDto {
     @NotBlank
     @Size(min = 8, max = 64)
     @Pattern(regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?!.+\\s).+$",
-            message = "must have at least 1 digit, 1 uppercase, 1 lowercase. No spaces.")
-    @Pattern(regexp = "^(?=.*[.!@#*+_-]).+$",
-            message = "must have 1 special character of @#.!*+_-")
+            message = "Must have one of each: digit, uppercase, lowercase letters. No spaces allowed.")
+    @Pattern(regexp = "^(?=.*[^a-zA-Z0-9]).+$",
+            message = "Must have one non-alphanumeric character.")
     private String password;
 
     @NotBlank
