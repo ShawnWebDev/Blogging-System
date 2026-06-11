@@ -202,7 +202,7 @@ a:hover {
 }
 
 #posts > header {
-    margin-bottom: 3rem;
+    margin: 2rem 0 3rem 0;
 }
 
 #post-container, #edit-category-container {
@@ -353,10 +353,6 @@ article header h4 {
     color: var(--accent-color);
     border-color: var(--accent-color-transparent);
     cursor: default;
-}
-
-#remove-filter-btn {
-    margin-top: 1rem;
 }
 
 #login-container {
