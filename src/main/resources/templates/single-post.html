@@ -10,7 +10,7 @@
         <div th:fragment="single-post" id="main-content" hx-on:htmx:load="initSidebar()">
             <header id="post-header">
                 <div id="post-header-content">
-                    <img th:if="${!entry.thumbnailUrl.isBlank()}" th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="post-thumbnail"/>
+                    <img th:if="${!entry.thumbnailUrl.isBlank()}" th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="post-thumbnail post-thumbnail-heading"/>
                     <h1 th:text="${entry.title}" id="entry-title"></h1>
                 </div>
                 <div id="single-post-navigation-container">
@@ -26,8 +26,8 @@
                     </div>
                     <p th:if="${entry.categoryNames.size() == 0}">No associated categories.</p>
                     <small><i>
-                        <time th:if="${entry.updatedAt == null}" th:text="'Created: ' + ${#temporals.format(entry.createdAt, 'MMMM dd, yyyy')}"></time>
-                        <time th:if="${entry.updatedAt != null}" th:text="'Updated: ' + ${#temporals.format(entry.updatedAt, 'MMMM dd, yyyy')}"></time>
+                        <time th:if="${entry.updatedAt == null}" th:text="'Created on: ' + ${#temporals.format(entry.createdAt, 'MMMM dd, yyyy')}"></time>
+                        <time th:if="${entry.updatedAt != null}" th:text="'Updated on: ' + ${#temporals.format(entry.updatedAt, 'MMMM dd, yyyy')}"></time>
                     </i></small>
                 </div>
             </header>
