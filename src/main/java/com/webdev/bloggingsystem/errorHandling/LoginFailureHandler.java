@@ -37,7 +37,7 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
             }
         }
 
-        super.setDefaultFailureUrl("/loginError");
+        super.setDefaultFailureUrl("https://" + request.getServerName() + "/loginError");
         super.onAuthenticationFailure(request, response, ex);
     }
 }
