@@ -1,4 +1,4 @@
-package com.webdev.bloggingsystem;
+package com.webdev.bloggingsystem.errorHandling;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
