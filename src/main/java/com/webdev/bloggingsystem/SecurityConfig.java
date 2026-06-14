@@ -1,5 +1,6 @@
 package com.webdev.bloggingsystem;
 
+import com.webdev.bloggingsystem.errorHandling.LoginFailureHandler;
 import com.webdev.bloggingsystem.user.BlogSystemUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +19,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    // todo : enable rate limiting (Nginx)
-    // todo : add all endpoints that require ADMIN.
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider passwordFirstDaoProvider, LoginFailureHandler loginFailureHandler) {
         http
@@ -50,13 +49,17 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/blog?logout")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/loginSuccess", true)
+                        .successHandler((request, response, _) -> {
+                            response.sendRedirect("https://" + request.getServerName() + "/loginSuccess");
+                        })
                         .failureHandler(loginFailureHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/logoutSuccess")
+                        .logoutSuccessHandler((request, response, _) -> {
+                            response.sendRedirect("https://" + request.getServerName() + "/logoutSuccess");
+                        })
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 );
