@@ -58,16 +58,28 @@ p, ul, ol {
 
 #main-header {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+    z-index: 3;
     gap: 0.5rem;
-    border-bottom: 1px solid var(--color-light);
+    border-bottom: 2px solid var(--color-light);
     margin: 0;
-    padding: 0.5rem 0 0 0;
+    padding: 0.5rem 0.5rem 0.25rem 0.5rem;
+    background-color: var(--main-bg-color);
+    position: sticky;
+    top: 0;
+    box-shadow: 0 4px 0 var(--secondary-bg-color),  0 5px 5px var(--secondary-bg-color);
 }
 
 #main-header h2 {
     margin: 0;
-    padding: 0 0.5rem 0.75rem 0.5rem;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+#main-header h2 small {
+    font-size: 0.9rem;
 }
 
 #main-content > header {
@@ -91,31 +103,61 @@ h1, h2 {
     fill: var(--accent-color-less-transparent);
 }
 
-#main-header > nav {
-    margin-top: 0;
+#nav-container {
+    display: grid;
+    position: absolute;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    top: 3rem;
+    left: 0;
+    width: 100%;
+    height: fit-content;
+    transition: grid-template-rows 200ms ease-in-out, opacity 200ms ease-in-out;
+}
+
+.nav-container-open {
+    grid-template-rows: 1fr !important;
+    opacity: 1 !important;
+    box-shadow: 0 4px 0 var(--secondary-bg-color),  0 5px 5px var(--secondary-bg-color);
+}
+
+#nav-container nav {
+    background-color: var(--main-bg-color);
+    overflow: hidden;
+}
+
+#menu-toggle-btn {
+    background-color: var(--transparent-color-dark);
+    padding: 0;
+    height: 1.75rem;
+    font-size: 1.5rem;
+    border-color: var(--main-bg-color);
+    font-weight: 700 !important;
+}
+
+.menu-open-toggle-btn {
+    color: var(--accent-color) !important;
 }
 
 nav ul, ul.group {
     display: flex;
+    flex-direction: column;
     gap: 1rem;
     list-style: none;
-    padding: 0 0.5rem;
+    padding: 0.5rem;
     margin: 0;
 }
 
 .nav-item {
     cursor: pointer;
-    background-color: var(--transparent-color-dark);
-    padding: 0.25rem 0.75rem;
-    font-weight: 600;
     display: flex;
-    gap: 0.75rem;
-    transition: background-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
-    clip-path: inset(-4px round 12px 12px 0 0);
-    text-decoration: none;
+    gap: 1rem;
+    justify-content: center;
     align-items: center;
-    box-shadow: 0 -2px 0 var(--accent-color-transparent),
-    1px 0 0 var(--transparent-color-light), -1px 0 0 var(--transparent-color-light);
+    text-decoration: none;
+    padding: 0.25rem 1rem;
+    transition: background-color 400ms ease-in-out, box-shadow 200ms ease-in-out;
+    border-radius: 0.25rem;
 }
 
 .nav-spans {
@@ -132,26 +174,27 @@ nav ul, ul.group {
 }
 
 .nav-item svg {
-    display: none;
-    fill: #fff;
+    width: 1rem;
+    height: 1rem;
+    fill: var(--main-text-color);
     opacity: 0.5;
 }
 
-.nav-item:hover svg, .nav-item.active svg {
+.nav-item:hover svg {
     opacity: 0.8;
+    fill: var(--accent-color-less-transparent);
+}
+.nav-item.active svg {
+    opacity: 1;
+    fill: var(--accent-color-less-transparent);
 }
 
-.nav-item:hover {
-    box-shadow: 0 -2px 0 var(--accent-color-less-transparent),
-    1px 0 0 var(--color-light), -1px 0 0 var(--color-light);
-    background-color: var(--secondary-bg-color);
-    color: var(--main-text-color);
+.nav-item:hover, .nav-item.active {
+    box-shadow: 0 -1px 0 var(--color-light), 0 1px 0 var(--color-light);
 }
 
 .nav-item.active {
-    background-color: var(--secondary-bg-color);
-    box-shadow: 0 -3px 0 var(--accent-color), 0 -2px 0 var(--secondary-bg-color), 0 2px 0 var(--secondary-bg-color),
-    1px -2px 0 var(--color-light), -1px -2px 0 var(--color-light), 1px 2px 0 var(--color-light), -1px 2px 0 var(--color-light);
+    background-color: var(--transparent-color-light);
 }
 
 .nav-item .nav-spans, .nav-item svg {
@@ -159,10 +202,8 @@ nav ul, ul.group {
     will-change: transform;
 }
 
-.nav-item.active .nav-spans, .nav-item.active > svg {
+.nav-item:hover .nav-spans > span, .nav-item.active .nav-spans > span {
     color: #fff;
-    transform: translateY(0.125rem);
-    opacity: 1;
 }
 
 button, input[type = submit] {
@@ -218,6 +259,12 @@ article header {
     transition: border-color 200ms ease-in-out, color 200ms ease-in-out, background-color 200ms ease-in-out;
 }
 
+.post-card header a {
+    position: absolute;
+    color: transparent;
+    inset: 0;
+}
+
 .post-card header, .portfolio-card header {
     display: flex;
     flex-wrap: wrap;
@@ -255,12 +302,6 @@ article header h4 {
     transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
 }
 
-.post-card header a {
-    position: absolute;
-    color: transparent;
-    inset: 0;
-}
-
 .post-card, .portfolio-card {
     border: 1px solid var(--more-transparent-color-light);
     border-radius: 0.25rem;
@@ -287,10 +328,9 @@ article header h4 {
 }
 
 .description {
-    display: flex;
-    gap: 1rem;
     padding: 1.5rem 1.25rem;
     background-color: var(--more-transparent-color-light);
+    min-height: 4rem;
 }
 
 .description p {
@@ -479,6 +519,8 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     display: inline;
     border-radius: 0.25rem;
     transition: transform 300ms ease-in-out, background-color 200ms ease-in-out, box-shadow 300ms ease-in-out;
+    float: left;
+    margin-right: 1rem;
 }
 #post-header-content {
     display: flex;
@@ -752,19 +794,8 @@ dialog #login-message {
 
 /* 460-799 */
 @media (min-width: 460px) {
-    nav {
-        width: fit-content;
-    }
     .nav-item {
         padding: 0.25rem 0.5rem;
-    }
-    .nav-item svg {
-        display: block;
-        width: 1rem;
-        height: 1rem;
-    }
-    #main-header {
-        padding: 0.5rem 0.5rem 0 0;
     }
     #post-container > .post-card header {
         padding: 0.5rem 1rem;
@@ -777,27 +808,63 @@ dialog #login-message {
 /* 800-1023 */
 @media (min-width: 800px) {
     #main-header {
+        background-color: var(--main-bg-color);
         flex-direction: row;
         align-items: flex-end;
         justify-content: space-between;
         padding: 1rem 2rem 0 2rem;
     }
     #main-header h2 {
-        padding: 0;
-        width: fit-content;
+        font-size: 1.5rem;
+        line-height: 1.15;
+    }
+    #main-header h2 small {
+        font-size: 1rem;
     }
     #main-content {
         padding: 2.5rem 2rem 4rem 2rem;
     }
+    #nav-container {
+        display: block;
+        position: static;
+        width: fit-content;
+        opacity:1;
+        transform: none;
+    }
+    #nav-container nav {
+        overflow: visible;
+        padding: 0;
+    }
+    nav ul, ul.group {
+        flex-direction: row;
+        padding: 0;
+    }
+    #menu-toggle-btn {
+        display: none;
+    }
     .nav-item {
-        padding: 0.5rem 0.75rem;
+        border-radius: 0;
+        transition: background-color 200ms ease-in-out, box-shadow 200ms ease-in-out, clip-path 200ms ease-in-out;
+        clip-path: inset(-4px round 12px 12px 0 0);
+        box-shadow: 0 -2px 0 var(--accent-color-transparent), 1px 0 0 var(--color-light), -1px 0 0 var(--color-light);
+    }
+    .nav-item:hover {
+        box-shadow: 0 -2px 0 var(--accent-color-less-transparent), 1px 0 0 var(--color-light), -1px 0 0 var(--color-light);
+    }
+    .nav-item.active {
+        background-color: var(--secondary-bg-color);
+        box-shadow: 0 -2px 0 var(--accent-color-less-transparent),
+        1px 0 0 var(--color-light), -1px 0 0 var(--color-light), 0 2px 0 var(--secondary-bg-color);
+    }
+    .nav-item.active .nav-spans, .nav-item.active > svg {
+        transform: translateY(0.125rem);
+        opacity: 1;
     }
     .nav-item .secondary-span {
         display: inline;
     }
     nav ul {
-        padding: 0;
-        margin-bottom: 0;
+        padding-top: 0.5rem;
     }
     .post-card header h4 {
         font-size: 1.15rem;
@@ -839,7 +906,7 @@ dialog #login-message {
         margin: 0 auto;
     }
     #main-header {
-        border-right: 1px solid var(--color-light);
+        border-right: 2px solid var(--color-light);
         border-bottom: none;
         height: 100vh;
         position: sticky;
@@ -848,10 +915,10 @@ dialog #login-message {
         width: 20rem;
     }
     #name-heading {
-        margin: 0 -1px 0 -2vw;
-        padding-left: 2vw;
-        background-color: var(--secondary-bg-color);
-        border-bottom: 1px solid var(--color-light);
+        padding: 1rem 0 0 0;
+    }
+    #nav-container {
+        width: 100%;
     }
     nav {
         width: 100%;
@@ -870,12 +937,11 @@ dialog #login-message {
     }
     #main-header h2 {
         width: 100%;
+        line-height: 1.5;
+        font-size: 1.6rem;
     }
     #main-header, #main-header h2 {
         margin: 0;
-    }
-    #main-header h4 {
-        margin-top: 0;
     }
     #main-header h2, #contact-section {
         padding: 1.5rem 0;
@@ -883,29 +949,53 @@ dialog #login-message {
     #main-header nav ul {
         flex-direction: column;
         gap: 1.5rem;
-    }
-    #main-header nav ul li, .nav-item {
-        text-align: left;
+        padding: 0;
     }
     .nav-item {
         justify-content: space-between;
-        padding: 1rem 0.5rem 1rem 1.5rem;
-        box-shadow: -1px 0 0 var(--accent-color-transparent), 0 0 2px var(--transparent-color-light);
-        clip-path: inset(-3px round 14px 0 0 14px);
+        padding: 0.75rem 0.5rem 0.75rem 1.5rem;
+        box-shadow: 0 2px 0 var(--transparent-color-light), 0 -2px 0 var(--transparent-color-light);
+        animation: 400ms ease-in-out 1 nav_normal forwards;
+
     }
     .nav-item:hover {
-        box-shadow: -2px 0 0 var(--accent-color);
+        box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 0 0 0 var(--secondary-bg-color);
+        animation: 400ms ease-in-out 1 nav_hover forwards;
     }
     .nav-item.active {
-        clip-path: inset(-5px round 16px 0 0 16px);
-        box-shadow: -3px 0 0 var(--accent-color),
-        3px 0 0 var(--secondary-bg-color),
-        -2px -1px 0 var(--color-light), -2px 1px 0 var(--color-light), 2px -1px 0 var(--color-light), 2px 1px 0 var(--color-light);
+        background-color: var(--main-bg-color);
+        animation: 400ms ease-in-out 1 nav_active forwards;
+        box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 4px 0 0 var(--secondary-bg-color), inset 0 0 0 var(--secondary-bg-color);
+    }
+
+    @keyframes nav_active {
+        from {
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 2px 0 0 var(--color-light), inset 15vw 0 8px 2px var(--secondary-bg-color);
+        }
+        to {
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 4px 0 0 var(--secondary-bg-color), inset -18rem 0 8px 2px var(--secondary-bg-color);
+        }
+    }
+    @keyframes nav_hover {
+        from  {
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 0 0 0 var(--secondary-bg-color);
+        }
+        to {
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 0 0 0 var(--secondary-bg-color), inset -16.5rem 0 8px 2px var(--secondary-bg-color);
+        }
+    }
+    @keyframes nav_normal {
+        from {
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 0 0 0 var(--secondary-bg-color), inset -16.5rem 0 8px 2px var(--secondary-bg-color);
+        }
+        to {
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 0 0 0 var(--secondary-bg-color);
+        }
     }
     .nav-item svg {
         width: 1.25rem;
         height: 1.25rem;
-        padding-right: 0.5rem;
+        padding-right: 1.5rem;
     }
     .nav-item.active .nav-spans, .nav-item.active > svg {
         transform: translateX(0.25rem);
@@ -965,7 +1055,7 @@ dialog #login-message {
         padding: 0 0 0 4vw;
     }
     #name-heading {
-        margin: 0 -1px 0 -4vw;
+        margin-left: -4vw;
         padding-left: 4vw;
     }
     #post-text {
