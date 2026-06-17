@@ -915,16 +915,14 @@ dialog #login-message {
         width: 20rem;
     }
     #name-heading {
-        padding: 1rem 0 0 0;
+        padding: 0;
     }
     #nav-container {
         width: 100%;
+        margin-top: calc(2rem + 5vh);
     }
     nav {
         width: 100%;
-    }
-    #main-header nav {
-        margin-top: calc(2rem + 5vh);
     }
     #main-content {
         padding: 2rem 5vw 4rem 5vw;
@@ -937,14 +935,14 @@ dialog #login-message {
     }
     #main-header h2 {
         width: 100%;
-        line-height: 1.5;
-        font-size: 1.6rem;
+        line-height: 1.25;
+        font-size: 1.75rem;
     }
     #main-header, #main-header h2 {
         margin: 0;
     }
-    #main-header h2, #contact-section {
-        padding: 1.5rem 0;
+    #main-header h2 {
+        padding: 2rem 0;
     }
     #main-header nav ul {
         flex-direction: column;
@@ -956,7 +954,6 @@ dialog #login-message {
         padding: 0.75rem 0.5rem 0.75rem 1.5rem;
         box-shadow: 0 2px 0 var(--transparent-color-light), 0 -2px 0 var(--transparent-color-light);
         animation: 400ms ease-in-out 1 nav_normal forwards;
-
     }
     .nav-item:hover {
         box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 0 0 0 var(--secondary-bg-color);
