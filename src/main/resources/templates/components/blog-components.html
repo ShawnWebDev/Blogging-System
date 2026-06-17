@@ -9,9 +9,9 @@
 <!--blog dashboard components-->
 <section th:fragment="all-posts" id="posts">
     <header>
-        <button th:if="${categoryName != 'All'}" hx-get="/blog/blogComponent/posts" hx-target="#posts" hx-swap="outerHTML swap:150ms" class="btn-secondary" id="remove-filter-btn" hx-on:click="removeActiveCategories()">Remove Filter</button>
+        <button th:if="${categoryName != 'All'}" hx-get="/blog/posts" hx-target="#posts" hx-swap="outerHTML swap:150ms" class="btn-secondary" hx-on:click="removeActiveCategories()">Remove Filter</button>
         <h2 th:if="${categoryName != 'All'}" th:text="${'Posts in ' + categoryName + ' category'}"></h2>
-        <h2 th:unless="${categoryName != 'All'}">All Posts</h2>
+        <h2 th:unless="${categoryName != 'All'}">All Blog Posts</h2>
         <p th:text="${categoryDesc}"></p>
     </header>
 
@@ -27,7 +27,7 @@
                     <a th:href="@{/blog/post/{id}/{slug}(id = ${post.id}, slug = ${post.slug})}" th:hx-get="@{/blog/post/{id}/{slug}(id = ${post.id}, slug = ${post.slug})}" hx-target="#main-content" hx-swap="outerHTML swap:150ms">
                         <span>View Post</span>
                     </a>
-                <small>@ <time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
+                <small><time th:text="${#temporals.format(post.createdAt, 'MMMM dd, yyyy')}"></time></small>
             </header>
             <section class="description">
                 <img th:if="${!post.thumbnailUrl.isBlank()}" th:src="${post.thumbnailUrl}" th:alt="${post.thumbnailAlt}" class="post-thumbnail"/>
@@ -38,14 +38,16 @@
 </section>
 
 <section th:fragment="categories" id="categories">
-    <strong>Filter by category:</strong>
+    <h3>Filter by category:</h3>
         <div id="categories-container">
-            <button class="category-selection btn-secondary"
-                    th:each="category : ${categories}"
-                    th:hx-get="@{/blog/blogComponent/posts(categoryName=${category.name})}"
+            <button th:each="category : ${categories}"
+                    th:class="|category-selection btn-secondary ${param.categoryName != null && param.categoryName[0]==category.name ? 'active-category' : ''}|"
+                    th:hx-get="@{/blog/posts(categoryName=${category.name})}"
                     hx-target="#posts"
                     hx-swap="outerHTML swap:150ms"
-                    th:text="${category.name}">
+                    th:text="${category.name}"
+                    th:title="'View posts in ' + ${category.name} + '.'"
+                    th:disabled="${param.categoryName != null && param.categoryName[0]==category.name}">
             </button>
         </div>
     <script>

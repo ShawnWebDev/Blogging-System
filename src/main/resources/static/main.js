@@ -1,10 +1,13 @@
-
 const navItems = document.querySelectorAll('.nav-item');
+const navContainer = document.getElementById('nav-container');
+
 navItems.forEach(el => {
     el.addEventListener('click', function () {
         navItems.forEach(el_2 => el_2.classList.remove('active'));
         this.classList.add('active');
-    });
+        navContainer.classList.remove('nav-container-open');
+        navMenuToggle.innerText = '☰';
+    })
 });
 
 document.addEventListener("htmx:configRequest", function(e) {
@@ -35,9 +38,14 @@ document.body.addEventListener('loginSuccess', function(e) {
     })
 });
 
+document.body.addEventListener('navigationChange', () => {
+    document.getElementById("portfolio-nav-item").classList.remove("active");
+    document.getElementById("blog-nav-item").classList.add("active");
+});
+
 let refreshTimer;
 
-//close dialog after 20 mins, keeps csrf token fresh by re-fetching when modal re-opened
+//close dialog after 30 mins
 function startCloseDialogTimer(elementId) {
     refreshTimer = setTimeout(() => {
         closeDialog(elementId);
@@ -63,12 +71,30 @@ function fetchNewCsrfToken() {
     htmx.ajax('GET', '/refresh-token', {swap: 'none'});
 }
 
-// TODO -->
+const navMenuToggle = document.getElementById('menu-toggle-btn');
+navMenuToggle.addEventListener('click', openNavMenu);
+
+function openNavMenu() {
+    navContainer.classList.toggle('nav-container-open');
+    if (navContainer.classList.contains('nav-container-open')) {
+        navMenuToggle.innerText = 'X';
+        navMenuToggle.classList.add('menu-open-toggle-btn');
+    } else {
+        navMenuToggle.innerText = '☰';
+        navMenuToggle.classList.remove('menu-open-toggle-btn');
+    }
+}
+
+// TODO :
+//  called from auth-components.login-dialog fragment
 function convertTimeToLocal() {
     console.log('login message fragment');
     const timeEl = document.getElementById('timeExpiration');
     if (!timeEl) {
         return;
     }
-    console.log("time element exists.. convert: " + timeEl.innerText);
+    const time = timeEl.textContent;
+    const date = new Date(time);
+    console.log("time element exists.. convert: " + time);
+    console.log("converted to: " + date);
 }

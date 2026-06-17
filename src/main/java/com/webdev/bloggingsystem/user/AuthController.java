@@ -47,11 +47,12 @@ public class AuthController {
      * Uses HttpServletRequest and not HtmxRequest because the request is from a redirect by Spring Security.
      * <p> Login referer can be from /blog or any /single-post page (for commenting).
      * The getPath() used on isFromBlog removes URI params to correctly check the String '/blog' by removing /blog?logout or /blog?sessionExpired
-     * <p> The logout-button template fragment contains admin controls. These are filtered out by Thymeleaf if Auth does not have the ADMIN role.
+     * <p> The logout-button template fragment contains admin controls. These are not rendered by Thymeleaf if Auth does not have the ADMIN role.
     */
     @GetMapping("/loginSuccess")
     public FragmentsRendering loginSuccess(HttpServletRequest request, HtmxResponse htmxResponse) {
         String referer = request.getHeader("Referer");
+        logger.info("*** login success from referer: " + referer);
         if (this.isFromBlog(referer)) {
             htmxResponse.setPushUrl("/blog");
             return FragmentsRendering
@@ -81,7 +82,7 @@ public class AuthController {
  * The attribute is set only after registration OR if login credentials were valid but the user has isActive set to false in the DB. (Enabled = false in UserDetails Object)
   */
     @GetMapping("/loginError")
-    public String loginError(Model model, HttpServletResponse response, HttpServletRequest request) {
+    public FragmentsRendering loginError(Model model, HttpServletResponse response, HttpServletRequest request) {
         HttpSession httpSession = request.getSession(false);
         String errorMsg = "Invalid username or password.";
 
@@ -106,10 +107,15 @@ public class AuthController {
         return this.loginView();
     }
 
+    // loginform is there on initial load, open modal calls for /refresh-token,
+    // new csrf token is for going back to log in form from registration otp flow since it resets the session.
     @HxRequest
     @GetMapping("/loginForm")
-    public String loginView() {
-        return "components/auth-components::login-article";
+    public FragmentsRendering loginView() {
+        return FragmentsRendering
+                .fragment("components/auth-components::login-article")
+                .fragment("components/auth-components::csrf-token-oob")
+                .build();
     }
 
     @HxRequest
@@ -146,7 +152,7 @@ public class AuthController {
     // sends the form to enter the otp.
     @HxRequest
     @GetMapping("/validate")
-    public String validateView(Model model, HttpServletRequest request) {
+    public Object validateView(Model model, HttpServletRequest request) {
         HttpSession httpSession = request.getSession(false);
         if (httpSession != null) {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
@@ -195,7 +201,7 @@ public class AuthController {
 
     @HxRequest
     @GetMapping("/resendValidation")
-    public String resendValidation(Model model, HttpServletRequest request) {
+    public Object resendValidation(Model model, HttpServletRequest request) {
         HttpSession httpSession = request.getSession(false);
         if (httpSession != null) {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");

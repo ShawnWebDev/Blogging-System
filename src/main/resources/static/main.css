@@ -41,12 +41,12 @@ main {
     width: 100%;
 }
 
-p {
+p, ul, ol {
     line-height: 2;
 }
 
 #main-content {
-    padding: 2.5rem 0.25rem 4rem 0.25rem;
+    padding: 2.5rem 0.5rem 4rem 0.5rem;
     opacity: 1;
     transition: opacity 150ms ease-in-out;
     min-height: calc(100vh - 8.5rem);
@@ -58,23 +58,34 @@ p {
 
 #main-header {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+    z-index: 3;
     gap: 0.5rem;
-    border-bottom: 1px solid var(--color-light);
+    border-bottom: 2px solid var(--color-light);
     margin: 0;
-    padding: 0.5rem 0 0 0;
+    padding: 0.5rem 0.5rem 0.25rem 0.5rem;
+    background-color: var(--main-bg-color);
+    position: sticky;
+    top: 0;
+    box-shadow: 0 4px 0 var(--secondary-bg-color),  0 5px 5px var(--secondary-bg-color);
 }
 
 #main-header h2 {
     margin: 0;
-    padding: 0 0.25rem 0.75rem 0.25rem;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+#main-header h2 small {
+    font-size: 0.9rem;
 }
 
 #main-content > header {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding-bottom: 2rem;
 }
 
 #main-content > header h1 {
@@ -92,36 +103,61 @@ h1, h2 {
     fill: var(--accent-color-less-transparent);
 }
 
-nav {
-    width: fit-content;
+#nav-container {
+    display: grid;
+    position: absolute;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    top: 3rem;
+    left: 0;
+    width: 100%;
+    height: fit-content;
+    transition: grid-template-rows 200ms ease-in-out, opacity 200ms ease-in-out;
 }
 
-#main-header > nav {
-    margin-top: 0;
+.nav-container-open {
+    grid-template-rows: 1fr !important;
+    opacity: 1 !important;
+    box-shadow: 0 4px 0 var(--secondary-bg-color),  0 5px 5px var(--secondary-bg-color);
+}
+
+#nav-container nav {
+    background-color: var(--main-bg-color);
+    overflow: hidden;
+}
+
+#menu-toggle-btn {
+    background-color: var(--transparent-color-dark);
+    padding: 0;
+    height: 1.75rem;
+    font-size: 1.5rem;
+    border-color: var(--main-bg-color);
+    font-weight: 700 !important;
+}
+
+.menu-open-toggle-btn {
+    color: var(--accent-color) !important;
 }
 
 nav ul, ul.group {
     display: flex;
-    justify-content: space-between;
-    gap: 0.25rem;
+    flex-direction: column;
+    gap: 1rem;
     list-style: none;
-    padding: 0 0.25rem;
+    padding: 0.5rem;
     margin: 0;
 }
 
 .nav-item {
     cursor: pointer;
-    background-color: var(--transparent-color-dark);
-    padding: 0.5rem 1rem;
-    font-weight: 500;
     display: flex;
-    gap: 0.75rem;
-    transition: background-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
-    clip-path: inset(-4px round 12px 12px 0 0);
-    text-decoration: none;
+    gap: 1rem;
+    justify-content: center;
     align-items: center;
-    box-shadow: 0 -2px 0 var(--accent-color-transparent),
-    1px 0 0 var(--transparent-color-light), -1px 0 0 var(--transparent-color-light);
+    text-decoration: none;
+    padding: 0.25rem 1rem;
+    transition: background-color 400ms ease-in-out, box-shadow 200ms ease-in-out;
+    border-radius: 0.25rem;
 }
 
 .nav-spans {
@@ -138,26 +174,27 @@ nav ul, ul.group {
 }
 
 .nav-item svg {
-    display: none;
-    fill: #fff;
+    width: 1rem;
+    height: 1rem;
+    fill: var(--main-text-color);
     opacity: 0.5;
 }
 
-.nav-item:hover svg, .nav-item.active svg {
+.nav-item:hover svg {
     opacity: 0.8;
+    fill: var(--accent-color-less-transparent);
+}
+.nav-item.active svg {
+    opacity: 1;
+    fill: var(--accent-color-less-transparent);
 }
 
-.nav-item:hover {
-    box-shadow: 0 -2px 0 var(--accent-color-less-transparent),
-    1px 0 0 var(--color-light), -1px 0 0 var(--color-light);
-    background-color: var(--secondary-bg-color);
-    color: var(--main-text-color);
+.nav-item:hover, .nav-item.active {
+    box-shadow: 0 -1px 0 var(--color-light), 0 1px 0 var(--color-light);
 }
 
 .nav-item.active {
-    background-color: var(--secondary-bg-color);
-    box-shadow: 0 -3px 0 var(--accent-color), 0 -2px 0 var(--secondary-bg-color), 0 2px 0 var(--secondary-bg-color),
-    1px -2px 0 var(--color-light), -1px -2px 0 var(--color-light), 1px 2px 0 var(--color-light), -1px 2px 0 var(--color-light);
+    background-color: var(--transparent-color-light);
 }
 
 .nav-item .nav-spans, .nav-item svg {
@@ -165,20 +202,18 @@ nav ul, ul.group {
     will-change: transform;
 }
 
-.nav-item.active .nav-spans, .nav-item.active > svg {
+.nav-item:hover .nav-spans > span, .nav-item.active .nav-spans > span {
     color: #fff;
-    transform: translateY(0.125rem);
-    opacity: 1;
 }
 
 button, input[type = submit] {
-    font-weight: 600;
     cursor: pointer;
-    font-family: var(--header-font-family), sans-serif;
+    font-family: var(--main-text-font-family), sans-serif;
 }
 
 a, .denote-parent-comment, .denote-reply {
     color: var(--accent-color-less-transparent);
+    font-family: var(--main-text-font-family), sans-serif;
 }
 
 a:hover {
@@ -187,43 +222,55 @@ a:hover {
 .about-section {
     margin-top: 3rem;
     width: fit-content;
+    scroll-margin-top: 40vh;
 }
 .about-section > h2, #welcome-text > h2 {
     padding-bottom: 0.5rem;
     border-bottom: 1px dashed var(--more-transparent-color-light);
+}
+.about-section ul {
+    padding-left: 0.5rem;
+    list-style: none;
 }
 #posts {
     opacity: 1;
     transition: opacity 150ms ease-in-out;
     margin-bottom: 2rem;
 }
-
 #posts.htmx-swapping {
     opacity: 0;
 }
 
 #posts > header {
-    margin-bottom: 3rem;
+    margin: 2rem 0 3rem 0;
 }
 
 #post-container, #edit-category-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
     margin: 1.5rem 0;
 }
 
 article header {
+    background-color: var(--main-bg-color);
+    padding: 0.75rem;
+}
+
+.post-card header {
     position: relative;
+    transition: border-color 200ms ease-in-out, color 200ms ease-in-out, background-color 200ms ease-in-out;
+}
+
+.post-card header a {
+    position: absolute;
+    color: transparent;
+    inset: 0;
+}
+
+.post-card header, .portfolio-card header {
     display: flex;
     flex-wrap: wrap;
     column-gap: 1rem;
     justify-content: space-between;
-    background-color: var(--main-bg-color);
-    border-radius: 0.25rem 0.25rem 0 0;
-    padding: 0.5rem;
     border-bottom: 2px solid var(--accent-color-transparent);
-    transition: border-color 200ms ease-in-out, color 200ms ease-in-out, background-color 200ms ease-in-out;
 }
 
 .category-card header h4 {
@@ -231,7 +278,6 @@ article header {
 }
 
 .post-card header:hover {
-    background-color: var(--accent-color-transparent);
     border-color: var(--accent-color);
     color: #fff;
 }
@@ -247,7 +293,7 @@ article header h4 {
     gap: 1rem;
 }
 
-#post-container header, .post-card footer, article header h4 {
+#post-container header, article header, article footer {
     align-items: center;
 }
 
@@ -256,18 +302,35 @@ article header h4 {
     transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
 }
 
-.post-card header a {
-    position: absolute;
-    color: transparent;
-    inset: 0;
+.post-card, .portfolio-card {
+    border: 1px solid var(--more-transparent-color-light);
+    border-radius: 0.25rem;
+    margin-top: 2rem;
+}
+
+#portfolio-container {
+    margin-top: 4rem;
+}
+
+.portfolio-card footer {
+    background-color: var(--main-bg-color);
+    padding: 0.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.portfolio-card footer a {
+    text-decoration: none;
+}
+
+.portfolio-card .description {
+    border-radius: 0;
 }
 
 .description {
-    display: flex;
-    gap: 0.5rem;
-    padding: 1rem 0.5rem;
+    padding: 1.5rem 1.25rem;
     background-color: var(--more-transparent-color-light);
-    border-radius: 0 0 0.25rem 0.25rem;
+    min-height: 4rem;
 }
 
 .description p {
@@ -275,7 +338,6 @@ article header h4 {
 }
 
 .btn-primary {
-    font-size: 0.9rem;
     background-color: var(--accent-color-transparent);
     border: 1px solid var(--accent-color-less-transparent);
     border-radius: 0.25rem;
@@ -291,13 +353,14 @@ article header h4 {
 }
 
 .btn-secondary {
-    font-weight: 500;
     background-color: var(--secondary-bg-color);
     color: var(--main-text-color);
     border: 1px solid var(--accent-color-transparent);
     border-radius: 0.25rem;
     padding: 0.3rem 0.5rem;
     transition: color 200ms ease-in-out, border-color 200ms ease-in-out;
+    font-weight: 500;
+    font-size: 0.8rem;
 }
 
 .btn-secondary:hover {
@@ -313,7 +376,7 @@ article header h4 {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    padding: 1rem 0;
+    padding: 1rem 0 2rem 0;
 }
 
 .active-category, .active-category:hover {
@@ -321,10 +384,6 @@ article header h4 {
     color: var(--accent-color);
     border-color: var(--accent-color-transparent);
     cursor: default;
-}
-
-#remove-filter-btn {
-    margin-top: 1rem;
 }
 
 #login-container {
@@ -380,12 +439,10 @@ article header h4 {
 img[src$="#inline-img"] { /* for commonmark: syntax = ![Alt](/url#inline-img) */
     display: inline;
 }
-
 img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width-img) */
     display: block;
     width: 100%;
 }
-
 #post-header {
     flex-wrap: wrap;
     border-bottom: 1px solid var(--transparent-color-light);
@@ -398,46 +455,54 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     flex-direction: column-reverse;
     border-bottom: 1px solid var(--transparent-color-light);
 }
-.post-image {
-    max-width: 12rem;
+
+.about-image {
+    float: right;
+    margin: 0 0 0.5rem calc(0.5rem + 2vw);
+    width: 8rem;
+    border-radius: 0.25rem;
 }
 #sidebar {
-    flex: 1;
-    padding: 3rem 0 2rem 0.5rem;
-    min-width: 18rem;
-    font-size: 0.9rem;
-    height: inherit;
+    display: none;
 }
 #sidebar nav ol {
     padding-left: 0;
 }
-#sidebar nav li {
+#sidebar nav ol li {
     list-style: none;
-}
-.sidebar-nav-item, #sidebar-menu ol li, #sidebar-menu ul li  {
-    padding: 0.25rem 0;
 }
 #sidebar-menu ul {
     display: block;
-    border-left: 1px dashed var(--transparent-color-light);
     padding-left: 0.5rem;
     margin-left: 0.5rem;
 }
+#sidebar-menu ul li {
+    border-left: 1px dashed var(--transparent-color-light);
+}
 .sidebar-nav-item {
     text-decoration: none;
+    font-size: 0.9rem;
     font-weight: 300;
     color: var(--main-text-color-transparent);
+    transition: color 200ms ease-in-out, border-color 200ms ease-in-out;
 }
 #sidebar nav li .active-nav-link {
-    color: var(--accent-color);
+    color: var(--accent-color-less-transparent);
+}
+#sidebar-menu ul:has(.active-nav-link) > li:has(.active-nav-link) {
+    border-left: 1px dashed var(--accent-color-less-transparent);
+}
+.last-active-nav-link {
+    color: var(--accent-color) !important;
+    text-decoration: underline;
 }
 #post-content h2  {
     margin: 2rem auto 1.5rem auto;
-    scroll-margin-top: 1.5rem;
+    scroll-margin-top: 40vh;
 }
 #post-content h3 {
     margin: 1.5rem auto 1rem auto;
-    scroll-margin-top: 2rem;
+    scroll-margin-top: 40vh;
 }
 #post-content li {
     padding-left: 0.5rem;
@@ -449,10 +514,13 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     color: var(--code-color);
 }
 .post-thumbnail {
-    display: inline;
-    width: 3rem;
+    width: 5rem;
     height: auto;
-    max-width: 100%;
+    display: inline;
+    border-radius: 0.25rem;
+    transition: transform 300ms ease-in-out, background-color 200ms ease-in-out, box-shadow 300ms ease-in-out;
+    float: left;
+    margin-right: 1rem;
 }
 #post-header-content {
     display: flex;
@@ -462,7 +530,7 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     flex: 100%;
 }
 #single-post-navigation-container {
-    margin: 1rem 0 -2rem 0;
+    margin-top: 1rem;
 }
 #comments-section {
     display: flex;
@@ -606,9 +674,8 @@ label {
     width: 100%;
     display: block;
 }
-input[type="text"],
-input[type="url"],
-input[type="password"],
+
+input,
 textarea, select {
     width: 100%;
     max-width: 100%;
@@ -711,6 +778,13 @@ dialog #login-message {
     text-align: center;
     padding: 0.5rem 0;
 }
+#portfolio-urls {
+    display: none;
+}
+#portfolio-checkbox:has(input:checked) + #portfolio-urls {
+    display: flex;
+    flex: 100%;
+}
 #byte-validator {
     display: none;
 }
@@ -720,62 +794,77 @@ dialog #login-message {
 
 /* 460-799 */
 @media (min-width: 460px) {
-    nav {
-        width: fit-content;
-    }
-    nav ul {
-        padding: 0 0.5rem;
-        gap: 1rem;
-    }
     .nav-item {
-        padding: 0.75rem;
-    }
-    .nav-item svg {
-        display: block;
-        width: 1rem;
-        height: 1rem;
-    }
-    #main-header {
-        padding: 0.5rem 0.5rem 0 0;
-    }
-    #main-header h2 {
-        padding: 0 0.5rem 0.75rem 0.5rem;
-    }
-    #main-content {
-        padding: 2.5rem 0.5rem 4rem 0.5rem;
+        padding: 0.25rem 0.5rem;
     }
     #post-container > .post-card header {
         padding: 0.5rem 1rem;
     }
-    .description {
-        padding: 1rem;
+    .about-image {
+        width: 10rem;
     }
 }
 
 /* 800-1023 */
 @media (min-width: 800px) {
     #main-header {
+        background-color: var(--main-bg-color);
         flex-direction: row;
         align-items: flex-end;
         justify-content: space-between;
         padding: 1rem 2rem 0 2rem;
     }
     #main-header h2 {
-        padding: 0;
-        width: fit-content;
+        font-size: 1.5rem;
+        line-height: 1.15;
+    }
+    #main-header h2 small {
+        font-size: 1rem;
     }
     #main-content {
         padding: 2.5rem 2rem 4rem 2rem;
     }
+    #nav-container {
+        display: block;
+        position: static;
+        width: fit-content;
+        opacity:1;
+        transform: none;
+    }
+    #nav-container nav {
+        overflow: visible;
+        padding: 0;
+    }
+    nav ul, ul.group {
+        flex-direction: row;
+        padding: 0;
+    }
+    #menu-toggle-btn {
+        display: none;
+    }
     .nav-item {
-        font-weight: 400;
+        border-radius: 0;
+        transition: background-color 200ms ease-in-out, box-shadow 200ms ease-in-out, clip-path 200ms ease-in-out;
+        clip-path: inset(-4px round 12px 12px 0 0);
+        box-shadow: 0 -2px 0 var(--accent-color-transparent), 1px 0 0 var(--color-light), -1px 0 0 var(--color-light);
+    }
+    .nav-item:hover {
+        box-shadow: 0 -2px 0 var(--accent-color-less-transparent), 1px 0 0 var(--color-light), -1px 0 0 var(--color-light);
+    }
+    .nav-item.active {
+        background-color: var(--secondary-bg-color);
+        box-shadow: 0 -2px 0 var(--accent-color-less-transparent),
+        1px 0 0 var(--color-light), -1px 0 0 var(--color-light), 0 2px 0 var(--secondary-bg-color);
+    }
+    .nav-item.active .nav-spans, .nav-item.active > svg {
+        transform: translateY(0.125rem);
+        opacity: 1;
     }
     .nav-item .secondary-span {
         display: inline;
     }
     nav ul {
-        padding: 0;
-        margin-bottom: 0;
+        padding-top: 0.5rem;
     }
     .post-card header h4 {
         font-size: 1.15rem;
@@ -783,6 +872,27 @@ dialog #login-message {
     .post-card header span svg {
         width: 1rem;
         height: 1rem;
+    }
+    .about-post-content {
+        gap: 2rem !important;
+    }
+    .about-sidebar {
+        min-width: fit-content !important;
+    }
+    .about-image {
+        width: initial;
+    }
+    .post-thumbnail {
+        cursor: pointer;
+    }
+    .post-thumbnail:hover {
+        background-color: var(--main-bg-color);
+        transform: scale(2) translateX(0.5rem);
+        z-index: 2;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.65);
+    }
+    .post-thumbnail-heading:hover {
+        transform: scale(2) translateX(0.5rem) translateY(0.5rem);
     }
 }
 
@@ -796,7 +906,7 @@ dialog #login-message {
         margin: 0 auto;
     }
     #main-header {
-        border-right: 1px solid var(--color-light);
+        border-right: 2px solid var(--color-light);
         border-bottom: none;
         height: 100vh;
         position: sticky;
@@ -804,11 +914,15 @@ dialog #login-message {
         padding: 0 0 0 2vw;
         width: 20rem;
     }
+    #name-heading {
+        padding: 0;
+    }
+    #nav-container {
+        width: 100%;
+        margin-top: calc(2rem + 5vh);
+    }
     nav {
         width: 100%;
-    }
-    #main-header > nav {
-        margin-top: 1.5rem;
     }
     #main-content {
         padding: 2rem 5vw 4rem 5vw;
@@ -821,43 +935,64 @@ dialog #login-message {
     }
     #main-header h2 {
         width: 100%;
+        line-height: 1.25;
+        font-size: 1.75rem;
     }
     #main-header, #main-header h2 {
         margin: 0;
     }
-    #main-header h4 {
-        margin-top: 0;
-    }
-    #main-header h2, #main-header nav, #contact-section {
-        padding: 1.5rem 0;
+    #main-header h2 {
+        padding: 2rem 0;
     }
     #main-header nav ul {
         flex-direction: column;
         gap: 1.5rem;
-    }
-    #main-header nav ul li, .nav-item {
-        text-align: left;
+        padding: 0;
     }
     .nav-item {
         justify-content: space-between;
-        padding: 1rem 0.5rem 1rem 1.5rem;
-        box-shadow: -1px 0 0 var(--accent-color-transparent), 0 0 2px var(--transparent-color-light);
-        clip-path: inset(-3px round 14px 0 0 14px);
-        font-weight: 700;
+        padding: 0.75rem 0.5rem 0.75rem 1.5rem;
+        box-shadow: 0 2px 0 var(--transparent-color-light), 0 -2px 0 var(--transparent-color-light);
+        animation: 400ms ease-in-out 1 nav_normal forwards;
     }
     .nav-item:hover {
-        box-shadow: -2px 0 0 var(--accent-color);
+        box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 0 0 0 var(--secondary-bg-color);
+        animation: 400ms ease-in-out 1 nav_hover forwards;
     }
     .nav-item.active {
-        clip-path: inset(-5px round 16px 0 0 16px);
-        box-shadow: -3px 0 0 var(--accent-color),
-        3px 0 0 var(--secondary-bg-color),
-        -2px -1px 0 var(--color-light), -2px 1px 0 var(--color-light), 2px -1px 0 var(--color-light), 2px 1px 0 var(--color-light);
+        background-color: var(--main-bg-color);
+        animation: 400ms ease-in-out 1 nav_active forwards;
+        box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 4px 0 0 var(--secondary-bg-color), inset 0 0 0 var(--secondary-bg-color);
+    }
+
+    @keyframes nav_active {
+        from {
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 2px 0 0 var(--color-light), inset 15vw 0 8px 2px var(--secondary-bg-color);
+        }
+        to {
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 4px 0 0 var(--secondary-bg-color), inset -18rem 0 8px 2px var(--secondary-bg-color);
+        }
+    }
+    @keyframes nav_hover {
+        from  {
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 0 0 0 var(--secondary-bg-color);
+        }
+        to {
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 0 0 0 var(--secondary-bg-color), inset -16.5rem 0 8px 2px var(--secondary-bg-color);
+        }
+    }
+    @keyframes nav_normal {
+        from {
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 0 0 0 var(--secondary-bg-color), inset -16.5rem 0 8px 2px var(--secondary-bg-color);
+        }
+        to {
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 0 0 0 var(--secondary-bg-color);
+        }
     }
     .nav-item svg {
         width: 1.25rem;
         height: 1.25rem;
-        padding-right: 0.5rem;
+        padding-right: 1.5rem;
     }
     .nav-item.active .nav-spans, .nav-item.active > svg {
         transform: translateX(0.25rem);
@@ -865,6 +1000,15 @@ dialog #login-message {
     .post-card header span svg {
         width: 1.15rem;
         height: 1.15rem;
+    }
+    .post-thumbnail:hover {
+        background-color: var(--main-bg-color);
+        transform: scale(2);
+        z-index: 2;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.65);
+    }
+    .post-thumbnail-heading:hover {
+        transform: scale(2) translateY(0.5rem);
     }
 }
 
@@ -882,12 +1026,19 @@ dialog #login-message {
         flex: 4;
     }
     #sidebar {
+        display: block;
         border-left: 1px solid var(--more-transparent-color-light);
+        flex: 1;
+        padding: 3rem 0 2rem 0.5rem;
+        min-width: 18rem;
     }
     #sidebar-menu {
         padding-left: 0.85rem;
         position: sticky;
         top: 2.5rem;
+    }
+    #welcome-text, #posts, #categories, #portfolio-container, .explain-page {
+        max-width: 60vw;
     }
 }
 
@@ -899,6 +1050,10 @@ dialog #login-message {
     }
     #main-header {
         padding: 0 0 0 4vw;
+    }
+    #name-heading {
+        margin-left: -4vw;
+        padding-left: 4vw;
     }
     #post-text {
         flex: 5;

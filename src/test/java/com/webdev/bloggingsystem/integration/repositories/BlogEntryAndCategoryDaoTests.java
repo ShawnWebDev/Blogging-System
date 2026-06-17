@@ -225,10 +225,14 @@ public class BlogEntryAndCategoryDaoTests {
     public void testFindSimpleCategories() {
         List<SimpleCategoryDto> result = categoryDao.findAllNames();
 
+        SimpleCategoryDto simpleCategoryDto_4 = new SimpleCategoryDto(4, "Portfolio");
         SimpleCategoryDto simpleCategoryDto_1 = new SimpleCategoryDto(1, "Test Category 1");
         SimpleCategoryDto simpleCategoryDto_2 = new SimpleCategoryDto(2, "Test Category 2");
         SimpleCategoryDto simpleCategoryDto_3 = new SimpleCategoryDto(3, "Test Category 3");
-        assertEquals(List.of(simpleCategoryDto_1, simpleCategoryDto_2, simpleCategoryDto_3), result);
+
+        assertEquals(
+                List.of(simpleCategoryDto_4, simpleCategoryDto_1, simpleCategoryDto_2, simpleCategoryDto_3),
+                result);
     }
 
 

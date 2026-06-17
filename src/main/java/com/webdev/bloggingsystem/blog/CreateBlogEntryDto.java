@@ -23,13 +23,21 @@ public class CreateBlogEntryDto {
     @NotBlank
     @Size(min = 2, max = 65535)
     private String content;
+    @Size(max = 255)
+    private String codeUrl;
+    @Size(max = 255)
+    private String demoUrl;
 
     private boolean inProgress;
+    private boolean isPortfolio;
+
     private int[] categoryIds = new int[4];
+
 
     public CreateBlogEntryDto() {}
 
-    public CreateBlogEntryDto(Integer id, String slug, String title, String description, String thumbnailUrl, String thumbnailAlt, int[] categoryIds, String content, boolean inProgress) {
+    public CreateBlogEntryDto(Integer id, String slug, String title, String description, String thumbnailUrl, String thumbnailAlt, int[] categoryIds, String content,
+                              boolean inProgress, String codeUrl, String demoUrl, boolean isPortfolio) {
         this.id = id;
         this.slug = slug;
         this.title = title;
@@ -39,6 +47,9 @@ public class CreateBlogEntryDto {
         this.categoryIds = categoryIds;
         this.content = content;
         this.inProgress = inProgress;
+        this.codeUrl = codeUrl;
+        this.demoUrl = demoUrl;
+        this.isPortfolio = isPortfolio;
     }
 
     public Integer getId() {
@@ -92,6 +103,25 @@ public class CreateBlogEntryDto {
     public void setInProgress(boolean inProgress) {
         this.inProgress = inProgress;
     }
+    public boolean getIsPortfolio() {
+        return isPortfolio;
+    }
+    public void setIsPortfolio(boolean isPortfolio) {
+        this.isPortfolio = isPortfolio;
+    }
+    public String getCodeUrl() {
+        return codeUrl;
+    }
+    public void setCodeUrl(String codeUrl) {
+        this.codeUrl = codeUrl;
+    }
+    public String getDemoUrl() {
+        return demoUrl;
+    }
+    public void setDemoUrl(String demoUrl) {
+        this.demoUrl = demoUrl;
+    }
+
 
     @Override
     public String toString() {
@@ -103,6 +133,7 @@ public class CreateBlogEntryDto {
                 ", categories= " + Arrays.toString(categoryIds) +
                 ", content " + content +
                 ", inProgress= " + inProgress +
+                ", isPortfolio= " + isPortfolio +
                 '}';
     }
 }

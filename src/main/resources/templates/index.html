@@ -7,7 +7,7 @@
     <header th:replace="~{components/header-components :: full-header}"></header>
 
     <main>
-        <div th:fragment="about-main" id="main-content">
+        <div th:fragment="about-main" id="main-content" hx-on:htmx:load="initSidebar()">
             <header>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true" focusable="false">
                     <path d="M512 80c8.8 0 16 7.2 16 16l0 320c0 8.8-7.2 16-16 16L64 432c-8.8 0-16-7.2-16-16L48 96c0-8.8 7.2-16 16-16l448 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l448 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zM208 248a56 56 0 1 0 0-112 56 56 0 1 0 0 112zm-32 40c-44.2 0-80 35.8-80 80 0 8.8 7.2 16 16 16l192 0c8.8 0 16-7.2 16-16 0-44.2-35.8-80-80-80l-64 0zM376 144c-13.3 0-24 10.7-24 24s10.7 24 24 24l80 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-80 0zm0 96c-13.3 0-24 10.7-24 24s10.7 24 24 24l80 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-80 0z"/>
@@ -20,81 +20,140 @@
             </noscript>
 
             <article id="post-content">
-                <section id="welcome-text">
-                    <p>
-                        I'm Shawn, a Software Developer. On this website, I showcase my projects, write about their underlying technologies,
-                        share my hobbies, and anything else I want to put out into the world.
-                    </p>
-                    <p>
-                        I enjoy tinkering and diving into how and why things work. I have broad interests in various systems,
-                        spanning from computer systems to car engines to biology and ecosystems. I am currently a stay-at-home father of
-                        two kids and a dog, a homeschool teacher, and a husband. Looking for a remote (or local to the northern Illinois / southern Wisconsin area)
-                        opportunity to work in full-stack software development, contributing to meaningful systems for a responsible company.
-                    </p>
-                    <p>
-                        Everything here is written with my own words and opinions. You will never see a single ad, AI-generated content, or tracking here.
-                        This site is my personal space for self-reflection, sharing what I have learned and what I am currently learning, and connecting with the readers of that content.
-                        It is also my attempt to inspire others to create their own personal space and participate in the fight against the
-                        noise and enshittification of our internet.
-                    </p>
-                    <p>
-                        Hello World! Welcome to my corner of the web.
-                    </p>
-                    <p><small><i>Updated: June 2026</i></small></p>
-                </section>
+                <div id="post-text">
+                    <section id="welcome-text">
+                        <h2>Hello!</h2>
+                        <img src="https://cdn.shawnosborne.dev/images/me.jpg" alt="Me" class="post-image about-image"/>
+
+                        <p><strong>
+                            I'm Shawn, a Software Developer.
+                        </strong></p>
+                        <p>
+                            On this website, I showcase my projects, write about their underlying technologies, share my hobbies,
+                            and anything else that I want to put out into the world.
+                        </p>
+                        <p>
+                            Everything is written in my own words and opinions. It serves as a personal space for self-reflection and retrospection,
+                            for sharing what I have learned and am currently learning, and connecting with the people reading it.
+                            I hope to inspire others to create their own corner of the web and push back against the constant noise
+                            of the modern internet and social media. As such, there will be no Ads, AI-generated content, or analytics found here.
+                        </p>
+                        <p>
+                            I got into software development because I enjoy tinkering and diving into how and why things work.
+                            I have always had broad interests spanning from computer science and web development to ecology and agriculture. More specifically, how software
+                            and data-driven approaches can support agriculture, while benefiting farms and ecosystems through efficiency and sustainability.
+                        </p>
+                        <p>
+                            Welcome to my corner of the web!
+                        </p>
+                        <p><small><i>Updated: June 2026</i></small></p>
+                    </section>
+                    <section id="contact-info" class="about-section">
+                        <h2>Contact Info</h2>
+                        <p>Feel free to get in contact with me through email or at one of these.</p>
+                        <ul>
+                            <li><span style="unicode-bidi:bidi-override; direction:rtl">moc [tod] liamg [ta] golb.oiloftrop.snwahs</span></li>
+                            <li><a href="https://github.com/ShawnWebDev" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+                            <li><a href="https://linkedin.com/in/shawnosbornedev" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+                        </ul>
+                    </section>
+                    <section class="about-section">
+                        <h2>Education</h2>
+                        <h3>School</h3>
+                        <ul>
+                            <li>Master of Engineering, Engineering / Digital Agriculture - University of Illinois Urbana-Champaign -- <i>( Start Fall 2026 )</i></li>
+                            <li>Bachelor of Science, Software Engineering - Western Governors University -- <i>( Sept 2023 - Sept 2025 )</i></li>
+                            <li>Associate of Applied Science, Web Programming - Rasmussen University -- <i>( Oct 2020 - Aug 2022 )</i></li>
+                        </ul>
+                        <h3>Certification</h3>
+                        <ul>
+                            <li>WGU Back End Developer -- <i>November 2024</i></li>
+                            <li>CompTIA Project+ -- <i>July 2024</i></li>
+                            <li>AWS Certified Cloud Practitioner -- <i>October 2023</i></li>
+                            <li>Udacity Front End Developer -- <i>February 2023</i></li>
+                        </ul>
+                    </section>
+                    <section class="about-section">
+                        <h2>What I'm Doing</h2>
+                        <h3>Learning</h3>
+                        <ul>
+                            <li>Software development projects</li>
+                            <li>Linear algebra</li>
+                            <li>Messing around with LM Studio and local AI models</li>
+                            <li>University of Illinois (UIUC) Master's of Engineering with concentration in
+                                <a href="https://digitalag.illinois.edu/meng/" target="_blank" rel="noopener noreferrer">Digital Agriculture</a> (Fall '26)</li>
+                            <li>Supplementing my son's learning in social studies, math, & science</li>
+                        </ul>
+                        <h3>Leisure</h3>
+                        <ul>
+                            <li>Writing this website</li>
+                            <li>Tending my garden and aquarium</li>
+                            <li>Being an excellent cook &#128517</li>
+                            <li>Playing Magic The Gathering</li>
+                            <li>Playing a few different video games (Baldur's Gate 3, Factorio, ARC Raiders, Minecraft with my son)</li>
+                        </ul>
+                    </section>
+                    <section class="about-section">
+                        <h2>Tools & Skills</h2>
+                        <h3>Current Tech Stack</h3>
+                        <ul>
+                            <li><strong>Infrastructure:</strong> Linux / AWS</li>
+                            <li><strong>Backend:</strong> Java / Spring Boot Framework</li>
+                            <li><strong>Database:</strong> MariaDB</li>
+                            <li><strong>Frontend:</strong> HTMX / JavaScript / CSS</li>
+                        </ul>
+                        <h3>Current Software Tools</h3>
+                        <ul>
+                            <li><strong>IDE:</strong> IntelliJ IDEA</li>
+                            <li><strong>Database Management:</strong> DBeaver, MariaDB Command Line Client</li>
+                            <li><strong>Infrastructure:</strong> AWS</li>
+                            <li><strong>Shell & Scripting:</strong> Bash</li>
+                        </ul>
+                        <h3>Other Familiar Tech</h3>
+                        <ul>
+                            <li><strong>OS:</strong> Linux, Windows</li>
+                            <li><strong>Containerization:</strong> Docker</li>
+                            <li>Java, Python, PHP, SQL, JavaScript, CSS, HTML</li>
+                            <li>Spring MVC, Spring Security, Spring Data JPA, Hibernate, JDBC</li>
+                            <li>JUnit, Mockito, Testcontainers, </li>
+                            <li>Agile, Kanban, XP, TDD</li>
+                            <li>Web Content Accessibility</li>
+                            <li></li>
+                        </ul>
+                        <h2>Hardware</h2>
+                        <h3>Main System</h3>
+                        <ul>
+                            <li>Linux Mint</li>
+                            <li>AMD Ryzen 5 3600</li>
+                            <li>AMD Radeon RX 6750 XT 12GB</li>
+                            <li>4x 8GB Corsair LPX DDR4 3200 RAM</li>
+                            <li>2TB Crucial PCI Express NVME drive</li>
+                            <li>256GB Western Digital Blue SATA SSD</li>
+                            <li>1TB Western Digital Blue 7200 RPM HDD</li>
+                            <li>36" ViewSonic 1440p monitor</li>
+                            <li>32" ASUS 1080p monitor</li>
+                            <li>Manual crank standup/sitdown desk</li>
+                        </ul>
+                        <h3>Other Systems</h3>
+                        <strong>Headless Local Server</strong>
+                        <ul>
+                            <li>2GB Raspberry Pi 4, Linux Raspberry Pi OS lite, 32GB MicroSD, 32GB USB 3 Flash Drive for backup</li>
+                        </ul>
+                        <strong>Web Server</strong>
+                        <ul>
+                            <li>2GB t4g.small EC2, Amazon Linux</li>
+                        </ul>
+                        <strong>Laptop</strong>
+                        <ul>
+                            <li>16" ASUS ZenBook, 8th Gen Intel I7, 16GB RAM, 256MB SSD, 1TB HDD, Windows 11 / Linux Mint Dual Boot</li>
+                        </ul>
+                    </section>
+                </div>
                 <aside id="sidebar">
-                    <!-- a good picture here -->
-                    <p>Better picture needed...</p>
-<!--                    <img src="/me.jpg" alt="Me" class="post-image"/>-->
+                    <nav id="sidebar-menu"></nav>
                 </aside>
             </article>
-            <section id="contact-info" class="about-section">
-                <h2>Contact</h2>
-                <p>Feel free to get in contact with me through email or at one of these.</p>
-                <ul>
-                    <li>shawns.portfolio.blog@gmail.com</li>
-                    <li><a href="https://github.com/ShawnWebDev">https://github.com/ShawnWebDev</a></li>
-                    <li><a href="">https://linkedin.com/in/shawnosbornedev</a></li>
-                </ul>
-            </section>
-            <section class="about-section">
-                <h2>Tools</h2>
-                <p>My PC setup and the software tools I have been using.</p>
-
-                <strong>Software:</strong>
-                <ul>
-                    <li>IntelliJ IDEA - Java, Spring Boot, JavaScript, CSS</li>
-                    <li>DBeaver - MySql, MariaDB</li>
-                    <li>Docker - TestContainers</li>
-                    <li>AWS - EC2, S3, IAM, Route 53</li>spa
-                </ul>
-
-                <strong>Main System:</strong>
-                <ul>
-                    <li>Linux Mint 22.3 - Cinnamon</li>
-                    <li>AMD Ryzen 5 3600</li>
-                    <li>AMD Radeon RX 6750 XT 12GB</li>
-                    <li>Corsair LPX 3200 32GB RAM (Samsung Dies)</li>
-                    <li>2TB Crucial PCI Express NVME drive (Home Directory)</li>
-                    <li>256GB Western Digital Blue SATA SSD (EFI, OS, & File System)</li>
-                    <li>1TB Western Digital Blue 7200 RPM HDD (Backups & Least used programs)</li>
-                    <li>36" ViewSonic 1440p monitor</li>
-                    <li>32" ASUS 1080p monitor</li>
-                    <li>Manual crank standup/sitdown desk</li>
-                </ul>
-
-                <strong>Headless Local Server:</strong>
-                <ul>
-                    <li>2GB Raspberry Pi 4, Linux Raspberry Pi OS lite, 32GB MicroSD, 32GB USB 3 Flash Drive for backup</li>
-                </ul>
-
-                <strong>Laptop:</strong>
-                <ul>
-                    <li>16" ASUS ZenBook, 8th Gen Intel I7, 16GB RAM, 256MB SSD, 1TB HDD, Windows 11 / Linux Mint Dual Boot</li>
-                </ul>
-            </section>
         </div>
     </main>
-
 </body>
 </html>

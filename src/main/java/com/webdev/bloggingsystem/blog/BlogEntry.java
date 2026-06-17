@@ -26,6 +26,13 @@ public class BlogEntry {
 
     private boolean inProgress;
 
+    //used in portfolio entry
+    private String codeUrl;
+
+    private String demoUrl;
+
+    private boolean isPortfolio;
+
     public BlogEntry() {}
 
     public BlogEntry(String title, String description, String content, String thumbnailUrl, String thumbnailAlt) {
@@ -35,9 +42,10 @@ public class BlogEntry {
         this.thumbnailUrl = thumbnailUrl;
         this.thumbnailAlt = thumbnailAlt;
     }
-    // used in DAO for result set extraction
+    // used in DAO for result set in - fullBlogEntryExtractor()
     public BlogEntry(int id, String title, String description, String content, Instant createdAt, Instant updatedAt,
-                     String slug, List<String> categoryNames, String thumbnailUrl, String thumbnailAlt, boolean inProgress) {
+                     String slug, List<String> categoryNames, String thumbnailUrl, String thumbnailAlt, boolean inProgress,
+                     String codeUrl, String demoUrl, boolean isPortfolio) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -49,6 +57,9 @@ public class BlogEntry {
         this.thumbnailUrl = thumbnailUrl;
         this.thumbnailAlt = thumbnailAlt;
         this.inProgress = inProgress;
+        this.codeUrl = codeUrl;
+        this.demoUrl = demoUrl;
+        this.isPortfolio = isPortfolio;
     }
 
     private static String generateSlugFromTitle(String title) {
@@ -124,6 +135,24 @@ public class BlogEntry {
     public void setInProgress(boolean inProgress) {
         this.inProgress = inProgress;
     }
+    public String getCodeUrl() {
+        return codeUrl;
+    }
+    public void setCodeUrl(String codeUrl) {
+        this.codeUrl = codeUrl;
+    }
+    public String getDemoUrl() {
+        return demoUrl;
+    }
+    public void setDemoUrl(String demoUrl) {
+        this.demoUrl = demoUrl;
+    }
+    public boolean isPortfolio() {
+        return isPortfolio;
+    }
+    public void setPortfolio(boolean portfolio) {
+        isPortfolio = portfolio;
+    }
 
     @Override
     public String toString() {
@@ -139,6 +168,7 @@ public class BlogEntry {
                 ", updatedAt= " + updatedAt +
                 ", categoryNames= " + categoryNames +
                 ", inProgress= " + inProgress +
+                ", isPortfolio= " + isPortfolio +
                 '}';
     }
 }
