@@ -60,9 +60,9 @@ public class BlogController {
         this.populateBlogDashboardModel(model, "All", "");
         model.addAttribute("posts", blogService.findAllSimpleBlogEntries());
         model.addAttribute("categories", blogService.findAllSimpleCategories());
+        this.setToken(request);
 
         if (request.getHeader("HX-Request") == null) {
-            this.setToken(request);
             // for refresh or direct to /blog, contains heading fragment with nav, css/js, and blog-main fragment with all-posts
             model.addAttribute("fromBlog", true);
             return "blog";
@@ -94,7 +94,7 @@ public class BlogController {
     // called when filtering posts by category in main blog dashboard
    // @HxRequest
     @GetMapping("/posts")
-    public Object filteredPostsView(Model model, HtmxRequest htmxRequest, HtmxResponse htmxResponse,
+    public Object filteredPostsView(Model model, HttpServletRequest request, HtmxResponse htmxResponse,
                                     @RequestParam(value = "categoryName", defaultValue = "All", required = false) String categoryName) {
 
         List<SimpleBlogEntryDto> filteredBlogEntries;
@@ -110,8 +110,17 @@ public class BlogController {
             htmxResponse.setPushUrl("/blog/posts?categoryName=" + categoryName);
         }
 
+        this.populateBlogDashboardModel(model, categoryName, categoryDescription);
+        model.addAttribute("posts", filteredBlogEntries);
+        if (request.getHeader("HX-Request") == null) {
+            this.setToken(request);
+            model.addAttribute("fromBlog", true);
+            model.addAttribute("categories", blogService.findAllSimpleCategories());
+            return "blog";
+        }
+
         boolean isFromBlog = false;
-        String url = htmxRequest.getCurrentUrl();
+        String url = request.getHeader("HX-Current-URL");
         try {
             // getPath() strips params to correctly send fragment if /blog, /blog?logout, or /blog?sessionExpired
             if (url != null) {
@@ -122,13 +131,6 @@ public class BlogController {
             logger.warn("Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", url);
         }
 
-        this.populateBlogDashboardModel(model, categoryName, categoryDescription);
-        model.addAttribute("posts", filteredBlogEntries);
-        if (!htmxRequest.isHtmxRequest()) {
-            model.addAttribute("fromBlog", true);
-            model.addAttribute("categories", blogService.findAllSimpleCategories());
-            return "blog";
-        }
         if (isFromBlog) {
             return "components/blog-components::all-posts";
         }
