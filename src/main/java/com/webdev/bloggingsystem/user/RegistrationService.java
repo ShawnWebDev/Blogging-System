@@ -11,8 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.Arrays;
-
 
 @Service
 public class RegistrationService {
@@ -49,7 +47,6 @@ public class RegistrationService {
         int userId = appUserDao.insert(appUser);
         int otpRand = this.getRandomOtp();
         Instant otpExpires = this.getExpirationFromNow();
-        logger.info("Expires: {}", otpExpires);
 
         appUserDao.insertVerification(passwordEncoder.encode(String.valueOf(otpRand)), userId, otpExpires);
 
@@ -101,7 +98,6 @@ public class RegistrationService {
         // [int userId, int otp, Instant expiry]
         // get by username (based on session and correct credentials) ensures userId matches username
         Object[] otpDetails = appUserDao.getOtpDetailsByUsername(username);
-        logger.info("Verifying user {}", Arrays.toString(otpDetails));
         if (otpDetails == null || otpDetails.length != 3) {
             logger.warn("OTP details incorrect for user: {}. Otp length: {}.",
                     username, otpDetails == null ? "null" : otpDetails.length);
