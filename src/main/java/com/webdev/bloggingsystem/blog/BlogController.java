@@ -62,6 +62,7 @@ public class BlogController {
         model.addAttribute("categories", blogService.findAllSimpleCategories());
 
         if (request.getHeader("HX-Request") == null) {
+            this.setToken(request);
             // for refresh or direct to /blog, contains heading fragment with nav, css/js, and blog-main fragment with all-posts
             model.addAttribute("fromBlog", true);
             return "blog";
@@ -74,8 +75,6 @@ public class BlogController {
         }
 
         // for htmx request, only needs heading h1, blog-main, and csrf token resolved (implicit session creation)
-        this.setToken(request);
-
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
                 .fragment("blog::blog-main")
@@ -146,11 +145,10 @@ public class BlogController {
     // to be used by HTMX navigation
     @HxRequest
     @GetMapping("/post/{id}/{slug}")
-    public FragmentsRendering singlePostViewFragment(Model model, @PathVariable Integer id, @PathVariable String slug,
-                                                     HttpServletRequest request) {
+    public FragmentsRendering singlePostViewFragment(Model model, @PathVariable Integer id, @PathVariable String slug) {
         BlogEntry entry = blogService.readPost(id);
         this.populateSinglePostModel(model, entry);
-        this.setToken(request);
+
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
                 .fragment("single-post::single-post")
@@ -160,9 +158,11 @@ public class BlogController {
 
     // to be used by external links, direct url, refresh
     @GetMapping("/post/{id}/{slug}")
-    public String singlePostViewFullPage(Model model, @PathVariable Integer id, @PathVariable String slug) {
+    public String singlePostViewFullPage(Model model, @PathVariable Integer id, @PathVariable String slug,
+                                         HttpServletRequest request) {
         BlogEntry entry = blogService.readPost(id);
         this.populateSinglePostModel(model, entry);
+        this.setToken(request);
 
         return "single-post";
     }
@@ -264,7 +264,7 @@ public class BlogController {
     }
 
     void setToken(HttpServletRequest request) {
-        // uses current session if valid, creates new session if not.
+        // instantiates deferred CSRF token.
         CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
         if (token != null) {
             token.getToken();
