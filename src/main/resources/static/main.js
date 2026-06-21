@@ -85,16 +85,19 @@ function openNavMenu() {
     }
 }
 
-// TODO :
 //  called from auth-components.login-dialog fragment
-function convertTimeToLocal() {
-    console.log('login message fragment');
-    const timeEl = document.getElementById('timeExpiration');
+function convertTimeToLocal(id) {
+    const timeEl = document.getElementById(id);
     if (!timeEl) {
         return;
     }
     const time = timeEl.textContent;
     const date = new Date(time);
-    console.log("time element exists.. convert: " + time);
-    console.log("converted to: " + date);
+    timeEl.textContent = new Intl.DateTimeFormat('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+    }).format(date);
 }

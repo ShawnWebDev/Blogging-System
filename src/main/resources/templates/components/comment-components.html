@@ -55,9 +55,10 @@
           <small th:text="${isReply ? 'replied' : 'commented'}"></small>
         </div>
         <div class="inline">
-          <small th:id="${'comment-time-'+ commentItem.id}" th:with="display=${commentItem.updatedAt == null ? 'created' : (commentItem.deleted ? 'deleted' : 'updated')} +' on'">
+          <small th:id="${'comment-time-'+ commentItem.id}" th:with="display=${commentItem.updatedAt == null ? 'created' : (commentItem.deleted ? 'deleted' : 'updated')}">
             <i><span th:text="${display}"></span>
-              <time th:text="${#temporals.format(commentItem.createdAt, 'MMMM dd, yyyy @ h:mm a')}"></time>
+              <time th:if="${commentItem.updatedAt == null}" th:text="${@timeUtil.toRelativeTime(commentItem.createdAt)}"></time>
+              <time th:unless="${commentItem.updatedAt == null}" th:text="${@timeUtil.toRelativeTime(commentItem.updatedAt)}"></time>
             </i>
           </small>
           <div class="comment-author-btns" th:with="isAuthor=${#authentication.name == commentItem.author.username}, isAdmin=${#authorization.expression('hasAuthority(''ADMIN'')')}">

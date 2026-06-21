@@ -29,6 +29,12 @@ html {
     scroll-behavior: smooth;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
 body {
     background-color: var(--main-bg-color);
     color: var(--main-text-color);
@@ -82,25 +88,30 @@ p, ul, ol {
     font-size: 0.9rem;
 }
 
-#main-content > header {
+#post-header {
     display: flex;
     align-items: center;
     gap: 1rem;
+    padding-bottom: 2rem;
+    flex-wrap: wrap;
+    border-bottom: 1px dashed var(--more-transparent-color-light);
 }
 
-#main-content > header h1 {
+#post-header h1 {
     margin: 0;
-    font-size: 1.75rem;
+    font-size: 3rem;
 }
 
 h1, h2 {
     font-family: var(--header-font-family), sans-serif;
 }
 
-#main-content > header svg {
-    width: 2rem;
-    height: 2rem;
+#post-header svg {
+    width: 3rem;
+    height: 3rem;
     fill: var(--accent-color-less-transparent);
+    float: left;
+    margin-right: 1rem;
 }
 
 #nav-container {
@@ -132,7 +143,6 @@ h1, h2 {
     height: 1.75rem;
     font-size: 1.5rem;
     border-color: var(--main-bg-color);
-    font-weight: 700 !important;
 }
 
 .menu-open-toggle-btn {
@@ -156,7 +166,7 @@ nav ul, ul.group {
     align-items: center;
     text-decoration: none;
     padding: 0.25rem 1rem;
-    transition: background-color 400ms ease-in-out, box-shadow 200ms ease-in-out;
+    transition: box-shadow 200ms ease-in-out;
     border-radius: 0.25rem;
 }
 
@@ -222,15 +232,11 @@ a:hover {
 .about-section {
     margin-top: 3rem;
     width: fit-content;
-    scroll-margin-top: 40vh;
-}
-.about-section > h2, #welcome-text > h2 {
-    padding-bottom: 0.5rem;
-    border-bottom: 1px dashed var(--more-transparent-color-light);
+    scroll-margin-top: 5rem;
 }
 .about-section ul {
-    padding-left: 0.5rem;
-    list-style: none;
+    padding-left: calc(0.5rem + 2vw);
+    list-style: circle;
 }
 #posts {
     opacity: 1;
@@ -242,10 +248,20 @@ a:hover {
 }
 
 #posts > header {
-    margin: 2rem 0 3rem 0;
+    margin: 2rem auto;
 }
 
-#post-container, #edit-category-container {
+#posts > header div {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+#posts > header div > h2 {
+    margin: 0;
+}
+
+#edit-category-container {
     margin: 1.5rem 0;
 }
 
@@ -301,22 +317,29 @@ article header h4 {
     opacity: 0.65;
     transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
 }
-
 .post-card, .portfolio-card {
     border: 1px solid var(--more-transparent-color-light);
     border-radius: 0.25rem;
-    margin-top: 2rem;
+    min-width: 18rem;
+    height: fit-content;
+    box-shadow: -2px 4px 8px 4px rgba(0, 0, 0, 0.15);
 }
-
-#portfolio-container {
-    margin-top: 4rem;
+#portfolio-container, #post-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+    gap: 2rem;
+    margin-top: calc(2rem + 5vh);
 }
-
+#portfolio-container h2 {
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--more-transparent-color-light);
+}
 .portfolio-card footer {
     background-color: var(--main-bg-color);
     padding: 0.5rem;
     display: flex;
     gap: 1rem;
+    justify-content: flex-end;
 }
 
 .portfolio-card footer a {
@@ -357,9 +380,9 @@ article header h4 {
     color: var(--main-text-color);
     border: 1px solid var(--accent-color-transparent);
     border-radius: 0.25rem;
-    padding: 0.3rem 0.5rem;
+    padding: 0.5rem;
     transition: color 200ms ease-in-out, border-color 200ms ease-in-out;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.8rem;
 }
 
@@ -368,15 +391,11 @@ article header h4 {
     border-color: var(--accent-color);
 }
 
-#categories {
-    border-bottom: 1px solid var(--transparent-color-light);
-}
-
 #categories-container {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    padding: 1rem 0 2rem 0;
+    padding-top: 1rem;
 }
 
 .active-category, .active-category:hover {
@@ -443,19 +462,17 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     display: block;
     width: 100%;
 }
-#post-header {
-    flex-wrap: wrap;
-    border-bottom: 1px solid var(--transparent-color-light);
+#post-header h2 {
+    margin-bottom: 0;
 }
 #post-text {
-    padding: 1rem 0 2rem 0;
+    padding: calc(2rem + 5vh) 0 2rem 0;
 }
 #post-content {
     display: flex;
     flex-direction: column-reverse;
     border-bottom: 1px solid var(--transparent-color-light);
 }
-
 .about-image {
     float: right;
     margin: 0 0 0.5rem calc(0.5rem + 2vw);
@@ -496,13 +513,22 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     color: var(--accent-color) !important;
     text-decoration: underline;
 }
+#post-content h2:first-of-type  {
+    margin: 0 auto 1.5rem auto;
+}
 #post-content h2  {
     margin: 2rem auto 1.5rem auto;
-    scroll-margin-top: 40vh;
+    scroll-margin-top: 5rem;
+    border-bottom: 1px dashed var(--more-transparent-color-light);
+    padding-bottom: 0.5rem;
 }
 #post-content h3 {
     margin: 1.5rem auto 1rem auto;
-    scroll-margin-top: 40vh;
+    scroll-margin-top: 5rem;
+}
+#post-content h3::before {
+    color: var(--accent-color-less-transparent);
+    content: "- ";
 }
 #post-content li {
     padding-left: 0.5rem;
@@ -514,23 +540,19 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     color: var(--code-color);
 }
 .post-thumbnail {
-    width: 5rem;
+    width: 4rem;
     height: auto;
     display: inline;
     border-radius: 0.25rem;
-    transition: transform 300ms ease-in-out, background-color 200ms ease-in-out, box-shadow 300ms ease-in-out;
+    transition: transform 300ms ease-in-out;
     float: left;
     margin-right: 1rem;
 }
 #post-header-content {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem;
-    flex: 100%;
+    width: 100%;
 }
-#single-post-navigation-container {
-    margin-top: 1rem;
+#single-post-navigation-container, #categories {
+    width: 100%;
 }
 #comments-section {
     display: flex;
@@ -824,6 +846,9 @@ dialog #login-message {
     #main-content {
         padding: 2.5rem 2rem 4rem 2rem;
     }
+    #post-header h1 {
+        font-size: 3.75rem;
+    }
     #nav-container {
         display: block;
         position: static;
@@ -866,7 +891,7 @@ dialog #login-message {
     nav ul {
         padding-top: 0.5rem;
     }
-    .post-card header h4 {
+    .post-card header h4, .portfolio-card header h4 {
         font-size: 1.15rem;
     }
     .post-card header span svg {
@@ -884,11 +909,11 @@ dialog #login-message {
     }
     .post-thumbnail {
         cursor: pointer;
+        width: 5rem;
+        z-index: 2;
     }
     .post-thumbnail:hover {
-        background-color: var(--main-bg-color);
         transform: scale(2) translateX(0.5rem);
-        z-index: 2;
         box-shadow: 0 4px 12px rgba(0,0,0,0.65);
     }
     .post-thumbnail-heading:hover {
@@ -913,9 +938,10 @@ dialog #login-message {
         top: 0;
         padding: 0 0 0 2vw;
         width: 20rem;
+        box-shadow: inset -2px 4px 8px 4px rgba(0, 0, 0, 0.15);
     }
     #name-heading {
-        padding: 0;
+        padding: 0.5rem 0 0 0;
     }
     #nav-container {
         width: 100%;
@@ -929,9 +955,6 @@ dialog #login-message {
     }
     #main-header, #main-header section {
         display: block;
-    }
-    #main-content h1 {
-        font-size: 2rem;
     }
     #main-header h2 {
         width: 100%;
@@ -952,8 +975,9 @@ dialog #login-message {
     .nav-item {
         justify-content: space-between;
         padding: 0.75rem 0.5rem 0.75rem 1.5rem;
-        box-shadow: 0 2px 0 var(--transparent-color-light), 0 -2px 0 var(--transparent-color-light);
+        box-shadow: 0 2px 0 var(--transparent-color-light), 0 -2px 0 var(--transparent-color-light), inset -2px 4px 8px 4px rgba(0, 0, 0, 0.15);
         animation: 400ms ease-in-out 1 nav_normal forwards;
+        border-radius: 0.25rem 0 0 0.25rem;
     }
     .nav-item:hover {
         box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 0 0 0 var(--secondary-bg-color);
@@ -970,7 +994,7 @@ dialog #login-message {
             box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 2px 0 0 var(--color-light), inset 15vw 0 8px 2px var(--secondary-bg-color);
         }
         to {
-            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 4px 0 0 var(--secondary-bg-color), inset -18rem 0 8px 2px var(--secondary-bg-color);
+            box-shadow: 0 2px 0 var(--color-light), 0 -2px 0 var(--color-light), 4px 0 0 var(--secondary-bg-color), inset -18rem 0 0 0 var(--secondary-bg-color);
         }
     }
     @keyframes nav_hover {
@@ -1017,6 +1041,9 @@ dialog #login-message {
     #main-content {
         padding: 2rem calc(0.5rem + 5vw) 4rem calc(0.5rem + 5vw);
     }
+    #main-header{
+        width: 18rem;
+    }
     #post-content {
         flex-direction: row;
         justify-content: space-between;
@@ -1029,7 +1056,7 @@ dialog #login-message {
         display: block;
         border-left: 1px solid var(--more-transparent-color-light);
         flex: 1;
-        padding: 3rem 0 2rem 0.5rem;
+        padding: calc(2.5rem + 5vh) 0 2rem 0.5rem;
         min-width: 18rem;
     }
     #sidebar-menu {
@@ -1050,6 +1077,7 @@ dialog #login-message {
     }
     #main-header {
         padding: 0 0 0 4vw;
+        width: 20rem;
     }
     #name-heading {
         margin-left: -4vw;

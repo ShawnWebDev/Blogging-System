@@ -35,7 +35,7 @@
         <dialog th:replace="~{components/auth-components :: login-dialog}"></dialog>
     </div>
 
-    <dialog th:fragment="login-dialog" id="login-modal" aria-labelledby="login-dialog-title" tabindex="-1" hx-on:htmx:after-swap="convertTimeToLocal()">
+    <dialog th:fragment="login-dialog" id="login-modal" aria-labelledby="login-dialog-title" tabindex="-1" hx-on:htmx:after-swap="convertTimeToLocal('timeExpiration')">
         <article th:replace="~{components/auth-components::login-article}"></article>
     </dialog>
 
@@ -90,7 +90,7 @@
         <div th:if="${loginError}" class="login-error-container">
             <small th:text="${loginError}" class="error"></small>
             <div th:if="${validUntil}">
-                <p><strong class="margin-bottom"><small th:text="${validUntil}" id="timeExpiration"></small></strong></p>
+                <p><strong class="margin-bottom"><time th:text="${validUntil}" id="timeExpiration"></time></strong></p>
                 <button hx-get="/validate" hx-target="#login-article" hx-swap="outerHTML" class="btn-secondary full-width">Enter Code</button>
             </div>
             <div th:if="${expired}">
@@ -113,7 +113,7 @@
         <p>Thank you for registering!</p>
         <p>A one time password has been sent to the email you registered with. Please look for a message from <strong>shawn.porfolio.blog@gmail.com</strong>.</p>
         <div th:if="${validUntil}" class="center">
-            <small><strong>Code valid until: </strong><strong th:text="${validUntil}" id="timeExpiration"></strong></small>
+            <small><strong>Code valid until: <time th:text="${validUntil}" id="timeExpiration"></time></strong></small>
         </div>
         <div th:if="${expired}">
             <small class="error">Code Expired.</small>
