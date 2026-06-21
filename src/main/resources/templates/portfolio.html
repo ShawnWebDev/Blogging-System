@@ -29,7 +29,7 @@
                 <article th:each="entry : ${entries}" class="portfolio-card">
                     <header>
                         <h4 th:text="${entry.title}"></h4>
-                        <small><time th:text="${#temporals.format(entry.createdAt, 'MMMM yyyy')}" class="time-field"></time></small>
+                        <small><time th:text="${@timeUtil.toRelativeTime(e.createdAt)}" class="time-field"></time></small>
                     </header>
                     <section class="description">
                         <img th:if="${!entry.thumbnailUrl.isBlank()}" th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="post-thumbnail"/>
