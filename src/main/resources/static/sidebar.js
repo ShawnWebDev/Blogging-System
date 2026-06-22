@@ -9,21 +9,11 @@ const observer = new IntersectionObserver(entries => {
 
     entries.forEach(entry => {
         const navItem = document.querySelector(`#sidebar-item-${entry.target.id}`);
-        if (entry.isIntersecting) {
-            navItem.classList.add("active-nav-link");
-        } else if (entry.boundingClientRect.top > 0) {
-            navItem.classList.remove("active-nav-link");
-        }
+        navItem.classList.toggle("active-nav-link", entry.isIntersecting);
     })
-
-    document.querySelector(".last-active-nav-link")?.classList.remove("last-active-nav-link");
-    const activeLinks = document.querySelectorAll('.sidebar-nav-item.active-nav-link');
-    if (activeLinks.length > 0) {
-        activeLinks[activeLinks.length - 1].classList.add("last-active-nav-link");
-    }
 },{
-    threshold: 1,
-    rootMargin: "0px 0px -65% 0px"
+    threshold: 0,
+    rootMargin: "25% 0px -25% 0px"
 })
 
 function createListItem(id, text) {
@@ -42,8 +32,7 @@ function initSidebar() {
     if (sidebar.innerHTML.length !== 0) return;
 
     const headers = textContainer.querySelectorAll("h2, h3");
-    let list = [`<strong>Table of Contents:</strong><ol>`];
-    let isH2Active = false;
+    let list = [`<div><strong>Table of Contents</strong><button class="btn-primary" onclick="toggleSidebar()">X</button></div><ol>`];
     let hasNested = false;
 
     headers.forEach(el => {
@@ -56,10 +45,9 @@ function initSidebar() {
                 list.push('</ul>');
                 hasNested = false;
             }
-            isH2Active = true;
             list.push(createListItem(elementId, el.textContent));
         }
-        else if (el.tagName === 'H3' && isH2Active) {
+        else if (el.tagName === 'H3') {
             if (!hasNested) {
                 list.push('<ul>');
                 hasNested = true;
@@ -72,4 +60,10 @@ function initSidebar() {
     if (hasNested) list.push('</ul>');
     list.push('</ol>');
     sidebar.innerHTML = list.join('');
+}
+
+function toggleSidebar() {
+    console.log("toggleSidebar ");
+    document.getElementById("sidebar-menu").classList.toggle("toc-open");
+    document.getElementById("sidebar-toggle").classList.toggle("toc-open-btn");
 }
