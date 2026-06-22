@@ -13,14 +13,14 @@ public class TimeUtil {
         long seconds = diff.getSeconds();
         if (seconds < 60) return "Less than a minute ago.";
         long minutes = seconds / 60;
-        if (minutes < 60) return minutes + (minutes == 1 ? " minute" : " minutes") + " ago.";
+        if (minutes < 60) return minutes + (minutes == 1 ? " minute" : " minutes") + " ago";
         long hours = minutes / 60;
-        if (hours < 24) return hours + (hours == 1 ? " hour" : " hours") + " ago.";
+        if (hours < 24) return hours + (hours == 1 ? " hour" : " hours") + " ago";
         long days = hours / 24;
-        if (days < 30) return days + (days == 1 ? " day" : " days") + " ago.";
+        if (days < 30) return days + (days == 1 ? " day" : " days") + " ago";
         long months = days / 30;
-        if (months < 12) return months + (months == 1 ? " month" : " months") + " ago.";
+        if (months < 12) return months + (months == 1 ? " month" : " months") + " ago";
         long years = months / 12;
-        return years + (years < 2 ? " year" : " years") + " ago.";
+        return years + (years < 2 ? " year" : " years") + " ago";
     }
 }
