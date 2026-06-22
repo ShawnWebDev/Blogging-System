@@ -380,7 +380,7 @@ article header h4 {
     color: var(--main-text-color);
     border: 1px solid var(--accent-color-transparent);
     border-radius: 0.25rem;
-    padding: 0.5rem;
+    padding: 0.3rem 0.5rem;
     transition: color 200ms ease-in-out, border-color 200ms ease-in-out;
     font-weight: 600;
     font-size: 0.8rem;
@@ -470,7 +470,7 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
 }
 #post-content {
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     border-bottom: 1px solid var(--transparent-color-light);
 }
 .about-image {
@@ -480,7 +480,55 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     border-radius: 0.25rem;
 }
 #sidebar {
-    display: none;
+    position: sticky;
+    bottom: 2.5rem;
+    align-self: flex-end;
+    padding: calc(2.5rem + 5vh) 0 0 0.5rem;
+    width: fit-content;
+}
+#sidebar > button {
+    float: right;
+    padding: 0.25rem 0.5rem 0.25rem 0;
+    opacity: 0.65;
+    letter-spacing: -0.25rem;
+    font-weight: 600;
+}
+#sidebar-menu {
+    visibility: hidden;
+    opacity: 0;
+    background-color: var(--color-dark);
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    margin: 0.5rem;
+    min-width: 18rem;
+    position: fixed;
+    top: calc(3rem + 5vh);
+    bottom: 1.5rem;
+    right: 0;
+    border: 1px solid var(--more-transparent-color-light);
+    box-shadow: -2px 4px 8px 4px rgba(0, 0, 0, 0.15);
+    transition: opacity 200ms ease-in-out;
+    overflow-x: scroll;
+    max-height: 100%;
+}
+#sidebar-menu div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+#sidebar-menu div button {
+    padding: 0.15rem 0.25rem;
+    visibility: visible;
+    opacity: 1;
+    float: right;
+}
+.toc-open {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+.toc-open-btn {
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 #sidebar nav ol {
     padding-left: 0;
@@ -550,6 +598,9 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
 }
 #post-header-content {
     width: 100%;
+}
+.about-header {
+    border-bottom: none !important;
 }
 #single-post-navigation-container, #categories {
     width: 100%;
@@ -947,9 +998,6 @@ dialog #login-message {
         width: 100%;
         margin-top: calc(2rem + 5vh);
     }
-    nav {
-        width: 100%;
-    }
     #main-content {
         padding: 2rem 5vw 4rem 5vw;
     }
@@ -1053,16 +1101,29 @@ dialog #login-message {
         flex: 4;
     }
     #sidebar {
-        display: block;
+        position: static;
         border-left: 1px solid var(--more-transparent-color-light);
         flex: 1;
         padding: calc(2.5rem + 5vh) 0 2rem 0.5rem;
         min-width: 18rem;
+        align-self: initial;
     }
     #sidebar-menu {
+        visibility: visible;
+        opacity: 1;
         padding-left: 0.85rem;
         position: sticky;
         top: 2.5rem;
+        background: var(--secondary-bg-color);
+        box-shadow: none;
+        max-height: 85vh;
+        border: none;
+    }
+    #sidebar-toggle{
+        display: none;
+    }
+    #sidebar-menu div button {
+        display: none;
     }
     #welcome-text, #posts, #categories, #portfolio-container, .explain-page {
         max-width: 60vw;
