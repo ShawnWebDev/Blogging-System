@@ -966,6 +966,10 @@ dialog #login-message {
     .post-thumbnail-heading:hover {
         transform: scale(2) translateX(0.5rem) translateY(0.5rem);
     }
+    #post-header-content svg {
+        width: 4rem;
+        height: 4rem;
+    }
 }
 
 /* 1024 - 1439 */
