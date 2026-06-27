@@ -10,7 +10,7 @@
 <section th:fragment="all-posts" id="posts">
     <header>
         <div>
-            <h2 th:if="${categoryName != 'All'}" th:text="${'Posts in ' + categoryName + ' category'}"></h2>
+            <h2 th:if="${categoryName != 'All'}" th:text="${'Posts in ' + categoryName}"></h2>
             <h2 th:unless="${categoryName != 'All'}">All Blog Posts</h2>
             <button th:if="${categoryName != 'All'}" hx-get="/blog/posts" hx-target="#posts" hx-swap="outerHTML swap:150ms" class="btn-secondary" hx-on:click="removeActiveCategories()">Remove Filter</button>
         </div>

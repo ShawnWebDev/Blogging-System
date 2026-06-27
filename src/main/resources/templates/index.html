@@ -22,12 +22,19 @@
             <article id="post-content">
                 <div id="post-text">
                     <section id="welcome-text">
-                        <h2>Hello!</h2>
-                        <img src="https://cdn.shawnosborne.dev/images/me.jpg" alt="Me" class="post-image about-image"/>
-
-                        <p><strong>
-                            I'm Shawn, a Software Developer.
-                        </strong></p>
+                        <h2>Hi, I'm Shawn</h2>
+                        <img src="/me.jpg" alt="My Portrait" class="post-image about-image"/>
+                        <p><strong>. . .and I build full stack applications from design to deployment.</strong></p>
+                        <h3>My Background</h3>
+                        <p>
+                            As a Software Engineer, I have gained experience in MVC and JSON API backends with <strong>Java and Spring Boot</strong>
+                            and lightweight frontends with <strong>Vue.js, HTMX</strong>, or just vanilla <strong>JavaScript and CSS</strong>.
+                        </p>
+                        <p>
+                            I hold a <strong>Bachelor's Degree in Software Engineering</strong> and <strong>certificates in AWS and Project Management</strong>,
+                            knowledge which I utilize to build projects with scalable and maintainable architectures using professional workflows and DevOps.
+                        </p>
+                        <h2>About This Site</h2>
                         <p>
                             On this website, I showcase my projects, write about their underlying technologies, share my hobbies,
                             and anything else that I want to put out into the world.
@@ -36,12 +43,7 @@
                             Everything is written in my own words and opinions. It serves as a personal space for self-reflection and retrospection,
                             for sharing what I have learned and am currently learning, and connecting with the people reading it.
                             I hope to inspire others to create their own corner of the web and push back against the constant noise
-                            of the modern internet and social media. As such, there will be no Ads, AI-generated content, or analytics found here.
-                        </p>
-                        <p>
-                            I got into software development because I enjoy tinkering and diving into how and why things work.
-                            I have always had broad interests spanning from computer science and web development to ecology and agriculture. More specifically, how software
-                            and data-driven approaches can support agriculture, while benefiting farms and ecosystems through efficiency and sustainability.
+                            of the modern internet. As such, there will be <strong>no Ads, AI-generated content, or analytics</strong> found here.
                         </p>
                         <p>
                             Welcome to my corner of the web!
@@ -61,9 +63,8 @@
                         <h2>Education</h2>
                         <h3>School</h3>
                         <ul>
-                            <li>Master of Engineering, Engineering / Digital Agriculture - University of Illinois Urbana-Champaign -- <i>( Start Fall 2026 )</i></li>
-                            <li>Bachelor of Science, Software Engineering - Western Governors University -- <i>( Sept 2023 - Sept 2025 )</i></li>
-                            <li>Associate of Applied Science, Web Programming - Rasmussen University -- <i>( Oct 2020 - Aug 2022 )</i></li>
+                            <li>Bachelor of Science, Software Engineering - Western Governors University -- <i>Sept 2023 - Sept 2025</i></li>
+                            <li>Associate of Applied Science, Web Programming - Rasmussen University -- <i>Oct 2020 - Aug 2022</i></li>
                         </ul>
                         <h3>Certification</h3>
                         <ul>
@@ -77,20 +78,20 @@
                         <h2>What I'm Doing</h2>
                         <h3>Learning</h3>
                         <ul>
-                            <li>Software development projects</li>
+                            <li>
+                                <a href="/portfolio" hx-get="/portfolio" hx-target="#main-content" hx-swap="outerHTML swap:150ms show:window:top">Software development projects</a>
+                            </li>
                             <li>Linear algebra</li>
-                            <li>Messing around with LM Studio and local AI models</li>
-                            <li>University of Illinois (UIUC) Master's of Engineering with concentration in
-                                <a href="https://digitalag.illinois.edu/meng/" target="_blank" rel="noopener noreferrer">Digital Agriculture</a> (Fall '26)</li>
+                            <li>Experimenting with local AI</li>
                             <li>Supplementing my son's learning in social studies, math, & science</li>
+                            <li>Practicing Tae Kwon Do</li>
                         </ul>
                         <h3>Leisure</h3>
                         <ul>
-                            <li>Writing this website</li>
+                            <li>Writing and tinkering with this website</li>
                             <li>Tending my garden and aquarium</li>
-                            <li>Being an excellent cook &#128517</li>
-                            <li>Playing Magic The Gathering</li>
-                            <li>Playing a few different video games (Baldur's Gate 3, Factorio, ARC Raiders, Minecraft with my son)</li>
+                            <li>Being a husband, father, cook &#128517</li>
+                            <li>Playing Magic The Gathering and a few different video games (Baldur's Gate 3, Factorio, ARC Raiders, Minecraft with my son)</li>
                         </ul>
                     </section>
                     <section class="about-section">
@@ -100,7 +101,7 @@
                             <li><strong>Infrastructure:</strong> Linux / AWS</li>
                             <li><strong>Backend:</strong> Java / Spring Boot Framework</li>
                             <li><strong>Database:</strong> MariaDB</li>
-                            <li><strong>Frontend:</strong> HTMX / JavaScript / CSS</li>
+                            <li><strong>Frontend:</strong> HTMX or Vue.js / JavaScript / CSS</li>
                         </ul>
                         <h3>Current Software Tools</h3>
                         <ul>
@@ -150,7 +151,7 @@
                     </section>
                 </div>
                 <aside id="sidebar">
-                    <button id="sidebar-toggle" class="btn-primary" onclick="toggleSidebar()">︙☰</button>
+                    <button id="sidebar-toggle" class="btn-primary" onclick="toggleSidebar()"><span>&#8595</span>Table Of Contents<span>&#8595</span></button>
                     <nav id="sidebar-menu"></nav>
                 </aside>
             </article>
