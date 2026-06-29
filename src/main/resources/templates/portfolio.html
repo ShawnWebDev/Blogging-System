@@ -15,9 +15,6 @@
                     </svg>
                     <h1>My Portfolio</h1>
                 </div>
-                <h2>
-                    Websites, games, and applications I have designed and developed.
-                </h2>
             </header>
 
             <div id="error-field"></div>
@@ -26,28 +23,35 @@
             </noscript>
 
             <section id="portfolio-container">
-                <article th:each="entry : ${entries}" class="portfolio-card">
-                    <header>
-                        <h4 th:text="${entry.title}"></h4>
-                        <small><time th:text="${@timeUtil.toRelativeTime(entry.createdAt)}" class="time-field"></time></small>
-                    </header>
-                    <section class="description">
-                        <img th:if="${!entry.thumbnailUrl.isBlank()}" th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="post-thumbnail"/>
-                        <p th:text="${entry.description}"></p>
-                    </section>
-                    <footer>
-                        <a th:href="@{/blog/post/{id}/{slug}(id = ${entry.id}, slug = ${entry.slug})}" th:hx-get="@{/blog/post/{id}/{slug}(id = ${entry.id}, slug = ${entry.slug})}"
-                           hx-target="#main-content" hx-swap="outerHTML swap:150ms show:window:top" class="btn-secondary">
-                            Article
-                        </a>
-                        <a th:if="${!entry.codeUrl.isBlank()}" th:href="${entry.codeUrl}" class="btn-secondary" target="_blank" rel="noopener noreferrer">
-                            Source
-                        </a>
-                        <a th:if="${!entry.demoUrl.isBlank()}" th:href="${entry.demoUrl}" class="btn-secondary" target="_blank" rel="noopener noreferrer">
-                            Demo
-                        </a>
-                    </footer>
-                </article>
+                <header>
+                    <h2>
+                        Websites, games, and applications that I have designed and developed.
+                    </h2>
+                </header>
+                <div>
+                    <article th:each="entry : ${entries}" class="portfolio-card">
+                        <header>
+                            <h4 th:text="${entry.title}"></h4>
+                            <small><time th:text="${@timeUtil.toRelativeTime(entry.createdAt)}" class="time-field"></time></small>
+                        </header>
+                        <section class="description">
+                            <img th:if="${!entry.thumbnailUrl.isBlank()}" th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="post-thumbnail"/>
+                            <p th:text="${entry.description}"></p>
+                        </section>
+                        <footer>
+                            <a th:href="@{/blog/post/{id}/{slug}(id = ${entry.id}, slug = ${entry.slug})}" th:hx-get="@{/blog/post/{id}/{slug}(id = ${entry.id}, slug = ${entry.slug})}"
+                               hx-target="#main-content" hx-swap="outerHTML swap:150ms show:window:top" class="btn-secondary">
+                                Article
+                            </a>
+                            <a th:if="${!entry.codeUrl.isBlank()}" th:href="${entry.codeUrl}" class="btn-secondary" target="_blank" rel="noopener noreferrer">
+                                Source
+                            </a>
+                            <a th:if="${!entry.demoUrl.isBlank()}" th:href="${entry.demoUrl}" class="btn-secondary" target="_blank" rel="noopener noreferrer">
+                                Demo
+                            </a>
+                        </footer>
+                    </article>
+                </div>
             </section>
         </div>
     </main>
