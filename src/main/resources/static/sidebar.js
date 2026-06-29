@@ -1,19 +1,30 @@
 // needed for full page load, HTMX will not fire it using hx-on
 document.addEventListener("DOMContentLoaded", initSidebar);
 
-const observer = new IntersectionObserver(entries => {
+const visObserver = new IntersectionObserver(entries => {
     if (!document.getElementById("post-text")) {
-        observer.disconnect();
+        visObserver.disconnect();
         return;
     }
-
+    const allNavItems = document.querySelectorAll('.sidebar-nav-item');
     entries.forEach(entry => {
         const navItem = document.querySelector(`#sidebar-item-${entry.target.id}`);
-        navItem.classList.toggle("active-nav-link", entry.isIntersecting);
+        if (navItem) {
+            if (entry.isIntersecting) {
+                allNavItems.forEach(item => {
+                    item.classList.remove("active-nav-link");
+                })
+                navItem.classList.add("active-nav-link");
+                navItem.classList.add("viewed-nav-link");
+            } else if (entry.boundingClientRect.top > 10) {
+                navItem.classList.remove("viewed-nav-link");
+            }
+        }
     })
+
 },{
     threshold: 0,
-    rootMargin: "25% 0px -25% 0px"
+    rootMargin: "0px 0px -50% 0px"
 })
 
 function createListItem(id, text) {
@@ -29,10 +40,10 @@ function initSidebar() {
     if (!textContainer) return;
 
     const sidebar = document.getElementById('sidebar-menu');
-    if (sidebar.innerHTML.length !== 0) return;
+    if (!sidebar || sidebar.children.length !== 0) return;
 
     const headers = textContainer.querySelectorAll("h2, h3");
-    let list = [`<div><strong>Table of Contents</strong><button class="btn-primary" onclick="toggleSidebar()">X</button></div><ol>`];
+    let list = [`<div><strong>Table of Contents</strong><button id="close-sidebar-btn" class="btn-primary" onclick="toggleSidebar()">X</button></div><ol>`];
     let hasNested = false;
 
     headers.forEach(el => {
@@ -42,19 +53,19 @@ function initSidebar() {
 
         if (el.tagName === 'H2') {
             if (hasNested) {
-                list.push('</ul>');
+                list.push('</ul></li>');
                 hasNested = false;
             }
             list.push(createListItem(elementId, el.textContent));
         }
         else if (el.tagName === 'H3') {
             if (!hasNested) {
-                list.push('<ul>');
+                list.push('<li><ul>');
                 hasNested = true;
             }
             list.push(createListItem(elementId, el.textContent));
         }
-        observer.observe(el);
+        visObserver.observe(el);
     });
 
     if (hasNested) list.push('</ul>');
