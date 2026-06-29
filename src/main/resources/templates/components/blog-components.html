@@ -19,6 +19,9 @@
 
     <section id="post-container">
         <article th:each="post : ${posts}" class="post-card">
+            <a th:href="@{/blog/post/{id}/{slug}(id = ${post.id}, slug = ${post.slug})}" th:hx-get="@{/blog/post/{id}/{slug}(id = ${post.id}, slug = ${post.slug})}" hx-target="#main-content" hx-swap="outerHTML swap:150ms show:window:top">
+                <span>View Post</span>
+            </a>
             <header>
                     <h4>
                         <span th:text="${post.title}"></span>
@@ -26,9 +29,7 @@
                             &#8594;
                         </span>
                     </h4>
-                    <a th:href="@{/blog/post/{id}/{slug}(id = ${post.id}, slug = ${post.slug})}" th:hx-get="@{/blog/post/{id}/{slug}(id = ${post.id}, slug = ${post.slug})}" hx-target="#main-content" hx-swap="outerHTML swap:150ms show:window:top">
-                        <span>View Post</span>
-                    </a>
+
                 <small><time th:text="${@timeUtil.toRelativeTime(post.createdAt)}"></time></small>
             </header>
             <section class="description">
