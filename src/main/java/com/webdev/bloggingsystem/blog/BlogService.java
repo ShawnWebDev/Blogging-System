@@ -160,7 +160,7 @@ public class BlogService {
     }
 
     BlogEntry buildBlogEntryFromDto(CreateBlogEntryDto dto) {
-        logger.info("Building blog entry from dto {}", dto.toString());
+        logger.info("Building blog entry from dto");
         BlogEntry blogEntry = new BlogEntry(
                 dto.getTitle(),
                 dto.getDescription(),
