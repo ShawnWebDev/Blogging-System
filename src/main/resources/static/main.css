@@ -198,6 +198,7 @@ nav ul {
 
 .nav-item:hover::after, .nav-item.active::after {
     opacity: 1;
+    transform: scaleX(1);
 }
 
 .nav-item::after {
@@ -209,7 +210,9 @@ nav ul {
     height: 100%;
     border-bottom: 1px solid var(--accent-color-less-transparent);
     opacity: 0;
-    transition: opacity 200ms ease-in-out;
+    transform-origin: right center;
+    transform: scaleX(0);
+    transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
 }
 
 button, input[type = submit] {
@@ -972,7 +975,7 @@ dialog #login-message {
         gap: 2rem !important;
     }
     .about-image {
-        width: initial;
+        width: 14rem;
     }
     .post-thumbnail {
         width: 5rem;
