@@ -505,9 +505,10 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
 }
 .about-image {
     float: right;
-    margin: 0 0 0.5rem calc(0.5rem + 2vw);
+    margin: 4rem 0 0.5rem calc(0.5rem + 2vw);
     width: 8rem;
     border-radius: 0.25rem;
+    aspect-ratio: 250 / 391;
 }
 #sidebar {
     position: fixed;
@@ -543,7 +544,7 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     top: calc(3rem + 5vh);
     border: 1px solid var(--more-transparent-color-light);
     transition: opacity 200ms ease-in-out;
-    overflow-x: scroll;
+    overflow-y: auto;
     max-height: 100%;
     width: 95%;
     min-width: 18rem;
@@ -1122,7 +1123,7 @@ dialog #login-message {
 }
 
 /* 1920 - 2199 */
-@media (min-width: 1920px) {
+@media (min-width: 1900px) {
     #main-content {
         padding: 2rem calc(2rem + 5vw) 4rem calc(0.5rem + 5vw);
     }
