@@ -26,8 +26,8 @@
 
 /* Layout Styles */
 html {
-    font-size: 95%;
     scroll-behavior: smooth;
+    font-size: 90%;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -93,12 +93,12 @@ p, ul, ol {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    margin-bottom: calc(2rem + 5vh);
+    margin-bottom: calc(3rem + 5vh);
 }
 
 #post-header h1 {
     margin: 0;
-    font-size: 2.5rem;
+    font-size: 3rem;
 }
 
 h1, h2 {
@@ -106,8 +106,8 @@ h1, h2 {
 }
 
 #post-header svg {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 3rem;
+    height: 3rem;
     fill: var(--accent-color-less-transparent);
     float: left;
     margin-right: 1rem;
@@ -230,7 +230,7 @@ a:hover {
 }
 .about-section {
     margin-top: 3rem;
-    width: fit-content;
+    width: 100%;
     scroll-margin-top: 5rem;
 }
 .about-section:last-of-type {
@@ -258,12 +258,9 @@ a:hover {
 
 #posts > header div {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 1rem;
-}
-
-#posts > header div > h2, #portfolio-container > header > h2 {
-    margin: 0;
+    column-gap: 2.5rem;
 }
 
 #edit-category-container {
@@ -320,7 +317,7 @@ article header {
     transform: translateX(0.5rem);
 }
 
-article header h4 {
+article header h3 {
     margin: 0;
     display: flex;
     gap: 1rem;
@@ -492,9 +489,6 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     display: block;
     width: 100%;
 }
-#post-header h2 {
-    margin-bottom: 0;
-}
 #post-text {
     padding: 0 0 2rem 0;
 }
@@ -505,10 +499,11 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
 }
 .about-image {
     float: right;
-    margin: 4rem 0 0.5rem calc(0.5rem + 2vw);
+    margin: 0 0 0.5rem calc(0.5rem + 2vw);
     width: 8rem;
+    height: auto;
     border-radius: 0.25rem;
-    aspect-ratio: 250 / 391;
+    aspect-ratio: 250 / 380;
 }
 #sidebar {
     position: fixed;
@@ -613,15 +608,25 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     color: var(--accent-color) !important;
     text-decoration: underline;
 }
+#welcome-text {
+    display: flow-root;
+}
 #post-text > h2:first-of-type, #welcome-text h2 {
     margin: 0 auto 1.5rem auto !important;
+}
+.posts-heading, .portfolio-heading {
+    margin: 0;
+    font-size: 2rem;
 }
 #post-content h2  {
     border-bottom: 1px dashed var(--accent-color-transparent);
     padding-bottom: 0.5rem;
+    font-size: 2rem;
+}
+#post-content h3 {
+    font-size: 1.25rem;
 }
 #post-content h2, #post-content h3 {
-    margin: 1.5rem auto;
     scroll-margin-top: 5rem;
 }
 #post-content li {
@@ -641,6 +646,9 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     margin-right: 2rem;
 }
 #post-header-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     width: 100%;
 }
 .about-header {
@@ -917,6 +925,9 @@ dialog #login-message {
 
 /* 460-799 */
 @media (min-width: 460px) {
+    html {
+        font-size: 95%;
+    }
     #post-container > .post-card header {
         padding: 0.5rem 1rem;
     }
@@ -933,11 +944,14 @@ dialog #login-message {
 
 /* 800-1199 */
 @media (min-width: 800px) {
+    html {
+        font-size: 100%;
+    }
     #main-header {
         background-color: var(--main-bg-color);
         flex-direction: row;
         justify-content: space-between;
-        padding: 1rem 2rem 0 2rem;
+        padding: 0.5rem 2rem 0.5rem 2rem;
     }
     nav ul {
         margin: 0 4rem 0.5rem 0;
@@ -962,10 +976,23 @@ dialog #login-message {
     #main-content {
         padding: 2.5rem 2rem 4rem 2rem;
     }
-    #post-header h1 {
-        font-size: 3rem;
+    #post-header {
+        margin-bottom: calc(4rem + 5vh);
     }
-    .post-card header h4, .portfolio-card header h4 {
+    #post-header h1 {
+        font-size: 4rem;
+    }
+    .posts-heading, .portfolio-heading {
+        font-size: 2.5rem;
+    }
+    #post-content h2  {
+        padding-bottom: 0.5rem;
+        font-size: 2.5rem;
+    }
+    #post-content h3 {
+        font-size: 1.5rem;
+    }
+    .post-card header h3, .portfolio-card header h3 {
         font-size: 1.15rem;
     }
     .post-card header span svg {
@@ -982,9 +1009,9 @@ dialog #login-message {
         width: 5rem;
     }
     #post-header svg {
-        width: 3rem;
-        height: 3rem;
-        margin-right: 1rem;
+        width: 4rem;
+        height: 4rem;
+        margin-right: 2rem;
     }
     #portfolio-container > div {
         grid-template-columns: 1fr 1fr;
@@ -1091,15 +1118,12 @@ dialog #login-message {
         transform-origin: left center;
         transition: transform 200ms ease-in-out, opacity 300ms ease-in-out;
     }
-
     .nav-item:hover::after {
         opacity: 1;
     }
-
     .nav-item.active::after {
         opacity: 0;
     }
-
     .nav-item.active::before {
         opacity: 1;
         transform: scaleX(1) translateX(2px);
