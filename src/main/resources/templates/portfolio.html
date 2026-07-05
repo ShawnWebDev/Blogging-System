@@ -24,14 +24,14 @@
 
             <section id="portfolio-container">
                 <header>
-                    <h2>
-                        Websites, games, and applications that I have designed and developed.
+                    <h2 class="portfolio-heading">
+                        My Websites, Applications, and Games
                     </h2>
                 </header>
                 <div>
                     <article th:each="entry : ${entries}" class="portfolio-card">
                         <header>
-                            <h4 th:text="${entry.title}"></h4>
+                            <h3 th:text="${entry.title}"></h3>
                             <small><time th:text="${@timeUtil.toRelativeTime(entry.createdAt)}" class="time-field"></time></small>
                         </header>
                         <section class="description">
