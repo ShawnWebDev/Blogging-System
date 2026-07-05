@@ -1,21 +1,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://cdn.shawnosborne.dev" crossorigin>
+  <link rel="preload" href="https://cdn.shawnosborne.dev/static/anta_latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="https://cdn.shawnosborne.dev/static/roboto_latin.woff2" as="font" type="font/woff2" crossorigin>
   <meta name="htmx-config" content='{"historyCacheSize": 0, "refreshOnHistoryMiss": true}'>
   <meta name="description" th:content="${metaDesc}"/>
-  <!--Local  -->
-<!--  <link rel="stylesheet" href="/main.css">
-  <script src="/htmx.min.js" defer></script>
-  <script src="/main.js" defer></script>
-  <script src="/sidebar.js" defer></script>-->
-
-  <!--S3-->
+  <link rel="stylesheet" href="https://cdn.shawnosborne.dev/static/fonts.css">
   <link rel="stylesheet" href="https://cdn.shawnosborne.dev/static/main.min.css">
   <script src="https://cdn.shawnosborne.dev/static/htmx.min.js" defer></script>
   <script src="https://cdn.shawnosborne.dev/static/main.js" defer></script>
   <script src="https://cdn.shawnosborne.dev/static/sidebar.js" defer></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anta&family=Sansation&display=swap" rel="stylesheet">
+  <link rel="icon" href="https://cdn.shawnosborne.dev/images/favicon.svg" type="image/svg+xml">
   <title th:fragment="head-title" th:text="${title}"></title>
 </head>

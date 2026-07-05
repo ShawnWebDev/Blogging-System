@@ -8,7 +8,7 @@
 
     <main>
         <div th:fragment="about-main" id="main-content" hx-on:htmx:load="initSidebar()">
-            <header>
+            <header id="post-header" class="about-header">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true" focusable="false">
                     <path d="M512 80c8.8 0 16 7.2 16 16l0 320c0 8.8-7.2 16-16 16L64 432c-8.8 0-16-7.2-16-16L48 96c0-8.8 7.2-16 16-16l448 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l448 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zM208 248a56 56 0 1 0 0-112 56 56 0 1 0 0 112zm-32 40c-44.2 0-80 35.8-80 80 0 8.8 7.2 16 16 16l192 0c8.8 0 16-7.2 16-16 0-44.2-35.8-80-80-80l-64 0zM376 144c-13.3 0-24 10.7-24 24s10.7 24 24 24l80 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-80 0zm0 96c-13.3 0-24 10.7-24 24s10.7 24 24 24l80 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-80 0z"/>
                 </svg>
@@ -22,26 +22,32 @@
             <article id="post-content">
                 <div id="post-text">
                     <section id="welcome-text">
-                        <h2>Hello!</h2>
-                        <img src="https://cdn.shawnosborne.dev/images/me.jpg" alt="Me" class="post-image about-image"/>
-
-                        <p><strong>
-                            I'm Shawn, a Software Developer.
-                        </strong></p>
+                        <h2>Hi, I'm Shawn</h2>
+                        <img src="https://cdn.shawnosborne.dev/images/studious.webp" alt="My Portrait" class="post-image about-image"/>
+                        <h3>I build full-stack applications from design to deployment</h3>
                         <p>
-                            On this website, I showcase my projects, write about their underlying technologies, share my hobbies,
-                            and anything else that I want to put out into the world.
+                            Through years of learning and building full-stack applications, I've gained experience across front-end, back-end,
+                            database, and deployment, and have utilized the full Software Development Life Cycle (SDLC) throughout.
+                            I've built JSON and Hypertext APIs in <strong>Java</strong> with <strong>Spring Boot</strong> and in JavaScript with <strong>Node</strong> and <strong>Express</strong>.
+                            On the front-end, I've built lightweight interfaces with <strong>HTMX, Vue.js, JavaScript, and CSS</strong>.
                         </p>
                         <p>
-                            Everything is written in my own words and opinions. It serves as a personal space for self-reflection and retrospection,
-                            for sharing what I have learned and am currently learning, and connecting with the people reading it.
-                            I hope to inspire others to create their own corner of the web and push back against the constant noise
-                            of the modern internet and social media. As such, there will be no Ads, AI-generated content, or analytics found here.
+                            I hold a <strong>Bachelor's Degree</strong> in Software Engineering, and <strong>certifications</strong> in AWS Cloud, project management, and full-stack development.
+                            I use this experience to build scalable and maintainable software, architectures, and workflows.
+                        </p>
+                        <h3>About This Site</h3>
+                        <p>
+                            When I started learning development, I only knew the front-end. My
+                            <a href="https://shawnwebdev.github.io/first-portfolio-site/" target="_blank" rel="noopener noreferrer">first portfolio</a>
+                            was a static site hosted on GitHub Pages and was a pain to update, so I rarely did.
+                            I wanted to ease that process so I could host and own a simple way to create, share, and update my project write-ups without relying on another platform.
+                            As my web development knowledge grew, I became confident enough to build my own content management system. The result is this website, my custom-built
+                            portfolio and blog CMS, hosted on AWS.
                         </p>
                         <p>
-                            I got into software development because I enjoy tinkering and diving into how and why things work.
-                            I have always had broad interests spanning from computer science and web development to ecology and agriculture. More specifically, how software
-                            and data-driven approaches can support agriculture, while benefiting farms and ecosystems through efficiency and sustainability.
+                            Here, I write about and share my projects and the technologies behind them, what I've learned (and am still figuring out), my hobbies, and whatever else feels worth putting out there.
+                            It's used for self-reflection, personal project retrospectives, to help others avoid issues I've come across, and to carve out a <i>quiet</i> corner of the web for myself.
+                            Everything here is written in my own words and opinions and always will be. The constant noise of the internet will not be found here. that means no Ads, AI-generated content, or analytics on this website.
                         </p>
                         <p>
                             Welcome to my corner of the web!
@@ -52,7 +58,7 @@
                         <h2>Contact Info</h2>
                         <p>Feel free to get in contact with me through email or at one of these.</p>
                         <ul>
-                            <li><span style="unicode-bidi:bidi-override; direction:rtl">moc [tod] liamg [ta] golb.oiloftrop.snwahs</span></li>
+                            <li><span style="unicode-bidi:bidi-override; direction:rtl">liamg [ta] golb.oiloftrop.snwahs</span></li>
                             <li><a href="https://github.com/ShawnWebDev" target="_blank" rel="noopener noreferrer">GitHub</a></li>
                             <li><a href="https://linkedin.com/in/shawnosbornedev" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
                         </ul>
@@ -61,9 +67,8 @@
                         <h2>Education</h2>
                         <h3>School</h3>
                         <ul>
-                            <li>Master of Engineering, Engineering / Digital Agriculture - University of Illinois Urbana-Champaign -- <i>( Start Fall 2026 )</i></li>
-                            <li>Bachelor of Science, Software Engineering - Western Governors University -- <i>( Sept 2023 - Sept 2025 )</i></li>
-                            <li>Associate of Applied Science, Web Programming - Rasmussen University -- <i>( Oct 2020 - Aug 2022 )</i></li>
+                            <li>Bachelor of Science, Software Engineering - Western Governors University -- <i>Sept 2023 - Sept 2025</i></li>
+                            <li>Associate of Applied Science, Web Programming - Rasmussen University -- <i>Oct 2020 - Aug 2022</i></li>
                         </ul>
                         <h3>Certification</h3>
                         <ul>
@@ -77,48 +82,49 @@
                         <h2>What I'm Doing</h2>
                         <h3>Learning</h3>
                         <ul>
-                            <li>Software development projects</li>
+                            <li>
+                                <a href="/portfolio" hx-get="/portfolio" hx-target="#main-content" hx-swap="outerHTML swap:150ms show:window:top">Software development projects</a>
+                            </li>
+                            <li>Typescript & Angular</li>
                             <li>Linear algebra</li>
-                            <li>Messing around with LM Studio and local AI models</li>
-                            <li>University of Illinois (UIUC) Master's of Engineering with concentration in
-                                <a href="https://digitalag.illinois.edu/meng/" target="_blank" rel="noopener noreferrer">Digital Agriculture</a> (Fall '26)</li>
+                            <li>Experimenting with local AI</li>
                             <li>Supplementing my son's learning in social studies, math, & science</li>
+                            <li>Practicing Tae Kwon Do</li>
                         </ul>
                         <h3>Leisure</h3>
                         <ul>
-                            <li>Writing this website</li>
-                            <li>Tending my garden and aquarium</li>
-                            <li>Being an excellent cook &#128517</li>
-                            <li>Playing Magic The Gathering</li>
-                            <li>Playing a few different video games (Baldur's Gate 3, Factorio, ARC Raiders, Minecraft with my son)</li>
+                            <li>Writing and tinkering with this website</li>
+                            <li>Tending to my garden and aquarium</li>
+                            <li>Being a good cook &#128517</li>
+                            <li>Playing Magic The Gathering and a few different video games</li>
                         </ul>
                     </section>
                     <section class="about-section">
                         <h2>Tools & Skills</h2>
-                        <h3>Current Tech Stack</h3>
+                        <h3>Tech Stack(s)</h3>
                         <ul>
-                            <li><strong>Infrastructure:</strong> Linux / AWS</li>
-                            <li><strong>Backend:</strong> Java / Spring Boot Framework</li>
-                            <li><strong>Database:</strong> MariaDB</li>
-                            <li><strong>Frontend:</strong> HTMX / JavaScript / CSS</li>
+                            <li><strong>Infrastructure:</strong> AWS + EC2 & S3 Behind Cloudfront</li>
+                            <li><strong>Backend:</strong> Java + Spring Boot or Node + Express.js</li>
+                            <li><strong>Database:</strong> MariaDB or PostgreSQL</li>
+                            <li><strong>Frontend:</strong> (HTMX or Vue.js) & JavaScript + CSS</li>
                         </ul>
                         <h3>Current Software Tools</h3>
                         <ul>
                             <li><strong>IDE:</strong> IntelliJ IDEA</li>
-                            <li><strong>Database Management:</strong> DBeaver, MariaDB Command Line Client</li>
-                            <li><strong>Infrastructure:</strong> AWS</li>
-                            <li><strong>Shell & Scripting:</strong> Bash</li>
+                            <li><strong>Database Management:</strong> DBeaver, Command Line Client</li>
+                            <li><strong>Shell & Scripting:</strong> Bash or Python</li>
+                            <li><strong>Design:</strong> Figma, Draw.io, Web Browser</li>
                         </ul>
                         <h3>Other Familiar Tech</h3>
                         <ul>
                             <li><strong>OS:</strong> Linux, Windows</li>
                             <li><strong>Containerization:</strong> Docker</li>
-                            <li>Java, Python, PHP, SQL, JavaScript, CSS, HTML</li>
-                            <li>Spring MVC, Spring Security, Spring Data JPA, Hibernate, JDBC</li>
-                            <li>JUnit, Mockito, Testcontainers, </li>
-                            <li>Agile, Kanban, XP, TDD</li>
-                            <li>Web Content Accessibility</li>
-                            <li></li>
+                            <li><strong>Programming:</strong> Java, Python, SQL, JavaScript, CSS, HTML</li>
+                            <li><strong>Frameworks:</strong> Spring Boot, Hibernate, Vue.js</li>
+                            <li><strong>Testing:</strong> JUnit, Mockito, Testcontainers, Jest</li>
+                            <li><strong>Methodology:</strong> Waterfall & Agile (XP, Kanban, Scrum)</li>
+                            <li><strong>Architecture:</strong> MVC, REST, SPA</li>
+                            <li><strong>UI/UX:</strong> Web Content Accessibility, Wireframing & Prototyping, Mobile-First & Responsive Web Design</li>
                         </ul>
                         <h2>Hardware</h2>
                         <h3>Main System</h3>
@@ -132,7 +138,7 @@
                             <li>1TB Western Digital Blue 7200 RPM HDD</li>
                             <li>36" ViewSonic 1440p monitor</li>
                             <li>32" ASUS 1080p monitor</li>
-                            <li>Manual crank standup/sitdown desk</li>
+                            <li>Standup desk</li>
                         </ul>
                         <h3>Other Systems</h3>
                         <strong>Headless Local Server</strong>
@@ -141,7 +147,9 @@
                         </ul>
                         <strong>Web Server</strong>
                         <ul>
-                            <li>2GB t4g.small EC2, Amazon Linux</li>
+                            <li>2GB t4g.small EC2 + Amazon Linux + JDK 25 Headless + Apache Tomcat</li>
+                            <li>S3 buckets for static file & database backups</li>
+                            <li>DNS, reverse proxy, TLS, CDN edge caching, and WAF + ddos protections with Route 53 and Cloudfront distributions</li>
                         </ul>
                         <strong>Laptop</strong>
                         <ul>
@@ -150,6 +158,7 @@
                     </section>
                 </div>
                 <aside id="sidebar">
+                    <button id="sidebar-toggle" class="btn-primary" onclick="toggleSidebar()"><span>&#8595</span>Table of Contents<span>&#8595</span></button>
                     <nav id="sidebar-menu"></nav>
                 </aside>
             </article>

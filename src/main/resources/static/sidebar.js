@@ -1,28 +1,29 @@
 // needed for full page load, HTMX will not fire it using hx-on
 document.addEventListener("DOMContentLoaded", initSidebar);
 
-const observer = new IntersectionObserver(entries => {
+const visObserver = new IntersectionObserver(entries => {
     if (!document.getElementById("post-text")) {
-        observer.disconnect();
+        visObserver.disconnect();
         return;
     }
-
+    const allNavItems = document.querySelectorAll('.sidebar-nav-item');
     entries.forEach(entry => {
         const navItem = document.querySelector(`#sidebar-item-${entry.target.id}`);
-        if (entry.isIntersecting) {
-            navItem.classList.add("active-nav-link");
-        } else if (entry.boundingClientRect.top > 0) {
-            navItem.classList.remove("active-nav-link");
+        if (navItem) {
+            if (entry.isIntersecting) {
+                allNavItems.forEach(item => {
+                    item.classList.remove("active-nav-link");
+                })
+                navItem.classList.add("active-nav-link");
+                navItem.classList.add("viewed-nav-link");
+            } else if (entry.boundingClientRect.top > 10) {
+                navItem.classList.remove("viewed-nav-link");
+            }
         }
     })
 
-    document.querySelector(".last-active-nav-link")?.classList.remove("last-active-nav-link");
-    const activeLinks = document.querySelectorAll('.sidebar-nav-item.active-nav-link');
-    if (activeLinks.length > 0) {
-        activeLinks[activeLinks.length - 1].classList.add("last-active-nav-link");
-    }
 },{
-    threshold: 1,
+    threshold: 0,
     rootMargin: "0px 0px -50% 0px"
 })
 
@@ -39,11 +40,10 @@ function initSidebar() {
     if (!textContainer) return;
 
     const sidebar = document.getElementById('sidebar-menu');
-    if (sidebar.innerHTML.length !== 0) return;
+    if (!sidebar || sidebar.children.length !== 0) return;
 
     const headers = textContainer.querySelectorAll("h2, h3");
-    let list = [`<strong>Table of Contents:</strong><ol>`];
-    let isH2Active = false;
+    let list = [`<div><strong>Table of Contents</strong><button id="close-sidebar-btn" class="btn-primary" onclick="toggleSidebar()">X</button></div><ol>`];
     let hasNested = false;
 
     headers.forEach(el => {
@@ -53,23 +53,28 @@ function initSidebar() {
 
         if (el.tagName === 'H2') {
             if (hasNested) {
-                list.push('</ul>');
+                list.push('</ul></li>');
                 hasNested = false;
             }
-            isH2Active = true;
             list.push(createListItem(elementId, el.textContent));
         }
-        else if (el.tagName === 'H3' && isH2Active) {
+        else if (el.tagName === 'H3') {
             if (!hasNested) {
-                list.push('<ul>');
+                list.push('<li><ul>');
                 hasNested = true;
             }
             list.push(createListItem(elementId, el.textContent));
         }
-        observer.observe(el);
+        visObserver.observe(el);
     });
 
     if (hasNested) list.push('</ul>');
     list.push('</ol>');
     sidebar.innerHTML = list.join('');
+}
+
+function toggleSidebar() {
+    console.log("toggleSidebar ");
+    document.getElementById("sidebar-menu").classList.toggle("toc-open");
+    document.getElementById("sidebar-toggle").classList.toggle("toc-open-btn");
 }

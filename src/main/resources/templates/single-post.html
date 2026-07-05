@@ -7,13 +7,13 @@
     <header th:replace="~{components/header-components :: full-header}"></header>
 
     <main>
-        <div th:fragment="single-post" id="main-content" hx-on:htmx:load="initSidebar()">
+        <div th:fragment="single-post" id="main-content" hx-on:htmx:load="initSidebar();">
             <header id="post-header">
                 <div id="post-header-content">
                     <img th:if="${!entry.thumbnailUrl.isBlank()}" th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="post-thumbnail post-thumbnail-heading"/>
                     <h1 th:text="${entry.title}" id="entry-title"></h1>
                 </div>
-                <div id="single-post-navigation-container">
+                <section id="single-post-navigation-container">
                     <strong>Associated categories:</strong>
                     <div id="categories-container">
                         <button th:each="category : ${entry.categoryNames}"
@@ -25,21 +25,18 @@
                         </button>
                     </div>
                     <p th:if="${entry.categoryNames.size() == 0}">No associated categories.</p>
-                    <small><i>
-                        <time th:if="${entry.updatedAt == null}" th:text="'Created on: ' + ${#temporals.format(entry.createdAt, 'MMMM dd, yyyy')}"></time>
-                        <time th:if="${entry.updatedAt != null}" th:text="'Updated on: ' + ${#temporals.format(entry.updatedAt, 'MMMM dd, yyyy')}"></time>
-                    </i></small>
-                </div>
+                </section>
             </header>
 
             <noscript>
                 <th:block th:replace="~{components/auth-components::noscript}"></th:block>
             </noscript>
 
-            <article id="post-content">
+            <article id="post-content" class="single-post-content">
                 <section th:utext="${entry.getContent()}" id="post-text"></section>
 
                 <aside id="sidebar">
+                    <button id="sidebar-toggle" class="btn-primary" onclick="toggleSidebar()"><span>&#8595</span>Table Of Contents<span>&#8595</span></button>
                     <nav id="sidebar-menu"></nav>
                 </aside>
             </article>

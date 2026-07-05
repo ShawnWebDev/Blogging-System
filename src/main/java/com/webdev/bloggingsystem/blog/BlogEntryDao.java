@@ -73,7 +73,7 @@ public class BlogEntryDao {
         return jdbc.sql(
                 "SELECT b.id, b.slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt " +
                 "FROM blog_entries b " +
-                "WHERE NOT b.in_progress AND NOT b.is_portfolio " +
+                "WHERE NOT b.in_progress " +
                 "ORDER BY b.created_at DESC")
                     .query((rs, _) -> simpleBlogEntryExtractor(rs))
                     .list();

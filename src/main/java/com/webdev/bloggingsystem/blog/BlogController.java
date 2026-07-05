@@ -60,6 +60,7 @@ public class BlogController {
         this.populateBlogDashboardModel(model, "All", "");
         model.addAttribute("posts", blogService.findAllSimpleBlogEntries());
         model.addAttribute("categories", blogService.findAllSimpleCategories());
+        this.setToken(request);
 
         if (request.getHeader("HX-Request") == null) {
             // for refresh or direct to /blog, contains heading fragment with nav, css/js, and blog-main fragment with all-posts
@@ -74,8 +75,6 @@ public class BlogController {
         }
 
         // for htmx request, only needs heading h1, blog-main, and csrf token resolved (implicit session creation)
-        this.setToken(request);
-
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
                 .fragment("blog::blog-main")
@@ -95,7 +94,7 @@ public class BlogController {
     // called when filtering posts by category in main blog dashboard
    // @HxRequest
     @GetMapping("/posts")
-    public Object filteredPostsView(Model model, HtmxRequest htmxRequest, HtmxResponse htmxResponse,
+    public Object filteredPostsView(Model model, HttpServletRequest request, HtmxResponse htmxResponse,
                                     @RequestParam(value = "categoryName", defaultValue = "All", required = false) String categoryName) {
 
         List<SimpleBlogEntryDto> filteredBlogEntries;
@@ -111,8 +110,17 @@ public class BlogController {
             htmxResponse.setPushUrl("/blog/posts?categoryName=" + categoryName);
         }
 
+        this.populateBlogDashboardModel(model, categoryName, categoryDescription);
+        model.addAttribute("posts", filteredBlogEntries);
+        if (request.getHeader("HX-Request") == null) {
+            this.setToken(request);
+            model.addAttribute("fromBlog", true);
+            model.addAttribute("categories", blogService.findAllSimpleCategories());
+            return "blog";
+        }
+
         boolean isFromBlog = false;
-        String url = htmxRequest.getCurrentUrl();
+        String url = request.getHeader("HX-Current-URL");
         try {
             // getPath() strips params to correctly send fragment if /blog, /blog?logout, or /blog?sessionExpired
             if (url != null) {
@@ -123,13 +131,6 @@ public class BlogController {
             logger.warn("Incorrect referer header: {}. ** 'isFromBlog' is defaulted to false.", url);
         }
 
-        this.populateBlogDashboardModel(model, categoryName, categoryDescription);
-        model.addAttribute("posts", filteredBlogEntries);
-        if (!htmxRequest.isHtmxRequest()) {
-            model.addAttribute("fromBlog", true);
-            model.addAttribute("categories", blogService.findAllSimpleCategories());
-            return "blog";
-        }
         if (isFromBlog) {
             return "components/blog-components::all-posts";
         }
@@ -146,11 +147,10 @@ public class BlogController {
     // to be used by HTMX navigation
     @HxRequest
     @GetMapping("/post/{id}/{slug}")
-    public FragmentsRendering singlePostViewFragment(Model model, @PathVariable Integer id, @PathVariable String slug,
-                                                     HttpServletRequest request) {
+    public FragmentsRendering singlePostViewFragment(Model model, @PathVariable Integer id, @PathVariable String slug) {
         BlogEntry entry = blogService.readPost(id);
         this.populateSinglePostModel(model, entry);
-        this.setToken(request);
+
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
                 .fragment("single-post::single-post")
@@ -160,9 +160,11 @@ public class BlogController {
 
     // to be used by external links, direct url, refresh
     @GetMapping("/post/{id}/{slug}")
-    public String singlePostViewFullPage(Model model, @PathVariable Integer id, @PathVariable String slug) {
+    public String singlePostViewFullPage(Model model, @PathVariable Integer id, @PathVariable String slug,
+                                         HttpServletRequest request) {
         BlogEntry entry = blogService.readPost(id);
         this.populateSinglePostModel(model, entry);
+        this.setToken(request);
 
         return "single-post";
     }
@@ -264,7 +266,7 @@ public class BlogController {
     }
 
     void setToken(HttpServletRequest request) {
-        // uses current session if valid, creates new session if not.
+        // instantiates deferred CSRF token.
         CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
         if (token != null) {
             token.getToken();
