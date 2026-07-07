@@ -3,7 +3,6 @@
 <head th:replace="~{components/shared-head}"></head>
 
 <body>
-
     <header th:replace="~{components/header-components :: full-header}"></header>
 
     <main>
@@ -33,8 +32,10 @@
             </noscript>
 
             <article id="post-content" class="single-post-content">
-                <section th:utext="${entry.getContent()}" id="post-text"></section>
-
+                <section id="post-text">
+                    <p th:text="${entry.description}"></p>
+                    <div th:utext="${entry.getContent()}"></div>
+                </section>
                 <aside id="sidebar">
                     <button id="sidebar-toggle" class="btn-primary" onclick="toggleSidebar()"><span>&#8595</span>Table of Contents<span>&#8595</span></button>
                     <nav id="sidebar-menu"></nav>
@@ -58,6 +59,5 @@
             </script>
         </div>
     </main>
-
 </body>
 </html>

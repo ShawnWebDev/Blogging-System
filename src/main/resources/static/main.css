@@ -611,9 +611,6 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
 #welcome-text {
     display: flow-root;
 }
-#post-text > h2:first-of-type, #welcome-text h2 {
-    margin: 0 auto 1.5rem auto !important;
-}
 .posts-heading, .portfolio-heading {
     margin: 0;
     font-size: 2rem;
