@@ -32,10 +32,7 @@
             </noscript>
 
             <article id="post-content" class="single-post-content">
-                <section id="post-text">
-                    <p th:text="${entry.description}"></p>
-                    <div th:utext="${entry.getContent()}"></div>
-                </section>
+                <section id="post-text" th:utext="${entry.getContent()}"></section>
                 <aside id="sidebar">
                     <button id="sidebar-toggle" class="btn-primary" onclick="toggleSidebar()"><span>&#8595</span>Table of Contents<span>&#8595</span></button>
                     <nav id="sidebar-menu"></nav>
