@@ -111,7 +111,7 @@
             <button title="Close" aria-label="Close" onclick="closeDialog('login-modal')" class="close-btn btn-primary">X</button>
         </header>
         <p>Thank you for registering!</p>
-        <p>A one time password has been sent to the email you registered with. Please look for a message from <strong>shawn.porfolio.blog@gmail.com</strong>.</p>
+        <p>A one time password has been sent to <strong th:text="${email}"></strong>. Please look for a message from <strong>shawns.porfolio.blog@gmail.com</strong>.</p>
         <div th:if="${validUntil}" class="center">
             <small><strong>Code valid until: <time th:text="${validUntil}" id="timeExpiration"></time></strong></small>
         </div>
@@ -126,7 +126,12 @@
             </label>
             <input type="submit" value="Validate" class="btn-primary" id="submitValidation"/>
         </form>
-        <p>Back to <button class="btn-secondary" hx-get="/loginForm" hx-target="#login-article" hx-swap="outerHTML">Log In</button></p>
+        <div class="form-group">
+            <p>Wrong Email? <button class="btn-secondary" hx-get="/reRegister" hx-target="#login-article" hx-swap="outerHTML" title="Delete account and re-register" hx-confirm="Delete account and go back to registration?">Re-register</button></p>
+            <p>No Code? <button class="btn-secondary" hx-get="/resendValidation" hx-target="#login-article" hx-swap="outerHTML" hx-indicator="#loader" title="Send new code to email on file.">Re-send OTP</button></p>
+        </div>
+        <p>Back to <button class="btn-secondary" hx-get="/loginForm" hx-target="#login-article" hx-swap="outerHTML">Login</button></p>
+        <small id="loader" class="htmx-indicator">Sending verification email...</small>
     </article>
 
     <!-- for initial load, oob swap requires there be an element with the ID before swapping otherwise it is discarded by HTMX -->
