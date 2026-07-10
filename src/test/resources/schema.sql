@@ -71,6 +71,7 @@ CREATE TABLE `verification` (
        `user_id` int NOT NULL,
        `otp` varchar(72) NOT NULL,
        `expiry` DATETIME NOT NULL,
+       `resetCounter` int NOT NULL DEFAULT 0,
        PRIMARY KEY (`user_id`),
        KEY `verification_tokens_users_FK` (`user_id`),
        CONSTRAINT `verification_tokens_users_FK` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
