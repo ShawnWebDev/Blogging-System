@@ -129,6 +129,20 @@ public class AuthController {
     }
 
     @HxRequest
+    @GetMapping("/reRegister")
+    public String reRegister(Model model, HttpServletRequest request) {
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
+            if (username != null) {
+                registrationService.deleteUserByUsername(username);
+                httpSession.removeAttribute("PENDING_VERIFICATION_USER");
+            }
+        }
+        return this.registrationView(model);
+    }
+
+    @HxRequest
     @PostMapping("/register")
     public String registration(Model model, HttpServletRequest request,
                                @Valid @ModelAttribute("userDto") UserRegistrationDto userRegistrationDto, BindingResult bindingResult) {
@@ -144,6 +158,7 @@ public class AuthController {
 
         String username = userRegistrationDto.getUsername();
         model.addAttribute("validUntil", registrationService.otpValidUntil(username));
+        model.addAttribute("email", userRegistrationDto.getEmail());
         request.getSession(true).setAttribute("PENDING_VERIFICATION_USER", username);
 
         return  "components/auth-components::validate-prompt-article";
@@ -158,6 +173,7 @@ public class AuthController {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
             if (username != null) {
                 model.addAttribute("validUntil", registrationService.otpValidUntil(username));
+                model.addAttribute("email", registrationService.getEmailByUsername(username));
                 return  "components/auth-components::validate-prompt-article";
             }
         }
@@ -183,6 +199,7 @@ public class AuthController {
                         case INVALID:
                             model.addAttribute("validUntil", registrationService.otpValidUntil(username));
                             model.addAttribute("otpError", "Invalid code!");
+                            model.addAttribute("email", registrationService.getEmailByUsername(username));
                             return  "components/auth-components::validate-prompt-article";
                         case EXPIRED:
                             model.addAttribute("expired", true);
@@ -191,6 +208,8 @@ public class AuthController {
                     }
                 } else {
                     model.addAttribute("otpError", "Please enter a 6 digit number.");
+                    model.addAttribute("validUntil", registrationService.otpValidUntil(username));
+                    model.addAttribute("email", registrationService.getEmailByUsername(username));
                     return  "components/auth-components::validate-prompt-article";
                 }
             }
@@ -206,7 +225,14 @@ public class AuthController {
         if (httpSession != null) {
             String username = (String) httpSession.getAttribute("PENDING_VERIFICATION_USER");
             if (username != null) {
-                model.addAttribute("validUntil", registrationService.resetOtp(username));
+                int resetCounter = registrationService.getOtpCounterByUsername(username);
+                if (resetCounter == 3) {
+                    model.addAttribute("loginError", "To many reset attempts, please re-register.");
+                    registrationService.deleteUserByUsername(username);
+                    return this.loginView();
+                }
+                model.addAttribute("validUntil", registrationService.resetOtp(username, resetCounter));
+                model.addAttribute("email", registrationService.getEmailByUsername(username));
             } else {
                 model.addAttribute("loginError", "Invalid username or password.");
                 return this.loginView();
