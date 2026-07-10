@@ -28,6 +28,19 @@ public class RegistrationService {
         this.emailService = emailService;
     }
 
+    public String getEmailByUsername(String username) {
+        return appUserDao.findEmailByUsername(username).orElseThrow(() -> new BlogEntryException("User not found!"));
+    }
+
+    public int getOtpCounterByUsername(String username) {
+        return appUserDao.getOtpCounterByUsername(username);
+    }
+
+    public void deleteUserByUsername(String username) {
+        // otp details are cascaded in db.
+        appUserDao.deleteUserByUsername(username);
+    }
+
     public Instant otpValidUntil(String username) {
         // username is verified to exist at this point.
         return appUserDao.getOtpExpirationByUsername(username);
@@ -48,7 +61,7 @@ public class RegistrationService {
         int otpRand = this.getRandomOtp();
         Instant otpExpires = this.getExpirationFromNow();
 
-        appUserDao.insertVerification(passwordEncoder.encode(String.valueOf(otpRand)), userId, otpExpires);
+        appUserDao.insertVerification(passwordEncoder.encode(String.valueOf(otpRand)), userId, otpExpires, 0);
 
         try {
             emailService.sendOtp(appUser.getEmail(), otpRand);
@@ -68,7 +81,7 @@ public class RegistrationService {
     }
 
     @Transactional
-    public Instant resetOtp(String username) {
+    public Instant resetOtp(String username, int resetCounter) {
         // [userId, email]
         Object[] userIdEmail = appUserDao.getUserIdEmailByUsername(username);
         if (userIdEmail == null) {
@@ -82,7 +95,7 @@ public class RegistrationService {
         String email = (String) userIdEmail[1];
 
         appUserDao.deleteOtpDetailsByUserId(userId);
-        appUserDao.insertVerification(passwordEncoder.encode(String.valueOf(otpRand)), userId, otpExpires);
+        appUserDao.insertVerification(passwordEncoder.encode(String.valueOf(otpRand)), userId, otpExpires, resetCounter + 1);
 
         try {
             emailService.sendOtp(email, otpRand);
