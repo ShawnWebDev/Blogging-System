@@ -35,6 +35,13 @@ public class AppUserDao {
                     .query(AppUser.class).optional();
     }
 
+    public Optional<String> findEmailByUsername(String username) {
+        return jdbc.sql(
+                "SELECT email FROM users WHERE username = :username")
+                    .param("username", username)
+                    .query(String.class).optional();
+    }
+
     public Optional<AuthorDto> findAuthorByUsername(String username) {
         return jdbc.sql(
                 "SELECT u.id, u.username " +
@@ -67,13 +74,14 @@ public class AppUserDao {
                     .update();
     }
 
-    public void insertVerification(String otp, int userId, Instant expires) {
+    public void insertVerification(String otp, int userId, Instant expires, int resetCounter) {
         jdbc.sql(
-                "INSERT INTO verification (otp, user_id, expiry) " +
-                "VALUES (:otp, :user_id, :expiry)")
+                "INSERT INTO verification (otp, user_id, expiry, resetCounter) " +
+                "VALUES (:otp, :user_id, :expiry, :resetCounter)")
                     .param("otp", otp)
                     .param("user_id", userId)
                     .param("expiry", expires)
+                    .param("resetCounter", resetCounter)
                     .update();
     }
 
@@ -95,6 +103,23 @@ public class AppUserDao {
                     .param("username", username)
                     .query((rs, _) -> this.getOtpDetailsExtractor(rs))
                     .optional().orElse(null);
+    }
+
+    public int getOtpCounterByUsername(String username) {
+        return jdbc.sql(
+                "SELECT v.resetCounter FROM users u " +
+                "JOIN verification v on u.id = v.user_id " +
+                "WHERE u.username = :username")
+                    .param("username", username)
+                    .query(Integer.class).optional().orElse(0);
+    }
+
+    public void deleteUserByUsername(String username) {
+        jdbc.sql(
+                "DELETE FROM users " +
+                "WHERE username = :username")
+                    .param("username", username)
+                    .update();
     }
 
     public void deleteOtpDetailsByUserId(int userId) {
