@@ -105,7 +105,7 @@ public class AppUserDaoTests {
 
     @Test
     void insertVerification() {
-        appUserDao.insertVerification("$2a$10$otpEncryptedString", 1, Instant.parse("2026-05-19T10:00:00Z"));
+        appUserDao.insertVerification("$2a$10$otpEncryptedString", 1, Instant.parse("2026-05-19T10:00:00Z"), 1);
         Object[] otpDetail = appUserDao.getOtpDetailsByUsername("TestAdmin");
 
         System.out.println("Fetched OTP detail: " + Arrays.toString(otpDetail));

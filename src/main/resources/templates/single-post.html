@@ -3,11 +3,10 @@
 <head th:replace="~{components/shared-head}"></head>
 
 <body>
-
     <header th:replace="~{components/header-components :: full-header}"></header>
 
     <main>
-        <div th:fragment="single-post" id="main-content" hx-on:htmx:load="initSidebar();">
+        <div th:fragment="single-post" id="main-content" hx-on:htmx:load="initSidebar(); hljs.highlightAll();">
             <header id="post-header">
                 <div id="post-header-content">
                     <img th:if="${!entry.thumbnailUrl.isBlank()}" th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="post-thumbnail post-thumbnail-heading"/>
@@ -33,10 +32,9 @@
             </noscript>
 
             <article id="post-content" class="single-post-content">
-                <section th:utext="${entry.getContent()}" id="post-text"></section>
-
+                <section id="post-text" th:utext="${entry.getContent()}"></section>
                 <aside id="sidebar">
-                    <button id="sidebar-toggle" class="btn-primary" onclick="toggleSidebar()"><span>&#8595</span>Table Of Contents<span>&#8595</span></button>
+                    <button id="sidebar-toggle" class="btn-primary" onclick="toggleSidebar()"><span>&#8595</span>Table of Contents<span>&#8595</span></button>
                     <nav id="sidebar-menu"></nav>
                 </aside>
             </article>
@@ -58,6 +56,5 @@
             </script>
         </div>
     </main>
-
 </body>
 </html>

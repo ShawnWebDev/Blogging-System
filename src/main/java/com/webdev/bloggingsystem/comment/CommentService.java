@@ -123,8 +123,10 @@ public class CommentService {
     }
 
     boolean validateAuthor(String username, Integer commentAuthorId) {
+        if (username == null) throw new BlogEntryException("Please login to comment.");
+
         AuthorDto author = appUserDao.findAuthorByUsername(username)
-                .orElseThrow(() -> new BlogEntryException("Please login to comment."));
+                .orElseThrow(() -> new BlogEntryException("Username not found!"));
 
         if (!commentAuthorId.equals(author.id())) {
             throw new BlogEntryException("Not the author of this comment.");
