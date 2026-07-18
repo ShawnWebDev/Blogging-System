@@ -144,29 +144,22 @@ public class BlogController {
                 .build();
     }
 
-    // to be used by HTMX navigation
-    @HxRequest
     @GetMapping("/post/{id}/{slug}")
-    public FragmentsRendering singlePostViewFragment(Model model, @PathVariable Integer id, @PathVariable String slug) {
+    public Object singlePostViewFullPage(Model model, @PathVariable Integer id, @PathVariable String slug,
+                                         HttpServletRequest request) {
         BlogEntry entry = blogService.readPost(id);
         this.populateSinglePostModel(model, entry);
-
+        this.setToken(request);
+        // to be used by external links, direct url, refresh
+        if (request.getHeader("HX-Request") == null) {
+            return "single-post";
+        }
+        // to be used by HTMX navigation
         return FragmentsRendering
                 .fragment("components/shared-head::head-title")
                 .fragment("single-post::single-post")
                 .header("HX-Push-Url", "/blog/post/" + id + "/" + entry.getSlug())
                 .build();
-    }
-
-    // to be used by external links, direct url, refresh
-    @GetMapping("/post/{id}/{slug}")
-    public String singlePostViewFullPage(Model model, @PathVariable Integer id, @PathVariable String slug,
-                                         HttpServletRequest request) {
-        BlogEntry entry = blogService.readPost(id);
-        this.populateSinglePostModel(model, entry);
-        this.setToken(request);
-
-        return "single-post";
     }
 
     // called when requesting blog entry input form template
