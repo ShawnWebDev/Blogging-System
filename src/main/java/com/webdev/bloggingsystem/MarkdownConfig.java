@@ -1,4 +1,4 @@
-package com.webdev.bloggingsystem.blog;
+package com.webdev.bloggingsystem;
 
 
 import org.springframework.context.annotation.Bean;
@@ -17,7 +17,7 @@ public class MarkdownConfig {
     @Bean
     public HtmlRenderer renderer() {
         return HtmlRenderer.builder()
-                .escapeHtml(true)
+                .escapeHtml(false)
                 .build();
     }
 }
