@@ -70,11 +70,19 @@ function initSidebar() {
 
     if (hasNested) list.push('</ul>');
     list.push('</ol>');
+    if (isSinglePostPage(window.location.pathname)) {
+        list.push('<a href="#comments-section" class="sidebar-nav-item btn-secondary" id="toCommentsAnchor">To Comment Section</a>');
+    }
     sidebar.innerHTML = list.join('');
 }
 
 function toggleSidebar() {
-    console.log("toggleSidebar ");
     document.getElementById("sidebar-menu").classList.toggle("toc-open");
     document.getElementById("sidebar-toggle").classList.toggle("toc-open-btn");
+}
+
+function isSinglePostPage(path) {
+    const pathname = path.split("/");
+    if (pathname.length < 3) return false;
+    return pathname[1] === "blog" && pathname[2] === "post";
 }
