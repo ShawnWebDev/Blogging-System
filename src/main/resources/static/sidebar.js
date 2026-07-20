@@ -1,6 +1,9 @@
 // needed for full page load, HTMX will not fire it using hx-on
 document.addEventListener("DOMContentLoaded", initSidebar);
 
+let headingOrder;
+let headingIndexMap;
+
 const visObserver = new IntersectionObserver(entries => {
     if (!document.getElementById("post-text")) {
         visObserver.disconnect();
@@ -15,13 +18,19 @@ const visObserver = new IntersectionObserver(entries => {
                     item.classList.remove("active-nav-link");
                 })
                 navItem.classList.add("active-nav-link");
-                navItem.classList.add("viewed-nav-link");
             } else if (entry.boundingClientRect.top > 10) {
-                navItem.classList.remove("viewed-nav-link");
+                if (navItem.classList.contains("active-nav-link")) {
+                    navItem.classList.remove("active-nav-link");
+                    const idx = headingIndexMap.get(entry.target.id);
+                    const prevId = idx > 0 ? headingOrder[idx - 1] : null;
+                    const prevItem = prevId && document.querySelector(`#sidebar-item-${prevId}`);
+                    if (prevItem) {
+                        prevItem.classList.add("active-nav-link");
+                    }
+                }
             }
         }
     })
-
 },{
     threshold: 0,
     rootMargin: "0px 0px -50% 0px"
@@ -45,11 +54,15 @@ function initSidebar() {
     const headers = textContainer.querySelectorAll("h2, h3");
     let list = [`<div><strong>Table of Contents</strong><button id="close-sidebar-btn" class="btn-primary" onclick="toggleSidebar()">X</button></div><ol>`];
     let hasNested = false;
+    headingOrder = [];
+    headingIndexMap = new Map();
 
     headers.forEach(el => {
         // remove symbols and whitespace
         const elementId = el.textContent.replace(/\W/g, '');
         el.id = elementId;
+        headingIndexMap.set(elementId, headingOrder.length);
+        headingOrder.push(elementId);
 
         if (el.tagName === 'H2') {
             if (hasNested) {
