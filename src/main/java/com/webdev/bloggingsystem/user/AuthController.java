@@ -57,7 +57,6 @@ public class AuthController {
             htmxResponse.setPushUrl("/blog");
             return FragmentsRendering
                     .fragment("components/auth-components::logout-button-blog")
-                    .fragment("components/auth-components::csrf-token-oob")
                     .header("HX-Trigger", "loginSuccess")
                     .build();
         }
@@ -65,7 +64,6 @@ public class AuthController {
         if (authentication.isEmpty()) throw new BlogEntryException("Bad Credentials");
         return FragmentsRendering
                 .fragment("components/auth-components::logout-button-post")
-                .fragment("components/auth-components::csrf-token-oob") // to refresh the csrf token with an out-of-band swap
                 .header("HX-Trigger", "{\"loginSuccess\": \""+ authentication.get().getName() + "\"}")
                 .build();
     }
@@ -247,7 +245,6 @@ public class AuthController {
     public String refreshToken() {
         return "components/auth-components::csrf-token-oob";
     }
-
 
     private boolean isValidOtp(String otp) {
         if (otp == null || otp.length() != 6) return false;
