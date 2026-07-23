@@ -44,7 +44,7 @@
             <span id="login-dialog-title">Login</span>
             <button title="Close" aria-label="Close" onclick="closeDialog('login-modal')" class="close-btn btn-primary">X</button>
         </header>
-        <form th:if="${validUntil == null && expired == null}" role="form" aria-label="Login form" hx-post="/login" hx-target="#login-container" hx-swap="outerHTML" method="post" hx-on::after-request="if(event.detail.successful) closeDialog('login-modal')">
+        <form th:if="${validUntil == null && expired == null}" role="form" aria-label="Login form" hx-post="/login" hx-target="#login-container" hx-swap="outerHTML" method="post">
             <label>Username:
                 <input type="text" name="username" placeholder="Username" required/>
             </label>
@@ -119,7 +119,7 @@
             <small class="error">Code Expired.</small>
             <button hx-get="/resendValidation" hx-target="#login-article" hx-swap="outerHTML" class="btn-secondary">Re-send Code</button>
         </div>
-        <form role="form" aria-label="Validate OTP form" hx-post="/validate" hx-target="#login-article" hx-swap="outerHTML" class="margin-bottom" hx-on::after-request="if(event.detail.successful) closeDialog('login-modal')">
+        <form role="form" aria-label="Validate OTP form" hx-post="/validate" hx-target="#login-article" hx-swap="outerHTML" class="margin-bottom">
             <label>6-Digit Code:
                 <input type="text" placeholder="000000" name="otp" required/>
                 <small th:if="${otpError != null}" th:text="${otpError}" class="error"></small>
