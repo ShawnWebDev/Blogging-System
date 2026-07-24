@@ -6,7 +6,7 @@
     <header th:replace="~{components/header-components :: full-header}"></header>
 
     <main>
-        <div th:fragment="single-post" id="main-content" hx-on:htmx:load="initSidebar(); hljs.highlightAll();">
+        <div th:fragment="single-post" id="main-content" hx-on:htmx:load="initSidebar(); highlightOnInitialLoad();">
             <header id="post-header">
                 <div id="post-header-content">
                     <img th:if="${!entry.thumbnailUrl.isBlank()}" th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="post-thumbnail post-thumbnail-heading"/>

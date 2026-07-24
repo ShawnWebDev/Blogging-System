@@ -108,3 +108,12 @@ function convertTimeToLocal(id) {
         minute: 'numeric',
     }).format(date);
 }
+
+document.addEventListener('DOMContentLoaded', highlightOnInitialLoad);
+
+function highlightOnInitialLoad() {
+    document.querySelectorAll('pre code').forEach((el) => {
+        if (el.dataset.highlighted === "yes") return;
+        hljs.highlightElement(el);
+    });
+}
