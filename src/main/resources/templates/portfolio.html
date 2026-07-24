@@ -39,7 +39,7 @@
                             <p th:text="${entry.description}"></p>
                         </section>
                         <footer>
-                            <a th:href="@{/blog/post/{id}/{slug}(id = ${entry.id}, slug = ${entry.slug})}" th:hx-get="@{/blog/post/{id}/{slug}(id = ${entry.id}, slug = ${entry.slug})}"
+                            <a th:if="${entry.hasArticle()}" th:href="@{/blog/post/{id}/{slug}(id = ${entry.id}, slug = ${entry.slug})}" th:hx-get="@{/blog/post/{id}/{slug}(id = ${entry.id}, slug = ${entry.slug})}"
                                hx-target="#main-content" hx-swap="outerHTML swap:150ms show:window:top" class="btn-secondary">
                                 Article
                             </a>

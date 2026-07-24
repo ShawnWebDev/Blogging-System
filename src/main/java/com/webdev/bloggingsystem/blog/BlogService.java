@@ -173,6 +173,7 @@ public class BlogService {
         blogEntry.setCodeUrl(dto.getCodeUrl());
         blogEntry.setDemoUrl(dto.getDemoUrl());
         blogEntry.setPortfolio(dto.getIsPortfolio());
+        blogEntry.setHasArticle(dto.getHasArticle());
         return blogEntry;
     }
 
@@ -193,6 +194,6 @@ public class BlogService {
 
         return new CreateBlogEntryDto(post.getId(), post.getSlug(), post.getTitle(), post.getDescription(),
                 post.getThumbnailUrl(), post.getThumbnailAlt(), categoryIds, post.getContent(), post.getInProgress(),
-                post.getCodeUrl(), post.getDemoUrl(), post.isPortfolio());
+                post.getCodeUrl(), post.getDemoUrl(), post.isPortfolio(), post.getHasArticle());
     }
 }
