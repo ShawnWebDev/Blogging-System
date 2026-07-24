@@ -39,7 +39,7 @@ const visObserver = new IntersectionObserver(entries => {
 function createListItem(id, text) {
     return `
     <li>
-        <a href="#${id}" class="sidebar-nav-item ${id}" id="sidebar-item-${id}">${text}</a>
+        <a href="#${id}" class="sidebar-nav-item ${id}" id="sidebar-item-${id}" onclick="toggleSidebar()">${text}</a>
     </li>
 `;
 }
@@ -84,7 +84,7 @@ function initSidebar() {
     if (hasNested) list.push('</ul>');
     list.push('</ol>');
     if (isSinglePostPage(window.location.pathname)) {
-        list.push('<a href="#comments-section" class="sidebar-nav-item btn-secondary" id="toCommentsAnchor">To Comment Section</a>');
+        list.push('<a href="#comments-section" class="sidebar-nav-item btn-secondary" id="toCommentsAnchor" onclick="toggleSidebar()">To Comment Section</a>');
     }
     sidebar.innerHTML = list.join('');
 }
