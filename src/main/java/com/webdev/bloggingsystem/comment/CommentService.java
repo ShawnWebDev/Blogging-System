@@ -65,11 +65,13 @@ public class CommentService {
         commentToEdit.setContent(dto.content);
 
         // only updates content
-        int isUpdated = commentDao.update(commentToEdit.getId(), commentToEdit.getContent());
+        int isUpdated = commentDao.update(commentId, commentToEdit.getContent());
 
         if (isUpdated == 1) {
-            // if isUpdated, then comment exists, do not need to fetch again as content is updated with original object.
-            return commentToEdit;
+            // if isUpdated, then comment exists
+            return commentDao.getCommentById(commentId).orElseThrow(() ->
+                    new BlogEntryException("Comment not found with id: " + commentId)
+            );
         } else  {
             throw new BlogEntryException("Comment not updated.");
         }
