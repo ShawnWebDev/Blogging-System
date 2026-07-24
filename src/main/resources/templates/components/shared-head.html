@@ -6,18 +6,11 @@
   <meta name="description" th:content="${metaDesc}"/>
   <link rel="stylesheet" href="https://cdn.shawnosborne.dev/static/fonts.css">
   <link rel="stylesheet" href="https://cdn.shawnosborne.dev/static/highlight.min.css">
-  <link rel="stylesheet" href="https://cdn.shawnosborne.dev/static/main-v3.min.css">
+  <link rel="stylesheet" href="https://cdn.shawnosborne.dev/static/main-v1-1.min.css">
   <script src="https://cdn.shawnosborne.dev/static/htmx.min.js" defer></script>
-  <script src="https://cdn.shawnosborne.dev/static/main.js" defer></script>
-  <script src="https://cdn.shawnosborne.dev/static/sidebar.js" defer></script>
+  <script src="https://cdn.shawnosborne.dev/static/main02.js" defer></script>
+  <script src="https://cdn.shawnosborne.dev/static/sidebar03.js" defer></script>
   <script src="https://cdn.shawnosborne.dev/static/highlight.min.js" defer></script>
   <link rel="icon" href="https://cdn.shawnosborne.dev/images/favicon.svg" type="image/svg+xml">
   <title th:fragment="head-title" th:text="${title}"></title>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('pre code').forEach((el) => {
-        hljs.highlightElement(el);
-      });
-    })
-  </script>
 </head>
