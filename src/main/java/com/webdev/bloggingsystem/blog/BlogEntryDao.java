@@ -100,7 +100,7 @@ public class BlogEntryDao {
                     "SELECT pc_sub.post_id FROM posts_categories pc_sub " +
                     "JOIN categories c_sub ON c_sub.id = pc_sub.category_id " +
                     "WHERE c_sub.category_name = :categoryName " +
-                        ") AND NOT b.in_progress " +
+                        ") AND NOT b.in_progress AND b.has_article " +
                 "ORDER BY b.created_at DESC")
                     .param("categoryName", categoryName)
                     .query((rs, _) -> simpleBlogEntryExtractor(rs))
