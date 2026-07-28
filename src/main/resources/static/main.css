@@ -18,7 +18,7 @@
     --main-text-color-transparent: rgba(227, 230, 233, 0.75);
 
     --error-color: rgb(255, 120, 120);
-    --code-color: rgb(239, 223, 190);
+    --code-color: rgb(232, 212, 171);
 
     --header-font-family: "Anta";
     --main-text-font-family: "Roboto";
@@ -490,11 +490,14 @@ img[src$="#inline-img"] { /* for commonmark: syntax = ![Alt](/url#inline-img) */
     width: 100%;
     height: auto;
     max-width: fit-content;
-    margin: 1rem;
+    margin: 0;
 }
 img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width-img) */
     display: block;
     width: 100%;
+}
+p:has(img[src$="#inline-img"], img[src$="#full-width-img"]) {
+    text-align: center;
 }
 #post-text {
     padding: 0 0 2rem 0;
@@ -518,6 +521,7 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     align-self: flex-end;
     padding: 1rem 0 0 0.5rem;
     width: fit-content;
+    z-index: 3;
 }
 #sidebar-toggle {
     position: fixed;
@@ -551,12 +555,19 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
     width: 95%;
     min-width: 18rem;
     padding: 1rem;
-    z-index: 3;
 }
 #sidebar-menu div {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
+}
+#toCommentsAnchor {
+    text-align: center;
+    padding: 0.25rem;
+    margin-top: 2rem;
+    width: fit-content;
+    font-size: 0.8rem;
+    color: var(--main-text-color);
 }
 #close-sidebar-btn {
     padding: 0.15rem 0.25rem;
@@ -644,6 +655,23 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
 }
 #post-content pre {
     padding: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: var(--transparent-color-dark);
+    color: var(--code-color);
+    display: block;
+    max-width: 100%;
+    width: 0;
+    min-width: 100%;
+    overflow-x: auto;
+    line-height: 1.5;
+}
+#post-content pre code {
+    padding: 0;
+    border-radius: 0;
+    background-color: transparent;
+}
+#post-content code {
+    padding: 0.25rem;
     border-radius: 0.25rem;
     background-color: var(--transparent-color-dark);
     color: var(--code-color);
@@ -738,9 +766,11 @@ img[src$="#full-width-img"] { /* for commonmark: syntax = ![Alt](/url#full-width
 .comment-replies {
     margin: 0 0 0 0.5rem;
     padding-top: 0.5rem;
+    position: static;
 }
 .comment-replies summary {
     position: relative;
+    z-index: 1;
     right: 0.5rem;
     bottom: 0.5rem;
     font-size: 1.25rem;

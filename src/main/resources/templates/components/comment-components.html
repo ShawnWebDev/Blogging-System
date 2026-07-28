@@ -55,7 +55,7 @@
           <small th:text="${isReply ? 'replied' : 'commented'}"></small>
         </div>
         <div class="inline">
-          <small th:id="${'comment-time-'+ commentItem.id}" th:with="display=${commentItem.updatedAt == null ? 'created' : (commentItem.deleted ? 'deleted' : 'updated')}">
+          <small th:id="${'comment-time-'+ commentItem.id}" th:with="display=${commentItem.updatedAt == null ? 'Created' : (commentItem.deleted ? 'Deleted' : 'Updated')}">
             <i><span th:text="${display}"></span>
               <time th:if="${commentItem.updatedAt == null}" th:text="${@timeUtil.toRelativeTime(commentItem.createdAt)}"></time>
               <time th:unless="${commentItem.updatedAt == null}" th:text="${@timeUtil.toRelativeTime(commentItem.updatedAt)}"></time>
@@ -95,9 +95,9 @@
   </div>
 
   <!-- used for updated display and time after update-->
-  <small th:fragment="edit-single-comment-time-oob" th:id="${'comment-time-'+ commentItem.id}" th:hx-swap-oob="'outerHTML:#comment-time-' + ${commentItem.id}" th:with="display=${commentItem.deleted ? 'deleted' : 'updated'} +' on'">
+  <small th:fragment="edit-single-comment-time-oob" th:id="${'comment-time-'+ commentItem.id}" th:hx-swap-oob="'outerHTML:#comment-time-' + ${commentItem.id}" th:with="display=${commentItem.deleted ? 'Deleted' : 'Updated'}">
     <i><span th:text="${display}"></span>
-      <time th:text="${#temporals.format(commentItem.updatedAt, 'MMMM dd, yyyy @ h:mm a')}"></time>
+      <time th:text="${@timeUtil.toRelativeTime(commentItem.updatedAt)}"></time>
     </i>
   </small>
 

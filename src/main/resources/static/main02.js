@@ -18,6 +18,10 @@ document.addEventListener("htmx:configRequest", function(e) {
 });
 
 document.body.addEventListener('loginSuccess', function(e) {
+    fetchNewCsrfToken();
+    if (refreshTimer != null) {
+        clearTimeout(refreshTimer);
+    }
     document.querySelectorAll('.no-auth-msg').forEach(el => el.remove());
     document.querySelectorAll('.comment').forEach((el) => {
         let commentId = el.dataset.commentid;
@@ -43,7 +47,7 @@ document.body.addEventListener('navigationChange', () => {
     document.getElementById("blog-nav-item").classList.add("active");
 });
 
-let refreshTimer;
+let refreshTimer = null;
 
 //close dialog after 30 mins
 function startCloseDialogTimer(elementId) {
@@ -53,8 +57,11 @@ function startCloseDialogTimer(elementId) {
 }
 
 function closeDialog(elementId) {
-    document.getElementById(elementId).close();
-    clearTimeout(refreshTimer);
+    if (refreshTimer != null) {
+        clearTimeout(refreshTimer);
+        refreshTimer = null;
+    }
+    document.getElementById(elementId)?.close();
 }
 
 function openDialog(elementId) {
@@ -100,4 +107,13 @@ function convertTimeToLocal(id) {
         hour: 'numeric',
         minute: 'numeric',
     }).format(date);
+}
+
+document.addEventListener('DOMContentLoaded', highlightOnInitialLoad);
+
+function highlightOnInitialLoad() {
+    document.querySelectorAll('pre code').forEach((el) => {
+        if (el.dataset.highlighted === "yes") return;
+        hljs.highlightElement(el);
+    });
 }

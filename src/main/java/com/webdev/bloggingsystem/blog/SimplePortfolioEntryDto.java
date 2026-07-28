@@ -11,6 +11,7 @@ public record SimplePortfolioEntryDto (
         String thumbnailUrl,
         String thumbnailAlt,
         String codeUrl,
-        String demoUrl
+        String demoUrl,
+        boolean hasArticle
 ) {
 }

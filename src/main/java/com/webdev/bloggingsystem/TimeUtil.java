@@ -11,7 +11,7 @@ public class TimeUtil {
     public static String toRelativeTime(Instant time) {
         Duration diff = Duration.between(time, Instant.now());
         long seconds = diff.getSeconds();
-        if (seconds < 60) return "Less than a minute ago.";
+        if (seconds < 60) return "less than a minute ago.";
         long minutes = seconds / 60;
         if (minutes < 60) return minutes + (minutes == 1 ? " minute" : " minutes") + " ago";
         long hours = minutes / 60;

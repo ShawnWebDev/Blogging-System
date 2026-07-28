@@ -26,9 +26,8 @@ CREATE TABLE `blog_entries` (
     `code_url` varchar(255) DEFAULT NULL,
     `demo_url` varchar(255) DEFAULT NULL,
     `is_portfolio` tinyint(1) NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `title_unique` (`title`),
-    UNIQUE KEY `slug_unique` (`slug`)
+    `has_article` tinyint(1) NOT NULL,
+    PRIMARY KEY (`id`)
 );
 
 CREATE TABLE `comments` (

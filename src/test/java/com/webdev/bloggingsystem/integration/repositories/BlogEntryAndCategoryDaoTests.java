@@ -167,7 +167,7 @@ public class BlogEntryAndCategoryDaoTests {
         assertNull(blogEntry);
 
         //Ensure category joins and related comments are cascade deleted..
-        List<Category> categoriesWithId = jdbc.sql("SELECT * FROM posts_categories WHERE post_id = 1").query(Category.class).list();
+        List<Integer> categoriesWithId = jdbc.sql("SELECT category_id FROM posts_categories WHERE post_id = 1").query(Integer.class).list();
         assertEquals(0, categoriesWithId.size());
 
         List<Comment> commentsWithId = jdbc.sql("SELECT * FROM comments WHERE post_id = 1").query(Comment.class).list();

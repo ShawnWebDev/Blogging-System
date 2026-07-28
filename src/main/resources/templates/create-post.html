@@ -15,12 +15,17 @@
         <form action="#" th:hx-post="@{${isEditing ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#main-content" hx-swap="outerHTML">
           <input type="hidden" th:if="${isEditing}" name="id" th:value="${post.id}"/>
 
-          <label>In Progress?:
-            <input type="checkbox" name="inProgress" th:checked="${post.inProgress}"/>
-          </label>
+          <div class="form-group">
+            <label>In Progress?:
+              <input type="checkbox" name="inProgress" th:checked="${post.inProgress}"/>
+            </label>
+            <label>Has Article?:
+              <input type="checkbox" name="hasArticle" th:checked="${post.hasArticle}"/>
+            </label>
+          </div>
 
           <label>Title:
-            <input type="text" name="title" th:value="${post.title}"/>
+            <input type="text" name="title" th:value="${post.title}" required/>
             <small th:errors="${post.title}" class="error"></small>
           </label>
 
@@ -101,7 +106,7 @@
           </div>
 
           <label>Content: <br><a href="https://commonmark.org/help/" target="_blank" rel="noopener noreferrer">Markdown Reference</a>
-            <textarea name="content" id="post-content-input" th:text="${post.content}" required></textarea>
+            <textarea name="content" id="post-content-input" th:text="${post.content}"></textarea>
             <small th:errors="${post.content}" class="error"></small>
           </label>
 
