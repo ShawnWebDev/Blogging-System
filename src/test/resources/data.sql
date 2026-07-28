@@ -13,14 +13,14 @@ VALUES
     ('Test Category 3', 'Just a test category 3.'),
     ('Portfolio', 'Portfolio category.');
 
-INSERT INTO `blog_entries` (title, description, content, slug, thumbnail_url, thumbnail_alt, in_progress, code_url, demo_url, is_portfolio)
+INSERT INTO `blog_entries` (title, description, content, slug, thumbnail_url, thumbnail_alt, in_progress, code_url, demo_url, is_portfolio, has_article)
 VALUES
-    ('Test Post 1', 'Test Description 1','##Test Post 1\n\nTestAdmin content is here.', 'test-post-1', 'url', 'alt', 0, null, null, 0),
-    ('Test Post 2', 'Test Description 2','##Test Post 2\n\nTestAdmin content is here.', 'test-post-2', 'url', 'alt', 0, null, null, 0),
-    ('Test Post 3', 'Test Description 3', '##Test Post 3\n\nTestAdmin content is here.',  'test-post-3', 'url', 'alt', 0, null, null, 0),
-    ('Test Post 4', 'Test Description 4', '##Test Post 4\n\nTestAdmin content is here.',  'test-post-4', 'url', 'alt', 0, null, null, 0),
-    ('Test Post 5', 'Test Description 5', '##Test Post 5\n\nTestAdmin content is here.', 'test-post-5', 'url', 'alt', 0, null, null, 0),
-    ('Test Post 6', 'Test Description 6', '##Test Post 5\n\nTestAdmin content is here, unfinished...', 'test-post-6', 'url', 'alt', 1, null, null, 0);
+    ('Test Post 1', 'Test Description 1','##Test Post 1\n\nTestAdmin content is here.', 'test-post-1', 'url', 'alt', 0, null, null, 0, 1),
+    ('Test Post 2', 'Test Description 2','##Test Post 2\n\nTestAdmin content is here.', 'test-post-2', 'url', 'alt', 0, null, null, 0, 1),
+    ('Test Post 3', 'Test Description 3', '##Test Post 3\n\nTestAdmin content is here.',  'test-post-3', 'url', 'alt', 0, null, null, 0, 1),
+    ('Test Post 4', 'Test Description 4', '##Test Post 4\n\nTestAdmin content is here.',  'test-post-4', 'url', 'alt', 0, null, null, 0, 1),
+    ('Test Post 5', 'Test Description 5', '##Test Post 5\n\nTestAdmin content is here.', 'test-post-5', 'url', 'alt', 0, null, null, 0, 1),
+    ('Test Post 6', 'Test Description 6', '##Test Post 5\n\nTestAdmin content is here, unfinished...', 'test-post-6', 'url', 'alt', 1, null, null, 0, 1);
 
 INSERT INTO `posts_categories` (post_id, category_id)
 VALUES
