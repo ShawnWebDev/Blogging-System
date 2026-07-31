@@ -93,7 +93,7 @@ p, ul, ol {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    margin-bottom: calc(3rem + 5vh);
+    margin-bottom: calc(1rem + 5vh);
 }
 
 #post-header h1 {
@@ -229,7 +229,6 @@ a:hover {
     color: var(--accent-color);
 }
 .about-section {
-    margin-top: 3rem;
     width: 100%;
     scroll-margin-top: 5rem;
 }
@@ -338,10 +337,8 @@ article header h3 {
 #portfolio-container {
     display: flow-root;
 }
-#portfolio-container > div {
-    display: grid;
-    gap: 0 2rem;
-    grid-template-columns: 1fr;
+#portfolio-container > header {
+    margin: 0 auto calc(2rem + 5vh) auto;
 }
 .post-card, .portfolio-card {
     position: relative;
@@ -502,6 +499,15 @@ p:has(img[src$="#inline-img"], img[src$="#full-width-img"]) {
 #post-text {
     padding: 0 0 2rem 0;
 }
+#post-text h2 {
+    margin: calc(2rem + 5vh) auto 2.5rem auto;
+}
+#post-text > h2:first-of-type {
+    margin: 0 auto 2.5rem auto;
+}
+#welcome-text > h2 {
+    margin: 2rem auto;
+}
 #post-content {
     display: flex;
     flex-direction: column;
@@ -644,7 +650,7 @@ p:has(img[src$="#inline-img"], img[src$="#full-width-img"]) {
     padding-bottom: 0.5rem;
     font-size: 2rem;
 }
-#post-content h3 {
+#post-content h3, header h3 {
     font-size: 1.25rem;
 }
 #post-content h2, #post-content h3 {
@@ -1017,7 +1023,7 @@ dialog #login-message {
         padding: 2.5rem 2rem 4rem 2rem;
     }
     #post-header {
-        margin-bottom: calc(4rem + 5vh);
+        margin-bottom: calc(2rem + 5vh);
     }
     #post-header h1 {
         font-size: 4rem;
@@ -1029,7 +1035,7 @@ dialog #login-message {
         padding-bottom: 0.5rem;
         font-size: 2.5rem;
     }
-    #post-content h3 {
+    #post-content h3, header h3 {
         font-size: 1.5rem;
     }
     .post-card header h3, .portfolio-card header h3 {
@@ -1053,9 +1059,6 @@ dialog #login-message {
         height: 4rem;
         margin-right: 2rem;
     }
-    #portfolio-container > div {
-        grid-template-columns: 1fr 1fr;
-    }
 }
 
 /* 1200 - 1919 */
@@ -1074,11 +1077,12 @@ dialog #login-message {
         position: sticky;
         top: 0;
         padding: 0 0 0 2vw;
-        width: 20rem;
+        width: 21rem;
         box-shadow: inset -2px 4px 8px 4px rgba(0, 0, 0, 0.15);
     }
     #name-heading {
-        padding: 0.5rem 0 0 0;
+        text-align: right;
+        padding: 0.5rem 2rem 0 0;
     }
     #menu-toggle-btn {
         display: none;
@@ -1191,9 +1195,6 @@ dialog #login-message {
     #main-content {
         padding: 2rem calc(2rem + 5vw) 4rem calc(0.5rem + 5vw);
     }
-    #main-header{
-        width: 18rem;
-    }
     #post-content {
         flex-direction: row;
         justify-content: space-between;
@@ -1243,11 +1244,9 @@ dialog #login-message {
     }
     #main-header {
         padding: 0 0 0 6vw;
-        width: 20rem;
     }
     #name-heading {
         margin-left: -4vw;
-        padding-left: 4vw;
     }
     #post-text {
         flex: 5;
