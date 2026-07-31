@@ -51,6 +51,10 @@ public class BlogService {
         return blogEntryDao.findAllSimpleBlogEntriesToCategoryName(categoryName);
     }
 
+    boolean categoryExistsByName(String categoryName) {
+        return categoryDao.categoryExists(categoryName);
+    }
+
     List<Category> findAllCategories() {
         return categoryDao.findAll();
     }
