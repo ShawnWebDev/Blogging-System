@@ -46,6 +46,14 @@ public class CategoryDao {
                 .optional().isPresent();
     }
 
+    public boolean categoryExists(String name) {
+        return jdbc.sql(
+                "SELECT 1 FROM categories WHERE category_name = :name")
+                    .param("name", name)
+                    .query(Integer.class)
+                    .optional().isPresent();
+    }
+
     public int batchInsertJoins(Set<Integer> categoryIds, int blogId) {
         int result = 0;
         if (categoryIds != null && !categoryIds.isEmpty()) {
