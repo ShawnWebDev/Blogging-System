@@ -106,8 +106,8 @@ h1, h2 {
 }
 
 #post-header svg {
-    width: 3rem;
-    height: 3rem;
+    width: 4rem;
+    height: auto;
     fill: var(--accent-color-less-transparent);
     float: left;
     margin-right: 1rem;
@@ -267,12 +267,7 @@ a:hover {
 }
 
 article header {
-    background-color: var(--main-bg-color);
-    padding: 0.75rem;
-}
-
-.post-card header {
-    transition: border-color 200ms ease-in-out, color 200ms ease-in-out;
+    padding: 0.75rem 0;
 }
 
 .post-card a {
@@ -283,37 +278,11 @@ article header {
 }
 
 .post-card header, .portfolio-card header {
-    display: flex;
-    flex-wrap: wrap;
-    column-gap: 1rem;
-    justify-content: space-between;
-    border-bottom: 2px solid var(--accent-color-transparent);
-}
-
-.portfolio-card header {
-    border-bottom: 2px solid var(--accent-color-less-transparent);
+    border-bottom: 1px solid var(--accent-color-transparent);
 }
 
 .category-card header h4 {
     padding: 0 0.5rem;
-}
-
-.post-card:hover {
-    transform: scale(1.01);
-}
-
-.post-card:hover header {
-    border-color: var(--accent-color);
-    color: #fff;
-}
-
-.post-card .header-nav-arrow {
-    transform: translateX(0);
-}
-
-.post-card:hover .header-nav-arrow {
-    opacity: 1;
-    transform: translateX(0.5rem);
 }
 
 article header h3 {
@@ -325,65 +294,56 @@ article header h3 {
 #post-container header, article header, article footer {
     align-items: center;
 }
-.post-card {
-    transform: scale(1);
-    will-change: transform;
-    transition: transform 200ms ease-in-out;
-}
-.post-card header .header-nav-arrow {
-    opacity: 0.65;
-    transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
-}
 #portfolio-container {
     display: flow-root;
+    max-width: 80rem;
 }
 #portfolio-container > header {
     margin: 0 auto calc(2rem + 5vh) auto;
 }
 .post-card, .portfolio-card {
     position: relative;
-    border: 1px solid var(--more-transparent-color-light);
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     height: fit-content;
-    margin-bottom: 2rem;
+    margin-bottom: calc(2rem + 2vh);
+    background-color: var(--transparent-color-dark);
+    padding: 1vh calc(0.5rem + 1vw);
 }
 .post-card::after {
-    content: "";
-    position: absolute;
-    top: 0;
+    padding: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    box-shadow: 0 4px 8px 4px rgba(0, 0, 0, 0.1);
-    opacity: 0;
-    transition: opacity 200ms ease-in-out;
 }
 .post-card:hover::after {
     opacity: 1;
 }
 .portfolio-card footer {
-    background-color: var(--more-transparent-color-dark);
-    padding: 0.5rem;
-    border-top: 1px dashed var(--more-transparent-color-light);
+    display: flex;
+    justify-content: right;
+    gap: 1.25rem;
+    padding: 1rem 0;
+}
+.portfolio-card footer hr {
+    width: 100%;
+    border: none;
+    border-top: 1px dashed var(--accent-color-transparent);
 }
 
 .portfolio-card footer a {
-    margin-right: 1rem;
     text-decoration: none;
-}
-
-.portfolio-card .description {
-    border-radius: 0;
+    padding: 0.25rem 1rem;
 }
 
 .description {
-    padding: 1.5rem 1.25rem;
-    background-color: var(--more-transparent-color-dark);
-    min-height: 4rem;
+    padding: 1.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .description p {
     margin: 0;
+    flex: 1;
+    min-width: 20rem;
+    text-align: justify;
 }
 
 .btn-primary {
@@ -393,7 +353,6 @@ article header h3 {
     color: var(--main-text-color);
     transition: color 200ms ease-in-out, border-color 200ms ease-in-out, background-color 200ms ease-in-out;
     padding: 0.5rem 0.75rem;
-    font-weight: 500;
 }
 
 .btn-primary:hover {
@@ -682,12 +641,16 @@ p:has(img[src$="#inline-img"], img[src$="#full-width-img"]) {
     background-color: var(--transparent-color-dark);
     color: var(--code-color);
 }
-.post-thumbnail {
-    width: 4rem;
+.post-thumbnail, .portfolio-thumbnail {
     height: auto;
     border-radius: 0.25rem;
-    float: left;
-    margin-right: 2rem;
+    margin-right: 1.5rem;
+}
+.post-thumbnail {
+    width: 6rem;
+}
+.portfolio-thumbnail {
+    width: 8rem;
 }
 #post-header-content {
     display: flex;
@@ -974,9 +937,6 @@ dialog #login-message {
     html {
         font-size: 95%;
     }
-    #post-container > .post-card header {
-        padding: 0.5rem 1rem;
-    }
     .about-image {
         width: 10rem;
     }
@@ -1045,18 +1005,55 @@ dialog #login-message {
         width: 1rem;
         height: 1rem;
     }
+    .post-card {
+        transform: scale(1);
+        will-change: transform;
+        transition: transform 300ms ease-in-out;
+    }
+    .post-card header .header-nav-arrow {
+        opacity: 0.65;
+        transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
+    }
+    .post-card header {
+        transition: border-color 200ms ease-in-out, color 200ms ease-in-out;
+    }
+    .post-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        box-shadow: -1px 2px 4px 2px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        transition: opacity 300ms ease-in-out;
+    }
+    .post-card:hover {
+        transform: scale(1.01);
+    }
+    .post-card:hover header {
+        border-color: var(--accent-color);
+        color: #fff;
+    }
+    .post-card .header-nav-arrow {
+        transform: translateX(0);
+    }
+    .post-card:hover .header-nav-arrow {
+        opacity: 1;
+        transform: translateX(0.5rem);
+    }
     .about-post-content {
         gap: 2rem !important;
     }
     .about-image {
         width: 14rem;
     }
-    .post-thumbnail {
-        width: 5rem;
+    .post-thumbnail, .portfolio-thumbnail {
+        margin-right: 2rem;
     }
     #post-header svg {
-        width: 4rem;
-        height: 4rem;
+        width: 5rem;
+        height: auto;
         margin-right: 2rem;
     }
 }
@@ -1238,9 +1235,6 @@ dialog #login-message {
     }
     #post-content {
         gap: 6vw;
-    }
-    #portfolio-container, #post-container {
-        gap: 2.5rem;
     }
     #main-header {
         padding: 0 0 0 6vw;

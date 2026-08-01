@@ -25,10 +25,10 @@
             <section id="portfolio-container">
                 <header>
                     <h2 class="portfolio-heading">
-                        Fruits of Labor
+                        The Fruits of My Labor
                     </h2>
                     <h3>
-                        My various applications created though years of education, struggle, and determination.
+                        Various applications I've created though years of struggle, determination, and learning.
                     </h3>
                 </header>
                 <div id="post-container">
@@ -37,10 +37,11 @@
                             <h3 th:text="${entry.title}"></h3>
                         </header>
                         <section class="description">
-                            <img th:if="${!entry.thumbnailUrl.isBlank()}" th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="post-thumbnail"/>
+                            <img th:if="${!entry.thumbnailUrl.isBlank()}" th:src="${entry.thumbnailUrl}" th:alt="${entry.thumbnailAlt}" class="portfolio-thumbnail"/>
                             <p th:text="${entry.description}"></p>
                         </section>
                         <footer>
+                            <hr>
                             <a th:if="${entry.hasArticle()}" th:href="@{/blog/post/{id}/{slug}(id = ${entry.id}, slug = ${entry.slug})}" th:hx-get="@{/blog/post/{id}/{slug}(id = ${entry.id}, slug = ${entry.slug})}"
                                hx-target="#main-content" hx-swap="outerHTML swap:150ms show:window:top" class="btn-secondary">
                                 Article
