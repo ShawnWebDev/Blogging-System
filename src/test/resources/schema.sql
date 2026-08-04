@@ -25,8 +25,8 @@ CREATE TABLE `blog_entries` (
     `in_progress` tinyint(1) NOT NULL,
     `code_url` varchar(255) DEFAULT NULL,
     `demo_url` varchar(255) DEFAULT NULL,
+    `article_url` varchar(255) DEFAULT NULL,
     `is_portfolio` tinyint(1) NOT NULL,
-    `has_article` tinyint(1) NOT NULL,
     PRIMARY KEY (`id`)
 );
 

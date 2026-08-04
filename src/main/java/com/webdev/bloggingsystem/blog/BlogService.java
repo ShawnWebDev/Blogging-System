@@ -89,7 +89,6 @@ public class BlogService {
     @Transactional
     Object[] createPost(CreateBlogEntryDto dto) {
         //create entry from dto, save to db, get id/slug, save categories to join table with batchInsertJoins(Set<ids>, id)
-        logger.info("Post is being saved...");
         BlogEntry blogEntry = this.buildBlogEntryFromDto(dto);
 
         int blogId = blogEntryDao.insert(blogEntry);
@@ -115,7 +114,6 @@ public class BlogService {
 
     @Transactional
     Object[] updatePost(CreateBlogEntryDto dto) {
-        logger.info("Post is being updated...");
         int blogId = dto.getId();
         BlogEntry blogEntry = this.buildBlogEntryFromDto(dto);
         blogEntry.setId(blogId);
@@ -139,7 +137,6 @@ public class BlogService {
     }
 
     void updateCategory(Category category) {
-        logger.info("Category is being updated...");
         int categoryId = category.getId();
         Category categoryToUpdate = new Category(
                 category.getCategoryName(),
@@ -164,7 +161,6 @@ public class BlogService {
     }
 
     BlogEntry buildBlogEntryFromDto(CreateBlogEntryDto dto) {
-        logger.info("Building blog entry from dto");
         BlogEntry blogEntry = new BlogEntry(
                 dto.getTitle(),
                 dto.getDescription(),
@@ -176,8 +172,8 @@ public class BlogService {
         blogEntry.setInProgress(dto.getInProgress());
         blogEntry.setCodeUrl(dto.getCodeUrl());
         blogEntry.setDemoUrl(dto.getDemoUrl());
+        blogEntry.setArticleUrl(dto.getArticleUrl());
         blogEntry.setPortfolio(dto.getIsPortfolio());
-        blogEntry.setHasArticle(dto.getHasArticle());
         return blogEntry;
     }
 
@@ -198,6 +194,6 @@ public class BlogService {
 
         return new CreateBlogEntryDto(post.getId(), post.getSlug(), post.getTitle(), post.getDescription(),
                 post.getThumbnailUrl(), post.getThumbnailAlt(), categoryIds, post.getContent(), post.getInProgress(),
-                post.getCodeUrl(), post.getDemoUrl(), post.isPortfolio(), post.getHasArticle());
+                post.getCodeUrl(), post.getDemoUrl(), post.getArticleUrl(), post.isPortfolio());
     }
 }

@@ -25,7 +25,7 @@
             <section id="portfolio-container">
                 <header>
                     <h2 class="portfolio-heading">
-                        The Fruits of My Labor
+                        My Fruits of Labor
                     </h2>
                     <h3>
                         Various applications I've created though years of struggle, determination, and learning.
@@ -42,7 +42,7 @@
                         </section>
                         <footer>
                             <hr>
-                            <a th:if="${entry.hasArticle()}" th:href="@{/blog/post/{id}/{slug}(id = ${entry.id}, slug = ${entry.slug})}" th:hx-get="@{/blog/post/{id}/{slug}(id = ${entry.id}, slug = ${entry.slug})}"
+                            <a th:if="${!entry.articleUrl.isBlank()}" th:href="${entry.articleUrl}" th:hx-get="${entry.articleUrl}"
                                hx-target="#main-content" hx-swap="outerHTML swap:150ms show:window:top" class="btn-secondary">
                                 Article
                             </a>

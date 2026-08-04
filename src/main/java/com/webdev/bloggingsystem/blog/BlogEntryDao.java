@@ -22,8 +22,8 @@ public class BlogEntryDao {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbc.sql(
-                "INSERT INTO blog_entries (content, title, description, slug, thumbnail_url, thumbnail_alt, in_progress, code_url, demo_url, is_portfolio, has_article) " +
-                "VALUES (:content, :title, :description, :slug, :thumbnail_url, :thumbnail_alt, :in_progress, :code_url, :demo_url, :is_portfolio, :has_article)")
+                "INSERT INTO blog_entries (content, title, description, slug, thumbnail_url, thumbnail_alt, in_progress, code_url, demo_url, article_url, is_portfolio) " +
+                "VALUES (:content, :title, :description, :slug, :thumbnail_url, :thumbnail_alt, :in_progress, :code_url, :demo_url, :article_url, :is_portfolio)")
                     .param("content", blogEntry.getContent())
                     .param("title", blogEntry.getTitle())
                     .param("slug", blogEntry.getSlug())
@@ -33,8 +33,8 @@ public class BlogEntryDao {
                     .param("in_progress", blogEntry.getInProgress())
                     .param("code_url", blogEntry.getCodeUrl())
                     .param("demo_url", blogEntry.getDemoUrl())
+                    .param("article_url", blogEntry.getArticleUrl())
                     .param("is_portfolio", blogEntry.isPortfolio())
-                    .param("has_article", blogEntry.getHasArticle())
                     .update(keyHolder);
 
         if (keyHolder.getKey() == null) throw new RuntimeException("Insert failure, key is null!");
@@ -43,7 +43,8 @@ public class BlogEntryDao {
 
     public Optional<BlogEntry> findById(int id) {
         return jdbc.sql(
-                "SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt, b.in_progress, b.code_url, b.demo_url, b.is_portfolio, b.has_article, " +
+                "SELECT b.id, b.title, b.description, b.content, b.created_at, b.updated_at, b.slug, b.thumbnail_url, b.thumbnail_alt, " +
+                    "b.in_progress, b.code_url, b.demo_url, b.article_url, b.is_portfolio, " +
                     "GROUP_CONCAT(c.category_name ORDER BY c.category_name ASC) AS category_list " +
                 "FROM blog_entries b " +
                 "LEFT JOIN posts_categories pc ON pc.post_id = b.id " +
@@ -74,7 +75,7 @@ public class BlogEntryDao {
         return jdbc.sql(
                 "SELECT b.id, b.slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt " +
                 "FROM blog_entries b " +
-                "WHERE NOT b.in_progress AND b.has_article " +
+                "WHERE NOT b.in_progress AND NOT b.is_portfolio " +
                 "ORDER BY b.created_at DESC")
                     .query((rs, _) -> simpleBlogEntryExtractor(rs))
                     .list();
@@ -82,7 +83,7 @@ public class BlogEntryDao {
 
     public List<SimplePortfolioEntryDto> findAllSimplePortfolio() {
         return jdbc.sql(
-                "SELECT b.id, b.slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt, b.code_url, b.demo_url, b.has_article " +
+                "SELECT b.id, b.slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt, b.code_url, b.demo_url, b.article_url " +
                 "FROM blog_entries b " +
                 "WHERE NOT b.in_progress AND b.is_portfolio " +
                 "ORDER BY b.created_at DESC")
@@ -100,7 +101,7 @@ public class BlogEntryDao {
                     "SELECT pc_sub.post_id FROM posts_categories pc_sub " +
                     "JOIN categories c_sub ON c_sub.id = pc_sub.category_id " +
                     "WHERE c_sub.category_name = :categoryName " +
-                        ") AND NOT b.in_progress AND b.has_article " +
+                        ") AND NOT b.in_progress AND NOT b.is_portfolio " +
                 "ORDER BY b.created_at DESC")
                     .param("categoryName", categoryName)
                     .query((rs, _) -> simpleBlogEntryExtractor(rs))
@@ -111,7 +112,7 @@ public class BlogEntryDao {
         return jdbc.sql(
                 "SELECT b.id, b.slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt " +
                 "FROM blog_entries b " +
-                "WHERE b.in_progress or NOT b.has_article " +
+                "WHERE b.in_progress or b.is_portfolio " +
                 "ORDER BY b.created_at")
                     .query((rs, _) -> simpleBlogEntryExtractor(rs))
                     .list();
@@ -121,7 +122,8 @@ public class BlogEntryDao {
         return jdbc.sql(
                 "UPDATE blog_entries " +
                 "SET title = :title, description = :description, content = :content, slug = :slug," +
-                        " thumbnail_url = :thumbnailUrl, thumbnail_alt = :thumbnailAlt, in_progress = :in_progress, code_url = :code_url, demo_url = :demo_url, is_portfolio = :is_portfolio " +
+                        "thumbnail_url = :thumbnailUrl, thumbnail_alt = :thumbnailAlt, in_progress = :in_progress, " +
+                        "code_url = :code_url, demo_url = :demo_url, article_url = :article_url, is_portfolio = :is_portfolio " +
                 "WHERE id = :id")
                     .param("id", blogEntry.getId())
                     .param("title", blogEntry.getTitle())
@@ -133,6 +135,7 @@ public class BlogEntryDao {
                     .param("in_progress", blogEntry.getInProgress())
                     .param("code_url", blogEntry.getCodeUrl())
                     .param("demo_url", blogEntry.getDemoUrl())
+                    .param("article_url", blogEntry.getArticleUrl())
                     .param("is_portfolio", blogEntry.isPortfolio())
                     .update();
     }
@@ -168,7 +171,7 @@ public class BlogEntryDao {
                 rs.getString("thumbnail_alt"),
                 rs.getString("code_url"),
                 rs.getString("demo_url"),
-                rs.getBoolean("has_article")
+                rs.getString("article_url")
         );
     }
 
@@ -189,8 +192,8 @@ public class BlogEntryDao {
                 rs.getBoolean("in_progress"),
                 rs.getString("code_url"),
                 rs.getString("demo_url"),
-                rs.getBoolean("is_portfolio"),
-                rs.getBoolean("has_article")
+                rs.getString("article_url"),
+                rs.getBoolean("is_portfolio")
         );
     }
 }

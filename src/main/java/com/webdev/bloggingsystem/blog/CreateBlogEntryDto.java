@@ -26,10 +26,11 @@ public class CreateBlogEntryDto {
     private String codeUrl;
     @Size(max = 255)
     private String demoUrl;
+    @Size(max = 255)
+    private String articleUrl;
 
     private boolean inProgress;
     private boolean isPortfolio;
-    private boolean hasArticle;
 
     private int[] categoryIds = new int[4];
 
@@ -37,7 +38,7 @@ public class CreateBlogEntryDto {
     public CreateBlogEntryDto() {}
 
     public CreateBlogEntryDto(Integer id, String slug, String title, String description, String thumbnailUrl, String thumbnailAlt, int[] categoryIds, String content,
-                              boolean inProgress, String codeUrl, String demoUrl, boolean isPortfolio, boolean hasArticle) {
+                              boolean inProgress, String codeUrl, String demoUrl, String articleUrl, boolean isPortfolio) {
         this.id = id;
         this.slug = slug;
         this.title = title;
@@ -49,8 +50,8 @@ public class CreateBlogEntryDto {
         this.inProgress = inProgress;
         this.codeUrl = codeUrl;
         this.demoUrl = demoUrl;
+        this.articleUrl = articleUrl;
         this.isPortfolio = isPortfolio;
-        this.hasArticle = hasArticle;
     }
 
     public Integer getId() {
@@ -122,11 +123,11 @@ public class CreateBlogEntryDto {
     public void setDemoUrl(String demoUrl) {
         this.demoUrl = demoUrl;
     }
-    public boolean getHasArticle() {
-        return hasArticle;
+    public String getArticleUrl() {
+        return articleUrl;
     }
-    public void setHasArticle(boolean hasArticle) {
-        this.hasArticle = hasArticle;
+    public void setArticleUrl(String articleUrl) {
+        this.articleUrl = articleUrl;
     }
 
     @Override
