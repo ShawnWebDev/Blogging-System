@@ -338,6 +338,7 @@ article header h3 {
     padding: 1.5rem 0;
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .description p {
@@ -345,6 +346,7 @@ article header h3 {
     flex: 1;
     min-width: 20rem;
     text-align: justify;
+    height: fit-content;
 }
 
 .btn-primary {
