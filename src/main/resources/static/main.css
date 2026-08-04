@@ -91,8 +91,8 @@ p, ul, ol {
 
 #post-header {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 1rem;
     margin-bottom: calc(1rem + 5vh);
 }
 
@@ -289,6 +289,7 @@ article header h3 {
     margin: 0;
     display: flex;
     gap: 1rem;
+    font-family: var(--header-font-family), sans-serif;
 }
 
 #post-container header, article header, article footer {
@@ -320,7 +321,7 @@ article header h3 {
     display: flex;
     justify-content: right;
     gap: 1.25rem;
-    padding: 1rem 0;
+    padding: 0 0 1rem 0;
 }
 .portfolio-card footer hr {
     width: 100%;
@@ -644,22 +645,14 @@ p:has(img[src$="#inline-img"], img[src$="#full-width-img"]) {
 .portfolio-thumbnail {
     width: 8rem;
 }
-#post-header-content {
+#post-header-content, #single-post-navigation-container, #categories {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
+    flex-wrap: wrap;
     width: 100%;
-}
-.about-header {
-    border-bottom: none !important;
 }
 #single-post-navigation-container, #categories {
-    display: flex;
-    align-items: flex-end;
     gap: 1rem;
-    flex-wrap: wrap;
-    width: 100%;
-    padding: 1rem 0 0 0;
 }
 #comments-section {
     display: flex;
