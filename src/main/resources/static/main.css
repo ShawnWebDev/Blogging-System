@@ -324,7 +324,7 @@ article header h3 {
     padding: 0 0 1rem 0;
 }
 .portfolio-card footer hr {
-    width: 100%;
+    flex-grow: 1;
     border: none;
     border-top: 1px dashed var(--accent-color-transparent);
 }
