@@ -44,13 +44,13 @@
                             <hr>
                             <a th:if="${!entry.articleUrl.isBlank()}" th:href="${entry.articleUrl}" th:hx-get="${entry.articleUrl}"
                                hx-target="#main-content" hx-swap="outerHTML swap:150ms show:window:top" class="btn-secondary">
-                                Article
+                                Full Article
                             </a>
                             <a th:if="${!entry.codeUrl.isBlank()}" th:href="${entry.codeUrl}" class="btn-secondary" target="_blank" rel="noopener noreferrer">
-                                Source
+                                Source Code
                             </a>
                             <a th:if="${!entry.demoUrl.isBlank()}" th:href="${entry.demoUrl}" class="btn-secondary" target="_blank" rel="noopener noreferrer">
-                                Demo
+                                Live Site
                             </a>
                         </footer>
                     </article>
