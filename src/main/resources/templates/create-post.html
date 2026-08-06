@@ -9,8 +9,17 @@
     <div id="main-content" th:fragment="create-post">
       <h1 th:text="${isEditing ? 'Edit Post' : 'Create Post'}"></h1>
       <section id="create-post-form-container">
-        <button th:if="${isEditing}" th:hx-get="@{/blog/post/{id}/{slug}(id = ${post.id}, slug = ${post.slug})}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Changes will be lost!" class="btn-primary">Back To Post</button>
-        <button th:if="${!isEditing}" th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Content will be lost!" class="btn-primary">Back To Blog</button>
+        <div>
+          <div th:if="${isEditing}">
+            <button th:hx-get="@{/blog/post/{id}/{slug}(id = ${post.id}, slug = ${post.slug})}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Changes will be lost!" class="btn-primary">Back To Post</button>
+            <div th:replace="~{components/post-components::img-upload(${post.id})}"></div>
+            <button onclick="openDialog('img-upload')" class="btn-primary">Upload Images</button>
+          </div>
+          <div th:if="${!isEditing}">
+            <button th:hx-get="@{/blog}" hx-target="#main-content" hx-swap="outerHTML" hx-confirm="Are you sure? Content will be lost!" class="btn-primary">Back To Blog</button>
+            <p><i class="error">Save to get post id and to be able to persist uploaded image urls.</i></p>
+          </div>
+        </div>
 
         <form action="#" th:hx-post="@{${isEditing ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#main-content" hx-swap="outerHTML">
           <input type="hidden" th:if="${isEditing}" name="id" th:value="${post.id}"/>
@@ -18,6 +27,8 @@
           <label>In Progress?:
             <input type="checkbox" name="inProgress" th:checked="${post.inProgress}"/>
           </label>
+          <button type="button" id="save-in-place" class="btn-primary" title="Save to persist image urls."
+                  hx-post="/blog/post/savePostInPlace" hx-target="#main-content" hx-swap="outerHTML">Save In-Place</button>
 
           <label>Title:
             <input type="text" name="title" th:value="${post.title}" required/>
@@ -122,7 +133,7 @@
 
             <div id="error-field"></div>
           </div>
-          <input type="submit" value="Save" class="btn-primary">
+          <input type="submit" value="Save and View" class="btn-primary">
         </form>
       </section>
 
