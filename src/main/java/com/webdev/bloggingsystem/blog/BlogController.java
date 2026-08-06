@@ -199,6 +199,23 @@ public class BlogController {
                 .build();
     }
 
+    @PostMapping("/post/savePostInPlace")
+    public Object savePostInPlace(@Valid @ModelAttribute("post") CreateBlogEntryDto createBlogEntryDto,
+                             BindingResult result, Model model) {
+
+        if (result.hasErrors()) {
+            this.populateCreatePostModel(model, createBlogEntryDto, false);
+
+            return "create-post::create-post";
+        }
+
+        Object[] entryRef = blogService.createPost(createBlogEntryDto);
+
+        return ResponseEntity.ok()
+                .header("HX-Location", "{\"path\":\"/blog/post/editPost/" + entryRef[0] +"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
+                .build();
+    }
+
     // load input form fragment for edits
     @GetMapping("/post/editPost/{id}")
     public Object editPostView(Model model, @PathVariable Integer id,

@@ -17,5 +17,28 @@
         </div>
     </section>
 
+    <li th:fragment="img-url" th:text="${imgUrl}"></li>
+
+    <dialog th:fragment="img-upload(postId)" id="img-upload">
+        <article>
+            <header>
+                <span id="login-dialog-title">Upload Image</span>
+                <button title="Close" aria-label="Close" onclick="closeDialog('img-upload')" class="close-btn btn-primary">X</button>
+            </header>
+            <form action="#" th:hx-post="@{/admin/upload-image}" id="upload-image-form" hx-target="#img-urls" hx-swap="afterbegin" enctype="multipart/form-data">
+                <label>Folder:
+                    <input type="text" name="folder" required>
+                </label>
+                <label>Image:
+                    <input type="file" name="file" required>
+                </label>
+                <button type="submit" class="btn-primary">Upload Image</button>
+            </form>
+        </article>
+        <p>Uploaded:</p>
+        <ul id="img-urls">
+            <li th:each="img : ${uploadedImageUrls}" th:text="${img.url}"></li>
+        </ul>
+    </dialog>
 </body>
 </html>
