@@ -5,8 +5,6 @@ import com.webdev.bloggingsystem.blog.BlogService;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +15,6 @@ import org.springframework.web.servlet.view.FragmentsRendering;
 public class HomeController {
 
     private final BlogService blogService;
-    private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
     public HomeController(BlogService blogEntryService) {
         this.blogService = blogEntryService;
@@ -40,10 +37,6 @@ public class HomeController {
                 .fragment("index::about-main")
                 .build();
     }
-
-    // todo : get posts with 'portfolio' category and send to template,
-    //  -- : portfolio card should have thumbnail, description, code_link, demo_link, and article_link (constructed with /blog/post/{id}/{slug}),
-    //  -- : test
 
     @GetMapping("/portfolio")
     public Object portfolio(Model model, HtmxResponse htmxResponse, HtmxRequest htmxRequest) {

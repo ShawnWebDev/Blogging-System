@@ -1,6 +1,7 @@
 package com.webdev.bloggingsystem.blog;
 
 import com.webdev.bloggingsystem.comment.CreateCommentDto;
+import com.webdev.bloggingsystem.errorHandling.BlogEntryException;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
@@ -104,6 +105,8 @@ public class BlogController {
             filteredBlogEntries = blogService.findAllSimpleBlogEntries();
             categoryDescription = "";
             htmxResponse.setPushUrl("/blog");
+        } else if (!blogService.categoryExistsByName(categoryName)) {
+            throw new BlogEntryException("Category does not exist!");
         } else {
             filteredBlogEntries = blogService.findAllSimpleBlogEntriesToCategoryName(categoryName);
             categoryDescription = blogService.findCategoryDescriptionByName(categoryName);

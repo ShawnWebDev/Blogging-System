@@ -14,17 +14,15 @@ const visObserver = new IntersectionObserver(entries => {
         const navItem = document.querySelector(`#sidebar-item-${entry.target.id}`);
         if (navItem) {
             if (entry.isIntersecting) {
-                allNavItems.forEach(item => {
-                    item.classList.remove("active-nav-link");
-                })
+                allNavItems.forEach(item=> item.classList.remove("active-nav-link"));
                 navItem.classList.add("active-nav-link");
             } else if (entry.boundingClientRect.top > 10) {
                 if (navItem.classList.contains("active-nav-link")) {
                     navItem.classList.remove("active-nav-link");
                     const idx = headingIndexMap.get(entry.target.id);
-                    const prevId = idx > 0 ? headingOrder[idx - 1] : null;
-                    const prevItem = prevId && document.querySelector(`#sidebar-item-${prevId}`);
-                    if (prevItem) {
+                    if (idx > 0) {
+                        const prevId = headingOrder[idx - 1];
+                        const prevItem = document.querySelector(`#sidebar-item-${prevId}`);
                         prevItem.classList.add("active-nav-link");
                     }
                 }
@@ -33,7 +31,7 @@ const visObserver = new IntersectionObserver(entries => {
     })
 },{
     threshold: 0,
-    rootMargin: "0px 0px -50% 0px"
+    rootMargin: "0px 0px -70% 0px"
 })
 
 function createListItem(id, text) {
@@ -63,7 +61,6 @@ function initSidebar() {
         el.id = elementId;
         headingIndexMap.set(elementId, headingOrder.length);
         headingOrder.push(elementId);
-
         if (el.tagName === 'H2') {
             if (hasNested) {
                 list.push('</ul></li>');

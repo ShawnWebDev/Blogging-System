@@ -31,9 +31,9 @@ public class BlogEntry {
 
     private String demoUrl;
 
-    private boolean isPortfolio;
+    private String articleUrl;
 
-    private boolean hasArticle;
+    private boolean isPortfolio;
 
     public BlogEntry() {}
 
@@ -47,7 +47,7 @@ public class BlogEntry {
     // used in DAO for result set in - fullBlogEntryExtractor()
     public BlogEntry(int id, String title, String description, String content, Instant createdAt, Instant updatedAt,
                      String slug, List<String> categoryNames, String thumbnailUrl, String thumbnailAlt, boolean inProgress,
-                     String codeUrl, String demoUrl, boolean isPortfolio, boolean hasArticle) {
+                     String codeUrl, String demoUrl, String articleUrl, boolean isPortfolio) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -61,8 +61,8 @@ public class BlogEntry {
         this.inProgress = inProgress;
         this.codeUrl = codeUrl;
         this.demoUrl = demoUrl;
+        this.articleUrl = articleUrl;
         this.isPortfolio = isPortfolio;
-        this.hasArticle = hasArticle;
     }
 
     private static String generateSlugFromTitle(String title) {
@@ -150,17 +150,17 @@ public class BlogEntry {
     public void setDemoUrl(String demoUrl) {
         this.demoUrl = demoUrl;
     }
+    public String getArticleUrl() {
+        return articleUrl;
+    }
+    public void setArticleUrl(String articleUrl) {
+        this.articleUrl = articleUrl;
+    }
     public boolean isPortfolio() {
         return isPortfolio;
     }
     public void setPortfolio(boolean portfolio) {
         isPortfolio = portfolio;
-    }
-    public boolean getHasArticle() {
-        return hasArticle;
-    }
-    public void setHasArticle(boolean hasArticle) {
-        this.hasArticle = hasArticle;
     }
 
     @Override

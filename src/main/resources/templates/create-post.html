@@ -15,14 +15,9 @@
         <form action="#" th:hx-post="@{${isEditing ? '/blog/post/editPost' : '/blog/post/createPost'}}" id="create-post-form" hx-target="#main-content" hx-swap="outerHTML">
           <input type="hidden" th:if="${isEditing}" name="id" th:value="${post.id}"/>
 
-          <div class="form-group">
-            <label>In Progress?:
-              <input type="checkbox" name="inProgress" th:checked="${post.inProgress}"/>
-            </label>
-            <label>Has Article?:
-              <input type="checkbox" name="hasArticle" th:checked="${post.hasArticle}"/>
-            </label>
-          </div>
+          <label>In Progress?:
+            <input type="checkbox" name="inProgress" th:checked="${post.inProgress}"/>
+          </label>
 
           <label>Title:
             <input type="text" name="title" th:value="${post.title}" required/>
@@ -65,6 +60,12 @@
                 <label>Demo URL:
                   <input type="text" name="demoUrl" th:value="${post.demoUrl}"/>
                   <small th:errors="${post.demoUrl}" class="error"></small>
+                </label>
+              </div>
+              <div>
+                <label>Article URL:
+                  <input type="text" name="articleUrl" th:value="${post.articleUrl}"/>
+                  <small th:errors="${post.articleUrl}" class="error"></small>
                 </label>
               </div>
             </div>
