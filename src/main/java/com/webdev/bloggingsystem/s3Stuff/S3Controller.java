@@ -2,6 +2,7 @@ package com.webdev.bloggingsystem.s3Stuff;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,13 +15,12 @@ public class S3Controller {
         this.s3Service = s3Service;
     }
 
-    @PostMapping("/admin/upload-image")
-    public String uploadImage(@RequestParam("folder") String folder, @RequestParam("file") MultipartFile file, Model model) {
-        String url = s3Service.uploadImage(folder, file);
+    @PostMapping("/admin/upload-image/{postId}")
+    public String uploadImage(@RequestParam("folder") String folder, @RequestParam("file") MultipartFile file,
+                              @PathVariable Integer postId, Model model) {
+        String url = s3Service.uploadImage(folder, file, postId);
         model.addAttribute("imgUrl", url);
 
         return "components/post-components :: img-url";
     }
-
-
 }
