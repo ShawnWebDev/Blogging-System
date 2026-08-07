@@ -75,3 +75,11 @@ CREATE TABLE `verification` (
        KEY `verification_tokens_users_FK` (`user_id`),
        CONSTRAINT `verification_tokens_users_FK` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 );
+
+CREATE TABLE `uploaded_images` (
+    `post_id` int NOT NULL,
+    `url` varchar(255) NOT NULL,
+    UNIQUE KEY `img_post_id` (`post_id`,`url`),
+    KEY `Uploaded_Images_Blog_Entry_FK` (`post_id`),
+    CONSTRAINT `Uploaded_Images_Blog_Entry_FK` FOREIGN KEY (`post_id`) REFERENCES `blog_entries` (`id`) ON DELETE CASCADE
+);
