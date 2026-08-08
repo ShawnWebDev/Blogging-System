@@ -2,6 +2,8 @@ package com.webdev.bloggingsystem.blog;
 
 import com.webdev.bloggingsystem.comment.CreateCommentDto;
 import com.webdev.bloggingsystem.errorHandling.BlogEntryException;
+import com.webdev.bloggingsystem.s3Stuff.S3Service;
+import com.webdev.bloggingsystem.s3Stuff.UploadedImg;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
@@ -28,9 +30,11 @@ public class BlogController {
     private static final Logger logger = LoggerFactory.getLogger(BlogController.class);
 
     private final BlogService blogService;
+    private final S3Service s3Service;
 
-    public BlogController(BlogService blogEntryService) {
+    public BlogController(BlogService blogEntryService, S3Service s3Service) {
         this.blogService = blogEntryService;
+        this.s3Service = s3Service;
     }
 
     private void populateCreatePostModel(Model model, CreateBlogEntryDto post, boolean isEditing) {
@@ -199,12 +203,32 @@ public class BlogController {
                 .build();
     }
 
+    @PostMapping("/post/savePostInPlace")
+    public Object savePostInPlace(@Valid @ModelAttribute("post") CreateBlogEntryDto createBlogEntryDto,
+                             BindingResult result, Model model) {
+
+        if (result.hasErrors()) {
+            this.populateCreatePostModel(model, createBlogEntryDto, false);
+
+            return "create-post::create-post";
+        }
+
+        Object[] entryRef = blogService.createPost(createBlogEntryDto);
+
+        return ResponseEntity.ok()
+                .header("HX-Location", "{\"path\":\"/blog/post/editPost/" + entryRef[0] +"\", \"target\":\"#main-content\", \"swap\":\"outerHTML\"}")
+                .build();
+    }
+
     // load input form fragment for edits
     @GetMapping("/post/editPost/{id}")
     public Object editPostView(Model model, @PathVariable Integer id,
                                        HtmxRequest htmxRequest) {
         CreateBlogEntryDto dto = blogService.buildCreateDtoForEdit(id);
         this.populateCreatePostModel(model, dto, true);
+        List<UploadedImg> uploadedImgs = s3Service.findAllByPostId(id);
+        model.addAttribute("uploadedImgs", uploadedImgs);
+        logger.info("fetched uploaded images: {}", uploadedImgs);
 
         if (!htmxRequest.isHtmxRequest()) {
             return "create-post";

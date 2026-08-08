@@ -17,5 +17,30 @@
         </div>
     </section>
 
+    <!-- for adding new url to list without fetching from DB -->
+    <li th:fragment="img-url" th:text="${imgUrl}"></li>
+
+    <dialog th:fragment="img-upload(postId)" id="img-upload">
+        <article>
+            <header>
+                <span id="login-dialog-title">Upload Image</span>
+                <button title="Close" aria-label="Close" onclick="closeDialog('img-upload')" class="close-btn btn-primary">X</button>
+            </header>
+            <form action="#" th:hx-post="@{/admin/upload-image/{postId}(postId=${postId})}" id="upload-image-form" hx-target="#img-urls" hx-swap="afterbegin" enctype="multipart/form-data">
+                <label>Folder:
+                    <input type="text" name="folder" required>
+                </label>
+                <label>Image:
+                    <input type="file" name="file" required>
+                </label>
+                <button type="submit" class="btn-primary">Upload Image</button>
+            </form>
+        </article>
+        <p>Images previously uploaded for post id <span th:text="${postId}"></span>:</p>
+        <ul id="img-urls">
+            <li th:each="img : ${uploadedImgs}" th:text="${img.url}"></li>
+        </ul>
+        <div id="error-field"></div>
+    </dialog>
 </body>
 </html>
