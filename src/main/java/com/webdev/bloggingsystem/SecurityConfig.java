@@ -38,7 +38,8 @@ public class SecurityConfig {
                                 "/blog/postComponent/validateSize",
                                 "/blog/blogComponent/posts/inProgress",
                                 "/categories",
-                                "/categories/**").hasAuthority("ADMIN")
+                                "/categories/**",
+                                "/admin/upload-image/{postId}").hasAuthority("ADMIN")
                         .requestMatchers(
                                 "/comment/commentComponent/editForm",
                                 "/comment/createComment",
