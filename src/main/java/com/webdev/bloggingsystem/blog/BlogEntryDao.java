@@ -86,7 +86,7 @@ public class BlogEntryDao {
                 "SELECT b.id, b.slug, b.title, b.description, b.created_at, b.thumbnail_url, b.thumbnail_alt, b.code_url, b.demo_url, b.article_url " +
                 "FROM blog_entries b " +
                 "WHERE NOT b.in_progress AND b.is_portfolio " +
-                "ORDER BY b.created_at DESC")
+                "ORDER BY b.created_at")
                 .query((rs, _) -> simplePortfolioEntryExtractor(rs))
                 .list();
     }
